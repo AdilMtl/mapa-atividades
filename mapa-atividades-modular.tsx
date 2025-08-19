@@ -1,6 +1,5 @@
-// 🗺️ MAPA DE ATIVIDADES - VERSÃO UX PROFISSIONAL
+// 🗺️ MAPA DE ATIVIDADES - VERSÃO MODULAR (CORREÇÃO MÍNIMA)
 // Arquivo: src/components/mapa-atividades-modular.tsx
-// ✅ MELHORIAS: Formulário destacado + Tipografia + Progresso + Micro-interações
 
 'use client'
 import React, { useEffect, useMemo, useRef, useState } from "react";
@@ -16,10 +15,7 @@ import {
   Timer,
   Search,
   Lightbulb,
-  ChevronRight,
-  Plus,
-  Check,
-  ArrowRight
+  ChevronRight
 } from "lucide-react";
 
 // Importar nossos componentes modulares
@@ -47,88 +43,32 @@ const containerStyle: React.CSSProperties = {
 };
 
 // ═══════════════════════════════════════════════════════════════════
-// 🆕 MELHORIA 3: INDICADOR DE PROGRESSO
-// ═══════════════════════════════════════════════════════════════════
-
-function IndicadorProgresso() {
-  return (
-    <div className="mb-8 p-4 bg-white/5 rounded-lg border border-white/10 transition-all duration-300 hover:bg-white/8">
-      <div className="flex items-center justify-between">
-        <h3 className="text-lg font-semibold text-white/90 mb-4">Fluxo ROI do Foco</h3>
-        <span className="text-xs text-white/60">Siga os 3 passos</span>
-      </div>
-      
-      <div className="flex items-center gap-4">
-        {/* Etapa 1: Mapear (ATIVA) */}
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-green-500 flex items-center justify-center ring-2 ring-green-400/50 transition-all duration-300">
-            <Check className="w-5 h-5 text-white" />
-          </div>
-          <div>
-            <div className="text-green-200 font-medium text-sm">1. Mapear</div>
-            <div className="text-green-300/80 text-xs">Atividades na matriz</div>
-          </div>
-        </div>
-        
-        <ArrowRight className="w-5 h-5 text-white/40" />
-        
-        {/* Etapa 2: Diagnosticar (PRÓXIMA) */}
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full border-2 border-orange-500 flex items-center justify-center transition-all duration-300 hover:bg-orange-500/20">
-            <span className="text-orange-400 font-bold text-sm">2</span>
-          </div>
-          <div>
-            <div className="text-orange-200 font-medium text-sm">2. Diagnosticar</div>
-            <div className="text-orange-300/80 text-xs">Análise do foco</div>
-          </div>
-        </div>
-        
-        <ArrowRight className="w-5 h-5 text-white/40" />
-        
-        {/* Etapa 3: Executar */}
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full border-2 border-white/30 flex items-center justify-center transition-all duration-300">
-            <span className="text-white/50 font-bold text-sm">3</span>
-          </div>
-          <div>
-            <div className="text-white/50 font-medium text-sm">3. Executar</div>
-            <div className="text-white/40 text-xs">Plano de ação</div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// ═══════════════════════════════════════════════════════════════════
-// 🆕 MELHORIA 2: TIPOGRAFIA UNIFICADA NA SEÇÃO "COMO USAR"
+// 🆕 COMPONENTE: SEÇÃO "COMO USAR O MAPA" 
 // ═══════════════════════════════════════════════════════════════════
 
 function ComoUsarMapa() {
   return (
     <section className="mb-8">
       <div className="mb-6">
-        {/* ✅ MELHORIA 2: Tipografia unificada */}
-        <h2 className="font-mono text-2xl font-bold mb-2 flex items-center gap-3 text-white">
+        <h2 className="mono-title text-2xl font-bold mb-2 flex items-center gap-3">
           <HelpCircle className="w-6 h-6 text-orange-400" />
           Como usar o Mapa
         </h2>
-        <p className="text-base text-white/70 leading-relaxed">
+        <p className="text-white/70">
           Aprenda a mapear suas atividades na matriz Impacto × Clareza de forma prática
         </p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         
-        {/* Card 1: Avaliar Impacto - ✅ MELHORIA 4: Micro-interações */}
-        <Card className="bg-gradient-to-br from-green-500/10 to-emerald-500/10 border-green-400/20 backdrop-blur-sm transition-all duration-300 hover:from-green-500/15 hover:to-emerald-500/15 hover:border-green-400/30 hover:scale-105">
+        {/* Card 1: Avaliar Impacto */}
+        <Card className="bg-gradient-to-br from-green-500/10 to-emerald-500/10 border-green-400/20 backdrop-blur-sm">
           <CardContent className="p-6">
             <div className="flex items-center gap-3 mb-4">
-              <div className="p-2 rounded-lg bg-green-500/20 transition-all duration-300 hover:bg-green-500/30">
+              <div className="p-2 rounded-lg bg-green-500/20">
                 <TrendingUp className="w-5 h-5 text-green-300" />
               </div>
-              {/* ✅ MELHORIA 2: Tipografia consistente */}
-              <h3 className="text-lg font-semibold text-green-200">📈 Avaliar Impacto (1-6)</h3>
+              <h3 className="font-semibold text-green-200">📈 Avaliar Impacto (1-6)</h3>
             </div>
             <p className="text-green-100 text-sm leading-relaxed mb-4">
               Impacto é sobre mover a agulha de verdade. Pense: se você parar de fazer essa atividade, o que acontece? Se a resposta for 'prejudica resultados importantes', é alto impacto.
@@ -145,15 +85,14 @@ function ComoUsarMapa() {
           </CardContent>
         </Card>
 
-        {/* Card 2: Definir Clareza - ✅ MELHORIA 4: Micro-interações */}
-        <Card className="bg-gradient-to-br from-blue-500/10 to-cyan-500/10 border-blue-400/20 backdrop-blur-sm transition-all duration-300 hover:from-blue-500/15 hover:to-cyan-500/15 hover:border-blue-400/30 hover:scale-105">
+        {/* Card 2: Definir Clareza */}
+        <Card className="bg-gradient-to-br from-blue-500/10 to-cyan-500/10 border-blue-400/20 backdrop-blur-sm">
           <CardContent className="p-6">
             <div className="flex items-center gap-3 mb-4">
-              <div className="p-2 rounded-lg bg-blue-500/20 transition-all duration-300 hover:bg-blue-500/30">
+              <div className="p-2 rounded-lg bg-blue-500/20">
                 <Target className="w-5 h-5 text-blue-300" />
               </div>
-              {/* ✅ MELHORIA 2: Tipografia consistente */}
-              <h3 className="text-lg font-semibold text-blue-200">🎯 Definir Clareza (1-6)</h3>
+              <h3 className="font-semibold text-blue-200">🎯 Definir Clareza (1-6)</h3>
             </div>
             <p className="text-blue-100 text-sm leading-relaxed mb-4">
               Clareza é ter total controle sobre a atividade. Não é só saber que precisa fazer, mas ter o mapa completo na cabeça.
@@ -170,15 +109,14 @@ function ComoUsarMapa() {
           </CardContent>
         </Card>
 
-        {/* Card 3: Estimar Tempo - ✅ MELHORIA 4: Micro-interações */}
-        <Card className="bg-gradient-to-br from-purple-500/10 to-pink-500/10 border-purple-400/20 backdrop-blur-sm transition-all duration-300 hover:from-purple-500/15 hover:to-pink-500/15 hover:border-purple-400/30 hover:scale-105">
+        {/* Card 3: Estimar Tempo */}
+        <Card className="bg-gradient-to-br from-purple-500/10 to-pink-500/10 border-purple-400/20 backdrop-blur-sm">
           <CardContent className="p-6">
             <div className="flex items-center gap-3 mb-4">
-              <div className="p-2 rounded-lg bg-purple-500/20 transition-all duration-300 hover:bg-purple-500/30">
+              <div className="p-2 rounded-lg bg-purple-500/20">
                 <Timer className="w-5 h-5 text-purple-300" />
               </div>
-              {/* ✅ MELHORIA 2: Tipografia consistente */}
-              <h3 className="text-lg font-semibold text-purple-200">⏱️ Estimar Tempo</h3>
+              <h3 className="font-semibold text-purple-200">⏱️ Estimar Tempo</h3>
             </div>
             <p className="text-purple-100 text-sm leading-relaxed mb-4">
               Escolha o período que faz mais sentido para sua rotina real. O importante é capturar quanto tempo você realmente dedica.
@@ -198,56 +136,39 @@ function ComoUsarMapa() {
           </CardContent>
         </Card>
 
-        
-
-      </div>
-{/* ✅ Card Diagnóstico em linha própria - largura dos 3 cards */}
-      <div className="mt-6">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="md:col-span-3">
-
-{/* Card 4: Diagnóstico - ✅ MELHORIA 4: Micro-interações melhoradas */}
-        <Card className="bg-gradient-to-br from-orange-500/15 to-amber-500/15 border-orange-400/30 backdrop-blur-sm ring-2 ring-orange-400/20 transition-all duration-300 hover:from-orange-500/20 hover:to-amber-500/20 hover:border-orange-400/40 hover:ring-orange-400/30 hover:scale-105">
+        {/* Card 4: Diagnóstico - Destacado */}
+        <Card className="bg-gradient-to-br from-orange-500/15 to-amber-500/15 border-orange-400/30 backdrop-blur-sm ring-2 ring-orange-400/20">
           <CardContent className="p-6">
-  <div className="flex flex-col md:flex-row md:items-center gap-4">
-    <div className="flex items-center gap-3 md:flex-shrink-0">
-              <div className="p-2 rounded-lg bg-orange-500/20 transition-all duration-300 hover:bg-orange-500/30">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="p-2 rounded-lg bg-orange-500/20">
                 <Search className="w-5 h-5 text-orange-300" />
               </div>
-              {/* ✅ MELHORIA 2: Tipografia consistente */}
-              <h3 className="text-lg font-semibold text-orange-200">🔬 Descubra seu Foco</h3>
+              <h3 className="font-semibold text-orange-200">🔬 Descubra seu Foco</h3>
             </div>
-    <div className="flex-1">
-      <p className="text-orange-100 text-sm leading-relaxed mb-2">
-        Agora que você mapeou suas atividades, quer saber para onde seu tempo está indo de verdade? O diagnóstico vai te mostrar se você está investindo energia no que gera resultado ou só 'apagando incêndio'.
-      </p>
-      <p className="text-orange-100/80 text-xs italic">
-        É como acender a luz num cômodo bagunçado - de repente você vê tudo.
-      </p>
-    </div>
-    <div className="md:flex-shrink-0 mt-4 md:mt-0">
-      <Button 
+            <p className="text-orange-100 text-sm leading-relaxed mb-4">
+              Agora que você mapeou suas atividades, quer saber para onde seu tempo está indo de verdade? O diagnóstico vai te mostrar se você está investindo energia no que gera resultado ou só 'apagando incêndio'.
+            </p>
+            <p className="text-orange-100/80 text-xs mb-4 italic">
+              É como acender a luz num cômodo bagunçado - de repente você vê tudo.
+            </p>
+            <Button 
               onClick={() => window.location.href = '/diagnostico'}
-              className="w-full bg-orange-600 hover:bg-orange-700 text-white text-sm font-medium transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-orange-500/20"
+              className="w-full bg-orange-600 hover:bg-orange-700 text-white text-sm font-medium"
             >
               <Lightbulb className="w-4 h-4 mr-2" />
               Executar Diagnóstico
               <ChevronRight className="w-4 h-4 ml-2" />
             </Button>
-
-    </div>
-  </div>
           </CardContent>
- </Card>
-          </div>
-        </div>
+        </Card>
+
       </div>
     </section>
   );
 }
 
 // ═══════════════════════════════════════════════════════════════════
-// 📋 COMPONENTE PRINCIPAL - COM TODAS AS MELHORIAS UX
+// 📋 COMPONENTE PRINCIPAL - MANTENDO TODA ESTRUTURA ORIGINAL
 // ═══════════════════════════════════════════════════════════════════
 
 export default function MapaAtividadesModular() {
@@ -257,7 +178,6 @@ export default function MapaAtividadesModular() {
   
   const [user, setUser] = useState<any>(null);
   const [atividades, setAtividades] = useState<Atividade[]>([]);
-  const [profile, setProfile] = useState<any>(null); 
   const [loading, setLoading] = useState(true);
   const [editId, setEditId] = useState<string | null>(null);
   const [nome, setNome] = useState("");
@@ -273,33 +193,18 @@ export default function MapaAtividadesModular() {
   // ═══════════════════════════════════════════════════════════════════
   
   useEffect(() => {
-  const checkUser = async () => {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (session?.user) {
-      setUser(session.user);
-      
-      // ✅ NOVO: Carregar dados do perfil
-      try {
-        const { data: profileData } = await supabase
-          .from('profiles')
-          .select('full_name, emoji')
-          .eq('id', session.user.id)
-          .single();
-        
-        setProfile(profileData);
-      } catch (error) {
-        console.log('Perfil não encontrado, usando dados básicos');
-        setProfile(null);
+    const checkUser = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.user) {
+        setUser(session.user);
+        loadAtividades(session.user.id);
+      } else {
+        window.location.href = '/auth';
       }
-      
-      loadAtividades(session.user.id);
-    } else {
-      window.location.href = '/auth';
-    }
-    setLoading(false);
-  };
-  checkUser();
-}, []);
+      setLoading(false);
+    };
+    checkUser();
+  }, []);
 
   const loadAtividades = async (userId: string) => {
     try {
@@ -430,22 +335,18 @@ export default function MapaAtividadesModular() {
   if (loading) {
     return (
       <div className="min-h-screen bg-[#042f2e] flex items-center justify-center text-white">
-        <div className="text-center">
-          {/* ✅ MELHORIA 4: Micro-interação no loading */}
-          <div className="animate-spin w-8 h-8 border-2 border-white/20 border-t-orange-500 rounded-full mx-auto mb-4"></div>
-          <p className="text-white/80 font-medium">Carregando suas atividades...</p>
-        </div>
+        Carregando...
       </div>
     );
   }
 
   // ═══════════════════════════════════════════════════════════════════
-  // 🖼️ RENDER - COM TODAS AS 4 MELHORIAS UX APLICADAS
+  // 🖼️ RENDER - APENAS REMOVEU BOTÃO DUPLICADO E ADICIONOU SEÇÃO
   // ═══════════════════════════════════════════════════════════════════
 
   return (
     <div id="mapa-root" style={containerStyle} className="text-white">
-      {/* ✅ MELHORIA 4: CSS melhorado para transições */}
+      {/* Estilos globais originais mantidos */}
       <style>{`
         :root { --accent: ${ACCENT}; }
         .accent { color: var(--accent); }
@@ -459,117 +360,58 @@ export default function MapaAtividadesModular() {
         #mapa-root .recharts-text tspan { fill: #fff !important; }
         #mapa-root .accent-bg, #mapa-root .accent-bg * { color: #000 !important; }
         .legend-dot { display:inline-block; width:10px; height:10px; border-radius:50%; margin-right:6px; }
-        
-        /* ✅ MELHORIA 4: Transições globais suaves */
-        * { transition: all 0.2s ease-in-out; }
-        .hover-lift:hover { transform: translateY(-2px); }
       `}</style>
 
       <main className="max-w-7xl mx-auto px-4 py-8">
-        {/* 🎛️ HEADER E CONTROLES - ✅ MELHORIA 2: Tipografia melhorada */}
-        <div className="mb-6">
-  <h1 className="font-mono text-3xl font-bold text-white mb-2">Mapa de Atividades</h1>
-  <div className="flex items-center gap-3 mb-4">
-    {/* ✅ NOVO: Emoji e nome do perfil */}
-    <div className="flex items-center gap-2">
-      <span className="text-2xl">{profile?.emoji || '😊'}</span>
-      <div>
-        <p className="text-base text-white font-medium">
-          Olá, {profile?.full_name || user?.email?.split('@')[0] || 'Usuário'}!
-        </p>
-        <p className="text-sm text-white/60">
-          Mapeie suas atividades na matriz Impacto × Clareza
-        </p>
-      </div>
-    </div>
-  </div>
-          
-          {/* Botões de ação principais */}
-          <div className="flex flex-wrap gap-3">
-            <Button 
-              onClick={exportarPNG}
-              className="bg-white/10 hover:bg-white/20 text-white border border-white/20 hover:border-white/30 transition-all duration-300 hover:scale-105"
-            >
-              Exportar PNG
-            </Button>
-            <Button 
-              onClick={() => window.location.href = '/diagnostico'}
-              className="bg-blue-600 hover:bg-blue-700 text-white transition-all duration-300 hover:scale-105"
-            >
-              📊 Diagnóstico do Foco
-            </Button>
-            <Button 
-              onClick={() => window.location.href = '/plano-acao'}
-              className="accent-bg hover:opacity-90 text-black font-semibold transition-all duration-300 hover:scale-105"
-            >
-              <ClipboardList className="mr-2 h-4 w-4"/>
-              Plano de Ação
-            </Button>
-           </div>
-        </div>
+        {/* 🎛️ HEADER E CONTROLES - Componente modular (ORIGINAL) */}
+        <MapaControls 
+          user={user}
+          onExport={exportarPNG}
+          onLogout={logout}
+        />
 
-        {/* ✅ MELHORIA 3: Indicador de progresso */}
-        <IndicadorProgresso />
-
-        {/* ✅ SEÇÃO "COMO USAR" - Com melhorias 2 e 4 aplicadas */}
+        {/* ❌ BOTÃO DUPLICADO REMOVIDO - essas linhas foram deletadas! */}
+        
+        {/* 🆕 NOVA SEÇÃO: COMO USAR O MAPA */}
         <ComoUsarMapa />
 
         <div className="grid lg:grid-cols-3 gap-6">
-          {/* ✅ MELHORIA 1: FORMULÁRIO DESTACADO COMO AÇÃO PRINCIPAL */}
+          {/* 📝 COLUNA ESQUERDA - Formulário + Estatísticas (ORIGINAL) */}
           <div className="lg:col-span-1 space-y-6">
-            {/* 🎛️ FORMULÁRIO DESTACADO */}
-            <div className="ring-2 ring-orange-500/30 bg-white/8 rounded-xl p-6 border border-orange-400/20 transition-all duration-300 hover:ring-orange-500/40 hover:bg-white/10">
-              <div className="flex items-center gap-3 mb-6">
-                <div className="p-3 rounded-lg bg-orange-500/20 transition-all duration-300 hover:bg-orange-500/30">
-                  <Plus className="w-6 h-6 text-orange-300" />
-                </div>
-                <div>
-                  {/* ✅ MELHORIA 2: Tipografia consistente */}
-                  <h2 className="text-xl font-semibold text-white">
-                    {editId ? "Editar Atividade" : "Adicionar Atividade"}
-                  </h2>
-                  <p className="text-sm text-white/70">Ação principal • Preencha os campos abaixo</p>
-                </div>
-              </div>
-              
-              <AtividadeForm
-                nome={nome}
-                setNome={setNome}
-                eixoX={eixoX}
-                setEixoX={setEixoX}
-                eixoY={eixoY}
-                setEixoY={setEixoY}
-                periodo={periodo}
-                setPeriodo={setPeriodo}
-                horasNoPeriodo={horasNoPeriodo}
-                setHorasNoPeriodo={setHorasNoPeriodo}
-                editId={editId}
-                onSubmit={adicionarOuAtualizar}
-                onReset={resetForm}
-              />
-            </div>
+            {/* 🎛️ FORMULÁRIO - Componente modular (ORIGINAL) */}
+            <AtividadeForm
+              nome={nome}
+              setNome={setNome}
+              eixoX={eixoX}
+              setEixoX={setEixoX}
+              eixoY={eixoY}
+              setEixoY={setEixoY}
+              periodo={periodo}
+              setPeriodo={setPeriodo}
+              horasNoPeriodo={horasNoPeriodo}
+              setHorasNoPeriodo={setHorasNoPeriodo}
+              editId={editId}
+              onSubmit={adicionarOuAtualizar}
+              onReset={resetForm}
+            />
             
-            {/* 📊 ESTATÍSTICAS - ✅ MELHORIA 4: Micro-interação */}
-            <div className="hover-lift">
-              <MapaStats atividades={atividades} />
-            </div>
+            {/* 📊 ESTATÍSTICAS - Componente modular (ORIGINAL) */}
+            <MapaStats atividades={atividades} />
           </div>
 
-          {/* 📈 COLUNA DIREITA - ✅ MELHORIA 4: Micro-interação */}
-          <Card className="glass border-0 lg:col-span-2 hover-lift transition-all duration-300 hover:bg-white/8">
+          {/* 📈 COLUNA DIREITA - Gráfico + Tabela (ORIGINAL) */}
+          <Card className="glass border-0 lg:col-span-2">
             <CardHeader>
-              {/* ✅ MELHORIA 2: Tipografia consistente */}
-              <CardTitle className="font-mono text-2xl font-bold text-white">Gráfico de bolhas</CardTitle>
-              <p className="text-sm text-white/70 leading-relaxed">
-                Impacto × Clareza (1-6) • Tamanho = horas/mês • 4 zonas automáticas
-              </p>
+              <CardTitle className="mono-title">Gráfico de bolhas</CardTitle>
             </CardHeader>
             <CardContent>
+              {/* 📈 GRÁFICO - Componente modular (ORIGINAL) */}
               <MapaChart 
                 atividades={atividades}
                 exportRef={exportRef}
               />
               
+              {/* 📋 TABELA - Componente modular (ORIGINAL) */}
               <AtividadeTable
                 atividades={atividades}
                 onEdit={editar}

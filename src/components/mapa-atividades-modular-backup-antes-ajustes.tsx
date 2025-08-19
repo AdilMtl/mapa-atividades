@@ -118,7 +118,7 @@ function ComoUsarMapa() {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         
         {/* Card 1: Avaliar Impacto - ✅ MELHORIA 4: Micro-interações */}
         <Card className="bg-gradient-to-br from-green-500/10 to-emerald-500/10 border-green-400/20 backdrop-blur-sm transition-all duration-300 hover:from-green-500/15 hover:to-emerald-500/15 hover:border-green-400/30 hover:scale-105">
@@ -198,35 +198,24 @@ function ComoUsarMapa() {
           </CardContent>
         </Card>
 
-        
-
-      </div>
-{/* ✅ Card Diagnóstico em linha própria - largura dos 3 cards */}
-      <div className="mt-6">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="md:col-span-3">
-
-{/* Card 4: Diagnóstico - ✅ MELHORIA 4: Micro-interações melhoradas */}
+        {/* Card 4: Diagnóstico - ✅ MELHORIA 4: Micro-interações melhoradas */}
         <Card className="bg-gradient-to-br from-orange-500/15 to-amber-500/15 border-orange-400/30 backdrop-blur-sm ring-2 ring-orange-400/20 transition-all duration-300 hover:from-orange-500/20 hover:to-amber-500/20 hover:border-orange-400/40 hover:ring-orange-400/30 hover:scale-105">
           <CardContent className="p-6">
-  <div className="flex flex-col md:flex-row md:items-center gap-4">
-    <div className="flex items-center gap-3 md:flex-shrink-0">
+            <div className="flex items-center gap-3 mb-4">
               <div className="p-2 rounded-lg bg-orange-500/20 transition-all duration-300 hover:bg-orange-500/30">
                 <Search className="w-5 h-5 text-orange-300" />
               </div>
               {/* ✅ MELHORIA 2: Tipografia consistente */}
               <h3 className="text-lg font-semibold text-orange-200">🔬 Descubra seu Foco</h3>
             </div>
-    <div className="flex-1">
-      <p className="text-orange-100 text-sm leading-relaxed mb-2">
-        Agora que você mapeou suas atividades, quer saber para onde seu tempo está indo de verdade? O diagnóstico vai te mostrar se você está investindo energia no que gera resultado ou só 'apagando incêndio'.
-      </p>
-      <p className="text-orange-100/80 text-xs italic">
-        É como acender a luz num cômodo bagunçado - de repente você vê tudo.
-      </p>
-    </div>
-    <div className="md:flex-shrink-0 mt-4 md:mt-0">
-      <Button 
+            <p className="text-orange-100 text-sm leading-relaxed mb-4">
+              Agora que você mapeou suas atividades, quer saber para onde seu tempo está indo de verdade? O diagnóstico vai te mostrar se você está investindo energia no que gera resultado ou só 'apagando incêndio'.
+            </p>
+            <p className="text-orange-100/80 text-xs mb-4 italic">
+              É como acender a luz num cômodo bagunçado - de repente você vê tudo.
+            </p>
+            {/* ✅ MELHORIA 4: Micro-interação no botão */}
+            <Button 
               onClick={() => window.location.href = '/diagnostico'}
               className="w-full bg-orange-600 hover:bg-orange-700 text-white text-sm font-medium transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-orange-500/20"
             >
@@ -234,13 +223,9 @@ function ComoUsarMapa() {
               Executar Diagnóstico
               <ChevronRight className="w-4 h-4 ml-2" />
             </Button>
-
-    </div>
-  </div>
           </CardContent>
- </Card>
-          </div>
-        </div>
+        </Card>
+
       </div>
     </section>
   );
@@ -257,7 +242,6 @@ export default function MapaAtividadesModular() {
   
   const [user, setUser] = useState<any>(null);
   const [atividades, setAtividades] = useState<Atividade[]>([]);
-  const [profile, setProfile] = useState<any>(null); 
   const [loading, setLoading] = useState(true);
   const [editId, setEditId] = useState<string | null>(null);
   const [nome, setNome] = useState("");
@@ -273,33 +257,18 @@ export default function MapaAtividadesModular() {
   // ═══════════════════════════════════════════════════════════════════
   
   useEffect(() => {
-  const checkUser = async () => {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (session?.user) {
-      setUser(session.user);
-      
-      // ✅ NOVO: Carregar dados do perfil
-      try {
-        const { data: profileData } = await supabase
-          .from('profiles')
-          .select('full_name, emoji')
-          .eq('id', session.user.id)
-          .single();
-        
-        setProfile(profileData);
-      } catch (error) {
-        console.log('Perfil não encontrado, usando dados básicos');
-        setProfile(null);
+    const checkUser = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.user) {
+        setUser(session.user);
+        loadAtividades(session.user.id);
+      } else {
+        window.location.href = '/auth';
       }
-      
-      loadAtividades(session.user.id);
-    } else {
-      window.location.href = '/auth';
-    }
-    setLoading(false);
-  };
-  checkUser();
-}, []);
+      setLoading(false);
+    };
+    checkUser();
+  }, []);
 
   const loadAtividades = async (userId: string) => {
     try {
@@ -468,21 +437,10 @@ export default function MapaAtividadesModular() {
       <main className="max-w-7xl mx-auto px-4 py-8">
         {/* 🎛️ HEADER E CONTROLES - ✅ MELHORIA 2: Tipografia melhorada */}
         <div className="mb-6">
-  <h1 className="font-mono text-3xl font-bold text-white mb-2">Mapa de Atividades</h1>
-  <div className="flex items-center gap-3 mb-4">
-    {/* ✅ NOVO: Emoji e nome do perfil */}
-    <div className="flex items-center gap-2">
-      <span className="text-2xl">{profile?.emoji || '😊'}</span>
-      <div>
-        <p className="text-base text-white font-medium">
-          Olá, {profile?.full_name || user?.email?.split('@')[0] || 'Usuário'}!
-        </p>
-        <p className="text-sm text-white/60">
-          Mapeie suas atividades na matriz Impacto × Clareza
-        </p>
-      </div>
-    </div>
-  </div>
+          <h1 className="font-mono text-3xl font-bold text-white mb-2">Mapa de Atividades</h1>
+          <p className="text-base text-white/70 leading-relaxed mb-4">
+            Logado como: {user?.email} • Mapeie suas atividades na matriz Impacto × Clareza
+          </p>
           
           {/* Botões de ação principais */}
           <div className="flex flex-wrap gap-3">
@@ -505,7 +463,14 @@ export default function MapaAtividadesModular() {
               <ClipboardList className="mr-2 h-4 w-4"/>
               Plano de Ação
             </Button>
-           </div>
+            <Button 
+              onClick={logout}
+              variant="outline"
+              className="border-red-500/30 text-red-200 hover:bg-red-500/20 hover:border-red-500/50 transition-all duration-300"
+            >
+              Sair
+            </Button>
+          </div>
         </div>
 
         {/* ✅ MELHORIA 3: Indicador de progresso */}
