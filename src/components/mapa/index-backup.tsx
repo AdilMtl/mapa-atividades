@@ -268,143 +268,62 @@ export function AtividadeTable({ atividades, onEdit, onDelete }: AtividadeTableP
   return (
     <div className="mt-6">
       <h3 className="mono-title text-lg mb-2">Tabela de atividades</h3>
-      
-      {/* 📱 VERSÃO MOBILE - Cards empilhados */}
-      <div className="block lg:hidden space-y-3">
-        {atividades.length === 0 ? (
-          <div className="text-center opacity-70 py-6 bg-white/5 rounded-lg">
-            Nenhuma atividade ainda. Adicione usando o formulário ao lado.
-          </div>
-        ) : (
-          atividades.map((a) => {
-            const { zona } = zonaECor(a.eixoX, a.eixoY);
-            const etiqueta = zona === "distracao" ? "Distração" : 
-                           zona === "tactica" ? "Tática" : 
-                           zona === "estrategica" ? "Estratégica" : "Essencial";
-            const zonaColor = zona === "essencial" ? "#22c55e" : 
-                            zona === "estrategica" ? "#3b82f6" : 
-                            zona === "tactica" ? "#eab308" : "#ef4444";
-            
-            return (
-              <div key={a.id} className="bg-white/5 rounded-lg p-4 border border-white/10">
-                {/* Nome da atividade */}
-                <div className="flex items-center justify-between mb-3">
-                  <h4 className="font-medium text-white">{a.nome}</h4>
-                  <div className="flex gap-1">
-                    <button 
-                      onClick={() => onEdit(a)}
-                      className="p-2 hover:bg-white/10 rounded-md transition-colors"
-                    >
-                      <Edit className="h-4 w-4" />
-                    </button>
-                    <button 
-                      onClick={() => onDelete(a.id!)}
-                      className="p-2 hover:bg-red-500/20 text-red-400 rounded-md transition-colors"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </button>
-                  </div>
-                </div>
-                
-                {/* Dados em grid */}
-                <div className="grid grid-cols-2 gap-3 text-sm">
-                  <div>
-                    <span className="text-white/60">Impacto:</span>
-                    <span className="ml-2 font-medium">{a.eixoX}</span>
-                  </div>
-                  <div>
-                    <span className="text-white/60">Clareza:</span>
-                    <span className="ml-2 font-medium">{a.eixoY}</span>
-                  </div>
-                  <div>
-                    <span className="text-white/60">Horas/mês:</span>
-                    <span className="ml-2 font-medium">{formatHorasOriginal(a.horasMes)}</span>
-                  </div>
-                  <div>
-                    <span className="text-white/60">Horas/dia:</span>
-                    <span className="ml-2 font-medium">{formatHorasOriginal(a.horasMes / DIAS_MES_BASE)}</span>
-                  </div>
-                </div>
-                
-                {/* Zona com badge colorido */}
-                <div className="mt-3 flex items-center">
-                  <span className="text-white/60 text-sm">Zona:</span>
-                  <span 
-                    className="ml-2 px-2 py-1 rounded-full text-xs font-medium"
-                    style={{ 
-                      backgroundColor: `${zonaColor}20`, 
-                      color: zonaColor 
-                    }}
-                  >
-                    {etiqueta}
-                  </span>
-                </div>
-              </div>
-            );
-          })
-        )}
-      </div>
-
-      {/* 🖥️ VERSÃO DESKTOP - Tabela tradicional */}
-      <div className="hidden lg:block">
-        <Table className="text-sm">
-          <TableHeader>
-            <TableRow className="border-white/10">
-              <TableHead className="text-white/90">Atividade</TableHead>
-              <TableHead className="text-white/90">{ROTULO_X}</TableHead>
-              <TableHead className="text-white/90">{ROTULO_Y}</TableHead>
-              <TableHead className="text-white/90">Horas/mês</TableHead>
-              <TableHead className="text-white/90">Horas/dia</TableHead>
-              <TableHead className="text-white/90 text-right">Zona</TableHead>
-              <TableHead className="text-white/90 text-right">Ações</TableHead>
+      <Table className="text-sm">
+        <TableHeader>
+          <TableRow className="border-white/10">
+            <TableHead className="text-white/90">Atividade</TableHead>
+            <TableHead className="text-white/90">{ROTULO_X}</TableHead>
+            <TableHead className="text-white/90">{ROTULO_Y}</TableHead>
+            <TableHead className="text-white/90">Horas/mês</TableHead>
+            <TableHead className="text-white/90">Horas/dia</TableHead>
+            <TableHead className="text-white/90 text-right">Zona</TableHead>
+            <TableHead className="text-white/90 text-right">Ações</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {atividades.length === 0 ? (
+            <TableRow>
+              <TableCell colSpan={7} className="text-center opacity-70 py-6">
+                Nenhuma atividade ainda. Adicione usando o formulário ao lado.
+              </TableCell>
             </TableRow>
-          </TableHeader>
-          <TableBody>
-            {atividades.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={7} className="text-center opacity-70 py-6">
-                  Nenhuma atividade ainda. Adicione usando o formulário ao lado.
-                </TableCell>
-              </TableRow>
-            ) : (
-              atividades.map((a) => {
-                const { zona } = zonaECor(a.eixoX, a.eixoY);
-                const etiqueta = zona === "distracao" ? "Distração" : 
-                               zona === "tactica" ? "Tática" : 
-                               zona === "estrategica" ? "Estratégica" : "Essencial";
-                return (
-                  <TableRow key={a.id} className="border-white/10">
-                    <TableCell className="font-medium">{a.nome}</TableCell>
-                    <TableCell>{a.eixoX}</TableCell>
-                    <TableCell>{a.eixoY}</TableCell>
-                    <TableCell>{formatHorasOriginal(a.horasMes)}</TableCell>
-                    <TableCell>{formatHorasOriginal(a.horasMes / DIAS_MES_BASE)}</TableCell>
-                    <TableCell className="text-right">{etiqueta}</TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex gap-1 justify-end">
-                        <Button size="sm" variant="ghost" onClick={() => onEdit(a)}>
-                          <Edit className="h-3 w-3" />
-                        </Button>
-                        <Button size="sm" variant="destructive" onClick={() => onDelete(a.id!)}>
-                          <Trash2 className="h-3 w-3" />
-                        </Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                );
-              })
-            )}
-          </TableBody>
-        </Table>
-      </div>
-
-      {/* Total de horas */}
+          ) : (
+            atividades.map((a) => {
+              const { zona } = zonaECor(a.eixoX, a.eixoY);
+              const etiqueta = zona === "distracao" ? "Distração" : 
+                             zona === "tactica" ? "Tática" : 
+                             zona === "estrategica" ? "Estratégica" : "Essencial";
+              return (
+                <TableRow key={a.id} className="border-white/10">
+                  <TableCell className="font-medium">{a.nome}</TableCell>
+                  <TableCell>{a.eixoX}</TableCell>
+                  <TableCell>{a.eixoY}</TableCell>
+                  <TableCell>{formatHorasOriginal(a.horasMes)}</TableCell>
+                  <TableCell>{formatHorasOriginal(a.horasMes / DIAS_MES_BASE)}</TableCell>
+                  <TableCell className="text-right">{etiqueta}</TableCell>
+                  <TableCell className="text-right">
+                    <div className="flex gap-1 justify-end">
+                      <Button size="sm" variant="ghost" onClick={() => onEdit(a)}>
+                        <Edit className="h-3 w-3" />
+                      </Button>
+                      <Button size="sm" variant="destructive" onClick={() => onDelete(a.id!)}>
+                        <Trash2 className="h-3 w-3" />
+                      </Button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              );
+            })
+          )}
+        </TableBody>
+      </Table>
       <div className="mt-3 text-xs opacity-80">
         Total de horas/mês: <strong>{formatHorasOriginal(totalHorasMes)}</strong>
       </div>
     </div>
   );
 }
+
 // ═══════════════════════════════════════════════════════════════════
 // 🎛️ COMPONENTE 4: CONTROLES E HEADER
 // ═══════════════════════════════════════════════════════════════════

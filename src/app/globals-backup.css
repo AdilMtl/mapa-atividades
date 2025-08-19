@@ -120,9 +120,8 @@
     @apply bg-background text-foreground;
   }
 }
-/* 🖱️ CORREÇÃO ESPECÍFICA DOS CURSORS */
+/* 🖱️ CORREÇÃO UNIVERSAL DOS CURSORS */
 
-/* Apenas botões e elementos realmente clicáveis */
 button,
 [role="button"],
 .btn,
@@ -138,74 +137,57 @@ a,
   cursor: pointer !important;
 }
 
-/* Elementos com onclick explícito */
-[onclick]:not(.card):not(.chart-container) {
+[onclick],
+.clickable,
+.hover\:bg-,
+.hover\:scale-,
+.hover\:opacity- {
   cursor: pointer !important;
 }
 
-/* Apenas cards que são explicitamente clicáveis */
 .card[onclick],
 .card.clickable,
-.card-clickable {
+.card:hover {
   cursor: pointer !important;
 }
 
-/* NÃO aplicar cursor em cards genéricos */
-.card {
-  cursor: default !important;
-}
-
-/* Container de gráficos não deve ser clicável */
-.recharts-wrapper,
-.recharts-surface,
-.chart-container {
-  cursor: default !important;
-}
-
-/* ✅ Ícones/SVGs clicáveis específicos */
 svg[onclick],
 .lucide[onclick],
 .icon-clickable {
   cursor: pointer !important;
 }
 
-/* ✅ APENAS elementos de navegação/menu específicos */
+.hover\:bg-\[.*\],
+.hover\:text-\[.*\],
+.hover\:border-\[.*\],
+.hover\:shadow-\[.*\],
+.hover\:scale-\[.*\],
+.hover\:opacity-\[.*\],
+.hover\:transform,
+.transition-\[.*\] {
+  cursor: pointer !important;
+}
+
+.accent-bg,
+.glass:hover,
+.mono-title + button,
+.metric-card:hover,
+.activity-item:hover,
 .sidebar-item,
 .nav-item,
 .menu-item {
   cursor: pointer !important;
 }
 
-/* ✅ Botões shadcn/ui específicos */
 [data-slot="button"],
-.inline-flex.items-center.justify-center.rounded-md.text-sm.font-medium {
+.inline-flex.items-center.justify-center,
+.rounded-md.text-sm.font-medium {
   cursor: pointer !important;
 }
 
-/* ✅ Estados desabilitados */
 button[disabled],
 [aria-disabled="true"],
 .disabled,
 .opacity-50 {
   cursor: not-allowed !important;
-}
-
-/* ✅ Inputs e controles específicos */
-input[type="range"],
-.slider {
-  cursor: grab !important;
-}
-
-input[type="range"]:active,
-.slider:active {
-  cursor: grabbing !important;
-}
-
-input[type="text"],
-input[type="number"],
-input[type="email"],
-input[type="password"],
-select,
-textarea {
-  cursor: text !important;
 }
