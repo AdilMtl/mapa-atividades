@@ -12,7 +12,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Scatter, ScatterChart, XAxis, YAxis, ZAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from "recharts";
 import { motion, AnimatePresence } from "framer-motion";
 import html2canvas from "html2canvas";
-import { Download, Plus, Save, Trash2, Edit, Info, Target } from "lucide-react";
+import { Download, Plus, Save, Trash2, Edit, Info, Target, BarChart3 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { DESIGN_TOKENS, getZonaInfo, formatHoras, calcularHorasPorDia } from "@/lib/design-system";
 
@@ -335,27 +335,124 @@ interface MapaControlsProps {
 }
 
 export function MapaControls({ user, onExport, onLogout }: MapaControlsProps) {
+  const [mostrarOrientacao, setMostrarOrientacao] = useState(false);
+
   return (
-    <header className="mb-6 flex items-center justify-between gap-4">
-      <div>
-        <h1 className="mono-title text-3xl font-bold tracking-tight">Mapa de Atividades</h1>
-        <p className="text-sm opacity-80">
-          Logado como: {user?.email} • Impacto × Clareza (1-6)
-        </p>
-      </div>
-      <div className="flex items-center gap-2">
-        <Button onClick={onExport} className="accent-bg hover:opacity-90 text-black font-semibold">
-          <Download className="mr-2 h-4 w-4"/>Exportar PNG
-        </Button>
-        <Button 
-          onClick={() => window.location.href = '/plano-acao'} 
-          className="accent-bg hover:opacity-90 text-black font-semibold"
-        >
-          <Target className="mr-2 h-4 w-4"/>Plano de Ação
-        </Button>
-        <Button onClick={onLogout} variant="outline">Sair</Button>
-      </div>
-    </header>
+    <>
+      <header className="mb-6 flex items-center justify-between gap-4">
+        <div className="flex-1">
+          <div className="flex items-center gap-3 mb-2">
+            <h1 className="mono-title text-3xl font-bold tracking-tight">Mapa de Atividades</h1>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setMostrarOrientacao(!mostrarOrientacao)}
+              className="p-1.5 hover:bg-white/10 text-white"
+              title="Como usar o Mapa"
+            >
+              <Info size={18} />
+            </Button>
+          </div>
+          <p className="text-sm opacity-80">
+            Logado como: {user?.email} • Impacto × Clareza (1-6)
+          </p>
+        </div>
+        <div className="flex items-center gap-2">
+          {/* Botão Diagnóstico - NOVO */}
+          <Button 
+            onClick={() => window.location.href = '/diagnostico'} 
+            className="bg-blue-600 hover:bg-blue-700 text-white font-semibold"
+            title="Gerar diagnóstico baseado no ROI do Foco"
+          >
+            <BarChart3 className="mr-2 h-4 w-4"/>Diagnóstico
+          </Button>
+          
+          <Button 
+            onClick={() => window.location.href = '/plano-acao'} 
+            className="accent-bg hover:opacity-90 text-black font-semibold"
+          >
+            <Target className="mr-2 h-4 w-4"/>Plano de Ação
+          </Button>
+          
+          <Button onClick={onExport} className="bg-green-600 hover:bg-green-700 text-white font-semibold">
+            <Download className="mr-2 h-4 w-4"/>Exportar PNG
+          </Button>
+          
+          {/* Botão Sair - CORRIGIDO */}
+          <Button onClick={onLogout} className="bg-red-600 hover:bg-red-700 text-white">
+            Sair
+          </Button>
+        </div>
+      </header>
+
+      {/* Painel de Orientação - ROI do Foco */}
+      {mostrarOrientacao && (
+        <div className="mb-6 p-4 rounded-lg bg-teal-800/50 border border-teal-700">
+          <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
+            <Info size={20} />
+            Como usar o Mapa de Atividades (Método ROI do Foco)
+          </h3>
+          
+          <div className="grid md:grid-cols-3 gap-4 text-sm">
+            <div className="bg-white/5 p-3 rounded">
+              <h4 className="font-medium mb-2 text-yellow-200">📋 1. Mapeie suas atividades</h4>
+              <p className="text-xs opacity-90 mb-2">
+                Liste todas as atividades da sua rotina e posicione no gráfico:
+              </p>
+              <ul className="space-y-1 text-xs opacity-80">
+                <li>• <strong>Impacto (Y):</strong> Contribuição para resultados</li>
+                <li>• <strong>Clareza (X):</strong> Você entende o porquê/como</li>
+              </ul>
+            </div>
+
+            <div className="bg-white/5 p-3 rounded">
+              <h4 className="font-medium mb-2 text-yellow-200">🎯 2. Entenda as 4 zonas</h4>
+              <div className="space-y-1 text-xs">
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                  <span><strong>Essencial:</strong> FOQUE aqui!</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                  <span><strong>Estratégica:</strong> EXPLORE</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
+                  <span><strong>Tática:</strong> OTIMIZE</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 bg-red-500 rounded-full"></div>
+                  <span><strong>Distração:</strong> ELIMINE</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-white/5 p-3 rounded">
+              <h4 className="font-medium mb-2 text-yellow-200">🚀 3. Próximos passos</h4>
+              <div className="space-y-2 text-xs">
+                <div className="bg-blue-600/30 px-2 py-1 rounded text-center">
+                  1️⃣ <strong>Diagnóstico</strong> para análise
+                </div>
+                <div className="bg-orange-600/30 px-2 py-1 rounded text-center">
+                  2️⃣ <strong>Plano de Ação</strong> baseado no mapa
+                </div>
+                <div className="bg-green-600/30 px-2 py-1 rounded text-center">
+                  3️⃣ <strong>Exportar</strong> evolução
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-4 pt-3 border-t border-teal-600">
+            <h4 className="font-medium mb-2 text-yellow-200">💡 Conceito ROI do Foco</h4>
+            <p className="text-xs opacity-90">
+              <strong>Explorar:</strong> Mapear todas atividades → <strong>Eliminar:</strong> Cortar baixo impacto → <strong>Executar:</strong> Focar no essencial e estratégico. 
+              O objetivo é investir seu tempo onde ele gera mais retorno.
+            </p>
+          </div>
+        </div>
+      )}
+    </>
   );
 }
 
