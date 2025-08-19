@@ -27,7 +27,6 @@ import {
   Section,
   StatusBadge
 } from '@/components/base';
-import { DiagnosticoHeader, ComoUsarDiagnostico } from '@/components/diagnostico';
 import { 
   ArrowLeft, 
   Target, 
@@ -44,9 +43,7 @@ import {
   Lightbulb,
   Calendar,
   BookOpen,
-  Eye,
-ChevronDown,    
-  HelpCircle 
+  Eye
 } from 'lucide-react';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
@@ -59,7 +56,6 @@ export default function DiagnosticoPage() {
   const [resultado, setResultado] = useState<ResultadoDiagnostico | null>(null);
   const [erro, setErro] = useState<string | null>(null);
   const [generating, setGenerating] = useState(false);
- const [comoUsarExpanded, setComoUsarExpanded] = useState(false);
   const exportRef = useRef<HTMLDivElement>(null);
 
   // Carregamento de dados
@@ -225,28 +221,12 @@ export default function DiagnosticoPage() {
     <>
       <PageContainer maxWidth="lg">
         
-        {/* Header com Fluxo */}
-        <div className="mb-6 sm:mb-8">
-          {/* Header Principal - MANTÉM O DESIGN ORIGINAL */}
-          <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4 mb-6">
-            
-            {/* Lado Esquerdo - Título + Ícone */}
-            <div className="flex items-start gap-3 sm:gap-4">
-              <div className="p-3 rounded-lg bg-[#d97706]/20 text-[#d97706]">
-                <BarChart3 size={24} />
-              </div>
-              
-              <div>
-                <h1 className="text-3xl font-bold text-white mb-1">
-                  Diagnóstico do Foco
-                </h1>
-                <p className="text-base text-white/70">
-                  Análise de {resultado.totalAtividades} atividades • {resultado.totalHoras}h/mês
-                </p>
-              </div>
-            </div>
-
-            {/* Lado Direito - Ações ORIGINAIS */}
+        {/* Header */}
+        <PageHeader
+          title="Diagnóstico do Foco"
+          subtitle={`Análise de ${resultado.totalAtividades} atividades • ${resultado.totalHoras}h/mês`}
+          icon={BarChart3}
+          action={
             <div className="flex flex-col sm:flex-row gap-3">
               <Button 
                 onClick={voltarMapa}
@@ -264,82 +244,8 @@ export default function DiagnosticoPage() {
                 Criar Plano
               </Button>
             </div>
-          </div>
-
-          {/* Fluxo ROI do Foco - NOVO */}
-          <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-4 sm:p-6">
-            
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg sm:text-xl font-semibold text-white">
-                Fluxo ROI do Foco
-              </h2>
-              <span className="text-xs sm:text-sm text-white/60 hidden sm:block">
-                Siga os 3 passos
-              </span>
-            </div>
-
-            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-6">
-              
-              {/* Step 1 - Mapear (Completo) */}
-              <div className="flex items-center gap-3 flex-1">
-                <div className="w-8 h-8 bg-green-600 rounded-full flex items-center justify-center flex-shrink-0">
-                  <CheckCircle2 className="w-4 h-4 text-white" />
-                </div>
-                <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className="text-sm font-medium text-green-400">1. Mapear</span>
-                    <CheckCircle2 className="w-3 h-3 text-green-400" />
-                  </div>
-                  <p className="text-xs text-white/60">Atividades na matriz</p>
-                </div>
-              </div>
-
-              <div className="hidden sm:block text-white/40">→</div>
-
-              {/* Step 2 - Diagnosticar (Ativo) */}
-              <div className="flex items-center gap-3 flex-1">
-                <div className="w-8 h-8 bg-orange-600 rounded-full flex items-center justify-center flex-shrink-0 ring-2 ring-orange-400 ring-offset-2 ring-offset-transparent">
-                  <span className="text-sm font-bold text-white">2</span>
-                </div>
-                <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className="text-sm font-medium text-orange-400">2. Diagnosticar</span>
-                    <div className="w-2 h-2 bg-orange-400 rounded-full animate-pulse"></div>
-                  </div>
-                  <p className="text-xs text-white/60">Análise do foco</p>
-                </div>
-              </div>
-
-              <div className="hidden sm:block text-white/40">→</div>
-
-              {/* Step 3 - Executar (Pendente) */}
-              <div className="flex items-center gap-3 flex-1">
-                <div className="w-8 h-8 bg-white/10 border border-white/20 rounded-full flex items-center justify-center flex-shrink-0">
-                  <span className="text-sm font-medium text-white/60">3</span>
-                </div>
-                <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className="text-sm font-medium text-white/60">3. Executar</span>
-                  </div>
-                  <p className="text-xs text-white/40">Plano de ação</p>
-                </div>
-              </div>
-            </div>
-
-            {/* Progress Bar */}
-            <div className="mt-4 sm:mt-6">
-              <div className="flex items-center justify-between text-xs text-white/60 mb-2">
-                <span>Progresso</span>
-                <span>66% completo</span>
-              </div>
-              <div className="h-2 bg-white/10 rounded-full overflow-hidden">
-                <div className="h-full bg-gradient-to-r from-green-500 to-orange-500 rounded-full transition-all duration-500" 
-                     style={{ width: '66%' }}>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+          }
+        />
 
         {/* Card de Contexto */}
         <Section title="">
@@ -360,120 +266,6 @@ export default function DiagnosticoPage() {
             </CardContent>
           </Card>
         </Section>
-
-{/* Como Usar - Retrátil - MOVER PARA AQUI */}
-        <div className="mb-6 sm:mb-8">
-          
-          {/* Header Retrátil */}
-          <Card className="bg-white/5 backdrop-blur-sm border border-white/10 mb-4">
-            <CardContent className="p-4">
-              <button
-                onClick={() => setComoUsarExpanded(!comoUsarExpanded)}
-                className="w-full flex items-center justify-between text-left focus:outline-none group"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-blue-600/20 rounded-lg flex items-center justify-center">
-                    <HelpCircle className="w-5 h-5 text-blue-400" />
-                  </div>
-                  <div>
-                    <h2 className="text-lg font-semibold text-white group-hover:text-blue-300 transition-colors">
-                      Como usar este diagnóstico
-                    </h2>
-                    <p className="text-sm text-white/60">
-                      Transforme sua análise em resultados práticos
-                    </p>
-                  </div>
-                </div>
-                
-                <ChevronDown className={`w-5 h-5 text-white/60 transition-transform duration-200 ${comoUsarExpanded ? 'rotate-180' : ''}`} />
-              </button>
-            </CardContent>
-          </Card>
-
-          {/* Conteúdo Expandido com Transição Suave */}
-          <div className={`overflow-hidden transition-all duration-300 ease-in-out ${
-            comoUsarExpanded ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
-          }`}>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pb-4">
-              
-              {/* Card 1: Compartilhar */}
-              <Card className="bg-gradient-to-br from-purple-500/10 to-pink-500/10 border-purple-400/20 backdrop-blur-sm">
-                <CardContent className="p-6">
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className="p-2 rounded-lg bg-purple-500/20">
-                      <Users className="w-5 h-5 text-purple-300" />
-                    </div>
-                    <h3 className="font-semibold text-purple-200">Compartilhar</h3>
-                  </div>
-                  <p className="text-purple-100 text-sm leading-relaxed mb-4">
-                    Exporte para PDF e compartilhe com seu time, mentor ou coach. 
-                    Use como base para 1:1s ou planejamento de equipe.
-                  </p>
-                  <Button 
-                    onClick={exportarPDF}
-                    disabled={generating}
-                    size="sm"
-                    className="bg-purple-600 hover:bg-purple-700 text-white"
-                  >
-                    <FileText className="w-4 h-4 mr-2" />
-                    {generating ? 'Gerando...' : 'Exportar PDF'}
-                  </Button>
-                </CardContent>
-              </Card>
-
-              {/* Card 2: Acompanhar */}
-              <Card className="bg-gradient-to-br from-green-500/10 to-emerald-500/10 border-green-400/20 backdrop-blur-sm">
-                <CardContent className="p-6">
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className="p-2 rounded-lg bg-green-500/20">
-                      <TrendingUp className="w-5 h-5 text-green-300" />
-                    </div>
-                    <h3 className="font-semibold text-green-200">Acompanhar</h3>
-                  </div>
-                  <p className="text-green-100 text-sm leading-relaxed mb-4">
-                    Refaça este diagnóstico a cada 30 dias para acompanhar sua evolução. 
-                    Compare os percentuais e ajuste seu foco.
-                  </p>
-                  <Button 
-                    onClick={exportarJSON}
-                    size="sm"
-                    variant="outline"
-                    className="bg-green-600/20 border-green-500/30 text-green-200 hover:bg-green-600/30"
-                  >
-                    <Download className="w-4 h-4 mr-2" />
-                    Baixar Dados
-                  </Button>
-                </CardContent>
-              </Card>
-
-              {/* Card 3: Executar */}
-              <Card className="bg-gradient-to-br from-orange-500/10 to-amber-500/10 border-orange-400/20 backdrop-blur-sm">
-                <CardContent className="p-6">
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className="p-2 rounded-lg bg-orange-500/20">
-                      <Zap className="w-5 h-5 text-orange-300" />
-                    </div>
-                    <h3 className="font-semibold text-orange-200">Executar</h3>
-                  </div>
-                  <p className="text-orange-100 text-sm leading-relaxed mb-4">
-                    Transforme os insights em ação. Crie um plano com táticas específicas 
-                    baseadas no seu foco primário.
-                  </p>
-                  <Button 
-                    onClick={irParaPlano}
-                    size="sm"
-                    className="bg-orange-600 hover:bg-orange-700 text-white"
-                  >
-                    <Target className="w-4 h-4 mr-2" />
-                    Criar Plano
-                  </Button>
-                </CardContent>
-              </Card>
-
-            </div>
-          </div>
-        </div>
-
 
         {/* Mix de Zonas */}
         <Section title="Distribuição do Seu Tempo">
@@ -567,7 +359,7 @@ export default function DiagnosticoPage() {
               </div>
             </CardContent>
           </Card>
-       
+        </Section>
 
         {/* Relatório */}
         <Section title="Seu Diagnóstico Personalizado">
@@ -587,7 +379,85 @@ export default function DiagnosticoPage() {
           </Card>
         </Section>
 
-        
+        {/* Cards de Utilização */}
+        <Section title="Como usar este diagnóstico">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            
+            {/* Card 1: Compartilhar */}
+            <Card className="bg-gradient-to-br from-purple-500/10 to-pink-500/10 border-purple-400/20 backdrop-blur-sm">
+              <CardContent className="p-6">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="p-2 rounded-lg bg-purple-500/20">
+                    <Users className="w-5 h-5 text-purple-300" />
+                  </div>
+                  <h3 className="font-semibold text-purple-200">Compartilhar</h3>
+                </div>
+                <p className="text-purple-100 text-sm leading-relaxed mb-4">
+                  Exporte para PDF e compartilhe com seu time, mentor ou coach. 
+                  Use como base para 1:1s ou planejamento de equipe.
+                </p>
+                <Button 
+                  onClick={exportarPDF}
+                  disabled={generating}
+                  size="sm"
+                  className="bg-purple-600 hover:bg-purple-700 text-white"
+                >
+                  <FileText className="w-4 h-4 mr-2" />
+                  {generating ? 'Gerando...' : 'Exportar PDF'}
+                </Button>
+              </CardContent>
+            </Card>
+
+            {/* Card 2: Acompanhar */}
+            <Card className="bg-gradient-to-br from-green-500/10 to-emerald-500/10 border-green-400/20 backdrop-blur-sm">
+              <CardContent className="p-6">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="p-2 rounded-lg bg-green-500/20">
+                    <TrendingUp className="w-5 h-5 text-green-300" />
+                  </div>
+                  <h3 className="font-semibold text-green-200">Acompanhar</h3>
+                </div>
+                <p className="text-green-100 text-sm leading-relaxed mb-4">
+                  Refaça este diagnóstico a cada 30 dias para acompanhar sua evolução. 
+                  Compare os percentuais e ajuste seu foco.
+                </p>
+                <Button 
+                  onClick={exportarJSON}
+                  size="sm"
+                  variant="outline"
+                  className="bg-green-600/20 border-green-500/30 text-green-200 hover:bg-green-600/30"
+                >
+                  <Download className="w-4 h-4 mr-2" />
+                  Baixar Dados
+                </Button>
+              </CardContent>
+            </Card>
+
+            {/* Card 3: Executar */}
+            <Card className="bg-gradient-to-br from-orange-500/10 to-amber-500/10 border-orange-400/20 backdrop-blur-sm">
+              <CardContent className="p-6">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="p-2 rounded-lg bg-orange-500/20">
+                    <Zap className="w-5 h-5 text-orange-300" />
+                  </div>
+                  <h3 className="font-semibold text-orange-200">Executar</h3>
+                </div>
+                <p className="text-orange-100 text-sm leading-relaxed mb-4">
+                  Transforme os insights em ação. Crie um plano com táticas específicas 
+                  baseadas no seu foco primário.
+                </p>
+                <Button 
+                  onClick={irParaPlano}
+                  size="sm"
+                  className="bg-orange-600 hover:bg-orange-700 text-white"
+                >
+                  <Target className="w-4 h-4 mr-2" />
+                  Criar Plano
+                </Button>
+              </CardContent>
+            </Card>
+
+          </div>
         </Section>
 
         {/* Próximas Ações */}
