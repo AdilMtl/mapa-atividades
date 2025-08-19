@@ -1,309 +1,393 @@
+// 🛡️ PÁGINA DE PRIVACIDADE ATUALIZADA - COM MODAL DE TERMOS
+// Arquivo: src/app/privacidade/page.tsx
+
 'use client'
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
+import { Shield, Download, Trash2, FileText, ArrowLeft, AlertTriangle, Check, Lock, Eye, Users } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import { supabase } from '@/lib/supabase';
-import Link from 'next/link';
+
+// Importar componentes da Wave 1
+import { PageContainer, PageHeader, Section } from '@/components/base';
+
+// Importar o modal de termos
+import { TermosModal } from '@/components/TermosModal';
+
+// ═══════════════════════════════════════════════════════════════════
+// 🛡️ COMPONENTE PRINCIPAL - PRIVACIDADE E DADOS
+// ═══════════════════════════════════════════════════════════════════
 
 export default function PrivacidadePage() {
   const [user, setUser] = useState<any>(null);
-  const [stats, setStats] = useState({ atividades: 0, planos: 0 });
+  const [termosModalOpen, setTermosModalOpen] = useState(false);
+  const [exportando, setExportando] = useState(false);
 
+  // Carregar dados do usuário
   useEffect(() => {
-    loadUserData();
+    const carregarUsuario = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      setUser(session?.user || null);
+    };
+    carregarUsuario();
   }, []);
 
-  const loadUserData = async () => {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) return;
-    
-    setUser(session.user);
-
-    // Contar dados do usuário
-    const { data: atividades } = await supabase
-      .from('atividades')
-      .select('id')
-      .eq('user_id', session.user.id);
-
-    const planos = JSON.parse(localStorage.getItem('planos-de-acao') || '[]');
-    
-    setStats({
-      atividades: atividades?.length || 0,
-      planos: planos.length || 0
-    });
-  };
-
-  const baixarMeusDados = async () => {
+  // Função de exportar dados
+  const exportarDados = async () => {
     if (!user) return;
-
-    // Coletar TODOS os dados do usuário
-    const { data: atividades } = await supabase
-      .from('atividades')
-      .select('*')
-      .eq('user_id', user.id);
-
-    const planos = JSON.parse(localStorage.getItem('planos-de-acao') || '[]');
-
-    const exportData = {
-      // Dados da conta
-      conta: {
-        email: user.email,
-        criado_em: user.created_at,
-        ultimo_login: user.last_sign_in_at
-      },
-      
-      // Dados funcionais
-      atividades: atividades || [],
-      planos_de_acao: planos,
-      
-      // Metadados do export
-      export: {
-        data_export: new Date().toISOString(),
-        formato: 'LGPD_COMPLIANT_JSON',
-        versao: '1.0'
-      }
-    };
-
-    // Download automático
-    const blob = new Blob([JSON.stringify(exportData, null, 2)], {
-      type: 'application/json'
-    });
     
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `meus-dados-mapa-atividades-${new Date().toISOString().split('T')[0]}.json`;
-    a.click();
-    
-    alert('✅ Seus dados foram baixados com sucesso!');
-  };
-
-  const excluirConta = async () => {
-    if (!user) return;
-
-    const confirmacao = prompt(
-      'Esta ação é IRREVERSÍVEL. Para confirmar, digite: EXCLUIR PERMANENTEMENTE'
-    );
-    
-    if (confirmacao !== 'EXCLUIR PERMANENTEMENTE') {
-      alert('Exclusão cancelada.');
-      return;
-    }
-
+    setExportando(true);
     try {
-      // Deletar dados das tabelas
-      await supabase
+      // Buscar dados do usuário
+      const { data: perfil } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', user.id)
+        .single();
+
+      const { data: atividades } = await supabase
         .from('atividades')
-        .delete()
+        .select('*')
         .eq('user_id', user.id);
 
-      // Limpar localStorage
-      localStorage.removeItem('planos-de-acao');
-      localStorage.removeItem('mapa-atividades-dados');
+      // Montar dados completos
+      const dadosCompletos = {
+        usuario: {
+          id: user.id,
+          email: user.email,
+          criado_em: user.created_at,
+          ultimo_login: user.last_sign_in_at
+        },
+        perfil: perfil || {},
+        atividades: atividades || [],
+        data_exportacao: new Date().toISOString()
+      };
 
-      // Deletar conta
-      await supabase.auth.signOut();
+      // Criar e baixar arquivo
+      const dataStr = JSON.stringify(dadosCompletos, null, 2);
+      const dataBlob = new Blob([dataStr], { type: 'application/json' });
+      const url = URL.createObjectURL(dataBlob);
       
-      alert('✅ Conta excluída permanentemente. Você será redirecionado.');
-      window.location.href = '/';
-      
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `meus-dados-mapa-atividades-${new Date().toISOString().split('T')[0]}.json`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+
+      alert('Dados exportados com sucesso!');
     } catch (error) {
-      alert('❌ Erro ao excluir conta. Tente novamente ou entre em contato.');
-      console.error(error);
+      console.error('Erro ao exportar dados:', error);
+      alert('Erro ao exportar dados. Tente novamente.');
+    } finally {
+      setExportando(false);
     }
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-6" style={{ background: '#042f2e', minHeight: '100vh' }}>
-      
-      {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-2 text-white">🔒 Privacidade & Proteção de Dados</h1>
-        <p className="text-white/70">
-          Como tratamos seus dados de forma transparente e segura
-        </p>
-      </div>
+    <PageContainer>
+      <PageHeader
+        title="Privacidade e Dados"
+        subtitle="Como protegemos e utilizamos suas informações pessoais"
+        icon={Shield}
+        action={
+          <Button 
+            onClick={() => window.history.back()}
+            variant="outline"
+            className="text-white border-white/30 hover:bg-white/10"
+          >
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Voltar
+          </Button>
+        }
+      />
 
-      {/* Política Simples */}
-      <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-lg p-8 mb-8">
-        <h2 className="text-2xl font-semibold mb-6 text-white">📋 Nossa Política de Privacidade</h2>
-        
-        <div className="space-y-6 text-white/80">
-          
-          <div>
-            <h3 className="font-semibold text-lg text-white mb-2">🎯 Como Funciona</h3>
-            <p>
-              Você cria uma conta com email, adiciona suas atividades, e o sistema 
-              salva tudo na nuvem para você acessar de qualquer lugar.
+      <div className="max-w-4xl mx-auto space-y-8">
+        {/* Seção de Links Legais */}
+        <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-6">
+          <h2 className="text-xl font-semibold text-white mb-4 flex items-center gap-2">
+            <FileText className="w-5 h-5" />
+            Documentos Legais
+          </h2>
+          <div className="flex flex-col sm:flex-row gap-4">
+            <Button
+              onClick={() => setTermosModalOpen(true)}
+              className="bg-blue-600 hover:bg-blue-700 text-white flex items-center gap-2"
+            >
+              <FileText className="w-4 h-4" />
+              Ver Termos de Uso
+            </Button>
+            <p className="text-white/70 text-sm flex items-center">
+              Consulte nossos termos e condições de uso do sistema
             </p>
           </div>
+        </div>
 
-          <div>
-            <h3 className="font-semibold text-lg text-white mb-2">📊 Dados que Coletamos</h3>
-            <ul className="list-disc pl-6 space-y-1">
-              <li><strong>Email:</strong> Para login e identificação</li>
-              <li><strong>Senha:</strong> Criptografada (nem eu consigo ver)</li>
-              <li><strong>Atividades:</strong> Nomes, impacto, clareza, horas que você inserir</li>
-              <li><strong>Planos de Ação:</strong> Táticas e metas que você criar</li>
-              <li><strong>Configurações:</strong> Preferências do sistema</li>
-            </ul>
+        {/* Informações Coletadas */}
+        <Section title="📊 Quais Dados Coletamos">
+          <div className="grid md:grid-cols-2 gap-6">
+            <div className="bg-white/5 border border-white/10 rounded-lg p-4">
+              <h3 className="font-medium text-white mb-3 flex items-center gap-2">
+                <Users className="w-4 h-4" />
+                Dados Pessoais
+              </h3>
+              <ul className="text-white/80 text-sm space-y-2">
+                <li>• Email para autenticação</li>
+                <li>• Nome completo (opcional)</li>
+                <li>• Emoji de perfil escolhido</li>
+                <li>• Preferências de notificação</li>
+                <li>• Data de criação da conta</li>
+              </ul>
+            </div>
+
+            <div className="bg-white/5 border border-white/10 rounded-lg p-4">
+              <h3 className="font-medium text-white mb-3 flex items-center gap-2">
+                <Eye className="w-4 h-4" />
+                Dados de Uso
+              </h3>
+              <ul className="text-white/80 text-sm space-y-2">
+                <li>• Atividades que você mapeia</li>
+                <li>• Diagnósticos gerados</li>
+                <li>• Planos de ação criados</li>
+                <li>• Estatísticas de uso</li>
+                <li>• Logs de acesso (segurança)</li>
+              </ul>
+            </div>
           </div>
+        </Section>
 
-          <div>
-            <h3 className="font-semibold text-lg text-white mb-2">🎯 Para que Usamos</h3>
-            <ul className="list-disc pl-6 space-y-1">
-              <li>Fazer o sistema funcionar corretamente</li>
-              <li>Salvar e sincronizar seus dados</li>
-              <li>Enviar emails importantes sobre sua conta</li>
-              <li>Melhorar o produto (dados agregados, sem identificação)</li>
-            </ul>
+        {/* Como Protegemos */}
+        <Section title="🔒 Como Protegemos Seus Dados">
+          <div className="grid md:grid-cols-3 gap-4">
+            <div className="bg-green-500/10 border border-green-500/30 rounded-lg p-4 text-center">
+              <Lock className="w-8 h-8 text-green-400 mx-auto mb-2" />
+              <h4 className="font-medium text-white mb-2">Criptografia</h4>
+              <p className="text-white/70 text-sm">
+                Todos os dados são criptografados em trânsito e em repouso
+              </p>
+            </div>
+
+            <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-4 text-center">
+              <Shield className="w-8 h-8 text-blue-400 mx-auto mb-2" />
+              <h4 className="font-medium text-white mb-2">RLS (Row Level Security)</h4>
+              <p className="text-white/70 text-sm">
+                Cada usuário só acessa seus próprios dados
+              </p>
+            </div>
+
+            <div className="bg-orange-500/10 border border-orange-500/30 rounded-lg p-4 text-center">
+              <Check className="w-8 h-8 text-orange-400 mx-auto mb-2" />
+              <h4 className="font-medium text-white mb-2">LGPD Compliance</h4>
+              <p className="text-white/70 text-sm">
+                Conformidade total com a Lei Geral de Proteção de Dados
+              </p>
+            </div>
           </div>
+        </Section>
 
-          <div>
-            <h3 className="font-semibold text-lg text-white mb-2">❌ O que NÃO Fazemos</h3>
-            <ul className="list-disc pl-6 space-y-1">
-              <li>Vendemos ou alugamos seus dados</li>
-              <li>Enviamos spam ou marketing não solicitado</li>
-              <li>Compartilhamos com terceiros (exceto infraestrutura necessária)</li>
-              <li>Analisamos o conteúdo específico das suas atividades</li>
-            </ul>
+        {/* Como Usamos */}
+        <Section title="🎯 Como Usamos Seus Dados">
+          <div className="space-y-4">
+            <div className="bg-white/5 border border-white/10 rounded-lg p-4">
+              <h4 className="font-medium text-white mb-2">✅ Finalidades Legítimas:</h4>
+              <ul className="text-white/80 text-sm space-y-1 ml-4">
+                <li>• Gerar seus diagnósticos personalizados</li>
+                <li>• Criar sugestões de planos de ação</li>
+                <li>• Melhorar algoritmos (dados anônimos)</li>
+                <li>• Fornecer suporte técnico quando solicitado</li>
+                <li>• Garantir segurança e prevenir fraudes</li>
+              </ul>
+            </div>
+
+            <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-4">
+              <h4 className="font-medium text-white mb-2">❌ Nunca Fazemos:</h4>
+              <ul className="text-white/80 text-sm space-y-1 ml-4">
+                <li>• Vender seus dados para terceiros</li>
+                <li>• Usar para publicidade direcionada</li>
+                <li>• Compartilhar sem sua autorização</li>
+                <li>• Acessar dados para fins pessoais</li>
+                <li>• Armazenar além do necessário</li>
+              </ul>
+            </div>
           </div>
+        </Section>
 
-          <div>
-            <h3 className="font-semibold text-lg text-white mb-2">🛡️ Segurança</h3>
-            <ul className="list-disc pl-6 space-y-1">
-              <li>Conexão criptografada (HTTPS)</li>
-              <li>Senhas com hash seguro</li>
-              <li>Banco de dados isolado por usuário</li>
-              <li>Backup automático e seguro</li>
-            </ul>
-          </div>
-
-          <div>
-            <h3 className="font-semibold text-lg text-white mb-2">🌍 Onde Ficam os Dados</h3>
-            <p>
-              Seus dados são armazenados no <strong>Supabase</strong> (infraestrutura em 
-              nuvem com proteção adequada de dados) e podem ser processados nos EUA/Europa, 
-              países com adequação reconhecida para proteção de dados.
+        {/* Seus Direitos LGPD */}
+        <Section title="⚖️ Seus Direitos (LGPD)">
+          <div className="space-y-4">
+            <p className="text-white/80">
+              Conforme a Lei Geral de Proteção de Dados, você tem os seguintes direitos:
             </p>
-          </div>
 
-        </div>
-      </div>
-
-      {/* Seus Direitos */}
-      <div className="bg-blue-500/10 border border-blue-400/20 rounded-lg p-8 mb-8">
-        <h2 className="text-2xl font-semibold mb-6 text-blue-300">⚖️ Seus Direitos (LGPD)</h2>
-        
-        <div className="grid md:grid-cols-2 gap-6">
-          <div>
-            <h4 className="font-semibold text-blue-200 mb-2">✅ Você Pode:</h4>
-            <ul className="space-y-2 text-blue-100">
-              <li>• <strong>Ver seus dados:</strong> Seção abaixo</li>
-              <li>• <strong>Baixar tudo:</strong> Arquivo JSON completo</li>
-              <li>• <strong>Corrigir dados:</strong> Edite direto no sistema</li>
-              <li>• <strong>Excluir conta:</strong> Remoção permanente</li>
-              <li>• <strong>Contatar:</strong> Dúvidas ou solicitações</li>
-            </ul>
-          </div>
-          
-          <div>
-            <h4 className="font-semibold text-blue-200 mb-2">📞 Como Exercer:</h4>
-            <ul className="space-y-2 text-blue-100">
-              <li>• <strong>Online:</strong> Botões nesta página</li>
-              <li>• <strong>Email:</strong> adilson.matioli@hotmail.com</li>
-              <li>• <strong>Prazo:</strong> Resposta em até 15 dias</li>
-              <li>• <strong>Custo:</strong> Totalmente gratuito</li>
-            </ul>
-          </div>
-        </div>
-      </div>
-
-      {/* Seus Dados Atuais */}
-      {user && (
-        <div className="bg-green-500/10 border border-green-400/20 rounded-lg p-8 mb-8">
-          <h2 className="text-2xl font-semibold mb-6 text-green-300">📊 Seus Dados Atuais</h2>
-          
-          <div className="grid md:grid-cols-3 gap-6 mb-6">
-            <div className="text-center">
-              <div className="text-3xl font-bold text-green-200">{stats.atividades}</div>
-              <div className="text-green-300">Atividades Criadas</div>
-            </div>
-            <div className="text-center">
-              <div className="text-3xl font-bold text-green-200">{stats.planos}</div>
-              <div className="text-green-300">Planos de Ação</div>
-            </div>
-            <div className="text-center">
-              <div className="text-lg font-bold text-green-200">
-                {user.created_at ? new Date(user.created_at).toLocaleDateString() : '-'}
+            <div className="grid md:grid-cols-2 gap-4">
+              <div className="space-y-3">
+                <div className="bg-white/5 border border-white/10 rounded-lg p-3">
+                  <h4 className="font-medium text-white text-sm mb-1">📥 Portabilidade</h4>
+                  <p className="text-white/70 text-xs">Baixar todos os seus dados</p>
+                </div>
+                
+                <div className="bg-white/5 border border-white/10 rounded-lg p-3">
+                  <h4 className="font-medium text-white text-sm mb-1">🗑️ Exclusão</h4>
+                  <p className="text-white/70 text-xs">Deletar sua conta e dados</p>
+                </div>
+                
+                <div className="bg-white/5 border border-white/10 rounded-lg p-3">
+                  <h4 className="font-medium text-white text-sm mb-1">✏️ Retificação</h4>
+                  <p className="text-white/70 text-xs">Corrigir dados incorretos</p>
+                </div>
               </div>
-              <div className="text-green-300">Membro Desde</div>
+
+              <div className="space-y-3">
+                <div className="bg-white/5 border border-white/10 rounded-lg p-3">
+                  <h4 className="font-medium text-white text-sm mb-1">👁️ Acesso</h4>
+                  <p className="text-white/70 text-xs">Ver quais dados temos</p>
+                </div>
+                
+                <div className="bg-white/5 border border-white/10 rounded-lg p-3">
+                  <h4 className="font-medium text-white text-sm mb-1">🛑 Oposição</h4>
+                  <p className="text-white/70 text-xs">Contestar o tratamento</p>
+                </div>
+                
+                <div className="bg-white/5 border border-white/10 rounded-lg p-3">
+                  <h4 className="font-medium text-white text-sm mb-1">ℹ️ Informação</h4>
+                  <p className="text-white/70 text-xs">Saber como usamos</p>
+                </div>
+              </div>
             </div>
           </div>
+        </Section>
 
-          <div className="bg-white/5 rounded-lg p-4 mb-6">
-            <h4 className="font-semibold mb-2 text-white">📧 Informações da Conta:</h4>
-            <p className="text-white/80"><strong>Email:</strong> {user.email}</p>
-            <p className="text-white/80"><strong>Último Login:</strong> {user.last_sign_in_at ? new Date(user.last_sign_in_at).toLocaleString() : 'Primeiro acesso'}</p>
+        {/* Ações Práticas */}
+        <Section title="🔧 Exercer Seus Direitos">
+          <div className="space-y-4">
+            {user ? (
+              <>
+                {/* Para usuários logados */}
+                <div className="bg-green-500/10 border border-green-500/30 rounded-lg p-4">
+                  <h4 className="font-medium text-white mb-3">📥 Baixar Seus Dados (Portabilidade)</h4>
+                  <p className="text-white/70 text-sm mb-4">
+                    Faça download de todos os seus dados em formato JSON, incluindo perfil, atividades e estatísticas.
+                  </p>
+                  <Button
+                    onClick={exportarDados}
+                    disabled={exportando}
+                    className="bg-green-600 hover:bg-green-700 text-white"
+                  >
+                    <Download className="w-4 h-4 mr-2" />
+                    {exportando ? 'Exportando...' : 'Baixar Meus Dados'}
+                  </Button>
+                </div>
+
+                <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-4">
+                  <h4 className="font-medium text-white mb-3">🗑️ Deletar Conta e Dados</h4>
+                  <p className="text-white/70 text-sm mb-4">
+                    Para deletar permanentemente sua conta e todos os dados, acesse a página de perfil.
+                  </p>
+                  <Button
+                    onClick={() => window.location.href = '/perfil'}
+                    className="bg-red-600 hover:bg-red-700 text-white"
+                  >
+                    <Trash2 className="w-4 h-4 mr-2" />
+                    Ir para Perfil → Deletar Conta
+                  </Button>
+                </div>
+              </>
+            ) : (
+              <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-4">
+                <h4 className="font-medium text-white mb-2">🔐 Faça Login para Acessar Suas Opções</h4>
+                <p className="text-white/70 text-sm mb-3">
+                  Para exercer seus direitos LGPD, você precisa estar logado na sua conta.
+                </p>
+                <Button
+                  onClick={() => window.location.href = '/auth'}
+                  className="bg-blue-600 hover:bg-blue-700 text-white"
+                >
+                  Fazer Login
+                </Button>
+              </div>
+            )}
           </div>
+        </Section>
 
-          <div className="flex flex-wrap gap-4">
-            <button
-              onClick={baixarMeusDados}
-              className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-all"
-            >
-              📥 Baixar Todos os Meus Dados
-            </button>
-            
-            <button
-              onClick={excluirConta}
-              className="bg-red-600 hover:bg-red-700 text-white font-semibold py-3 px-6 rounded-lg transition-all"
-            >
-              🗑️ Excluir Conta Permanentemente
-            </button>
+        {/* Contato */}
+        <Section title="📞 Contato para Questões de Privacidade">
+          <div className="space-y-4">
+            <div className="bg-white/5 border border-white/10 rounded-lg p-4">
+              <h4 className="font-medium text-white mb-2">
+                📧 Encarregado de Proteção de Dados
+              </h4>
+              <p className="text-white/80 text-sm mb-2">
+                Para questões específicas sobre privacidade e LGPD:
+              </p>
+              <p className="text-blue-400">privacidade@mapaatividades.com</p>
+            </div>
+
+            <div className="bg-white/5 border border-white/10 rounded-lg p-4">
+              <h4 className="font-medium text-white mb-2">⏱️ Prazo de Resposta</h4>
+              <p className="text-white/80 text-sm">
+                Respondemos solicitações LGPD em até <strong>15 dias úteis</strong>, 
+                conforme estabelecido na legislação.
+              </p>
+            </div>
+          </div>
+        </Section>
+
+        {/* Atualizações */}
+        <Section title="📅 Atualizações desta Política">
+          <div className="bg-white/5 border border-white/10 rounded-lg p-4">
+            <p className="text-white/80 text-sm">
+              <strong>Última atualização:</strong> {new Date().toLocaleDateString('pt-BR')}<br />
+              <strong>Versão:</strong> 1.0<br />
+              <strong>Próxima revisão:</strong> {new Date(Date.now() + 365*24*60*60*1000).toLocaleDateString('pt-BR')}
+            </p>
+            <p className="text-white/70 text-xs mt-3">
+              Quando houver alterações significativas nesta política, você será notificado 
+              por email ou através do sistema.
+            </p>
+          </div>
+        </Section>
+
+        {/* Footer */}
+        <div className="bg-white/5 border border-white/10 rounded-lg p-6 text-center">
+          <div className="text-white/70 space-y-2">
+            <p className="text-lg font-medium text-white">
+              🛡️ Política de Privacidade - Mapa de Atividades
+            </p>
+            <p className="text-sm">
+              Comprometidos com a proteção dos seus dados pessoais
+            </p>
+            <p className="text-xs">
+              © 2025 Mapa de Atividades - Todos os direitos reservados
+            </p>
           </div>
         </div>
-      )}
 
-      {/* Contato */}
-      <div className="bg-white/5 border border-white/10 rounded-lg p-8 mb-8">
-        <h2 className="text-2xl font-semibold mb-6 text-white">📞 Contato e Responsável</h2>
-        
-        <div className="grid md:grid-cols-2 gap-6">
-          <div>
-            <h4 className="font-semibold mb-2 text-white">👤 Responsável pelos Dados:</h4>
-            <p className="text-white/80"><strong>Adilson Matioli</strong></p>
-            <p className="text-white/80">Desenvolvedor da plataforma</p>
-            <p className="text-white/80">Email: <strong>adilson.matioli@hotmail.com</strong></p>
-          </div>
+        {/* Botões de Ação */}
+        <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <Button 
+            onClick={() => window.history.back()}
+            variant="outline"
+            className="text-white border-white/30 hover:bg-white/10"
+          >
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Voltar
+          </Button>
           
-          <div>
-            <h4 className="font-semibold mb-2 text-white">⏰ Atendimento:</h4>
-            <p className="text-white/80">Dúvidas, solicitações ou exercício de direitos</p>
-            <p className="text-white/80"><strong>Prazo de resposta:</strong> Até 15 dias úteis</p>
-            <p className="text-white/80"><strong>Custo:</strong> Gratuito</p>
-          </div>
+          <Button
+            onClick={() => setTermosModalOpen(true)}
+            className="bg-blue-600 hover:bg-blue-700 text-white"
+          >
+            <FileText className="w-4 h-4 mr-2" />
+            Ver Termos de Uso
+          </Button>
         </div>
       </div>
 
-      {/* Navegação de volta */}
-      <div className="text-center mb-8">
-        <Link 
-          href="/dashboard"
-          className="inline-flex items-center gap-2 bg-orange-600 hover:bg-orange-700 text-white font-semibold py-3 px-6 rounded-lg transition-all"
-        >
-          ← Voltar ao Mapa de Atividades
-        </Link>
-      </div>
-
-      {/* Footer Legal */}
-      <div className="text-center text-sm text-white/50 mt-8 pt-8 border-t border-white/10">
-        <p>
-          Esta política está em conformidade com a Lei Geral de Proteção de Dados (LGPD - Lei 13.709/2018)
-        </p>
-        <p className="mt-2">
-          <strong>Última atualização:</strong> {new Date().toLocaleDateString()}
-        </p>
-      </div>
-
-    </div>
+      {/* Modal de Termos */}
+      <TermosModal 
+        isOpen={termosModalOpen} 
+        onClose={() => setTermosModalOpen(false)} 
+      />
+    </PageContainer>
   );
 }
