@@ -1,0 +1,5 @@
+seuemail@gmail.com,31/12/2025
+amigo@outlook.com,15/06/2024
+trabalho@empresa.com,31/12/2024
+admin@teste.com,31/12/2099
+adilson.matioli@gmail.com,31/12/2099
