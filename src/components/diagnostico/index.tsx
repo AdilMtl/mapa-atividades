@@ -5,7 +5,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ChevronDown, HelpCircle, Share2, TrendingUp, Target } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { 
   FileText, 
@@ -13,7 +12,12 @@ import {
   CheckCircle2, 
   AlertTriangle, 
   ArrowLeft,
-  BarChart3
+  BarChart3,
+  ChevronDown,
+  HelpCircle,
+  Share2,
+  TrendingUp,
+  Target
 } from 'lucide-react';
 import jsPDF from 'jspdf';
 import { PageContainer, PageHeader } from '@/components/base';
@@ -104,7 +108,7 @@ export function DiagnosticoHeader({ totalAtividades, onVoltar }: {
           {/* Seta 1 */}
           <div className="hidden sm:block text-white/40">→</div>
 
-          {/* Step 2 - Diagnosticar (Ativo) */}
+          {/* Step 2 - Diagnosticar (ATIVO) */}
           <div className="flex items-center gap-3 flex-1">
             <div className="w-8 h-8 bg-orange-600 rounded-full flex items-center justify-center flex-shrink-0 ring-2 ring-orange-400 ring-offset-2 ring-offset-transparent">
               <span className="text-sm font-bold text-white">2</span>
@@ -130,31 +134,18 @@ export function DiagnosticoHeader({ totalAtividades, onVoltar }: {
               <div className="flex items-center gap-2 mb-1">
                 <span className="text-sm font-medium text-white/60">3. Executar</span>
               </div>
-              <p className="text-xs text-white/40">Plano de ação</p>
-            </div>
-          </div>
-        </div>
-
-        {/* Progress Bar */}
-        <div className="mt-4 sm:mt-6">
-          <div className="flex items-center justify-between text-xs text-white/60 mb-2">
-            <span>Progresso</span>
-            <span>66% completo</span>
-          </div>
-          <div className="h-2 bg-white/10 rounded-full overflow-hidden">
-            <div className="h-full bg-gradient-to-r from-green-500 to-orange-500 rounded-full transition-all duration-500" 
-                 style={{ width: '66%' }}>
+              <p className="text-xs text-white/60">Plano de ação</p>
             </div>
           </div>
         </div>
       </div>
     </div>
-  );
-}
+  );  
+}     
+
 // ═══════════════════════════════════════════════════════════════════
 // 📊 CARD MIX DE ZONAS - TOTALMENTE RESPONSIVO
 // ═══════════════════════════════════════════════════════════════════
-
 export function MixZonasCard({ zonas, cenario, cenarioColor, cenarioIcon }: {
   zonas: Array<{nome: string; valor: number; cor: string; meta: string}>;
   cenario: string;
@@ -231,54 +222,135 @@ export function MixZonasCard({ zonas, cenario, cenarioColor, cenarioIcon }: {
 }
 
 // ═══════════════════════════════════════════════════════════════════
-// 📄 VISUALIZAÇÃO DO RELATÓRIO - MOBILE FIRST
+// 📄 VISUALIZAÇÃO DO RELATÓRIO - VERSÃO PROFISSIONAL MELHORADA
 // ═══════════════════════════════════════════════════════════════════
 
 export function RelatorioView({ 
   relatorioHtml, 
   onExportPdf, 
   onExportJson, 
-  isGenerating = false 
+  isGenerating = false,
+  dadosUsuario,
+  resultado 
 }: {
   relatorioHtml: string;
   onExportPdf: () => void;
   onExportJson: () => void;
   isGenerating?: boolean;
+  dadosUsuario?: { nome?: string; email?: string };
+  resultado?: any;
 }) {
+  const dataAtual = new Date().toLocaleDateString('pt-BR', {
+    day: '2-digit',
+    month: 'long',
+    year: 'numeric'
+  });
+
+  const nomeUsuario = dadosUsuario?.nome || 'Usuário';
+  
+  // ✅ ADICIONAR STATUS DO CENÁRIO
+  const getStatusCenario = (cenario: string) => {
+    switch(cenario) {
+      case 'critico': return { texto: 'Crítico', cor: 'text-red-400', bg: 'bg-red-500/10', border: 'border-red-400/20' };
+      case 'ajustes': return { texto: 'Necessita Ajustes', cor: 'text-orange-400', bg: 'bg-orange-500/10', border: 'border-orange-400/20' };
+      case 'saudavel': return { texto: 'Saudável', cor: 'text-green-400', bg: 'bg-green-500/10', border: 'border-green-400/20' };
+      default: return { texto: 'Indefinido', cor: 'text-gray-400', bg: 'bg-gray-500/10', border: 'border-gray-400/20' };
+    }
+  };
+
+  const statusCenario = getStatusCenario(resultado?.cenario || '');
+
   return (
-    <Card className="glass border-0">
-      <CardHeader className="pb-3 sm:pb-4">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-          <CardTitle className="text-base sm:text-lg">
-            Seu Relatório de Foco
-          </CardTitle>
+    <Card className="bg-white/5 border-white/10 backdrop-blur-sm">
+      <CardHeader className="pb-4">
+        <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
           
-          {/* Botões de export - responsivos */}
-          <div className="flex flex-col xs:flex-row gap-2 w-full sm:w-auto">
+          {/* ✅ Header Melhorado */}
+          <div className="flex items-start gap-4">
+            <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center flex-shrink-0">
+              <FileText className="w-6 h-6 text-white" />
+            </div>
+            <div>
+              <CardTitle className="text-xl font-bold text-white mb-1">
+                Diagnóstico de {nomeUsuario}
+              </CardTitle>
+              <div className="flex items-center gap-3">
+                <p className="text-sm text-white/60">
+                  📅 {dataAtual}
+                </p>
+                {/* ✅ MOSTRAR STATUS DO CENÁRIO */}
+                <span className={`text-xs px-2 py-1 rounded-full font-medium ${statusCenario.bg} ${statusCenario.cor} ${statusCenario.border} border`}>
+                  🚨 {statusCenario.texto}
+                </span>
+              </div>
+            </div>
+          </div>
+          
+          {/* ✅ Botões Melhorados */}
+          <div className="flex flex-col xs:flex-row gap-3 w-full sm:w-auto">
             <Button 
               onClick={onExportPdf}
               disabled={isGenerating}
-              className="flex-1 xs:flex-none bg-red-600 hover:bg-red-700 text-white text-xs sm:text-sm px-3 sm:px-4 py-2"
+              className="flex-1 xs:flex-none bg-red-600 hover:bg-red-700 text-white font-medium"
             >
-              <FileText className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
-              {isGenerating ? 'Gerando...' : 'PDF'}
+              <FileText className="w-4 h-4 mr-2" />
+              {isGenerating ? 'Gerando...' : 'Exportar PDF'}
             </Button>
             <Button 
               onClick={onExportJson}
               variant="outline"
-              className="flex-1 xs:flex-none text-xs sm:text-sm px-3 sm:px-4 py-2"
+              className="flex-1 xs:flex-none border-white/20 text-white hover:bg-white/10"
             >
-              <Download className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
-              JSON
+              <Download className="w-4 h-4 mr-2" />
+              Baixar JSON
             </Button>
           </div>
         </div>
       </CardHeader>
       
-      <CardContent>
-        {/* Relatório - com tipografia responsiva */}
+      <CardContent className="space-y-6">
+        {/* ✅ Métricas com Cores Padronizadas */}
+        {resultado && (
+          <div className="p-6 rounded-xl bg-gradient-to-br from-orange-500/10 to-orange-600/10 border border-orange-400/20">
+            <h3 className="text-orange-200 font-bold text-lg mb-4 flex items-center gap-2">
+              📊 Resumo das Zonas
+            </h3>
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="text-center p-4 rounded-lg bg-green-500/10 border border-green-400/20">
+                <div className="text-2xl font-bold text-green-400 mb-1">
+                  {resultado?.mix?.essencial || 0}%
+                </div>
+                <div className="text-sm text-green-300 font-medium">📗 Essencial</div>
+                <div className="text-xs text-green-200/60 mt-1">Meta: 40-55%</div>
+              </div>
+              <div className="text-center p-4 rounded-lg bg-blue-500/10 border border-blue-400/20">
+                <div className="text-2xl font-bold text-blue-400 mb-1">
+                  {resultado?.mix?.estrategica || 0}%
+                </div>
+                <div className="text-sm text-blue-300 font-medium">📘 Estratégica</div>
+                <div className="text-xs text-blue-200/60 mt-1">Meta: 20-30%</div>
+              </div>
+              <div className="text-center p-4 rounded-lg bg-yellow-500/10 border border-yellow-400/20">
+                <div className="text-2xl font-bold text-yellow-400 mb-1">
+                  {resultado?.mix?.tatica || 0}%
+                </div>
+                <div className="text-sm text-yellow-300 font-medium">📙 Tática</div>
+                <div className="text-xs text-yellow-200/60 mt-1">Meta: 0-25%</div>
+              </div>
+              <div className="text-center p-4 rounded-lg bg-red-500/10 border border-red-400/20">
+                <div className="text-2xl font-bold text-red-400 mb-1">
+                  {resultado?.mix?.distracao || 0}%
+                </div>
+                <div className="text-sm text-red-300 font-medium">📕 Distração</div>
+                <div className="text-xs text-red-200/60 mt-1">Meta: 0-15%</div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ✅ Relatório com Espaçamento Padronizado */}
         <div 
-          className="text-white/90 space-y-3 sm:space-y-4 text-sm sm:text-base leading-relaxed"
+          className="prose prose-invert max-w-none text-white/90 space-y-6 text-base leading-relaxed"
           dangerouslySetInnerHTML={{ __html: relatorioHtml }}
         />
       </CardContent>
@@ -402,8 +474,7 @@ export function DiagnosticoLoading() {
 // 🎯 COMO USAR ESTE DIAGNÓSTICO - RETRÁTIL (ADICIONAR AO ARQUIVO)
 // Adicione este componente no final do arquivo, antes dos estilos CSS
 
-import { ChevronDown, HelpCircle, Share2, TrendingUp, Target } from 'lucide-react';
-import { cn } from '@/lib/utils';
+
 
 export function ComoUsarDiagnostico({ 
   onExportarPDF, 

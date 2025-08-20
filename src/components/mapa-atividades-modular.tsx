@@ -47,59 +47,81 @@ const containerStyle: React.CSSProperties = {
 };
 
 // ═══════════════════════════════════════════════════════════════════
-// 🆕 MELHORIA 3: INDICADOR DE PROGRESSO
+// 🎯 FLUXO ROI DO FOCO PADRONIZADO
 // ═══════════════════════════════════════════════════════════════════
 
 function IndicadorProgresso() {
   return (
-    <div className="mb-8 p-4 bg-white/5 rounded-lg border border-white/10 transition-all duration-300 hover:bg-white/8">
-      <div className="flex items-center justify-between">
-        <h3 className="text-lg font-semibold text-white/90 mb-4">Fluxo ROI do Foco</h3>
-        <span className="text-xs text-white/60">Siga os 3 passos</span>
-      </div>
-      
-      <div className="flex items-center gap-4">
-        {/* Etapa 1: Mapear (ATIVA) */}
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-green-500 flex items-center justify-center ring-2 ring-green-400/50 transition-all duration-300">
-            <Check className="w-5 h-5 text-white" />
-          </div>
-          <div>
-            <div className="text-green-200 font-medium text-sm">1. Mapear</div>
-            <div className="text-green-300/80 text-xs">Atividades na matriz</div>
-          </div>
+    <div className="mb-6 sm:mb-8">
+      <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-4 sm:p-6">
+        
+        {/* Título do Fluxo */}
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-lg sm:text-xl font-semibold text-white">
+            Fluxo ROI do Foco
+          </h2>
+          <span className="text-xs sm:text-sm text-white/60 hidden sm:block">
+            Siga os 3 passos
+          </span>
         </div>
-        
-        <ArrowRight className="w-5 h-5 text-white/40" />
-        
-        {/* Etapa 2: Diagnosticar (PRÓXIMA) */}
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full border-2 border-orange-500 flex items-center justify-center transition-all duration-300 hover:bg-orange-500/20">
-            <span className="text-orange-400 font-bold text-sm">2</span>
+
+        {/* Steps do Fluxo */}
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-6">
+          
+          {/* Step 1 - Mapear (ATIVO) */}
+          <div className="flex items-center gap-3 flex-1">
+            <div className="w-8 h-8 bg-orange-600 rounded-full flex items-center justify-center flex-shrink-0 ring-2 ring-orange-400 ring-offset-2 ring-offset-transparent">
+              <span className="text-sm font-bold text-white">1</span>
+            </div>
+            <div className="flex-1">
+              <div className="flex items-center gap-2 mb-1">
+                <span className="text-sm font-medium text-orange-400">1. Mapear</span>
+                <div className="w-2 h-2 bg-orange-400 rounded-full animate-pulse"></div>
+              </div>
+              <p className="text-xs text-white/60">Atividades na matriz</p>
+            </div>
           </div>
-          <div>
-            <div className="text-orange-200 font-medium text-sm">2. Diagnosticar</div>
-            <div className="text-orange-300/80 text-xs">Análise do foco</div>
+
+          {/* Seta 1 */}
+          <div className="hidden sm:block text-white/40">
+            <ArrowRight className="w-4 h-4" />
           </div>
-        </div>
-        
-        <ArrowRight className="w-5 h-5 text-white/40" />
-        
-        {/* Etapa 3: Executar */}
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full border-2 border-white/30 flex items-center justify-center transition-all duration-300">
-            <span className="text-white/50 font-bold text-sm">3</span>
+
+          {/* Step 2 - Diagnosticar (Pendente) */}
+          <div className="flex items-center gap-3 flex-1">
+            <div className="w-8 h-8 bg-white/10 border border-white/20 rounded-full flex items-center justify-center flex-shrink-0">
+              <span className="text-sm font-medium text-white/60">2</span>
+            </div>
+            <div className="flex-1">
+              <div className="flex items-center gap-2 mb-1">
+                <span className="text-sm font-medium text-white/60">2. Diagnosticar</span>
+              </div>
+              <p className="text-xs text-white/60">Análise do foco</p>
+            </div>
           </div>
-          <div>
-            <div className="text-white/50 font-medium text-sm">3. Executar</div>
-            <div className="text-white/40 text-xs">Plano de ação</div>
+
+          {/* Seta 2 */}
+          <div className="hidden sm:block text-white/40">
+            <ArrowRight className="w-4 h-4" />
+          </div>
+
+          {/* Step 3 - Executar (Pendente) */}
+          <div className="flex items-center gap-3 flex-1">
+            <div className="w-8 h-8 bg-white/10 border border-white/20 rounded-full flex items-center justify-center flex-shrink-0">
+              <span className="text-sm font-medium text-white/60">3</span>
+            </div>
+            <div className="flex-1">
+              <div className="flex items-center gap-2 mb-1">
+                <span className="text-sm font-medium text-white/60">3. Executar</span>
+              </div>
+              <p className="text-xs text-white/60">Plano de ação</p>
+            </div>
           </div>
         </div>
       </div>
     </div>
   );
 }
-
 // ═══════════════════════════════════════════════════════════════════
 // 🆕 MELHORIA 2: TIPOGRAFIA UNIFICADA NA SEÇÃO "COMO USAR"
 // ═══════════════════════════════════════════════════════════════════

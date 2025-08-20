@@ -548,66 +548,9 @@ export function PlanoStats({ estatisticas, atividades }: PlanoStatsProps) {
           />
         </MetricGrid>
       </Section>
-
-      {/* 📊 DISTRIBUIÇÃO POR ZONAS */}
-      <Section title="Distribuição de Horas por Zona" className="mb-8">
-        <div 
-          className="rounded-2xl p-6"
-          style={{ background: TEMA.card, border: `1px solid ${TEMA.cardBorder}` }}
-        >
-          <div className="flex items-center gap-2 mb-4">
-            <Sparkles className="w-5 h-5" style={{ color: TEMA.brand }} />
-            <span className="text-sm" style={{ color: TEMA.subtext }}>
-              Distribuição de horas por zona (diárias)
-            </span>
-          </div>
-          
-          {/* Barra de progresso */}
-          <div className="w-full h-4 rounded-full overflow-hidden flex mb-4" style={{ background: TEMA.chipBg }}>
-            {(["Distração", "Tática", "Estratégica", "Essencial"] as const).map((z) => {
-              const w = (estatisticas.totais[z] / estatisticas.totalHoras) * 100;
-              const color = z === "Essencial" ? TEMA.positive : 
-                          z === "Estratégica" ? TEMA.info : 
-                          z === "Tática" ? TEMA.warning : TEMA.danger;
-              return (
-                <div 
-                  key={z} 
-                  style={{ width: `${w}%`, background: color }} 
-                  className="h-full transition-all duration-500" 
-                />
-              );
-            })}
-          </div>
-          
-          {/* Legendas */}
-          <div className="flex flex-wrap gap-4">
-            {(["Essencial", "Estratégica", "Tática", "Distração"] as const).map((z) => (
-              <div 
-                key={z} 
-                className="px-3 py-2 rounded-full text-sm flex items-center gap-2"
-                style={{ background: TEMA.chipBg }}
-              >
-                <span 
-                  className="inline-block w-3 h-3 rounded-full" 
-                  style={{ 
-                    background: z === "Essencial" ? TEMA.positive : 
-                               z === "Estratégica" ? TEMA.info : 
-                               z === "Tática" ? TEMA.warning : TEMA.danger 
-                  }} 
-                />
-                <span style={{ color: TEMA.text }}>{z}:</span>
-                <span style={{ color: TEMA.subtext }}>
-                  {estatisticas.totais[z].toFixed(1)} h/dia
-                </span>
-              </div>
-            ))}
-          </div>
-        </div>
-      </Section>
     </>
   );
 }
-
 // ═══════════════════════════════════════════════════════════════════
 // 🧩 COMPONENTE 4: ITEM DE TÁTICA
 // ═══════════════════════════════════════════════════════════════════
@@ -903,26 +846,41 @@ export function AtividadeCard({
       <div className="flex flex-col lg:flex-row lg:items-center gap-4 mb-4">
         <div className="flex-1">
           <div className="flex flex-wrap items-center gap-3 mb-3">
-            <div 
-              className="px-3 py-1 rounded-full text-sm font-medium"
-              style={{ background: TEMA.chipBg, color: TEMA.text }}
-            >
-              Zona: <span style={{ color: zonaColor }}>{zona}</span>
-            </div>
-            <div 
-              className="px-3 py-1 rounded-full text-sm"
-              style={{ background: TEMA.chipBg, color: TEMA.subtext }}
-            >
-              IC: {scoreIC(atividade)} (imp {atividade.impacto}/6 × clar {atividade.clareza}/6)
-            </div>
-            <div 
-              className="px-3 py-1 rounded-full text-sm flex items-center gap-1"
-              style={{ background: TEMA.chipBg, color: TEMA.subtext }}
-            >
-              <Timer className="w-3 h-3"/> 
-              {atividade.horasDia.toFixed(1)} h/dia · {atividade.horasMes.toFixed(0)} h/mês
-            </div>
-          </div>
+  {/* Tag da Zona - Simplificada com ícone */}
+  <div 
+    className="px-3 py-1 rounded-full text-sm font-medium flex items-center gap-1"
+    style={{ 
+      background: `${zonaColor}20`, 
+      color: zonaColor,
+      border: `1px solid ${zonaColor}40`
+    }}
+  >
+    {zona === "Essencial" ? "🟢" :
+     zona === "Estratégica" ? "🔵" :
+     zona === "Tática" ? "🟡" : "🔴"} 
+    {zona}
+  </div>
+  
+  {/* Tempo - Apenas info essencial */}
+  <div 
+    className="px-3 py-1 rounded-full text-sm flex items-center gap-1"
+    style={{ background: TEMA.chipBg, color: TEMA.subtext }}
+  >
+    <Timer className="w-3 h-3"/> 
+    {atividade.horasMes.toFixed(0)}h/mês
+  </div>
+  
+  {/* Score simplificado - apenas quando relevante */}
+  <div 
+    className="px-2 py-1 rounded text-xs"
+    style={{ 
+      background: scoreIC(atividade) >= 20 ? "rgba(34, 197, 94, 0.1)" : "rgba(156, 163, 175, 0.1)",
+      color: scoreIC(atividade) >= 20 ? "#22c55e" : "#9ca3af"
+    }}
+  >
+    {scoreIC(atividade) >= 20 ? "🔥 Alta prioridade" : `Score ${scoreIC(atividade)}`}
+  </div>
+</div>
           
           <h2 className="text-xl font-semibold mb-2" style={{ color: TEMA.text }}>
             {atividade.titulo}
@@ -1022,37 +980,162 @@ export function AtividadeCard({
     </div>
   )}
 
-  {/* Para Essencial e Estratégica: Botões tradicionais */}
-  {(zona === "Essencial" || zona === "Estratégica") && (
+  {/* Para Essencial: Framework específico */}
+  {zona === "Essencial" && (
     <div>
       <div className="flex items-center gap-2 mb-3">
         <span className="text-sm font-medium" style={{ color: TEMA.text }}>
-          🚀 Potencializar resultado:
+          🏆 Proteger o essencial:
         </span>
         <span className="text-xs" style={{ color: TEMA.subtext }}>
-          Foque em amplificar o que já funciona
+          Garanta qualidade e consistência no que não pode falhar
         </span>
       </div>
       
-      <div className="flex flex-wrap gap-3">
-        <QuickButton 
-          onClick={() => onAbrirModalPersonalizado(atividade, "tempo")}
-          icon={<Timer className="w-4 h-4"/>}
-          label="+ Otimizar Tempo"
-          color={TEMA.brand}
-        />
-        <QuickButton 
-          onClick={() => onAbrirModalPersonalizado(atividade, "clareza")}
-          icon={<Target className="w-4 h-4"/>}
-          label="+ Aumentar Clareza"
-          color={TEMA.info}
-        />
-        <QuickButton 
-          onClick={() => onAbrirModalPersonalizado(atividade, "impacto")}
-          icon={<ArrowUpRight className="w-4 h-4"/>}
-          label="+ Amplificar Impacto"
-          color={TEMA.accent}
-        />
+      <div className="grid grid-cols-2 gap-2">
+        <button
+          onClick={() => onAbrirModalDAR_CERTO(atividade, "PADRONIZAR")}
+          className={cn(
+            "p-3 rounded-lg text-sm font-medium transition-all duration-200",
+            "bg-white/5 border border-white/10 text-white hover:bg-white/10"
+          )}
+        >
+          <span className="text-lg mb-1 block">📋</span>
+          <div className="text-center">
+            <div className="font-medium">PADRONIZAR</div>
+            <div className="text-xs mt-1 opacity-90">
+              Modelos e checklists
+            </div>
+          </div>
+        </button>
+
+        <button
+          onClick={() => onAbrirModalDAR_CERTO(atividade, "CRIAR_RITUAIS")}
+          className={cn(
+            "p-3 rounded-lg text-sm font-medium transition-all duration-200",
+            "bg-white/5 border border-white/10 text-white hover:bg-white/10"
+          )}
+        >
+          <span className="text-lg mb-1 block">⏰</span>
+          <div className="text-center">
+            <div className="font-medium">CRIAR RITUAIS</div>
+            <div className="text-xs mt-1 opacity-90">
+              Blocos fixos
+            </div>
+          </div>
+        </button>
+
+        <button
+          onClick={() => onAbrirModalDAR_CERTO(atividade, "REVISAR")}
+          className={cn(
+            "p-3 rounded-lg text-sm font-medium transition-all duration-200",
+            "bg-white/5 border border-white/10 text-white hover:bg-white/10"
+          )}
+        >
+          <span className="text-lg mb-1 block">✅</span>
+          <div className="text-center">
+            <div className="font-medium">REVISAR</div>
+            <div className="text-xs mt-1 opacity-90">
+              Garantir qualidade
+            </div>
+          </div>
+        </button>
+
+        <button
+          onClick={() => onAbrirModalDAR_CERTO(atividade, "PROTEGER_FOCO")}
+          className={cn(
+            "p-3 rounded-lg text-sm font-medium transition-all duration-200",
+            "bg-white/5 border border-white/10 text-white hover:bg-white/10"
+          )}
+        >
+          <span className="text-lg mb-1 block">🎯</span>
+          <div className="text-center">
+            <div className="font-medium">PROTEGER FOCO</div>
+            <div className="text-xs mt-1 opacity-90">
+              60-90min concentração
+            </div>
+          </div>
+        </button>
+      </div>
+    </div>
+  )}
+
+  {/* Para Estratégica: Framework específico */}
+  {zona === "Estratégica" && (
+    <div>
+      <div className="flex items-center gap-2 mb-3">
+        <span className="text-sm font-medium" style={{ color: TEMA.text }}>
+          🔍 Dar forma ao estratégico:
+        </span>
+        <span className="text-xs" style={{ color: TEMA.subtext }}>
+          Transforme ideias promissoras em ações concretas
+        </span>
+      </div>
+      
+      <div className="grid grid-cols-2 gap-2">
+        <button
+          onClick={() => onAbrirModalDAR_CERTO(atividade, "DAR_FORMA")}
+          className={cn(
+            "p-3 rounded-lg text-sm font-medium transition-all duration-200",
+            "bg-white/5 border border-white/10 text-white hover:bg-white/10"
+          )}
+        >
+          <span className="text-lg mb-1 block">🎨</span>
+          <div className="text-center">
+            <div className="font-medium">DAR FORMA</div>
+            <div className="text-xs mt-1 opacity-90">
+              Diagnóstico de clareza
+            </div>
+          </div>
+        </button>
+
+        <button
+          onClick={() => onAbrirModalDAR_CERTO(atividade, "DIVIDIR")}
+          className={cn(
+            "p-3 rounded-lg text-sm font-medium transition-all duration-200",
+            "bg-white/5 border border-white/10 text-white hover:bg-white/10"
+          )}
+        >
+          <span className="text-lg mb-1 block">🧩</span>
+          <div className="text-center">
+            <div className="font-medium">DIVIDIR</div>
+            <div className="text-xs mt-1 opacity-90">
+              Pequenas partes, MVP
+            </div>
+          </div>
+        </button>
+
+        <button
+          onClick={() => onAbrirModalDAR_CERTO(atividade, "CHECKPOINT")}
+          className={cn(
+            "p-3 rounded-lg text-sm font-medium transition-all duration-200",
+            "bg-white/5 border border-white/10 text-white hover:bg-white/10"
+          )}
+        >
+          <span className="text-lg mb-1 block">📊</span>
+          <div className="text-center">
+            <div className="font-medium">CHECKPOINT</div>
+            <div className="text-xs mt-1 opacity-90">
+              Metas e KPIs
+            </div>
+          </div>
+        </button>
+
+        <button
+          onClick={() => onAbrirModalDAR_CERTO(atividade, "TRAZER_PARCEIROS")}
+          className={cn(
+            "p-3 rounded-lg text-sm font-medium transition-all duration-200",
+            "bg-white/5 border border-white/10 text-white hover:bg-white/10"
+          )}
+        >
+          <span className="text-lg mb-1 block">👥</span>
+          <div className="text-center">
+            <div className="font-medium">TRAZER PARCEIROS</div>
+            <div className="text-xs mt-1 opacity-90">
+              Acelerar avanços
+            </div>
+          </div>
+        </button>
       </div>
     </div>
   )}
@@ -1402,6 +1485,34 @@ function ordenarPorFocoDiagnostico(
     return ordem.indexOf(zonaA) - ordem.indexOf(zonaB);
   });
 }
+// ✅ FUNÇÃO AUXILIAR PARA SUBTÍTULOS DAS CATEGORIAS
+function getSubtituloCategoria(categoria: string): string {
+  const subtitulos: Record<string, string> = {
+    // DAR CERTO originais
+    DESCARTAR: "Aquilo que não faz sentido continuar",
+    AUTOMATIZAR: "Investir tempo agora para ganhar depois", 
+    REDUZIR: "Escopo, energia ou frequência",
+    COMBINAR: "Reagrupar atividades, entregar junto",
+    ENCAMINHAR: "Direcionar para quem é responsável",
+    REVISITAR: "Ajustar ou descontinuar",
+    TREINAR: "Preparar alguém para assumir",
+    OTIMIZAR: "Redesenhar como a tarefa é feita",
+    
+    // Zona Essencial
+    PADRONIZAR: "Criar modelos e checklists",
+    CRIAR_RITUAIS: "Blocos fixos para atividades críticas",
+    REVISAR: "Garantir precisão antes de entregar",
+    PROTEGER_FOCO: "60-90min de concentração absoluta",
+    
+    // Zona Estratégica
+    DAR_FORMA: "Diagnóstico de clareza",
+    DIVIDIR: "Pequenas partes ou MVP",
+    CHECKPOINT: "Metas objetivas e KPIs",
+    TRAZER_PARCEIROS: "Acelerar com parceiros estratégicos"
+  };
+  
+  return subtitulos[categoria] || "Otimizar esta atividade";
+}
 
 // ═══════════════════════════════════════════════════════════════════
 // 🆕 COMPONENTE 8: MODAL DE CRIAÇÃO DAR CERTO
@@ -1494,7 +1605,7 @@ export function ModalDAR_CERTO({
         <div className="flex items-center justify-between mb-6">
           <div>
             <h3 className="text-lg font-semibold" style={{ color: TEMA.text }}>
-  {taticaExistente ? "✏️ Editar Tática" : `${categoria} - ${categoriaConfig?.descricao}`}
+  {taticaExistente ? "✏️ Editar Tática" : `${categoria} - ${getSubtituloCategoria(categoria)}`}
 </h3>
             <p className="text-sm mt-1" style={{ color: TEMA.subtext }}>
               Para: {atividade.titulo}

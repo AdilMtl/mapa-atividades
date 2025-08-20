@@ -27,7 +27,7 @@ import {
   Section,
   StatusBadge
 } from '@/components/base';
-import { DiagnosticoHeader, ComoUsarDiagnostico } from '@/components/diagnostico';
+import { DiagnosticoHeader, ComoUsarDiagnostico, RelatorioView } from '@/components/diagnostico';
 import { 
   ArrowLeft, 
   Target, 
@@ -61,6 +61,7 @@ export default function DiagnosticoPage() {
   const [generating, setGenerating] = useState(false);
  const [comoUsarExpanded, setComoUsarExpanded] = useState(false);
   const exportRef = useRef<HTMLDivElement>(null);
+ const [dadosUsuario, setDadosUsuario] = useState<{nome?: string; email?: string} | null>(null);
 
   // Carregamento de dados
   useEffect(() => {
@@ -112,6 +113,42 @@ export default function DiagnosticoPage() {
 
     carregarDados();
   }, []);
+
+// ✅ ADICIONAR TODO ESTE USEEFFECT:
+  // Buscar dados do usuário do perfil
+  useEffect(() => {
+    async function carregarPerfil() {
+      try {
+        const { data: { user: currentUser } } = await supabase.auth.getUser();
+        if (currentUser) {
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('display_name, email')
+            .eq('id', currentUser.id)
+            .single();
+          
+          setDadosUsuario({
+            nome: profile?.display_name || currentUser.email?.split('@')[0] || 'Usuário',
+            email: currentUser.email
+          });
+        }
+      } catch (error) {
+        console.log('Erro ao carregar perfil:', error);
+        // Fallback para email se der erro
+        if (user) {
+          setDadosUsuario({
+            nome: user.email?.split('@')[0] || 'Usuário',
+            email: user.email
+          });
+        }
+      }
+    }
+    
+    if (user) {
+      carregarPerfil();
+    }
+  }, [user]); 
+
 
   // Funções de ação
   const voltarMapa = () => {
@@ -336,19 +373,7 @@ export default function DiagnosticoPage() {
               </div>
             </div>
 
-            {/* Progress Bar */}
-            <div className="mt-4 sm:mt-6">
-              <div className="flex items-center justify-between text-xs text-white/60 mb-2">
-                <span>Progresso</span>
-                <span>66% completo</span>
-              </div>
-              <div className="h-2 bg-white/10 rounded-full overflow-hidden">
-                <div className="h-full bg-gradient-to-r from-green-500 to-orange-500 rounded-full transition-all duration-500" 
-                     style={{ width: '66%' }}>
-                </div>
-              </div>
             </div>
-          </div>
         </div>
 
         {/* Card de Contexto Melhorado */}
@@ -636,25 +661,17 @@ export default function DiagnosticoPage() {
 </Section>
         </div>
 
-        {/* Relatório */}
-<div className="mb-8 sm:mb-10">
-        <Section title="Seu Diagnóstico Personalizado">
-          <Card className="bg-white/5 border-white/10 backdrop-blur-sm">
-            <CardHeader>
-              <CardTitle className="text-white flex items-center gap-2">
-                <BookOpen className="w-5 h-5" />
-                Relatório Completo
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="p-6">
-              <div 
-                className="diagnostico-content text-white/90"
-                dangerouslySetInnerHTML={{ __html: resultado.relatorioHtml }}
-              />
-            </CardContent>
-          </Card>
-        </Section>
- </div>
+       {/* Relatório Profissional */}
+        <div className="mb-8 sm:mb-10">
+          <RelatorioView 
+            relatorioHtml={resultado.relatorioHtml}
+            onExportPdf={exportarPDF}
+            onExportJson={exportarJSON}
+            isGenerating={generating}
+            dadosUsuario={dadosUsuario}
+            resultado={resultado}
+          />
+        </div>
         
         
         {/* Próximas Ações */}
