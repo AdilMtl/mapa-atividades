@@ -204,7 +204,7 @@ function scoreIC(a: AtividadePlano) {
 }
 
 function uid() {
-  return Math.random().toString(36).slice(2, 9);
+  return `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
 }
 
 function mapearAtividade(ativMap: AtividadeMap): AtividadePlano {
@@ -435,32 +435,28 @@ interface SelectImpactoProps {
 }
 
 export function SelectImpacto({ label, value, onChange, badgeColor }: SelectImpactoProps) {
+  const iconeLabel = 
+    label.includes('Tempo') ? '⏱️ Tempo' :
+    label.includes('Clareza') ? '🔍 Clareza' :
+    label.includes('Impacto') ? '📈 Impacto' : label;
+
   return (
-    <label className="flex items-center gap-2">
-      <span 
-        className="inline-flex items-center gap-2 px-2 py-1 rounded-full text-xs"
-        style={{ background: TEMA.chipBg, color: badgeColor }}
-      >
-        <span 
-          className="inline-block w-2 h-2 rounded-full" 
-          style={{ background: badgeColor }}
-        />
-        {label}
-      </span>
+    <div className="flex flex-col gap-2">
+      <div className="flex items-center gap-2">
+        <div className="w-3 h-3 rounded-full" style={{ background: badgeColor }}></div>
+        <span className="text-xs font-medium text-white/90">{iconeLabel}</span>
+      </div>
+      
       <select
         value={value || ""}
         onChange={(e) => onChange(e.target.value ? (e.target.value as ImpactoFlag) : undefined)}
-        className={cn(
-          "bg-transparent border-b text-xs px-1 py-1 outline-none",
-          "border-white/20 focus:border-white/40 transition-colors"
-        )}
-        style={{ color: TEMA.text }}
+        className="bg-white/10 border border-white/20 rounded-md px-2 py-1.5 text-xs text-white outline-none focus:border-white/40 focus:bg-white/15 transition-all"
       >
-        <option value="">Nenhum</option>
-        <option value="aumenta">Aumenta</option>
-        <option value="diminui">Diminui</option>
+        <option value="" className="bg-gray-800 text-gray-400">—</option>
+        <option value="aumenta" className="bg-gray-800 text-green-400">📈 Aumenta</option>
+        <option value="diminui" className="bg-gray-800 text-red-400">📉 Diminui</option>
       </select>
-    </label>
+    </div>
   );
 }
 
@@ -814,26 +810,38 @@ export function TaticaItem({
         </div>
       )}
 
-      {/* Seletores de impacto */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <SelectImpacto
-          label="Tempo"
-          value={impactoTempo}
-          onChange={(v) => onAtualizarImpacto(atividadeId, tatica.id, "tempo", v)}
-          badgeColor={TEMA.brand}
-        />
-        <SelectImpacto
-          label="Clareza"
-          value={impactoClareza}
-          onChange={(v) => onAtualizarImpacto(atividadeId, tatica.id, "clareza", v)}
-          badgeColor={TEMA.info}
-        />
-        <SelectImpacto
-          label="Impacto"
-          value={impactoImpacto}
-          onChange={(v) => onAtualizarImpacto(atividadeId, tatica.id, "impacto", v)}
-          badgeColor={TEMA.accent}
-        />
+      {/* 🎯 SEÇÃO DE IMPACTOS MELHORADA */}
+      <div className="mt-4 p-3 rounded-lg bg-white/5 border border-white/10">
+        <div className="flex items-center gap-2 mb-3">
+          <div className="w-2 h-2 rounded-full bg-orange-500"></div>
+          <span className="text-sm font-medium text-white/90">🎯 Impactos Esperados</span>
+          <span className="text-xs text-white/60">Configure como esta tática vai mover os ponteiros</span>
+        </div>
+        
+        <div className="grid grid-cols-3 gap-3">
+          <SelectImpacto 
+            label="Tempo" 
+            value={tatica.impactos?.tempo} 
+            onChange={(v) => onAtualizarImpacto(atividade.id, tatica.id, "tempo", v)}
+            badgeColor="#ef4444"
+          />
+          <SelectImpacto 
+            label="Clareza" 
+            value={tatica.impactos?.clareza} 
+            onChange={(v) => onAtualizarImpacto(atividade.id, tatica.id, "clareza", v)}
+            badgeColor="#3b82f6"
+          />
+          <SelectImpacto 
+            label="Impacto" 
+            value={tatica.impactos?.impacto} 
+            onChange={(v) => onAtualizarImpacto(atividade.id, tatica.id, "impacto", v)}
+            badgeColor="#22c55e"
+          />
+        </div>
+        
+        <div className="mt-2 text-xs text-white/50">
+          💡 Defina se esta tática vai aumentar, diminuir ou não alterar cada aspecto
+        </div>
       </div>
     </div>
   );

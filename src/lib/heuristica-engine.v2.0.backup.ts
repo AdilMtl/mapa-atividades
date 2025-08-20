@@ -1,5 +1,5 @@
 // ============================================================================
-// 🧠 HEURÍSTICA ENGINE V2.1 - AJUSTES CIRÚRGICOS PARA PRODUÇÃO
+// 🧠 HEURÍSTICA ENGINE V2.0 - ROBUSTA E MADURA
 // ============================================================================
 
 import { Tatica, Eixo, ImpactoFlag, AtividadePlano } from '@/components/plano';
@@ -19,48 +19,14 @@ type SugestaoTatica = {
   gatilho?: string;
   impactos: { tempo?: number; clareza?: number; impacto?: number };
   score?: number;
-  scoreDetalhes?: string;
 };
 
 // ═══════════════════════════════════════════════════════════════════
-// 🎯 STOPWORDS PT-BR E PREFERÊNCIAS POR ZONA
-// ═══════════════════════════════════════════════════════════════════
-
-const STOPWORDS_PT_BR = new Set([
-  'de', 'da', 'do', 'para', 'com', 'por', 'em', 'sem', 'um', 'uma', 'e', 'ou',
-  'no', 'na', 'os', 'as', 'que', 'se', 'o', 'a', 'resultado', 'padrao', 'processo'
-]);
-
-const TERMOS_TECNICOS = new Set(['p0', 'p1', 'p2', 'sql', 'kpi', 'crm', 'mvp', 'api']);
-
-const PREFERENCIAS_CATEGORIA_POR_ZONA = {
-  "DISTRACAO": [
-    { categoria: "DESCARTAR", boost: 1.25 },
-    { categoria: "REDUZIR", boost: 1.15 },
-    { categoria: "AUTOMATIZAR", boost: 1.07 }
-  ],
-  "TATICA": [
-    { categoria: "AUTOMATIZAR", boost: 1.25 },
-    { categoria: "COMBINAR", boost: 1.15 },
-    { categoria: "REDUZIR", boost: 1.07 }
-  ],
-  "ESTRATEGICA": [
-    { categoria: "REVISITAR", boost: 1.25 },
-    { categoria: "OTIMIZAR", boost: 1.15 },
-    { categoria: "TREINAR_DELEGAR", boost: 1.07 }
-  ],
-  "ESSENCIAL": [
-    { categoria: "OTIMIZAR", boost: 1.25 },
-    { categoria: "REVISITAR", boost: 1.15 },
-    { categoria: "AUTOMATIZAR", boost: 1.07 }
-  ]
-};
-
-// ═══════════════════════════════════════════════════════════════════
-// 🎯 DATABASE DE PADRÕES COMPLETA
+// 🎯 DATABASE DE PADRÕES EXPANDIDA (COBERTURA COMPLETA)
 // ═══════════════════════════════════════════════════════════════════
 
 const PATTERNS_DATABASE = [
+  // 📧 EMAILS E COMUNICAÇÃO
   {
     tag: "emails",
     keywords: ["email","e-mail","inbox","caixa","responder","follow","mensagem","correspondencia"],
@@ -86,7 +52,8 @@ const PATTERNS_DATABASE = [
       }
     ]
   },
-  
+
+  // 🤝 REUNIÕES E ALINHAMENTOS
   {
     tag: "reunioes",
     keywords: ["reuni","alinhamento","status","pauta","meet","zoom","teams","agenda","sync","call"],
@@ -113,6 +80,7 @@ const PATTERNS_DATABASE = [
     ]
   },
 
+  // 📊 RELATÓRIOS E APRESENTAÇÕES
   {
     tag: "relatorios",
     keywords: ["relatorio","kpi","indicador","dashboard","apresent","slide","deck","metricas","resultado"],
@@ -139,6 +107,7 @@ const PATTERNS_DATABASE = [
     ]
   },
 
+  // 📋 PLANEJAMENTO E PROPOSTAS
   {
     tag: "planejamento",
     keywords: ["plano","planej","escopo","brief","proposal","onepager","mvp","pitch","prototip","roadmap"],
@@ -165,6 +134,7 @@ const PATTERNS_DATABASE = [
     ]
   },
 
+  // ✍️ CONTEÚDO E COMUNICAÇÃO
   {
     tag: "conteudo",
     keywords: ["texto","escrever","post","artigo","newsletter","roteiro","copy","blog","conteudo"],
@@ -191,6 +161,7 @@ const PATTERNS_DATABASE = [
     ]
   },
 
+  // 💰 VENDAS E CRM
   {
     tag: "vendas",
     keywords: ["prospec","lead","funil","pipeline","crm","followup","venda","cliente","comercial"],
@@ -215,6 +186,168 @@ const PATTERNS_DATABASE = [
         fundamentacao: "Foco em leads qualificados aumenta taxa de fechamento."
       }
     ]
+  },
+
+  // 🐛 BUGS E OPERAÇÕES
+  {
+    tag: "bugs",
+    keywords: ["bug","erro","incidente","hotfix","p0","p1","problema","falha","correcao"],
+    gerar: () => [
+      {
+        tipo: "HABITO",
+        titulo: "Triage imediato + time-box",
+        detalhe: "P0=2h máx, P1=1 dia, P2=sprint atual. Sem exceções.",
+        categoria: "REDUZIR",
+        frequencia: "diaria",
+        gatilho: "Novo bug reportado",
+        impactos: { tempo: 0.4, clareza: 0.8, impacto: 0.6 },
+        fundamentacao: "Limites previnem sobre-engenharia em correções."
+      },
+      {
+        tipo: "TAREFA",
+        titulo: "Root cause e prevenção",
+        detalhe: "Todo P0/P1: 5 por quês + ação preventiva documentada.",
+        categoria: "REVISITAR",
+        estimativaHoras: 0.5,
+        impactos: { tempo: 0.4, clareza: 0.7, impacto: 0.8 },
+        fundamentacao: "Prevenir > Corrigir. Investe tempo hoje para poupar amanhã."
+      }
+    ]
+  },
+
+  // 💬 MENSAGERIA E SOCIAL
+  {
+    tag: "mensageria",
+    keywords: ["whatsapp","slack","teams","mensagem","linkedin","instagram","social","chat"],
+    gerar: () => [
+      {
+        tipo: "HABITO",
+        titulo: "Horários livres de mensagem",
+        detalhe: "Deep work: 9h-11h e 14h-16h sem Slack/WhatsApp. Status claro.",
+        categoria: "REDUZIR",
+        frequencia: "diaria",
+        gatilho: "Início do bloco de foco",
+        impactos: { tempo: 0.3, clareza: 0.6, impacto: 0.5 },
+        fundamentacao: "Protege blocos de alta produtividade."
+      },
+      {
+        tipo: "TAREFA",
+        titulo: "Automação de respostas frequentes",
+        detalhe: "Templates para 80% das perguntas comuns + bot para direcionamento.",
+        categoria: "AUTOMATIZAR",
+        estimativaHoras: 1,
+        impactos: { tempo: 0.2, clareza: 0.5, impacto: 0.3 },
+        fundamentacao: "Reduz carga cognitiva de resposta manual repetitiva."
+      }
+    ]
+  },
+
+  // 📁 ROTINAS ADMINISTRATIVAS
+  {
+    tag: "admin",
+    keywords: ["planilha","arquivo","reembolso","fatura","contrato","compliance","admin","organizacao"],
+    gerar: () => [
+      {
+        tipo: "HABITO",
+        titulo: "Lote administrativo mensal",
+        detalhe: "1ª sexta: reembolsos, faturas, arquivo. Tudo numa sessão só.",
+        categoria: "COMBINAR",
+        frequencia: "mensal",
+        gatilho: "1ª sexta-feira do mês",
+        impactos: { tempo: 0.2, clareza: 0.6, impacto: 0.2 },
+        fundamentacao: "Agrupa atividades similares para reduzir troca de contexto."
+      },
+      {
+        tipo: "TAREFA",
+        titulo: "Checklist e automatização máxima",
+        detalhe: "Cada rotina: checklist + automação de pelo menos 50% dos passos.",
+        categoria: "AUTOMATIZAR",
+        estimativaHoras: 1.5,
+        impactos: { tempo: 0.1, clareza: 0.7, impacto: 0.3 },
+        fundamentacao: "Remove carga mental e acelera execução."
+      }
+    ]
+  },
+
+  // 🔍 PESQUISA E ANÁLISE
+  {
+    tag: "pesquisa",
+    keywords: ["pesquisa","estudo","benchmark","dados","sql","analise","investigacao","levantamento"],
+    gerar: () => [
+      {
+        tipo: "TAREFA",
+        titulo: "Critério de 'suficiente' antes de começar",
+        detalhe: "Definir: 'Com X fontes e Y insights, posso decidir/prosseguir'.",
+        categoria: "REVISITAR",
+        estimativaHoras: 0.25,
+        impactos: { tempo: 0.4, clareza: 0.8, impacto: 0.6 },
+        fundamentacao: "Evita pesquisa infinita sem propósito claro."
+      },
+      {
+        tipo: "HABITO",
+        titulo: "Time-box + síntese obrigatória",
+        detalhe: "Máx 2h para pesquisa inicial + 30min para resumo executivo.",
+        categoria: "REDUZIR",
+        frequencia: "semanal",
+        gatilho: "Início da pesquisa",
+        impactos: { tempo: 0.3, clareza: 0.7, impacto: 0.5 },
+        fundamentacao: "Força priorização e entrega de valor rápido."
+      }
+    ]
+  },
+
+  // 👥 RECRUTAMENTO E PEOPLE
+  {
+    tag: "recrutamento",
+    keywords: ["vaga","candidato","triagem","entrevista","curriculo","recrutamento","selecao","hire"],
+    gerar: () => [
+      {
+        tipo: "HABITO",
+        titulo: "Triagem estruturada em 15min",
+        detalhe: "5 perguntas-chave + scoring. Só avança quem passar do threshold.",
+        categoria: "REDUZIR",
+        frequencia: "semanal",
+        gatilho: "Novos currículos",
+        impactos: { tempo: 0.3, clareza: 0.8, impacto: 0.6 },
+        fundamentacao: "Filtra antes de investir tempo em entrevistas longas."
+      },
+      {
+        tipo: "TAREFA",
+        titulo: "Rubrica de avaliação padronizada",
+        detalhe: "Competências + níveis claros. Todos entrevistadores usam a mesma régua.",
+        categoria: "AUTOMATIZAR",
+        estimativaHoras: 1,
+        impactos: { tempo: 0.4, clareza: 0.9, impacto: 0.7 },
+        fundamentacao: "Acelera decisão e melhora qualidade das contratações."
+      }
+    ]
+  },
+
+  // 📤 DELEGAÇÃO E ENCAMINHAMENTO
+  {
+    tag: "delegacao",
+    keywords: ["delegar","alocar","responsavel","encaminhar","assignar","distribuir","equipe"],
+    gerar: () => [
+      {
+        tipo: "HABITO",
+        titulo: "Contexto + critério de aceite",
+        detalhe: "Por que é importante + como saber que está 'pronto'. Sempre.",
+        categoria: "TREINAR_DELEGAR",
+        frequencia: "semanal",
+        gatilho: "Ao delegar tarefa",
+        impactos: { tempo: 0.6, clareza: 0.8, impacto: 0.7 },
+        fundamentacao: "Reduz idas-e-vindas e melhora qualidade da entrega."
+      },
+      {
+        tipo: "TAREFA",
+        titulo: "Matriz de delegação por complexidade",
+        detalhe: "Tarefas A/B/C para pessoas júnior/pleno/sênior. Matching automático.",
+        categoria: "AUTOMATIZAR",
+        estimativaHoras: 0.5,
+        impactos: { tempo: 0.3, clareza: 0.7, impacto: 0.6 },
+        fundamentacao: "Acelera distribuição e desenvolve o time."
+      }
+    ]
   }
 ];
 
@@ -226,9 +359,9 @@ function normalizarTexto(texto: string): string {
   return texto
     .toLowerCase()
     .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .replace(/[-_]/g, '')
-    .replace(/[^a-z0-9\s]/g, ' ')
+    .replace(/[\u0300-\u036f]/g, '') // Remove acentos
+    .replace(/[-_]/g, '') // Remove hífens e underscores
+    .replace(/[^a-z0-9\s]/g, ' ') // Remove pontuação
     .trim();
 }
 
@@ -248,34 +381,14 @@ function obterZona(atividade: any): Zona {
   return "DISTRACAO";
 }
 
-function hashSimples(texto: string): string {
-  let hash = 0;
-  for (let i = 0; i < texto.length; i++) {
-    const char = texto.charCodeAt(i);
-    hash = ((hash << 5) - hash) + char;
-    hash = hash & hash;
-  }
-  return Math.abs(hash).toString(16).slice(0, 6);
-}
-
 function gerarIdDeterministico(atividade: any, categoria: string, tipo: string, index: number): string {
-  const seed = `${atividade?.id || atividade?.titulo || "item"}|${categoria}|${tipo}|${index}`;
-  const hash = hashSimples(seed);
-  const base = `${atividade?.id || atividade?.titulo || "item"}-${categoria}-${tipo}`;
-  return `${base.toLowerCase().replace(/[^a-z0-9-]/g, '').slice(0, 20)}-${hash}`;
+  const base = `${atividade?.id || atividade?.titulo || "item"}-${categoria}-${tipo}-${index}`;
+  return base.toLowerCase().replace(/[^a-z0-9-]/g, '').slice(0, 30);
 }
 
 function calcularJaccardSimilarity(titulo1: string, titulo2: string): number {
-  const tokens1 = new Set(
-    normalizarTexto(titulo1)
-      .split(/\s+/)
-      .filter(token => !STOPWORDS_PT_BR.has(token) || TERMOS_TECNICOS.has(token))
-  );
-  const tokens2 = new Set(
-    normalizarTexto(titulo2)
-      .split(/\s+/)
-      .filter(token => !STOPWORDS_PT_BR.has(token) || TERMOS_TECNICOS.has(token))
-  );
+  const tokens1 = new Set(normalizarTexto(titulo1).split(/\s+/));
+  const tokens2 = new Set(normalizarTexto(titulo2).split(/\s+/));
   
   const intersecao = new Set([...tokens1].filter(token => tokens2.has(token)));
   const uniao = new Set([...tokens1, ...tokens2]);
@@ -284,13 +397,13 @@ function calcularJaccardSimilarity(titulo1: string, titulo2: string): number {
 }
 
 // ═══════════════════════════════════════════════════════════════════
-// 🎯 SISTEMA DE SCORING APRIMORADO
+// 🎯 SISTEMA DE SCORING ROBUSTO
 // ═══════════════════════════════════════════════════════════════════
 
 function calcularScore(sugestao: SugestaoTatica, atividade: any, zona: Zona): number {
-  let score = 100;
-  const detalhes: string[] = [];
+  let score = 100; // Score base
   
+  // 1. Multiplicador por zona
   const multiplicadorZona = {
     "ESSENCIAL": 1.1,
     "ESTRATEGICA": 1.05,
@@ -298,58 +411,46 @@ function calcularScore(sugestao: SugestaoTatica, atividade: any, zona: Zona): nu
     "DISTRACAO": 0.95
   };
   score *= multiplicadorZona[zona];
-  detalhes.push(`zona:${zona}=${multiplicadorZona[zona]}`);
   
-  const horasDia = atividade.horasDia ?? ((atividade.horasMes ?? 0) / 30);
+  // 2. Ajuste pelo tamanho da atividade (horasDia)
+  const horasDia = atividade.horasDia || (atividade.horasMes || 0) / 30;
   
   if (horasDia >= 1.5) {
+    // Atividades grandes: priorizar DESCARTAR/AUTOMATIZAR/REDUZIR
     if (['DESCARTAR', 'AUTOMATIZAR', 'REDUZIR', 'COMBINAR'].includes(sugestao.categoria)) {
       score *= 1.3;
-      detalhes.push(`tamanho-grande:+30%`);
     }
   } else if (horasDia <= 0.3) {
+    // Atividades pequenas: priorizar REVISITAR/OTIMIZAR
     if (['REVISITAR', 'OTIMIZAR'].includes(sugestao.categoria)) {
       score *= 1.2;
-      detalhes.push(`tamanho-pequeno:+20%`);
     }
   }
   
-  const preferencias = PREFERENCIAS_CATEGORIA_POR_ZONA[zona] || [];
-  const prefEncontrada = preferencias.find(p => p.categoria === sugestao.categoria);
-  if (prefEncontrada) {
-    score *= prefEncontrada.boost;
-    detalhes.push(`pref-categoria:+${Math.round((prefEncontrada.boost - 1) * 100)}%`);
-  }
-  
+  // 3. Alinhamento de impactos
   const { impacto: impAtiv = 0, clareza: claAtiv = 0 } = atividade;
   const { impacto: impSug = 0.5, clareza: claSug = 0.5, tempo: tempoSug = 0.5 } = sugestao.impactos;
   
+  // Bônus se atividade tem alto impacto e sugestão também aumenta impacto
   if (impAtiv >= 4 && impSug > 0.6) {
     score *= 1.15;
-    detalhes.push(`align-impacto:+15%`);
   }
   
+  // Bônus se atividade tem baixa clareza e sugestão aumenta clareza
   if (claAtiv < 4 && claSug > 0.6) {
     score *= 1.15;
-    detalhes.push(`align-clareza:+15%`);
   }
   
-  if (horasDia >= 2 && claAtiv <= 2 && sugestao.categoria === "REVISITAR") {
-    score *= 1.25;
-    detalhes.push(`gigante-sem-clareza:+25%`);
-  }
-  
+  // Bônus para economia de tempo em atividades grandes
   if (horasDia > 1 && tempoSug < 0.5) {
     score *= 1.1;
-    detalhes.push(`economia-tempo:+10%`);
   }
   
-  sugestao.scoreDetalhes = detalhes.join(", ");
   return Math.round(score);
 }
 
 // ═══════════════════════════════════════════════════════════════════
-// 🔍 ANÁLISE DE PADRÕES
+// 🔍 ANÁLISE DE PADRÕES APRIMORADA
 // ═══════════════════════════════════════════════════════════════════
 
 function analisarPadroes(atividade: any, zona: Zona): Array<{pattern: any, score: number}> {
@@ -359,11 +460,16 @@ function analisarPadroes(atividade: any, zona: Zona): Array<{pattern: any, score
     let score = 0;
     
     pattern.keywords.forEach(keyword => {
+      // Match exato
       if (tokens.includes(keyword)) {
         score += 10;
-      } else if (tokens.some(token => token.startsWith(keyword) || keyword.startsWith(token))) {
+      }
+      // Match por prefixo (apresent -> apresentação)
+      else if (tokens.some(token => token.startsWith(keyword) || keyword.startsWith(token))) {
         score += 7;
-      } else if (tokens.some(token => token.includes(keyword) || keyword.includes(token))) {
+      }
+      // Match por inclusão (email em e-mail)
+      else if (tokens.some(token => token.includes(keyword) || keyword.includes(token))) {
         score += 4;
       }
     });
@@ -375,7 +481,7 @@ function analisarPadroes(atividade: any, zona: Zona): Array<{pattern: any, score
 }
 
 // ═══════════════════════════════════════════════════════════════════
-// 🎯 FALLBACKS POR ZONA
+// 🎯 FALLBACKS POR ZONA APRIMORADOS (SEMPRE 2+ ITENS)
 // ═══════════════════════════════════════════════════════════════════
 
 function aplicarRegrasPorZona(zona: Zona, atividade: any): SugestaoTatica[] {
@@ -487,31 +593,28 @@ function aplicarRegrasPorZona(zona: Zona, atividade: any): SugestaoTatica[] {
 }
 
 // ═══════════════════════════════════════════════════════════════════
-// 🔧 CONVERSÃO PARA FORMATO DA UI
+// 🔧 CONVERSÃO APRIMORADA COM EIXO PARA HÁBITOS
 // ═══════════════════════════════════════════════════════════════════
 
 function converterParaNossoFormato(sugestao: SugestaoTatica): Tatica {
-  // ⚠️ TODO FUTURO: Implementar conversão correta dos impactos 0.0-1.0 para "aumenta"/"diminui"
-  // Por enquanto, deixamos vazio para o usuário configurar manualmente
-  // A heurística usa escala 0.0-1.0 (0.3 = melhora 30% do tempo), mas nossa UI usa 3 estados
   const impactos: { tempo?: ImpactoFlag; clareza?: ImpactoFlag; impacto?: ImpactoFlag } = {};
   
-  // ❌ DESATIVADO: Conversão automática dos impactos
-  // Motivo: Diferença semântica entre escala da heurística (0.0-1.0) e UI (aumenta/diminui/neutro)
-  // 
-  // if (sugestao.impactos.tempo !== undefined) {
-  //   impactos.tempo = sugestao.impactos.tempo < 0.5 ? "diminui" : "aumenta";
-  // }
-  // if (sugestao.impactos.clareza !== undefined) {
-  //   impactos.clareza = sugestao.impactos.clareza > 0.5 ? "aumenta" : "diminui";
-  // }
-  // if (sugestao.impactos.impacto !== undefined) {
-  //   impactos.impacto = sugestao.impactos.impacto > 0.5 ? "aumenta" : "diminui";
-  // }
+  // Conversão de impactos numéricos para flags
+  if (sugestao.impactos.tempo !== undefined) {
+    impactos.tempo = sugestao.impactos.tempo > 0.5 ? "aumenta" : "diminui";
+  }
+  if (sugestao.impactos.clareza !== undefined) {
+    impactos.clareza = sugestao.impactos.clareza > 0.5 ? "aumenta" : "diminui";
+  }
+  if (sugestao.impactos.impacto !== undefined) {
+    impactos.impacto = sugestao.impactos.impacto > 0.5 ? "aumenta" : "diminui";
+  }
 
+  // Cálculo do eixo (para TAREFA e HÁBITO)
   let eixo: Eixo | undefined = undefined;
   const { tempo = 0.5, clareza = 0.5, impacto = 0.5 } = sugestao.impactos;
   
+  // Determinar eixo principal baseado no maior impacto
   if (tempo <= 0.4) {
     eixo = "tempo";
   } else if (clareza >= 0.6) {
@@ -519,6 +622,7 @@ function converterParaNossoFormato(sugestao: SugestaoTatica): Tatica {
   } else if (impacto >= 0.6) {
     eixo = "impacto";
   } else {
+    // Default para clareza se não há dominância clara
     eixo = "clareza";
   }
 
@@ -526,11 +630,12 @@ function converterParaNossoFormato(sugestao: SugestaoTatica): Tatica {
     id: sugestao.id,
     titulo: sugestao.titulo,
     detalhe: sugestao.fundamentacao 
-      ? `${sugestao.detalhe}\\n\\n💡 ${sugestao.fundamentacao}`
+      ? `${sugestao.detalhe}\n\n💡 ${sugestao.fundamentacao}`
       : sugestao.detalhe,
-    impactos, // ✅ Agora sempre vazio {} - usuário configura manualmente
+    impactos,
     eixo,
     concluida: false,
+    // Campos expandidos compatíveis com o modal
     tipo: sugestao.tipo,
     categoria: sugestao.categoria,
     ...(sugestao.tipo === "TAREFA" && sugestao.estimativaHoras && { 
@@ -544,69 +649,31 @@ function converterParaNossoFormato(sugestao: SugestaoTatica): Tatica {
 }
 
 // ═══════════════════════════════════════════════════════════════════
-// 🎯 SISTEMA DE QUALIDADE E DIVERSIDADE
+// 🎯 SISTEMA DE QUALIDADE E DEDUPLICAÇÃO
 // ═══════════════════════════════════════════════════════════════════
-
-function aplicarBarreiraQualidade(candidatos: SugestaoTatica[]): SugestaoTatica[] {
-  if (candidatos.length <= 2) return candidatos;
-  
-  const sorted = candidatos.sort((a, b) => (b.score || 0) - (a.score || 0));
-  const scores = sorted.map(c => c.score || 0);
-  const topK = [scores[0]];
-  
-  for (let i = 1; i < scores.length && i < 5; i++) {
-    const threshold = scores[i-1] * 0.75;
-    if (scores[i] >= threshold) {
-      topK.push(scores[i]);
-    } else {
-      break;
-    }
-  }
-  
-  return sorted.slice(0, Math.min(topK.length, 4));
-}
 
 function garantirDiversidade(candidatos: SugestaoTatica[]): SugestaoTatica[] {
   const resultado: SugestaoTatica[] = [];
   const categoriasUsadas = new Set<string>();
   
+  // Primeira passada: priorizar diversidade TAREFA/HÁBITO
   const tarefas = candidatos.filter(c => c.tipo === "TAREFA");
   const habitos = candidatos.filter(c => c.tipo === "HABITO");
   
+  // Tentar incluir pelo menos 1 TAREFA e 1 HÁBITO
   if (tarefas.length > 0) {
     const melhorTarefa = tarefas.sort((a, b) => (b.score || 0) - (a.score || 0))[0];
     resultado.push(melhorTarefa);
     categoriasUsadas.add(melhorTarefa.categoria);
   }
   
-  if (habitos.length > 0 && resultado.length < 3) {
-    const melhorHabito = habitos
-      .filter(h => !categoriasUsadas.has(h.categoria))
-      .sort((a, b) => (b.score || 0) - (a.score || 0))[0];
-    
-    if (melhorHabito) {
-      resultado.push(melhorHabito);
-      categoriasUsadas.add(melhorHabito.categoria);
-    }
+  if (habitos.length > 0) {
+    const melhorHabito = habitos.sort((a, b) => (b.score || 0) - (a.score || 0))[0];
+    resultado.push(melhorHabito);
+    categoriasUsadas.add(melhorHabito.categoria);
   }
   
-  if (resultado.length >= 2 && resultado[0].categoria === resultado[1].categoria) {
-    const threshold = (resultado[1].score || 0) * 0.95;
-    const alternativa = candidatos.find(c => 
-      !resultado.includes(c) && 
-      c.categoria !== resultado[0].categoria &&
-      (c.score || 0) >= threshold
-    );
-    
-    if (alternativa) {
-      console.log(`🔄 SWAP diversidade: ${resultado[1].categoria} → ${alternativa.categoria}`);
-      resultado[1] = alternativa;
-      categoriasUsadas.clear();
-      categoriasUsadas.add(resultado[0].categoria);
-      categoriasUsadas.add(resultado[1].categoria);
-    }
-  }
-  
+  // Preencher restante evitando redundância
   const restantes = candidatos
     .filter(c => !resultado.includes(c))
     .sort((a, b) => (b.score || 0) - (a.score || 0));
@@ -614,8 +681,10 @@ function garantirDiversidade(candidatos: SugestaoTatica[]): SugestaoTatica[] {
   for (const candidato of restantes) {
     if (resultado.length >= 3) break;
     
+    // Verificar redundância por categoria
     if (categoriasUsadas.has(candidato.categoria)) continue;
     
+    // Verificar similaridade textual
     const isSimilar = resultado.some(existing => 
       calcularJaccardSimilarity(candidato.titulo, existing.titulo) > 0.6
     );
@@ -629,61 +698,80 @@ function garantirDiversidade(candidatos: SugestaoTatica[]): SugestaoTatica[] {
   return resultado;
 }
 
+function aplicarBarreiraQualidade(candidatos: SugestaoTatica[]): SugestaoTatica[] {
+  if (candidatos.length <= 2) return candidatos;
+  
+  const sorted = candidatos.sort((a, b) => (b.score || 0) - (a.score || 0));
+  const top2 = sorted.slice(0, 2);
+  const terceiro = sorted[2];
+  
+  // Só incluir o 3º se tiver pelo menos 75% do score do 2º
+  const threshold = (top2[1]?.score || 0) * 0.75;
+  
+  if ((terceiro?.score || 0) >= threshold) {
+    return top2.concat([terceiro]);
+  }
+  
+  return top2;
+}
+
 // ═══════════════════════════════════════════════════════════════════
 // 🚀 FUNÇÃO PRINCIPAL ROBUSTA
 // ═══════════════════════════════════════════════════════════════════
 
 export function sugerirTaticasAvancadas(atividade: AtividadePlano): Tatica[] {
   const zona = obterZona(atividade);
-  const horasDia = atividade.horasDia ?? ((atividade.horasMes ?? 0) / 30);
   
-  console.log(`🔍 ANÁLISE: "${atividade.titulo}"`);
-  console.log(`   ZONA: ${zona} | I×C: ${atividade.impacto}×${atividade.clareza} | H/dia: ${horasDia.toFixed(1)}`);
+  console.log(`🔍 ANÁLISE: "${atividade.titulo}" | ZONA: ${zona} | I×C: ${atividade.impacto}×${atividade.clareza} | H/dia: ${(atividade.horasMes/30).toFixed(1)}`);
 
+  // 1. Buscar padrões específicos
   const padroes = analisarPadroes(atividade, zona);
   let candidatos: SugestaoTatica[] = [];
   
+  // 2. Adicionar até 2 melhores padrões
   const top2Padroes = padroes.slice(0, 2);
-  for (const { pattern, score } of top2Padroes) {
+  for (const { pattern } of top2Padroes) {
     const sugestoesPadrao = pattern.gerar({ atividade, zona });
     candidatos.push(...sugestoesPadrao);
-    console.log(`📋 PADRÃO: ${pattern.tag} (score:${score}, ${sugestoesPadrao.length} sugestões)`);
+    console.log(`📋 PADRÃO: ${pattern.tag} (${sugestoesPadrao.length} sugestões)`);
   }
   
+  // 3. Adicionar fallback da zona
   const fallbacks = aplicarRegrasPorZona(zona, atividade);
   candidatos.push(...fallbacks);
-  console.log(`🎯 FALLBACK: zona ${zona} (+${fallbacks.length} sugestões)`);
   
+  // 4. Gerar IDs determinísticos e calcular scores
   candidatos = candidatos.map((sugestao, index) => ({
     ...sugestao,
     id: gerarIdDeterministico(atividade, sugestao.categoria, sugestao.tipo, index),
     score: calcularScore(sugestao, atividade, zona)
   }));
   
-  console.log(`🎯 CANDIDATOS (${candidatos.length}):`);
-  candidatos.forEach(c => {
-    console.log(`   ${c.tipo}:${c.categoria}:${c.titulo}:${c.score} (${c.scoreDetalhes})`);
-  });
+  console.log(`🎯 CANDIDATOS PRÉ-FILTRO: ${candidatos.length}`, candidatos.map(c => `${c.tipo}:${c.titulo}:${c.score}`));
   
-  let resultado = aplicarBarreiraQualidade(candidatos);
-  console.log(`📊 PÓS-BARREIRA: ${resultado.length} candidatos`);
+  // 5. Aplicar diversidade e qualidade
+  let resultado = garantirDiversidade(candidatos);
+  resultado = aplicarBarreiraQualidade(resultado);
   
-  resultado = garantirDiversidade(resultado);
-  console.log(`🎭 PÓS-DIVERSIDADE: ${resultado.length} final`);
-  
+  // 6. Converter para formato da UI
   const taticasFinais = resultado.map(converterParaNossoFormato);
   
-  console.log(`✅ TÁTICAS FINAIS (${taticasFinais.length}):`);
-  taticasFinais.forEach(t => {
-    console.log(`   ${t.tipo}:${t.categoria}:${t.titulo}:${t.eixo}`);
-  });
+  console.log(`✅ TÁTICAS FINAIS: ${taticasFinais.length}`, taticasFinais.map(t => `${t.tipo}:${t.titulo}:${t.eixo}`));
   
   return taticasFinais;
 }
 
+// ═══════════════════════════════════════════════════════════════════
+// 🔄 COMPATIBILIDADE COM FUNÇÃO ORIGINAL
+// ═══════════════════════════════════════════════════════════════════
+
 export function sugerirTaticasBase(atividade: AtividadePlano): Tatica[] {
   return sugerirTaticasAvancadas(atividade);
 }
+
+// ═══════════════════════════════════════════════════════════════════
+// 🧪 FUNÇÃO DE TESTE PARA QA
+// ═══════════════════════════════════════════════════════════════════
 
 export function testarCasosMesa() {
   const casos = [
@@ -716,21 +804,11 @@ export function testarCasosMesa() {
       nome: "GGG/ADC",
       impacto: 1, clareza: 1, horasMes: 10,
       esperado: ["DESCARTAR", "COMBINAR"]
-    },
-    {
-      nome: "Estratégia empresa XPTO",
-      impacto: 6, clareza: 6, horasMes: 0,
-      esperado: ["OTIMIZAR"]
-    },
-    {
-      nome: "Corrigir bug crítico sistema",
-      impacto: 4, clareza: 2, horasMes: 80,
-      esperado: ["REVISITAR", "REDUZIR"]
     }
   ];
   
-  console.log("🧪 TESTE DE MESA - HEURÍSTICA V2.1");
-  console.log("═".repeat(60));
+  console.log("🧪 TESTE DE MESA - HEURÍSTICA V2.0");
+  console.log("═".repeat(50));
   
   casos.forEach((caso, index) => {
     const atividade: AtividadePlano = {
@@ -742,26 +820,19 @@ export function testarCasosMesa() {
       horasDia: caso.horasMes / 30
     };
     
-    console.log(`\n🔍 CASO ${index + 1}: ${caso.nome}`);
-    console.log(`   📊 I${caso.impacto}×C${caso.clareza}, ${caso.horasMes}h/mês`);
-    
     const resultado = sugerirTaticasAvancadas(atividade);
     const categorias = resultado.map(r => r.categoria).filter(Boolean);
-    const tipos = resultado.map(r => r.tipo);
     
-    console.log(`   📋 RESULTADO: ${resultado.length} táticas`);
-    console.log(`   🏷️  CATEGORIAS: ${categorias.join(", ")}`);
-    console.log(`   🎭 TIPOS: ${tipos.join(", ")}`);
+    console.log(`\n${index + 1}. ${caso.nome}`);
+    console.log(`   Entrada: I${caso.impacto}×C${caso.clareza}, ${caso.horasMes}h/mês`);
+    console.log(`   Resultado: ${resultado.length} táticas`);
+    console.log(`   Categorias: ${categorias.join(", ")}`);
+    console.log(`   Tipos: ${resultado.map(r => r.tipo).join(", ")}`);
     
     const temEsperado = caso.esperado.some(exp => categorias.includes(exp));
-    const temDiversidade = tipos.includes("TAREFA") && tipos.includes("HABITO");
-    
-    console.log(`   ✅ Categoria esperada: ${temEsperado ? "SIM" : "NÃO"}`);
-    console.log(`   🎭 Diversidade T+H: ${temDiversidade ? "SIM" : (tipos.length >= 2 ? "PARCIAL" : "NÃO")}`);
-    
-    console.log("   " + "─".repeat(50));
+    console.log(`   ✅ Contém categoria esperada: ${temEsperado ? "SIM" : "NÃO"}`);
   });
   
-  console.log("\n" + "═".repeat(60));
-  console.log("🎯 TESTE V2.1 CONCLUÍDO COM SUCESSO!");
+  console.log("\n" + "═".repeat(50));
+  console.log("🎯 TESTE CONCLUÍDO");
 }

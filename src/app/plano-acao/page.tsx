@@ -198,18 +198,9 @@ const [modalDAR_CERTO, setModalDAR_CERTO] = useState<{
     });
   }
 
-  function adicionarTaticaGenerica(atividade: AtividadePlano) {
-    setPlanos((prev) => {
-      const nova: Tatica = {
-        id: uid(),
-        titulo: "Nova tática",
-        detalhe: "",
-        impactos: {},
-      };
-      
-      return { ...prev, [atividade.id]: [...(prev[atividade.id] || []), nova] };
-    });
-  }
+function adicionarTaticaGenerica(atividade: AtividadePlano) {
+  onAbrirModalDAR_CERTO(atividade, "OTIMIZAR");
+}
 
   function adicionarTaticasSugeridas(atividade: AtividadePlano) {
     const { sugerirTaticasBase } = require('@/components/plano');
