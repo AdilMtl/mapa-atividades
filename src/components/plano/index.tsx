@@ -17,7 +17,8 @@ import {
   CheckSquare,
   Plus,
   Map, 
-  Zap
+  Zap,
+  Edit
 } from "lucide-react";
 
 // Importar componentes da Wave 1
@@ -32,6 +33,7 @@ import {
 
 // Importar Design System da Wave 1
 import { DESIGN_TOKENS, cn } from '@/lib/design-system';
+import { sugerirTaticasAvancadas } from '@/lib/heuristica-engine';
 
 // ═══════════════════════════════════════════════════════════════════
 // 🎯 TIPOS E INTERFACES (MANTIDAS IGUAIS)
@@ -216,8 +218,8 @@ function mapearAtividade(ativMap: AtividadeMap): AtividadePlano {
   };
 }
 
-function sugerirTaticasBase(a: AtividadePlano, focoDiagnostico?: string): Tatica[] {
-  return sugerirAcoesInteligentes(a, focoDiagnostico);
+function sugerirTaticasBase(a: AtividadePlano): Tatica[] {
+  return sugerirTaticasAvancadas(a);
 }
 
 function sugerirAcoesInteligentes(
@@ -617,6 +619,7 @@ export function PlanoStats({ estatisticas, atividades }: PlanoStatsProps) {
 interface TaticaItemProps {
   tatica: Tatica;
   atividadeId: string;
+  atividade: AtividadePlano;
   onAtualizarTatica: (atividadeId: string, taticaId: string, patch: Partial<Tatica>) => void;
   onAtualizarImpacto: (
     atividadeId: string, 
@@ -626,15 +629,18 @@ interface TaticaItemProps {
   ) => void;
   onToggleConcluida: (atividadeId: string, taticaId: string) => void;
   onRemover: (atividadeId: string, taticaId: string) => void;
+  onEditarTatica?: (atividade: AtividadePlano, tatica: Tatica) => void;
 }
 
 export function TaticaItem({ 
   tatica, 
   atividadeId, 
+  atividade,
   onAtualizarTatica, 
   onAtualizarImpacto, 
   onToggleConcluida, 
-  onRemover 
+  onRemover,
+  onEditarTatica
 }: TaticaItemProps) {
   const impactoTempo = tatica.impactos?.tempo;
   const impactoClareza = tatica.impactos?.clareza;
@@ -744,7 +750,19 @@ export function TaticaItem({
               />
             </>
           )}
-          
+
+          {/* ✅ BOTÃO EDITAR */}
+<button 
+  onClick={() => onEditarTatica?.(atividade, tatica)}
+  className={cn(
+    "p-2 rounded-lg transition-all duration-200",
+    "hover:bg-blue-500/20 hover:opacity-80"
+  )}
+  title="Editar tática"
+>
+  <Edit className="w-4 h-4" style={{ color: TEMA.info }} />
+</button> 
+
           <button 
             onClick={() => onRemover(atividadeId, tatica.id)}
             className={cn(
@@ -844,6 +862,7 @@ interface AtividadeCardProps {
   ) => void;
   onToggleConcluida: (atividadeId: string, taticaId: string) => void;
   onRemoverTatica: (atividadeId: string, taticaId: string) => void;
+onEditarTatica?: (atividade: AtividadePlano, tatica: Tatica) => void;
 }
 
 export function AtividadeCard({
@@ -859,7 +878,8 @@ export function AtividadeCard({
   onAtualizarTatica,
   onAtualizarImpacto,
   onToggleConcluida,
-  onRemoverTatica
+  onRemoverTatica,
+  onEditarTatica 
 }: AtividadeCardProps) {
   const zona = zonaDaAtividade(atividade);
   const zonaColor = zona === "Essencial" ? TEMA.positive : 
@@ -1075,14 +1095,16 @@ export function AtividadeCard({
               {/* Lista de táticas existentes */}
               {taticas.map((tatica) => (
                 <TaticaItem
-                  key={tatica.id}
-                  tatica={tatica}
-                  atividadeId={atividade.id}
-                  onAtualizarTatica={onAtualizarTatica}
-                  onAtualizarImpacto={onAtualizarImpacto}
-                  onToggleConcluida={onToggleConcluida}
-                  onRemover={onRemoverTatica}
-                />
+  key={tatica.id}
+  tatica={tatica}
+  atividadeId={atividade.id}
+  atividade={atividade}
+  onAtualizarTatica={onAtualizarTatica}
+  onAtualizarImpacto={onAtualizarImpacto}
+  onToggleConcluida={onToggleConcluida}
+  onRemover={onRemoverTatica}
+  onEditarTatica={onEditarTatica}
+/>
               ))}
 
               {/* Botão + para adicionar nova tática */}
@@ -1381,6 +1403,7 @@ interface ModalDAR_CERTOProps {
   isOpen: boolean;
   atividade: AtividadePlano;
   categoria: string;
+  taticaExistente?: Tatica;  // ✅ NOVA PROPRIEDADE
   onClose: () => void;
   onSalvar: (novaTatica: Tatica) => void;
 }
@@ -1389,6 +1412,7 @@ export function ModalDAR_CERTO({
   isOpen, 
   atividade, 
   categoria, 
+  taticaExistente,  // ✅ NOVA PROPRIEDADE
   onClose, 
   onSalvar 
 }: ModalDAR_CERTOProps) {
@@ -1402,37 +1426,55 @@ export function ModalDAR_CERTO({
   const categoriaConfig = DAR_CERTO_FRAMEWORK[categoria as keyof typeof DAR_CERTO_FRAMEWORK];
 
   React.useEffect(() => {
-  if (isOpen && categoriaConfig) {
-    // Sugerir tipo baseado na categoria (mas permitir mudança)
-    setTipo(categoriaConfig.tipoSugerido);
+  if (isOpen) {
+    if (taticaExistente) {
+      // ✅ MODO EDIÇÃO: Preencher com dados existentes
+      setTipo(taticaExistente.tipo || "TAREFA");
+      setTitulo(taticaExistente.titulo || "");
+      setDetalhe(taticaExistente.detalhe || "");
+      setPrazo(taticaExistente.dataSugerida || "");
+      setFrequencia(taticaExistente.frequencia || "semanal");
+      setGatilho(taticaExistente.gatilho || "");
+    } else if (categoriaConfig) {
+      // ✅ MODO CRIAÇÃO: Usar sugestão da categoria
+      setTipo(categoriaConfig.tipoSugerido);
+      setTitulo("");
+      setDetalhe("");
+      setPrazo("");
+      setFrequencia("semanal");
+      setGatilho("");
+    }
   }
-}, [isOpen, categoriaConfig]);
+}, [isOpen, categoriaConfig, taticaExistente]);
 
   if (!isOpen) return null;
 
   const handleSalvar = () => {
-    if (!titulo || !detalhe) return;
-    
-    const novaTatica: Tatica = {
-      id: uid(),
-      tipo,
-      titulo,
-      detalhe,
-      categoria,
-      impactos: {},
-      ...(tipo === "TAREFA" && prazo && { dataSugerida: prazo }),
-      ...(tipo === "HABITO" && { frequencia, gatilho })
-    };
-    
-    onSalvar(novaTatica);
-    onClose();
-    
-    // Reset
+  if (!titulo || !detalhe) return;
+  
+  const novaTatica: Tatica = {
+  id: taticaExistente?.id || uid(),
+  tipo,
+  titulo,
+  detalhe,
+  categoria: taticaExistente ? taticaExistente.categoria : categoria, // ✅ SEMPRE manter categoria original na edição
+  impactos: taticaExistente?.impactos || {},
+  concluida: taticaExistente?.concluida || false,
+  ...(tipo === "TAREFA" && prazo && { dataSugerida: prazo }),
+  ...(tipo === "HABITO" && { frequencia, gatilho })
+};
+  
+  onSalvar(novaTatica);
+  onClose();
+  
+  // Reset apenas se não for edição
+  if (!taticaExistente) {
     setTitulo("");
     setDetalhe("");
     setPrazo("");
     setGatilho("");
-  };
+  }
+};
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
@@ -1444,8 +1486,8 @@ export function ModalDAR_CERTO({
         <div className="flex items-center justify-between mb-6">
           <div>
             <h3 className="text-lg font-semibold" style={{ color: TEMA.text }}>
-              {categoria} - {categoriaConfig?.descricao}
-            </h3>
+  {taticaExistente ? "✏️ Editar Tática" : `${categoria} - ${categoriaConfig?.descricao}`}
+</h3>
             <p className="text-sm mt-1" style={{ color: TEMA.subtext }}>
               Para: {atividade.titulo}
             </p>
@@ -1594,7 +1636,7 @@ export function ModalDAR_CERTO({
             className="flex-1 p-3 rounded-lg font-medium disabled:opacity-50"
             style={{ background: TEMA.brand, color: TEMA.bg }}
           >
-            Salvar {tipo === "TAREFA" ? "Tarefa" : "Hábito"}
+            {taticaExistente ? "💾 Salvar Alterações" : `Criar ${tipo === "TAREFA" ? "Tarefa" : "Hábito"}`}
           </button>
         </div>
       </div>

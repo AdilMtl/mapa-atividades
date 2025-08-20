@@ -55,8 +55,6 @@ const [modalDAR_CERTO, setModalDAR_CERTO] = useState<{
   isOpen: boolean;
   atividade?: AtividadePlano;
   categoria?: string;
-  taticaEditando?: Tatica;
-  atividadeId?: string;
 }>({ isOpen: false });
 
   // Converter atividades do mapa para formato do plano
@@ -324,15 +322,6 @@ function onAbrirModalDAR_CERTO(atividade: AtividadePlano, categoria: string) {
     categoria
   });
 }
-function onEditarTatica(atividade: AtividadePlano, tatica: Tatica) {
-  setModalDAR_CERTO({
-    isOpen: true,
-    atividade,
-    categoria: "TATICA_MANUAL", // ✅ Categoria genérica
-    taticaEditando: tatica,
-    atividadeId: atividade.id
-  });
-}
 
 function onAbrirModalPersonalizado(atividade: AtividadePlano, eixo: Eixo) {
   // Por enquanto, usar a função genérica existente
@@ -347,26 +336,14 @@ function onSalvarModalDAR_CERTO(novaTatica: Tatica) {
   if (!modalDAR_CERTO.atividade) return;
   
   const atividadeId = modalDAR_CERTO.atividade.id;
-  
-  // ✅ MODO EDIÇÃO: Atualizar tática existente
-  if (modalDAR_CERTO.taticaEditando) {
-    setPlanos(prev => {
-      const lista = prev[atividadeId] || [];
-      const novaLista = lista.map(t => 
-        t.id === modalDAR_CERTO.taticaEditando!.id ? novaTatica : t
-      );
-      return { ...prev, [atividadeId]: novaLista };
-    });
-  } else {
-    // ✅ MODO CRIAÇÃO: Adicionar nova tática
-    setPlanos(prev => ({
-      ...prev,
-      [atividadeId]: [...(prev[atividadeId] || []), novaTatica]
-    }));
-  }
+  setPlanos(prev => ({
+    ...prev,
+    [atividadeId]: [...(prev[atividadeId] || []), novaTatica]
+  }));
   
   setModalDAR_CERTO({ isOpen: false });
 }
+
   // ═══════════════════════════════════════════════════════════════════
   // 🎨 RENDERIZAÇÃO MODULAR
   // ═══════════════════════════════════════════════════════════════════
@@ -420,22 +397,21 @@ function onSalvarModalDAR_CERTO(novaTatica: Tatica) {
 
             return (
               <AtividadeCard
-  key={atividade.id}
-  atividade={atividade}
-  taticas={taticasAtividade}
-  isExpanded={isExpanded}
-  onToggle={() => toggle(atividade.id)}
-  onAdicionarTatica={adicionarTatica}
-  onAdicionarTaticaGenerica={adicionarTaticaGenerica}
-  onAdicionarTaticasSugeridas={adicionarTaticasSugeridas}
-  onAbrirModalDAR_CERTO={onAbrirModalDAR_CERTO}           
-  onEditarTatica={onEditarTatica}
-  onAbrirModalPersonalizado={onAbrirModalPersonalizado}
-  onAtualizarTatica={atualizarTatica}
-  onAtualizarImpacto={atualizarImpacto}
-  onToggleConcluida={toggleConcluida}
-  onRemoverTatica={removerTatica}
-/>
+                key={atividade.id}
+                atividade={atividade}
+                taticas={taticasAtividade}
+                isExpanded={isExpanded}
+                onToggle={() => toggle(atividade.id)}
+                onAdicionarTatica={adicionarTatica}
+                onAdicionarTaticaGenerica={adicionarTaticaGenerica}
+                onAdicionarTaticasSugeridas={adicionarTaticasSugeridas}
+                onAbrirModalDAR_CERTO={onAbrirModalDAR_CERTO}           
+                onAbrirModalPersonalizado={onAbrirModalPersonalizado}
+                onAtualizarTatica={atualizarTatica}
+                onAtualizarImpacto={atualizarImpacto}
+                onToggleConcluida={toggleConcluida}
+                onRemoverTatica={removerTatica}
+              />
             );
           })}
         </div>
@@ -450,13 +426,12 @@ function onSalvarModalDAR_CERTO(novaTatica: Tatica) {
 {/* 🆕 MODAL DAR CERTO */}
       {modalDAR_CERTO.isOpen && modalDAR_CERTO.atividade && (
         <ModalDAR_CERTO
-  isOpen={modalDAR_CERTO.isOpen}
-  atividade={modalDAR_CERTO.atividade}
-  categoria={modalDAR_CERTO.categoria || ""}
-  taticaExistente={modalDAR_CERTO.taticaEditando}
-  onClose={onFecharModalDAR_CERTO}
-  onSalvar={onSalvarModalDAR_CERTO}
-/>
+          isOpen={modalDAR_CERTO.isOpen}
+          atividade={modalDAR_CERTO.atividade}
+          categoria={modalDAR_CERTO.categoria || ""}
+          onClose={onFecharModalDAR_CERTO}
+          onSalvar={onSalvarModalDAR_CERTO}
+        />
       )}
     </PageContainer>
   );

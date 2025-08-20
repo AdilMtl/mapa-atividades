@@ -34,6 +34,7 @@ import { DESIGN_TOKENS, cn } from '@/lib/design-system';
 
 // Importar supabase para dados reais
 import { supabase } from '@/lib/supabase';
+import { sugerirTaticasAvancadas } from '@/lib/heuristica-engine';
 
 // ═══════════════════════════════════════════════════════════════════
 // 🎯 TIPOS E INTERFACES
@@ -136,98 +137,7 @@ function mapearAtividade(ativMap: AtividadeMap): AtividadePlano {
 }
 
 function sugerirTaticasBase(a: AtividadePlano): Tatica[] {
-  const zona = zonaDaAtividade(a);
-  
-  if (zona === "Distração") {
-    return [
-      { 
-        id: uid(), 
-        titulo: "Cortar 25% do tempo", 
-        detalhe: "Mapear etapas de menor valor e remover/automatizar.", 
-        impactos: { tempo: "diminui" } 
-      },
-      { 
-        id: uid(), 
-        titulo: "Definir resultado esperado", 
-        detalhe: "Escrever 1 frase de sucesso + checklist de 3 itens.", 
-        impactos: { clareza: "aumenta" } 
-      },
-      { 
-        id: uid(), 
-        titulo: "Reorientar para objetivo da área", 
-        detalhe: "Vincular a um KPI ou outcome mensurável.", 
-        impactos: { impacto: "aumenta" } 
-      },
-    ];
-  }
-  
-  if (zona === "Tática") {
-    return [
-      { 
-        id: uid(), 
-        titulo: "Especificar próximos passos", 
-        detalhe: "Dividir em 3 subtarefas com dono e prazo.", 
-        impactos: { clareza: "aumenta" } 
-      },
-      { 
-        id: uid(), 
-        titulo: "Criar macro/automação", 
-        detalhe: "Reduzir tempo com modelo, script ou template.", 
-        impactos: { tempo: "diminui" } 
-      },
-      { 
-        id: uid(), 
-        titulo: "Aumentar alcance", 
-        detalhe: "Compartilhar resultado com stakeholders-chave.", 
-        impactos: { impacto: "aumenta" } 
-      },
-    ];
-  }
-  
-  if (zona === "Estratégica") {
-    return [
-      { 
-        id: uid(), 
-        titulo: "Mapear entregáveis", 
-        detalhe: "Definir o que é 'feito', riscos e critérios.", 
-        impactos: { clareza: "aumenta" } 
-      },
-      { 
-        id: uid(), 
-        titulo: "Alinhar com objetivos", 
-        detalhe: "Checagem de alinhamento OKR/meta trimestral.", 
-        impactos: { impacto: "aumenta" } 
-      },
-      { 
-        id: uid(), 
-        titulo: "Timebox semanal", 
-        detalhe: "Limitar a X h/semana e proteger foco.", 
-        impactos: { tempo: "diminui" } 
-      },
-    ];
-  }
-  
-  // Essencial
-  return [
-    { 
-      id: uid(), 
-      titulo: "Amplificar resultado", 
-      detalhe: "Multiplicar efeito (reuso, playbook, demo).", 
-      impactos: { impacto: "aumenta" } 
-    },
-    { 
-      id: uid(), 
-      titulo: "Refino do escopo", 
-      detalhe: "Eliminar ambiguidade restante.", 
-      impactos: { clareza: "aumenta" } 
-    },
-    { 
-      id: uid(), 
-      titulo: "Padronizar/automatizar", 
-      detalhe: "Reduzir tempo com checklist/template.", 
-      impactos: { tempo: "diminui" } 
-    },
-  ];
+  return sugerirTaticasAvancadas(a);
 }
 
 // ═══════════════════════════════════════════════════════════════════
