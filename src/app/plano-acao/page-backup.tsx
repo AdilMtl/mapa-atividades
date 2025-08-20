@@ -22,12 +22,9 @@ import {
   PlanoStats,
   AtividadeCard,
   PlanoFooter,
-  OrientacaoDiagnostico,
   // Funções utilitárias
   zonaDaAtividade,
   mapearAtividade,
-  ordenarPorFocoDiagnostico,
-  sugerirTaticasBase,
   uid
 } from '@/components/plano';
 
@@ -53,19 +50,6 @@ export default function PlanoAcaoModular() {
   const atividades = useMemo(() => {
     return atividadesMap.map(mapearAtividade);
   }, [atividadesMap]);
-
-// Recuperar dados do diagnóstico
-  const dadosDiagnostico = useMemo(() => {
-    try {
-      const dados = localStorage.getItem('ultimo-diagnostico');
-      return dados ? JSON.parse(dados) : null;
-    } catch { return null; }
-  }, []);
-
-  // Aplicar ordenação baseada no diagnóstico
-  const atividadesOrdenadas = useMemo(() => 
-    dadosDiagnostico ? ordenarPorFocoDiagnostico(atividades, dadosDiagnostico.focoPrimario) : atividades
-  , [atividades, dadosDiagnostico]);
 
   // ═══════════════════════════════════════════════════════════════════
   // 🔄 CARREGAR DADOS REAIS DO SUPABASE
@@ -202,6 +186,7 @@ export default function PlanoAcaoModular() {
   }
 
   function adicionarTaticasSugeridas(atividade: AtividadePlano) {
+    // Importar função sugerirTaticasBase do módulo
     const { sugerirTaticasBase } = require('@/components/plano');
     const taticasSugeridas = sugerirTaticasBase(atividade);
     setPlanos((prev) => {
@@ -271,37 +256,6 @@ export default function PlanoAcaoModular() {
     }
   }
 
-function aplicarTaticasAutomaticas() {
-    if (!dadosDiagnostico) return;
-    
-    const novasTagas: Record<string, Tatica[]> = {};
-    
-    atividades.forEach((atividade) => {
-      const zona = zonaDaAtividade(atividade);
-      const focoPrimario = dadosDiagnostico.focoPrimario;
-      
-      // Aplicar táticas baseadas no foco diagnóstico
-      let taticasParaAplicar: Tatica[] = [];
-      
-      if (focoPrimario === 'REDUZIR_DISTRACAO' && zona === 'Distração') {
-        taticasParaAplicar = sugerirTaticasBase(atividade);
-      } else if (focoPrimario === 'COMPRIMIR_TATICO' && zona === 'Tática') {
-        taticasParaAplicar = sugerirTaticasBase(atividade);
-      } else if (focoPrimario === 'FORTALECER_ESSENCIAL' && zona === 'Essencial') {
-        taticasParaAplicar = sugerirTaticasBase(atividade);
-      } else if (focoPrimario === 'DAR_FORMA_ESTRATEGICO' && zona === 'Estratégica') {
-        taticasParaAplicar = sugerirTaticasBase(atividade);
-      }
-      
-      if (taticasParaAplicar.length > 0) {
-        novasTagas[atividade.id] = [...(planos[atividade.id] || []), ...taticasParaAplicar];
-      }
-    });
-    
-    setPlanos(prev => ({ ...prev, ...novasTagas }));
-    alert(`✅ Táticas aplicadas com base no seu foco: ${dadosDiagnostico.focoPrimario.replace(/_/g, ' ')}`);
-  }
-
   function voltarMapa() {
     window.location.href = '/dashboard';
   }
@@ -336,11 +290,6 @@ function aplicarTaticasAutomaticas() {
         estatisticas={estatisticas}
         atividades={atividades}
       />
-{/* 🎯 ORIENTAÇÃO DO DIAGNÓSTICO */}
-      <OrientacaoDiagnostico 
-        dadosDiagnostico={dadosDiagnostico}
-        onAplicarTaticasAutomaticas={aplicarTaticasAutomaticas}
-      />
 
       {/* 📋 LISTA DE ATIVIDADES OU EMPTY STATE */}
       {atividades.length === 0 ? (
@@ -353,7 +302,7 @@ function aplicarTaticasAutomaticas() {
         />
       ) : (
         <div className="space-y-6">
-            {atividadesOrdenadas.map((atividade) => {
+          {atividades.map((atividade) => {
             const taticasAtividade = planos[atividade.id] || [];
             const isExpanded = expandidos[atividade.id];
 

@@ -119,8 +119,18 @@ export default function DiagnosticoPage() {
   };
 
   const irParaPlano = () => {
-    window.location.href = '/plano-acao';
-  };
+  // Salvar dados do diagnóstico para o plano de ação
+  if (resultado) {
+    localStorage.setItem('ultimo-diagnostico', JSON.stringify({
+      focoPrimario: resultado.focoPrimario,
+      focoSecundario: resultado.focoSecundario,
+      cenario: resultado.cenario,
+      metaTexto: resultado.metaTexto,
+      timestamp: new Date().toISOString()
+    }));
+  }
+  window.location.href = '/plano-acao';
+};
 
   const exportarPDF = async () => {
     if (!resultado || !exportRef.current) return;
@@ -226,7 +236,7 @@ export default function DiagnosticoPage() {
       <PageContainer maxWidth="lg">
         
         {/* Header com Fluxo */}
-        <div className="mb-6 sm:mb-8">
+        <div className="mb-8 sm:mb-10">
           {/* Header Principal - MANTÉM O DESIGN ORIGINAL */}
           <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4 mb-6">
             
@@ -341,28 +351,83 @@ export default function DiagnosticoPage() {
           </div>
         </div>
 
-        {/* Card de Contexto */}
-        <Section title="">
-          <Card className="bg-gradient-to-r from-blue-500/10 to-cyan-500/10 border-blue-400/20 backdrop-blur-sm mb-6">
-            <CardContent className="p-6">
-              <div className="flex items-start gap-4">
-                <div className="p-2 rounded-lg bg-blue-500/20">
-                  <Lightbulb className="w-5 h-5 text-blue-300" />
-                </div>
-                <div>
-                  <h3 className="font-semibold text-blue-200 mb-2">💡 Como interpretar este diagnóstico</h3>
-                  <p className="text-blue-100 text-sm leading-relaxed">
-                    Este relatório identifica onde você está gastando energia e sugere ajustes para maximizar impacto. 
-                    Use os insights para criar um plano de ação eficaz nas próximas 4 semanas.
-                  </p>
-                </div>
+        {/* Card de Contexto Melhorado */}
+<div className="mb-8 sm:mb-10">
+          <Card className="bg-gradient-to-r from-blue-500/10 to-cyan-500/10 border-blue-400/20 backdrop-blur-sm">
+    <CardContent className="p-4 sm:p-6">
+      <div className="flex items-start gap-3 sm:gap-4">
+        <div className="p-2 sm:p-3 rounded-lg bg-blue-500/20 flex-shrink-0">
+          <Lightbulb className="w-4 h-4 sm:w-5 sm:h-5 text-blue-300" />
+        </div>
+        <div className="flex-1">
+          <h3 className="font-bold text-blue-200 mb-3 sm:mb-4 text-base sm:text-lg">
+            💡 Como interpretar este diagnóstico
+          </h3>
+          
+          {/* Lista de Passos Objetivos */}
+          <div className="space-y-2 sm:space-y-3">
+            
+            {/* Passo 1 */}
+            <div className="flex items-start gap-2 sm:gap-3">
+              <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-blue-500/30 flex items-center justify-center flex-shrink-0 mt-0.5">
+                <span className="text-xs sm:text-sm font-bold text-blue-200">1</span>
               </div>
-            </CardContent>
-          </Card>
-        </Section>
+              <div>
+                <p className="text-blue-100 text-sm sm:text-base font-medium">
+                  Entenda a <strong className="text-blue-50">Distribuição do Seu Tempo</strong>
+                </p>
+                <p className="text-blue-100/80 text-xs sm:text-sm">
+                  Veja os percentuais nas 4 zonas e compare com os alvos ideais
+                </p>
+              </div>
+            </div>
+
+            {/* Passo 2 */}
+            <div className="flex items-start gap-2 sm:gap-3">
+              <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-blue-500/30 flex items-center justify-center flex-shrink-0 mt-0.5">
+                <span className="text-xs sm:text-sm font-bold text-blue-200">2</span>
+              </div>
+              <div>
+                <p className="text-blue-100 text-sm sm:text-base font-medium">
+                  Leia o <strong className="text-blue-50">Relatório Completo</strong>
+                </p>
+                <p className="text-blue-100/80 text-xs sm:text-sm">
+                  Análise personalizada baseada no seu padrão atual
+                </p>
+              </div>
+            </div>
+
+            {/* Passo 3 */}
+            <div className="flex items-start gap-2 sm:gap-3">
+              <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-blue-500/30 flex items-center justify-center flex-shrink-0 mt-0.5">
+                <span className="text-xs sm:text-sm font-bold text-blue-200">3</span>
+              </div>
+              <div>
+                <p className="text-blue-100 text-sm sm:text-base font-medium">
+                  Aplique as <strong className="text-blue-50">Próximas Ações</strong>
+                </p>
+                <p className="text-blue-100/80 text-xs sm:text-sm">
+                  Foque nas recomendações para as próximas 4 semanas
+                </p>
+              </div>
+            </div>
+
+          </div>
+
+          {/* Call to Action */}
+          <div className="mt-4 sm:mt-5 pt-3 sm:pt-4 border-t border-blue-400/20">
+            <p className="text-blue-100/90 text-xs sm:text-sm leading-relaxed">
+              <strong className="text-blue-50">🎯 Meta:</strong> Use este diagnóstico para criar um plano de ação eficaz e acompanhe sua evolução mensalmente.
+            </p>
+          </div>
+        </div>
+      </div>
+    </CardContent>
+  </Card>
+</div>
 
 {/* Como Usar - Retrátil - MOVER PARA AQUI */}
-        <div className="mb-6 sm:mb-8">
+        <div className="mb-8 sm:mb-10">
           
           {/* Header Retrátil */}
           <Card className="bg-white/5 backdrop-blur-sm border border-white/10 mb-4">
@@ -476,6 +541,7 @@ export default function DiagnosticoPage() {
 
 
         {/* Mix de Zonas */}
+       <div className="mb-8 sm:mb-10">
         <Section title="Distribuição do Seu Tempo">
           <Card className="bg-white/5 border-white/10 backdrop-blur-sm">
             <CardHeader>
@@ -567,9 +633,11 @@ export default function DiagnosticoPage() {
               </div>
             </CardContent>
           </Card>
-       
+</Section>
+        </div>
 
         {/* Relatório */}
+<div className="mb-8 sm:mb-10">
         <Section title="Seu Diagnóstico Personalizado">
           <Card className="bg-white/5 border-white/10 backdrop-blur-sm">
             <CardHeader>
@@ -586,11 +654,11 @@ export default function DiagnosticoPage() {
             </CardContent>
           </Card>
         </Section>
-
+ </div>
         
-        </Section>
-
+        
         {/* Próximas Ações */}
+<div className="mb-8 sm:mb-10">
         <Section title="Próximas Ações">
           <Card className="bg-white/5 border-white/10 backdrop-blur-sm">
             <CardContent className="p-6">
@@ -679,6 +747,7 @@ export default function DiagnosticoPage() {
             </CardContent>
           </Card>
         </Section>
+</div>
 
       </PageContainer>
 
