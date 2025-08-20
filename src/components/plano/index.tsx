@@ -59,6 +59,7 @@ export interface AtividadePlano {
   horasMes: number;
 }
 
+// Interface original para compatibilidade (IMPORTANTE!)
 export interface Tatica {
   id: string;
   titulo: string;
@@ -71,13 +72,98 @@ export interface Tatica {
   };
   concluida?: boolean;
   eixo?: Eixo;
+  tipo?: "TAREFA" | "HABITO"; // Novo campo para distinguir
+  categoria?: string; // Categoria DAR CERTO
+  estimativaHoras?: number;
+  frequencia?: "diaria" | "semanal" | "mensal";
+  gatilho?: string;
 }
+
+// Base comum para tarefas e hábitos
+interface AcaoBase {
+  id: string;
+  titulo: string;
+  detalhe: string;
+  impactos: {
+    tempo?: ImpactoFlag;
+    clareza?: ImpactoFlag;
+    impacto?: ImpactoFlag;
+  };
+  categoria: keyof typeof DAR_CERTO_FRAMEWORK; // 'DESCARTAR' | 'AUTOMATIZAR' | etc.
+}
+
+// Tarefas = Ações pontuais com prazo
+export interface Tarefa extends AcaoBase {
+  tipo: "TAREFA";
+  dataSugerida?: string;
+  concluida?: boolean;
+  estimativaHoras?: number;
+  perfilAlvo?: string[]; // ['iniciante', 'intermediario', 'avancado']
+}
+
+// Hábitos = Comportamentos recorrentes
+export interface Habito extends AcaoBase {
+  tipo: "HABITO";
+  frequencia: "diaria" | "semanal" | "mensal";
+  gatilho?: string; // "Após reunião", "Todo dia às 9h"
+  perfilAlvo?: string[]; // ['lider', 'ic', 'freelancer']
+}
+
+// União para compatibilidade
+export type Acao = Tarefa | Habito;
+
 
 export interface PlanoDeAcao {
   atividadeId: string;
   taticas: Tatica[];
 }
 
+// ═══════════════════════════════════════════════════════════════════
+// 🎯 FRAMEWORK DAR CERTO - BASEADO NA TEORIA ROI DO FOCO
+// ═══════════════════════════════════════════════════════════════════
+
+const DAR_CERTO_FRAMEWORK = {
+  DESCARTAR: {
+    descricao: "Aquilo que não faz sentido continuar",
+    aplicavelEm: ["Distração", "Tática"],
+    tipoSugerido: "TAREFA" as const  // 🆕 Apenas sugestão
+  },
+  AUTOMATIZAR: {
+    descricao: "Investir tempo agora para ganhar horas depois", 
+    aplicavelEm: ["Tática", "Distração", "Essencial"],
+    tipoSugerido: "TAREFA" as const
+  },
+  REDUZIR: {
+    descricao: "Escopo, energia ou frequência",
+    aplicavelEm: ["Distração", "Tática"],
+    tipoSugerido: "HABITO" as const
+  },
+  COMBINAR: {
+    descricao: "Reagrupar atividades, entregar junto",
+    aplicavelEm: ["Tática", "Distração", "Essencial"],
+    tipoSugerido: "TAREFA" as const
+  },
+  ENCAMINHAR: {
+    descricao: "Direcionar para quem realmente é responsável",
+    aplicavelEm: ["Distração", "Tática"],
+    tipoSugerido: "HABITO" as const
+  },
+  REVISITAR: {
+    descricao: "Ajustar ou descontinuar o que perdeu sentido",
+    aplicavelEm: ["Distração", "Tática", "Estratégica"],
+    tipoSugerido: "HABITO" as const
+  },
+  TREINAR: {
+    descricao: "Preparar alguém para assumir com autonomia",
+    aplicavelEm: ["Tática", "Distração", "Essencial"],
+    tipoSugerido: "TAREFA" as const
+  },
+  OTIMIZAR: {
+    descricao: "Redesenhar a forma como a tarefa é feita",
+    aplicavelEm: ["Distração", "Tática", "Essencial", "Estratégica"],
+    tipoSugerido: "TAREFA" as const
+  }
+} as const;
 // ═══════════════════════════════════════════════════════════════════
 // 🎨 TEMA INTEGRADO (MANTIDO IGUAL)
 // ═══════════════════════════════════════════════════════════════════
@@ -130,100 +216,172 @@ function mapearAtividade(ativMap: AtividadeMap): AtividadePlano {
   };
 }
 
-function sugerirTaticasBase(a: AtividadePlano): Tatica[] {
-  const zona = zonaDaAtividade(a);
-  
-  if (zona === "Distração") {
-    return [
-      { 
-        id: uid(), 
-        titulo: "Cortar 25% do tempo", 
-        detalhe: "Mapear etapas de menor valor e remover/automatizar.", 
-        impactos: { tempo: "diminui" } 
-      },
-      { 
-        id: uid(), 
-        titulo: "Definir resultado esperado", 
-        detalhe: "Escrever 1 frase de sucesso + checklist de 3 itens.", 
-        impactos: { clareza: "aumenta" } 
-      },
-      { 
-        id: uid(), 
-        titulo: "Reorientar para objetivo da área", 
-        detalhe: "Vincular a um KPI ou outcome mensurável.", 
-        impactos: { impacto: "aumenta" } 
-      },
-    ];
-  }
-  
-  if (zona === "Tática") {
-    return [
-      { 
-        id: uid(), 
-        titulo: "Especificar próximos passos", 
-        detalhe: "Dividir em 3 subtarefas com dono e prazo.", 
-        impactos: { clareza: "aumenta" } 
-      },
-      { 
-        id: uid(), 
-        titulo: "Criar macro/automação", 
-        detalhe: "Reduzir tempo com modelo, script ou template.", 
-        impactos: { tempo: "diminui" } 
-      },
-      { 
-        id: uid(), 
-        titulo: "Aumentar alcance", 
-        detalhe: "Compartilhar resultado com stakeholders-chave.", 
-        impactos: { impacto: "aumenta" } 
-      },
-    ];
-  }
-  
-  if (zona === "Estratégica") {
-    return [
-      { 
-        id: uid(), 
-        titulo: "Mapear entregáveis", 
-        detalhe: "Definir o que é 'feito', riscos e critérios.", 
-        impactos: { clareza: "aumenta" } 
-      },
-      { 
-        id: uid(), 
-        titulo: "Alinhar com objetivos", 
-        detalhe: "Checagem de alinhamento OKR/meta trimestral.", 
-        impactos: { impacto: "aumenta" } 
-      },
-      { 
-        id: uid(), 
-        titulo: "Timebox semanal", 
-        detalhe: "Limitar a X h/semana e proteger foco.", 
-        impactos: { tempo: "diminui" } 
-      },
-    ];
-  }
-  
-  return [
-    { 
-      id: uid(), 
-      titulo: "Amplificar resultado", 
-      detalhe: "Multiplicar efeito (reuso, playbook, demo).", 
-      impactos: { impacto: "aumenta" } 
-    },
-    { 
-      id: uid(), 
-      titulo: "Refino do escopo", 
-      detalhe: "Eliminar ambiguidade restante.", 
-      impactos: { clareza: "aumenta" } 
-    },
-    { 
-      id: uid(), 
-      titulo: "Padronizar/automatizar", 
-      detalhe: "Reduzir tempo com checklist/template.", 
-      impactos: { tempo: "diminui" } 
-    },
-  ];
+function sugerirTaticasBase(a: AtividadePlano, focoDiagnostico?: string): Tatica[] {
+  return sugerirAcoesInteligentes(a, focoDiagnostico);
 }
 
+function sugerirAcoesInteligentes(
+  atividade: AtividadePlano, 
+  focoDiagnostico?: string
+): Tatica[] {
+  
+  const zona = zonaDaAtividade(atividade);
+  
+  // 🎯 SISTEMA INTELIGENTE BASEADO NO FOCO DIAGNÓSTICO
+  if (focoDiagnostico === 'REDUZIR_DISTRACAO' && zona === 'Distração') {
+    return [
+      {
+        id: uid(),
+        tipo: "TAREFA",
+        titulo: "📋 Mapear e eliminar etapas desnecessárias",
+        detalhe: "Listar todos os passos desta atividade e marcar quais podem ser removidos ou automatizados",
+        categoria: "DESCARTAR",
+        estimativaHoras: 0.5,
+        impactos: { tempo: "diminui", clareza: "aumenta" }
+      },
+      {
+        id: uid(),
+        tipo: "HABITO",
+        titulo: "❓ Questionamento automático",
+        detalhe: "Sempre perguntar: 'Qual o objetivo real? É urgente mesmo? Quem mais pode fazer?'",
+        categoria: "ENCAMINHAR",
+        frequencia: "diaria",
+        gatilho: "Quando alguém solicitar algo similar",
+        impactos: { tempo: "diminui" }
+      }
+    ];
+  }
+  
+  if (focoDiagnostico === 'COMPRIMIR_TATICO' && zona === 'Tática') {
+    return [
+      {
+        id: uid(),
+        tipo: "TAREFA",
+        titulo: "⚡ Criar template para esta atividade",
+        detalhe: "Padronizar execução com checklist para reduzir tempo de decisão em 70%",
+        categoria: "AUTOMATIZAR",
+        estimativaHoras: 1,
+        impactos: { tempo: "diminui" }
+      },
+      {
+        id: uid(),
+        tipo: "HABITO",
+        titulo: "📦 Processar em lotes",
+        detalhe: "Agrupar todas as tarefas similares e fazer de uma só vez (batch processing)",
+        categoria: "COMBINAR",
+        frequencia: "semanal",
+        gatilho: "Ao planejar a semana",
+        impactos: { tempo: "diminui" }
+      }
+    ];
+  }
+  
+  if (focoDiagnostico === 'FORTALECER_ESSENCIAL' && zona === 'Essencial') {
+    return [
+      {
+        id: uid(),
+        tipo: "TAREFA",
+        titulo: "📊 Criar dashboard de acompanhamento",
+        detalhe: "Definir 2-3 métricas chave e configurar acompanhamento semanal",
+        categoria: "OTIMIZAR",
+        estimativaHoras: 2,
+        impactos: { impacto: "aumenta", clareza: "aumenta" }
+      },
+      {
+        id: uid(),
+        tipo: "HABITO",
+        titulo: "✅ Checklist de qualidade",
+        detalhe: "Sempre revisar: precisão dos dados, clareza da mensagem, impacto esperado",
+        categoria: "OTIMIZAR",
+        frequencia: "diaria",
+        gatilho: "Antes de finalizar qualquer entrega",
+        impactos: { impacto: "aumenta" }
+      }
+    ];
+  }
+  
+  if (focoDiagnostico === 'DAR_FORMA_ESTRATEGICO' && zona === 'Estratégica') {
+    return [
+      {
+        id: uid(),
+        tipo: "TAREFA",
+        titulo: "🎯 Definir critérios de sucesso",
+        detalhe: "Escrever 1 frase de objetivo + 3 indicadores mensuráveis + prazo",
+        categoria: "OTIMIZAR",
+        estimativaHoras: 1,
+        impactos: { clareza: "aumenta", impacto: "aumenta" }
+      },
+      {
+        id: uid(),
+        tipo: "HABITO",
+        titulo: "📅 Revisão semanal de progresso",
+        detalhe: "Toda sexta, 15min: o que funcionou? o que não funcionou? próximos passos?",
+        categoria: "REVISITAR",
+        frequencia: "semanal",
+        gatilho: "Sexta-feira às 17h",
+        impactos: { clareza: "aumenta" }
+      }
+    ];
+  }
+  
+  // 📋 SUGESTÕES PADRÃO POR ZONA (quando não há foco específico)
+  switch(zona) {
+    case "Distração":
+      return [
+        {
+          id: uid(),
+          tipo: "HABITO",
+          titulo: "🔍 Revisão semanal de relevância",
+          detalhe: "Toda semana questionar: esta atividade ainda faz sentido?",
+          categoria: "REVISITAR",
+          frequencia: "semanal",
+          impactos: { tempo: "diminui" }
+        }
+      ];
+      
+    case "Tática":
+      return [
+        {
+          id: uid(),
+          tipo: "TAREFA",
+          titulo: "⚙️ Automatizar partes repetitivas",
+          detalhe: "Identificar etapas que se repetem e criar template/automação",
+          categoria: "AUTOMATIZAR",
+          estimativaHoras: 1,
+          impactos: { tempo: "diminui" }
+        }
+      ];
+      
+    case "Estratégica":
+      return [
+        {
+          id: uid(),
+          tipo: "TAREFA",
+          titulo: "📝 Esclarecer próximos passos",
+          detalhe: "Dividir em 3 subtarefas com responsável e prazo definidos",
+          categoria: "OTIMIZAR",
+          estimativaHoras: 0.5,
+          impactos: { clareza: "aumenta" }
+        }
+      ];
+      
+    case "Essencial":
+      return [
+        {
+          id: uid(),
+          tipo: "HABITO",
+          titulo: "🎯 Proteção de foco",
+          detalhe: "Bloquear 2h por dia para trabalhar sem interrupções nesta atividade",
+          categoria: "OTIMIZAR",
+          frequencia: "diaria",
+          impactos: { impacto: "aumenta" }
+        }
+      ];
+      
+    default:
+      return [];
+  }
+}
 // ═══════════════════════════════════════════════════════════════════
 // 🧩 COMPONENTE 1: COMPONENTES AUXILIARES (UTILS)
 // ═══════════════════════════════════════════════════════════════════
@@ -493,6 +651,51 @@ export function TaticaItem({
         background: "rgba(255,255,255,0.02)" 
       }}
     >
+      {/* 🆕 HEADER COM TIPO + CATEGORIA */}
+      <div className="flex flex-wrap items-center gap-3 mb-3">
+        {/* Badge do Tipo */}
+        <div 
+          className="px-3 py-1 rounded-full text-xs font-medium flex items-center gap-1"
+          style={{ 
+            background: tatica.tipo === "HABITO" ? "rgba(34, 197, 94, 0.2)" : "rgba(217, 119, 6, 0.2)",
+            color: tatica.tipo === "HABITO" ? "#22c55e" : "#d97706"
+          }}
+        >
+          {tatica.tipo === "HABITO" ? "🔄" : "📋"} 
+          {tatica.tipo === "HABITO" ? "HÁBITO" : "TAREFA"}
+        </div>
+
+        {/* Badge da Categoria DAR CERTO */}
+        {tatica.categoria && (
+          <div 
+            className="px-2 py-1 rounded text-xs"
+            style={{ background: TEMA.chipBg, color: TEMA.subtext }}
+          >
+            {tatica.categoria}
+          </div>
+        )}
+
+        {/* Frequência para hábitos */}
+        {tatica.tipo === "HABITO" && tatica.frequencia && (
+          <div 
+            className="px-2 py-1 rounded text-xs"
+            style={{ background: "rgba(34, 197, 94, 0.1)", color: "#22c55e" }}
+          >
+            📅 {tatica.frequencia}
+          </div>
+        )}
+
+        {/* Estimativa para tarefas */}
+        {tatica.tipo === "TAREFA" && tatica.estimativaHoras && (
+          <div 
+            className="px-2 py-1 rounded text-xs"
+            style={{ background: "rgba(217, 119, 6, 0.1)", color: "#d97706" }}
+          >
+            ⏱️ {tatica.estimativaHoras}h
+          </div>
+        )}
+      </div>
+
       {/* Header da tática */}
       <div className="flex flex-col lg:flex-row lg:items-center gap-3 mb-3">
         <button 
@@ -505,7 +708,10 @@ export function TaticaItem({
           style={{ borderColor: TEMA.cardBorder }}
         >
           <CheckSquare className="w-4 h-4" />
-          {tatica.concluida ? "Concluída" : "Marcar concluída"}
+          {tatica.tipo === "HABITO" ? 
+            (tatica.concluida ? "Praticado hoje" : "Marcar como praticado") :
+            (tatica.concluida ? "Concluída" : "Marcar concluída")
+          }
         </button>
         
         <input
@@ -518,22 +724,26 @@ export function TaticaItem({
             tatica.concluida && "line-through"
           )}
           style={{ color: TEMA.text }}
-          placeholder="Título da tática..."
+          placeholder={tatica.tipo === "HABITO" ? "Descrição do hábito..." : "Título da tarefa..."}
         />
         
         <div className="flex items-center gap-3">
-          <Calendar className="w-4 h-4" style={{ color: TEMA.subtext }} />
-          <input
-            type="date"
-            value={tatica.dataSugerida || ""}
-            onChange={(e) => onAtualizarTatica(atividadeId, tatica.id, { dataSugerida: e.target.value })}
-            className={cn(
-              "bg-transparent text-sm outline-none py-1 px-2 rounded",
-              "border border-transparent focus:border-white/20",
-              "transition-colors duration-200"
-            )}
-            style={{ color: TEMA.text }}
-          />
+          {tatica.tipo === "TAREFA" && (
+            <>
+              <Calendar className="w-4 h-4" style={{ color: TEMA.subtext }} />
+              <input
+                type="date"
+                value={tatica.dataSugerida || ""}
+                onChange={(e) => onAtualizarTatica(atividadeId, tatica.id, { dataSugerida: e.target.value })}
+                className={cn(
+                  "bg-transparent text-sm outline-none py-1 px-2 rounded",
+                  "border border-transparent focus:border-white/20",
+                  "transition-colors duration-200"
+                )}
+                style={{ color: TEMA.text }}
+              />
+            </>
+          )}
           
           <button 
             onClick={() => onRemover(atividadeId, tatica.id)}
@@ -541,14 +751,14 @@ export function TaticaItem({
               "p-2 rounded-lg transition-all duration-200",
               "hover:bg-red-500/20 hover:opacity-80"
             )}
-            title="Remover tática"
+            title="Remover"
           >
             <Trash2 className="w-4 h-4" style={{ color: TEMA.danger }} />
           </button>
         </div>
       </div>
 
-      {/* Detalhes da tática */}
+      {/* Detalhes */}
       <div className="mb-4">
         <textarea
           value={tatica.detalhe || ""}
@@ -559,10 +769,32 @@ export function TaticaItem({
             "transition-colors duration-200"
           )}
           style={{ color: TEMA.subtext }}
-          placeholder="Detalhe da ação (como você vai executar esta tática?)"
-          rows={2}
+          placeholder={
+            tatica.tipo === "HABITO" ? 
+            "Como você vai praticar este hábito? Qual o gatilho?" : 
+            "Como você vai executar esta tarefa? Próximos passos?"
+          }
+          rows={tatica.tipo === "HABITO" ? 3 : 2}
         />
       </div>
+
+      {/* 🆕 INFORMAÇÕES ESPECÍFICAS DO TIPO */}
+      {tatica.tipo === "HABITO" && tatica.gatilho && (
+        <div 
+          className="p-3 rounded-lg mb-4 flex items-start gap-2"
+          style={{ background: "rgba(34, 197, 94, 0.1)" }}
+        >
+          <span style={{ color: "#22c55e" }}>🎯</span>
+          <div>
+            <span className="text-sm font-medium" style={{ color: "#22c55e" }}>
+              Gatilho: 
+            </span>
+            <span className="text-sm ml-2" style={{ color: TEMA.text }}>
+              {tatica.gatilho}
+            </span>
+          </div>
+        </div>
+      )}
 
       {/* Seletores de impacto */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -601,6 +833,8 @@ interface AtividadeCardProps {
   onAdicionarTatica: (atividade: AtividadePlano, eixo: Eixo) => void;
   onAdicionarTaticaGenerica: (atividade: AtividadePlano) => void;
   onAdicionarTaticasSugeridas: (atividade: AtividadePlano) => void;
+  onAbrirModalDAR_CERTO: (atividade: AtividadePlano, categoria: string) => void;  
+  onAbrirModalPersonalizado: (atividade: AtividadePlano, eixo: Eixo) => void;     
   onAtualizarTatica: (atividadeId: string, taticaId: string, patch: Partial<Tatica>) => void;
   onAtualizarImpacto: (
     atividadeId: string, 
@@ -620,6 +854,8 @@ export function AtividadeCard({
   onAdicionarTatica,
   onAdicionarTaticaGenerica,
   onAdicionarTaticasSugeridas,
+  onAbrirModalDAR_CERTO,        // 🆕
+  onAbrirModalPersonalizado,    // 🆕
   onAtualizarTatica,
   onAtualizarImpacto,
   onToggleConcluida,
@@ -704,27 +940,95 @@ export function AtividadeCard({
       {/* Conteúdo expandido */}
       {isExpanded && (
         <div className="space-y-6">
-          {/* Botões para adicionar táticas */}
-          <div className="flex flex-wrap gap-3">
-            <QuickButton 
-              onClick={() => onAdicionarTatica(atividade, "tempo")}
-              icon={<Timer className="w-4 h-4"/>}
-              label="+ Tática de Tempo"
-              color={TEMA.brand}
-            />
-            <QuickButton 
-              onClick={() => onAdicionarTatica(atividade, "clareza")}
-              icon={<Target className="w-4 h-4"/>}
-              label="+ Tática de Clareza"
-              color={TEMA.info}
-            />
-            <QuickButton 
-              onClick={() => onAdicionarTatica(atividade, "impacto")}
-              icon={<ArrowUpRight className="w-4 h-4"/>}
-              label="+ Tática de Impacto"
-              color={TEMA.accent}
-            />
-          </div>
+          {/* 🎯 SISTEMA BASEADO NA ZONA */}
+<div className="space-y-4">
+  {/* Para Distração e Tática: Framework DAR CERTO */}
+  {(zona === "Distração" || zona === "Tática") && (
+    <div>
+      <div className="flex items-center gap-2 mb-3">
+        <span className="text-sm font-medium" style={{ color: TEMA.text }}>
+          🎯 Framework DAR CERTO:
+        </span>
+        <span className="text-xs" style={{ color: TEMA.subtext }}>
+          Escolha a estratégia ideal para esta atividade
+        </span>
+      </div>
+      
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2">
+        {Object.entries(DAR_CERTO_FRAMEWORK)
+          .filter(([_, config]) => config.aplicavelEm.includes(zona))
+          .map(([categoria, config]) => (
+            <button
+              key={categoria}
+              onClick={() => onAbrirModalDAR_CERTO(atividade, categoria)}
+              className={cn(
+                "p-3 rounded-lg border text-sm transition-all duration-200",
+                "hover:opacity-80 hover:scale-105 flex flex-col items-center gap-2"
+              )}
+              style={{ 
+                borderColor: TEMA.cardBorder,
+                background: "rgba(255,255,255,0.03)",
+                color: TEMA.text
+              }}
+            >
+              <span className="text-lg">
+                {categoria === "DESCARTAR" ? "🗑️" :
+                 categoria === "AUTOMATIZAR" ? "⚡" :
+                 categoria === "REDUZIR" ? "📉" :
+                 categoria === "COMBINAR" ? "📦" :
+                 categoria === "ENCAMINHAR" ? "➡️" :
+                 categoria === "REVISITAR" ? "🔄" :
+                 categoria === "TREINAR" ? "👥" :
+                 categoria === "OTIMIZAR" ? "⚙️" : "🎯"}
+              </span>
+              <div className="text-center">
+                <div className="font-medium">{categoria}</div>
+                <div className="text-xs mt-1" style={{ color: TEMA.subtext }}>
+                  {config.descricao.split(' ').slice(0, 3).join(' ')}...
+                </div>
+              </div>
+            </button>
+          ))
+        }
+      </div>
+    </div>
+  )}
+
+  {/* Para Essencial e Estratégica: Botões tradicionais */}
+  {(zona === "Essencial" || zona === "Estratégica") && (
+    <div>
+      <div className="flex items-center gap-2 mb-3">
+        <span className="text-sm font-medium" style={{ color: TEMA.text }}>
+          🚀 Potencializar resultado:
+        </span>
+        <span className="text-xs" style={{ color: TEMA.subtext }}>
+          Foque em amplificar o que já funciona
+        </span>
+      </div>
+      
+      <div className="flex flex-wrap gap-3">
+        <QuickButton 
+          onClick={() => onAbrirModalPersonalizado(atividade, "tempo")}
+          icon={<Timer className="w-4 h-4"/>}
+          label="+ Otimizar Tempo"
+          color={TEMA.brand}
+        />
+        <QuickButton 
+          onClick={() => onAbrirModalPersonalizado(atividade, "clareza")}
+          icon={<Target className="w-4 h-4"/>}
+          label="+ Aumentar Clareza"
+          color={TEMA.info}
+        />
+        <QuickButton 
+          onClick={() => onAbrirModalPersonalizado(atividade, "impacto")}
+          icon={<ArrowUpRight className="w-4 h-4"/>}
+          label="+ Amplificar Impacto"
+          color={TEMA.accent}
+        />
+      </div>
+    </div>
+  )}
+</div>
 
           {/* Lista de táticas OU empty state */}
           {taticas.length === 0 ? (
@@ -1070,6 +1374,235 @@ function ordenarPorFocoDiagnostico(
 }
 
 // ═══════════════════════════════════════════════════════════════════
+// 🆕 COMPONENTE 8: MODAL DE CRIAÇÃO DAR CERTO
+// ═══════════════════════════════════════════════════════════════════
+
+interface ModalDAR_CERTOProps {
+  isOpen: boolean;
+  atividade: AtividadePlano;
+  categoria: string;
+  onClose: () => void;
+  onSalvar: (novaTatica: Tatica) => void;
+}
+
+export function ModalDAR_CERTO({ 
+  isOpen, 
+  atividade, 
+  categoria, 
+  onClose, 
+  onSalvar 
+}: ModalDAR_CERTOProps) {
+  const [tipo, setTipo] = React.useState<"TAREFA" | "HABITO">("TAREFA");
+  const [titulo, setTitulo] = React.useState("");
+  const [detalhe, setDetalhe] = React.useState("");
+  const [prazo, setPrazo] = React.useState("");
+  const [frequencia, setFrequencia] = React.useState<"diaria" | "semanal" | "mensal">("semanal");
+  const [gatilho, setGatilho] = React.useState("");
+
+  const categoriaConfig = DAR_CERTO_FRAMEWORK[categoria as keyof typeof DAR_CERTO_FRAMEWORK];
+
+  React.useEffect(() => {
+  if (isOpen && categoriaConfig) {
+    // Sugerir tipo baseado na categoria (mas permitir mudança)
+    setTipo(categoriaConfig.tipoSugerido);
+  }
+}, [isOpen, categoriaConfig]);
+
+  if (!isOpen) return null;
+
+  const handleSalvar = () => {
+    if (!titulo || !detalhe) return;
+    
+    const novaTatica: Tatica = {
+      id: uid(),
+      tipo,
+      titulo,
+      detalhe,
+      categoria,
+      impactos: {},
+      ...(tipo === "TAREFA" && prazo && { dataSugerida: prazo }),
+      ...(tipo === "HABITO" && { frequencia, gatilho })
+    };
+    
+    onSalvar(novaTatica);
+    onClose();
+    
+    // Reset
+    setTitulo("");
+    setDetalhe("");
+    setPrazo("");
+    setGatilho("");
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+      <div 
+        className="bg-gray-900 rounded-2xl p-6 max-w-lg w-full border"
+        style={{ borderColor: TEMA.cardBorder }}
+      >
+        {/* Header */}
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h3 className="text-lg font-semibold" style={{ color: TEMA.text }}>
+              {categoria} - {categoriaConfig?.descricao}
+            </h3>
+            <p className="text-sm mt-1" style={{ color: TEMA.subtext }}>
+              Para: {atividade.titulo}
+            </p>
+          </div>
+          <button 
+            onClick={onClose}
+            className="p-2 rounded-lg hover:bg-white/10"
+            style={{ color: TEMA.text }}
+          >
+            ✕
+          </button>
+        </div>
+
+        {/* Tipo */}
+        <div className="mb-4">
+          <label className="block text-sm font-medium mb-2" style={{ color: TEMA.text }}>
+            📋 Tipo de ação:
+          </label>
+          <div className="flex gap-3">
+            <button
+              onClick={() => setTipo("TAREFA")}
+              className={cn(
+                "flex-1 p-3 rounded-lg border transition-all",
+                tipo === "TAREFA" && "border-orange-500 bg-orange-500/20"
+              )}
+              style={{ 
+                borderColor: tipo === "TAREFA" ? "#d97706" : TEMA.cardBorder,
+                color: TEMA.text
+              }}
+            >
+              📋 TAREFA
+              <div className="text-xs mt-1" style={{ color: TEMA.subtext }}>
+                Ação pontual com prazo
+              </div>
+            </button>
+            <button
+              onClick={() => setTipo("HABITO")}
+              className={cn(
+                "flex-1 p-3 rounded-lg border transition-all",
+                tipo === "HABITO" && "border-green-500 bg-green-500/20"
+              )}
+              style={{ 
+                borderColor: tipo === "HABITO" ? "#22c55e" : TEMA.cardBorder,
+                color: TEMA.text
+              }}
+            >
+              🔄 HÁBITO
+              <div className="text-xs mt-1" style={{ color: TEMA.subtext }}>
+                Comportamento recorrente
+              </div>
+            </button>
+          </div>
+        </div>
+
+        {/* Título */}
+        <div className="mb-4">
+          <label className="block text-sm font-medium mb-2" style={{ color: TEMA.text }}>
+            📝 Título:
+          </label>
+          <input
+            value={titulo}
+            onChange={(e) => setTitulo(e.target.value)}
+            className="w-full p-3 rounded-lg bg-white/5 border outline-none"
+            style={{ borderColor: TEMA.cardBorder, color: TEMA.text }}
+            placeholder={`Ex: ${tipo === "TAREFA" ? "Automatizar processo X" : "Revisar emails 2x por dia"}`}
+          />
+        </div>
+
+        {/* Detalhes */}
+        <div className="mb-4">
+          <label className="block text-sm font-medium mb-2" style={{ color: TEMA.text }}>
+            📋 Como executar:
+          </label>
+          <textarea
+            value={detalhe}
+            onChange={(e) => setDetalhe(e.target.value)}
+            className="w-full p-3 rounded-lg bg-white/5 border outline-none resize-none"
+            style={{ borderColor: TEMA.cardBorder, color: TEMA.text }}
+            rows={3}
+            placeholder="Descreva os passos específicos..."
+          />
+        </div>
+
+        {/* Campos específicos por tipo */}
+        {tipo === "TAREFA" && (
+          <div className="mb-4">
+            <label className="block text-sm font-medium mb-2" style={{ color: TEMA.text }}>
+              📅 Prazo (máx. 4 semanas):
+            </label>
+            <input
+              type="date"
+              value={prazo}
+              onChange={(e) => setPrazo(e.target.value)}
+              min={new Date().toISOString().split('T')[0]}
+              max={new Date(Date.now() + 28 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]}
+              className="w-full p-3 rounded-lg bg-white/5 border outline-none"
+              style={{ borderColor: TEMA.cardBorder, color: TEMA.text }}
+            />
+          </div>
+        )}
+
+        {tipo === "HABITO" && (
+          <>
+            <div className="mb-4">
+              <label className="block text-sm font-medium mb-2" style={{ color: TEMA.text }}>
+                📅 Frequência:
+              </label>
+              <select
+                value={frequencia}
+                onChange={(e) => setFrequencia(e.target.value as any)}
+                className="w-full p-3 rounded-lg bg-white/5 border outline-none"
+                style={{ borderColor: TEMA.cardBorder, color: TEMA.text }}
+              >
+                <option value="diaria">Diário</option>
+                <option value="semanal">Semanal</option>
+                <option value="mensal">Mensal</option>
+              </select>
+            </div>
+            <div className="mb-4">
+              <label className="block text-sm font-medium mb-2" style={{ color: TEMA.text }}>
+                🎯 Gatilho (quando praticar):
+              </label>
+              <input
+                value={gatilho}
+                onChange={(e) => setGatilho(e.target.value)}
+                className="w-full p-3 rounded-lg bg-white/5 border outline-none"
+                style={{ borderColor: TEMA.cardBorder, color: TEMA.text }}
+                placeholder="Ex: Após o café da manhã, Toda segunda às 9h"
+              />
+            </div>
+          </>
+        )}
+
+        {/* Botões */}
+        <div className="flex gap-3 mt-6">
+          <button
+            onClick={onClose}
+            className="flex-1 p-3 rounded-lg border"
+            style={{ borderColor: TEMA.cardBorder, color: TEMA.text }}
+          >
+            Cancelar
+          </button>
+          <button
+            onClick={handleSalvar}
+            disabled={!titulo || !detalhe}
+            className="flex-1 p-3 rounded-lg font-medium disabled:opacity-50"
+            style={{ background: TEMA.brand, color: TEMA.bg }}
+          >
+            Salvar {tipo === "TAREFA" ? "Tarefa" : "Hábito"}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════
 // 📤 EXPORTAR TODOS OS COMPONENTES
 // ═══════════════════════════════════════════════════════════════════
 
@@ -1083,3 +1616,4 @@ export {
   OrientacaoDiagnostico,
   TEMA
 };
+

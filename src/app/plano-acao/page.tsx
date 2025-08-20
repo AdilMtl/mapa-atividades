@@ -23,6 +23,7 @@ import {
   AtividadeCard,
   PlanoFooter,
   OrientacaoDiagnostico,
+  ModalDAR_CERTO,  
   // Funções utilitárias
   zonaDaAtividade,
   mapearAtividade,
@@ -48,6 +49,13 @@ export default function PlanoAcaoModular() {
   const [expandidos, setExpandidos] = useState<Record<string, boolean>>({});
   const [planos, setPlanos] = useState<Record<string, Tatica[]>>({});
   const [isLoading, setIsLoading] = useState(true);
+
+// 🆕 ESTADOS DO MODAL DAR CERTO
+const [modalDAR_CERTO, setModalDAR_CERTO] = useState<{
+  isOpen: boolean;
+  atividade?: AtividadePlano;
+  categoria?: string;
+}>({ isOpen: false });
 
   // Converter atividades do mapa para formato do plano
   const atividades = useMemo(() => {
@@ -306,6 +314,36 @@ function aplicarTaticasAutomaticas() {
     window.location.href = '/dashboard';
   }
 
+// 🆕 FUNÇÕES DO MODAL DAR CERTO
+function onAbrirModalDAR_CERTO(atividade: AtividadePlano, categoria: string) {
+  setModalDAR_CERTO({
+    isOpen: true,
+    atividade,
+    categoria
+  });
+}
+
+function onAbrirModalPersonalizado(atividade: AtividadePlano, eixo: Eixo) {
+  // Por enquanto, usar a função genérica existente
+  adicionarTatica(atividade, eixo);
+}
+
+function onFecharModalDAR_CERTO() {
+  setModalDAR_CERTO({ isOpen: false });
+}
+
+function onSalvarModalDAR_CERTO(novaTatica: Tatica) {
+  if (!modalDAR_CERTO.atividade) return;
+  
+  const atividadeId = modalDAR_CERTO.atividade.id;
+  setPlanos(prev => ({
+    ...prev,
+    [atividadeId]: [...(prev[atividadeId] || []), novaTatica]
+  }));
+  
+  setModalDAR_CERTO({ isOpen: false });
+}
+
   // ═══════════════════════════════════════════════════════════════════
   // 🎨 RENDERIZAÇÃO MODULAR
   // ═══════════════════════════════════════════════════════════════════
@@ -367,6 +405,8 @@ function aplicarTaticasAutomaticas() {
                 onAdicionarTatica={adicionarTatica}
                 onAdicionarTaticaGenerica={adicionarTaticaGenerica}
                 onAdicionarTaticasSugeridas={adicionarTaticasSugeridas}
+                onAbrirModalDAR_CERTO={onAbrirModalDAR_CERTO}           
+                onAbrirModalPersonalizado={onAbrirModalPersonalizado}
                 onAtualizarTatica={atualizarTatica}
                 onAtualizarImpacto={atualizarImpacto}
                 onToggleConcluida={toggleConcluida}
@@ -382,6 +422,17 @@ function aplicarTaticasAutomaticas() {
         onSalvar={salvarPlano}
         onVoltarMapa={voltarMapa}
       />
+
+{/* 🆕 MODAL DAR CERTO */}
+      {modalDAR_CERTO.isOpen && modalDAR_CERTO.atividade && (
+        <ModalDAR_CERTO
+          isOpen={modalDAR_CERTO.isOpen}
+          atividade={modalDAR_CERTO.atividade}
+          categoria={modalDAR_CERTO.categoria || ""}
+          onClose={onFecharModalDAR_CERTO}
+          onSalvar={onSalvarModalDAR_CERTO}
+        />
+      )}
     </PageContainer>
   );
 }
