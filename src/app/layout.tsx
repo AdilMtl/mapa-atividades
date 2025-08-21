@@ -30,9 +30,10 @@ export default function RootLayout({ children }: LayoutProps) {
       setLoading(false)
 
       // Redirecionar não autenticados (exceto página auth)
-      if (!session?.user && pathname !== '/auth') {
-        router.push('/auth')
-      }
+      // Redirecionar não autenticados (exceto landing e auth)
+if (!session?.user && pathname !== '/auth' && pathname !== '/') {
+  router.push('/')
+}
     }
     checkAuth()
 
@@ -40,9 +41,9 @@ export default function RootLayout({ children }: LayoutProps) {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
         setUser(session?.user || null)
-        if (!session?.user && pathname !== '/auth') {
-          router.push('/auth')
-        }
+        if (!session?.user && pathname !== '/auth' && pathname !== '/') {
+  router.push('/')
+}
       }
     )
 
@@ -50,12 +51,12 @@ export default function RootLayout({ children }: LayoutProps) {
   }, [pathname, router])
 
   const logout = async () => {
-    await supabase.auth.signOut()
-    router.push('/auth')
-  }
+  await supabase.auth.signOut()
+  router.push('/')  // ← VAI PARA LANDING
+}
 
   // Páginas que não mostram o menu
-  const authPages = ['/auth']
+  const authPages = ['/auth', '/']
   const showNavigation = user && !authPages.includes(pathname)
 
   // 🎯 NAVEGAÇÃO CORRIGIDA - Com ícone Target
