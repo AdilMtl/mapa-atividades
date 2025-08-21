@@ -255,13 +255,28 @@ export default function AuthPage() {
             {!isLogin && (
               <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-4">
                 <div className="flex items-start gap-3">
-                  <BookOpen className="w-5 h-5 text-blue-400 mt-0.5 flex-shrink-0" />
-                  <div className="space-y-2">
-                    <h4 className="font-medium text-blue-100">Acesso Exclusivo</h4>
-                    <p className="text-sm text-blue-100/80 leading-relaxed">
-                      Apenas <strong>assinantes anuais</strong> da newsletter têm acesso ao sistema. 
-                      Se você ainda não assina, volte à página inicial para se inscrever.
-                    </p>
+                  <Mail className="w-5 h-5 text-blue-400 mt-0.5 flex-shrink-0" />
+                  <div className="space-y-3">
+                    <h4 className="font-medium text-blue-100">Como funciona o cadastro</h4>
+                    <div className="text-sm text-blue-100/80 leading-relaxed space-y-2">
+                      <p>
+                        <strong>1.</strong> Digite seu email e senha → <strong>2.</strong> Receberá email de confirmação → 
+                        <strong>3.</strong> Clique no link para ativar sua conta
+                      </p>
+                      <div className="bg-blue-500/20 rounded-lg p-3 border border-blue-400/30">
+                        <p className="font-medium text-blue-100 mb-1">⚠️ Importante:</p>
+                        <p>
+                          Apenas <strong>assinantes anuais</strong> da newsletter conseguem criar conta. 
+                          Seu email será verificado automaticamente durante o cadastro.
+                        </p>
+                      </div>
+                      <p className="text-blue-200/70">
+                        Ainda não é assinante? 
+                        <Link href="/" className="text-accent hover:underline ml-1">
+                          Volte à página inicial para se inscrever
+                        </Link>
+                      </p>
+                    </div>
                   </div>
                 </div>
               </div>
