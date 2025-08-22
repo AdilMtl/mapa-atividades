@@ -61,7 +61,7 @@ export default function DiagnosticoPage() {
   const [generating, setGenerating] = useState(false);
  const [comoUsarExpanded, setComoUsarExpanded] = useState(false);
   const exportRef = useRef<HTMLDivElement>(null);
- const [dadosUsuario, setDadosUsuario] = useState<{nome?: string; email?: string} | null>(null);
+ const [dadosUsuario, setDadosUsuario] = useState<{nome?: string; email?: string; emoji?: string} | null>(null);
 
   // Carregamento de dados
   useEffect(() => {
@@ -122,15 +122,17 @@ export default function DiagnosticoPage() {
         const { data: { user: currentUser } } = await supabase.auth.getUser();
         if (currentUser) {
           const { data: profile } = await supabase
-            .from('profiles')
-            .select('display_name, email')
-            .eq('id', currentUser.id)
-            .single();
-          
-          setDadosUsuario({
-            nome: profile?.display_name || currentUser.email?.split('@')[0] || 'Usuário',
-            email: currentUser.email
-          });
+  .from('profiles')
+  .select('full_name, emoji, email')
+  .eq('id', currentUser.id)
+  .single();
+
+setDadosUsuario({
+  nome: profile?.full_name || currentUser.email?.split('@')[0] || 'Usuário',
+  emoji: profile?.emoji || '😊',
+  email: currentUser.email
+});
+
         }
       } catch (error) {
         console.log('Erro ao carregar perfil:', error);
@@ -170,53 +172,109 @@ export default function DiagnosticoPage() {
 };
 
   const exportarPDF = async () => {
-    if (!resultado || !exportRef.current) return;
+  if (!resultado) return;
+  
+  setGenerating(true);
+  try {
+    const pdf = new jsPDF('p', 'mm', 'a4');
     
-    setGenerating(true);
-    try {
-      exportRef.current.style.display = 'block';
-      exportRef.current.style.position = 'fixed';
-      exportRef.current.style.top = '-9999px';
-      
-      const canvas = await html2canvas(exportRef.current, {
-        backgroundColor: '#ffffff',
-        scale: 2,
-        useCORS: true,
-        allowTaint: true
-      });
-
-      exportRef.current.style.display = 'none';
-
-      const imgData = canvas.toDataURL('image/png');
-      const pdf = new jsPDF('p', 'mm', 'a4');
-      
-      const imgWidth = 210;
-      const pageHeight = 295;
-      const imgHeight = (canvas.height * imgWidth) / canvas.width;
-      let heightLeft = imgHeight;
-
-      let position = 0;
-      pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-      heightLeft -= pageHeight;
-
-      while (heightLeft >= 0) {
-        position = heightLeft - imgHeight;
+    // Configurações
+    const pageWidth = 210;
+    const margin = 20;
+    const lineHeight = 7;
+    let currentY = 30;
+    
+    // HEADER
+    pdf.setFontSize(20);
+    pdf.setFont('helvetica', 'bold');
+    pdf.text('DIAGNOSTICO DO FOCO', margin, currentY);
+    currentY += 15;
+    
+    // DADOS DO USUÁRIO
+    pdf.setFontSize(12);
+    pdf.setFont('helvetica', 'normal');
+    pdf.text(`Data: ${new Date().toLocaleDateString('pt-BR')}`, margin, currentY);
+    currentY += 10;
+    pdf.text(`Usuario: ${dadosUsuario?.nome || 'Usuario'}`, margin, currentY);
+    currentY += 10;
+    pdf.text(`Status: ${resultado.cenario.toUpperCase()}`, margin, currentY);
+    currentY += 15;
+    
+    // MÉTRICAS
+    pdf.setFontSize(14);
+    pdf.setFont('helvetica', 'bold');
+    pdf.text('DISTRIBUICAO ATUAL', margin, currentY);
+    currentY += 10;
+    
+    pdf.setFontSize(11);
+    pdf.setFont('helvetica', 'normal');
+    pdf.text(`Essencial: ${resultado.mix.essencial}% (Meta: 40-55%)`, margin, currentY);
+    currentY += lineHeight;
+    pdf.text(`Estrategica: ${resultado.mix.estrategica}% (Meta: 20-30%)`, margin, currentY);
+    currentY += lineHeight;
+    pdf.text(`Tatica: ${resultado.mix.tatica}% (Meta: 0-25%)`, margin, currentY);
+    currentY += lineHeight;
+    pdf.text(`Distracao: ${resultado.mix.distracao}% (Meta: 0-15%)`, margin, currentY);
+    currentY += 15;
+    
+    // RELATÓRIO TEXTO
+    pdf.setFontSize(14);
+    pdf.setFont('helvetica', 'bold');
+    pdf.text('ANALISE DETALHADA', margin, currentY);
+    currentY += 10;
+    
+    // Converter HTML para texto simples e limpar caracteres especiais
+    const textoLimpo = resultado.relatorioHtml
+      .replace(/<[^>]*>/g, '') // Remove HTML
+      .replace(/&nbsp;/g, ' ') // Remove &nbsp;
+      .replace(/[áàãâä]/g, 'a') // Remove acentos
+      .replace(/[éèêë]/g, 'e')
+      .replace(/[íìîï]/g, 'i')
+      .replace(/[óòõôö]/g, 'o')
+      .replace(/[úùûü]/g, 'u')
+      .replace(/[ç]/g, 'c')
+      .replace(/[ÁÀÃÂÄ]/g, 'A')
+      .replace(/[ÉÈÊË]/g, 'E')
+      .replace(/[ÍÌÎÏ]/g, 'I')
+      .replace(/[ÓÒÕÔÖ]/g, 'O')
+      .replace(/[ÚÙÛÜ]/g, 'U')
+      .replace(/[Ç]/g, 'C')
+      .replace(/[^\x00-\x7F]/g, '') // Remove todos os caracteres não-ASCII
+      .trim();
+    
+    // Quebrar texto em linhas
+    pdf.setFontSize(10);
+    pdf.setFont('helvetica', 'normal');
+    const linhas = pdf.splitTextToSize(textoLimpo, pageWidth - 2 * margin);
+    
+    linhas.forEach((linha: string) => {
+      if (currentY > 270) { // Nova página se necessário
         pdf.addPage();
-        pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-        heightLeft -= pageHeight;
+        currentY = 20;
       }
-
-      const timestamp = new Date().toISOString().split('T')[0];
-      pdf.save(`diagnostico-foco-${timestamp}.pdf`);
-      
-    } catch (error) {
-      console.error('Erro ao gerar PDF:', error);
-      alert('Erro ao gerar PDF');
-    } finally {
-      setGenerating(false);
-    }
-  };
-
+      pdf.text(linha, margin, currentY);
+      currentY += 5;
+    });
+    
+    // FOOTER
+    pdf.setFontSize(8);
+    pdf.setFont('helvetica', 'italic');
+    pdf.text('Gerado pelo Mapa de Atividades - ROI do Foco', margin, 285);
+    
+    // SALVAR
+    const timestamp = new Date().toISOString().split('T')[0];
+    const nomeArquivo = `diagnostico-foco-${timestamp}.pdf`;
+    pdf.save(nomeArquivo);
+    
+    console.log('PDF gerado com sucesso!');
+    
+  } catch (error) {
+    console.error('Erro ao gerar PDF:', error);
+    alert('Erro ao gerar PDF: ' + error.message);
+  } finally {
+    setGenerating(false);
+  }
+};
   const exportarJSON = () => {
     if (!resultado) return;
 
@@ -486,183 +544,60 @@ export default function DiagnosticoPage() {
           }`}>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pb-4">
               
-              {/* Card 1: Compartilhar */}
-              <Card className="bg-gradient-to-br from-purple-500/10 to-pink-500/10 border-purple-400/20 backdrop-blur-sm">
-                <CardContent className="p-6">
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className="p-2 rounded-lg bg-purple-500/20">
-                      <Users className="w-5 h-5 text-purple-300" />
-                    </div>
-                    <h3 className="font-semibold text-purple-200">Compartilhar</h3>
-                  </div>
-                  <p className="text-purple-100 text-sm leading-relaxed mb-4">
-                    Exporte para PDF e compartilhe com seu time, mentor ou coach. 
-                    Use como base para 1:1s ou planejamento de equipe.
-                  </p>
-                  <Button 
-                    onClick={exportarPDF}
-                    disabled={generating}
-                    size="sm"
-                    className="bg-purple-600 hover:bg-purple-700 text-white"
-                  >
-                    <FileText className="w-4 h-4 mr-2" />
-                    {generating ? 'Gerando...' : 'Exportar PDF'}
-                  </Button>
-                </CardContent>
-              </Card>
+              {/* Card 1: Salvar Diagnóstico - CORRIGIDO */}
+<Card className="bg-gradient-to-br from-purple-500/10 to-pink-500/10 border-purple-400/20 backdrop-blur-sm">
+  <CardContent className="p-6">
+    <div className="flex items-center gap-3 mb-4">
+      <div className="p-2 rounded-lg bg-purple-500/20">
+        <FileText className="w-5 h-5 text-purple-300" />
+      </div>
+      <h3 className="font-semibold text-purple-200">Salve seu diagnóstico</h3>
+    </div>
+    <p className="text-purple-100 text-sm leading-relaxed">
+      Baixe como PDF profissional para compartilhar com seu time, mentor ou coach, 
+      ou copie o texto para usar no WhatsApp, email, Notion e outras ferramentas.
+    </p>
+  </CardContent>
+</Card>
 
-              {/* Card 2: Acompanhar */}
-              <Card className="bg-gradient-to-br from-green-500/10 to-emerald-500/10 border-green-400/20 backdrop-blur-sm">
-                <CardContent className="p-6">
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className="p-2 rounded-lg bg-green-500/20">
-                      <TrendingUp className="w-5 h-5 text-green-300" />
-                    </div>
-                    <h3 className="font-semibold text-green-200">Acompanhar</h3>
-                  </div>
-                  <p className="text-green-100 text-sm leading-relaxed mb-4">
-                    Refaça este diagnóstico a cada 30 dias para acompanhar sua evolução. 
-                    Compare os percentuais e ajuste seu foco.
-                  </p>
-                  <Button 
-                    onClick={exportarJSON}
-                    size="sm"
-                    variant="outline"
-                    className="bg-green-600/20 border-green-500/30 text-green-200 hover:bg-green-600/30"
-                  >
-                    <Download className="w-4 h-4 mr-2" />
-                    Baixar Dados
-                  </Button>
-                </CardContent>
-              </Card>
+              {/* Card 2: Acompanhar - LIMPO */}
+<Card className="bg-gradient-to-br from-green-500/10 to-emerald-500/10 border-green-400/20 backdrop-blur-sm">
+  <CardContent className="p-6">
+    <div className="flex items-center gap-3 mb-4">
+      <div className="p-2 rounded-lg bg-green-500/20">
+        <TrendingUp className="w-5 h-5 text-green-300" />
+      </div>
+      <h3 className="font-semibold text-green-200">Acompanhar evolução</h3>
+    </div>
+    <p className="text-green-100 text-sm leading-relaxed">
+      Refaça este diagnóstico mensalmente para acompanhar sua evolução no ROI do Foco. 
+      Compare os percentuais de cada zona ao longo do tempo para identificar melhorias.
+    </p>
+  </CardContent>
+</Card>
 
-              {/* Card 3: Executar */}
-              <Card className="bg-gradient-to-br from-orange-500/10 to-amber-500/10 border-orange-400/20 backdrop-blur-sm">
-                <CardContent className="p-6">
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className="p-2 rounded-lg bg-orange-500/20">
-                      <Zap className="w-5 h-5 text-orange-300" />
-                    </div>
-                    <h3 className="font-semibold text-orange-200">Executar</h3>
-                  </div>
-                  <p className="text-orange-100 text-sm leading-relaxed mb-4">
-                    Transforme os insights em ação. Crie um plano com táticas específicas 
-                    baseadas no seu foco primário.
-                  </p>
-                  <Button 
-                    onClick={irParaPlano}
-                    size="sm"
-                    className="bg-orange-600 hover:bg-orange-700 text-white"
-                  >
-                    <Target className="w-4 h-4 mr-2" />
-                    Criar Plano
-                  </Button>
-                </CardContent>
-              </Card>
+             {/* Card 3: Executar - LIMPO */}
+<Card className="bg-gradient-to-br from-orange-500/10 to-amber-500/10 border-orange-400/20 backdrop-blur-sm">
+  <CardContent className="p-6">
+    <div className="flex items-center gap-3 mb-4">
+      <div className="p-2 rounded-lg bg-orange-500/20">
+        <Target className="w-5 h-5 text-orange-300" />
+      </div>
+      <h3 className="font-semibold text-orange-200">Próximo passo: executar</h3>
+    </div>
+    <p className="text-orange-100 text-sm leading-relaxed">
+      Com base neste diagnóstico, vá para <strong>Plano de Ação</strong> ao final da página ou no menu lateral 
+      para criar táticas específicas usando o Framework DAR CERTO.
+    </p>
+  </CardContent>
+</Card>
 
             </div>
           </div>
         </div>
 
-
-        {/* Mix de Zonas */}
-       <div className="mb-8 sm:mb-10">
-        <Section title="Distribuição do Seu Tempo">
-          <Card className="bg-white/5 border-white/10 backdrop-blur-sm">
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <CardTitle className="text-white flex items-center gap-2">
-                  <BarChart3 className="w-5 h-5" />
-                  Mix Atual
-                </CardTitle>
-                <div 
-                  className="px-3 py-1 rounded-full border text-sm font-medium"
-                  style={{ 
-                    backgroundColor: cenarioColor + '20', 
-                    color: cenarioColor,
-                    borderColor: cenarioColor + '40'
-                  }}
-                >
-                  {cenarioIcon} {resultado.cenario.charAt(0).toUpperCase() + resultado.cenario.slice(1)}
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <MetricGrid columns={4}>
-                <MetricCard
-                  title="📗 Essencial"
-                  value={formatarPercentual(resultado.mix.essencial)}
-                  subtitle="Ideal: 40-55%"
-                  trend={resultado.mix.essencial >= 40 ? "✓ No alvo" : "⚠ Abaixo"}
-                  trendDirection={resultado.mix.essencial >= 40 ? "up" : "down"}
-                  color="success"
-                />
-                <MetricCard
-                  title="📘 Estratégica"
-                  value={formatarPercentual(resultado.mix.estrategica)}
-                  subtitle="Ideal: 20-30%"
-                  trend={resultado.mix.estrategica >= 20 ? "✓ No alvo" : "⚠ Abaixo"}
-                  trendDirection={resultado.mix.estrategica >= 20 ? "up" : "down"}
-                  color="primary"
-                />
-                <MetricCard
-                  title="📙 Tática"
-                  value={formatarPercentual(resultado.mix.tatica)}
-                  subtitle="Ideal: 0-25%"
-                  trend={resultado.mix.tatica <= 25 ? "✓ No alvo" : "⚠ Acima"}
-                  trendDirection={resultado.mix.tatica <= 25 ? "up" : "down"}
-                  color="warning"
-                />
-                <MetricCard
-                  title="📕 Distração"
-                  value={formatarPercentual(resultado.mix.distracao)}
-                  subtitle="Ideal: 0-15%"
-                  trend={resultado.mix.distracao <= 15 ? "✓ No alvo" : "⚠ Acima"}
-                  trendDirection={resultado.mix.distracao <= 15 ? "up" : "down"}
-                  color="error"
-                />
-              </MetricGrid>
-
-              {/* Barra Visual do Mix */}
-              <div className="mt-6 p-4 rounded-lg bg-white/5">
-                <h4 className="text-white font-medium mb-3 text-sm">Visualização do Mix</h4>
-                <div className="flex rounded-lg overflow-hidden h-4">
-                  <div 
-                    className="bg-green-500 transition-all duration-500"
-                    style={{ width: `${resultado.mix.essencial}%` }}
-                    title={`Essencial: ${resultado.mix.essencial}%`}
-                  />
-                  <div 
-                    className="bg-blue-500 transition-all duration-500"
-                    style={{ width: `${resultado.mix.estrategica}%` }}
-                    title={`Estratégica: ${resultado.mix.estrategica}%`}
-                  />
-                  <div 
-                    className="bg-yellow-500 transition-all duration-500"
-                    style={{ width: `${resultado.mix.tatica}%` }}
-                    title={`Tática: ${resultado.mix.tatica}%`}
-                  />
-                  <div 
-                    className="bg-red-500 transition-all duration-500"
-                    style={{ width: `${resultado.mix.distracao}%` }}
-                    title={`Distração: ${resultado.mix.distracao}%`}
-                  />
-                </div>
-                <div className="flex justify-between mt-2 text-xs text-white/60">
-                  <span>0%</span>
-                  <span>25%</span>
-                  <span>50%</span>
-                  <span>75%</span>
-                  <span>100%</span>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-</Section>
-        </div>
-
        {/* Relatório Profissional */}
-        <div className="mb-8 sm:mb-10">
+        <div className="mb-6 sm:mb-10">
           <RelatorioView 
             relatorioHtml={resultado.relatorioHtml}
             onExportPdf={exportarPDF}
@@ -672,7 +607,6 @@ export default function DiagnosticoPage() {
             resultado={resultado}
           />
         </div>
-        
         
         {/* Próximas Ações */}
 <div className="mb-8 sm:mb-10">

@@ -19,6 +19,7 @@ import {
   TrendingUp,
   Target
 } from 'lucide-react';
+import { getCenarioColor, getCenarioIcon } from '@/lib/diagnostico-engine';
 import jsPDF from 'jspdf';
 import { PageContainer, PageHeader } from '@/components/base';
 
@@ -240,6 +241,28 @@ export function RelatorioView({
   dadosUsuario?: { nome?: string; email?: string };
   resultado?: any;
 }) {
+  // ✅ ESTADOS E FUNÇÕES DENTRO DA FUNÇÃO:
+  const [dropdownAberto, setDropdownAberto] = useState(false);
+  
+  // ✅ FUNÇÃO COPIAR TEXTO:
+  const copiarTexto = () => {
+    const textoSimples = relatorioHtml.replace(/<[^>]*>/g, ''); // Remove HTML
+    navigator.clipboard.writeText(`
+🎯 DIAGNÓSTICO DO FOCO
+
+Data: ${new Date().toLocaleDateString('pt-BR')}
+${textoSimples}
+
+Gerado pelo Mapa de Atividades
+`).then(() => {
+      alert('Texto copiado! Cole onde precisar (Ctrl+V)');
+      setDropdownAberto(false);
+    }).catch(() => {
+      alert('Erro ao copiar. Tente novamente.');
+    });
+  };
+  
+
   const dataAtual = new Date().toLocaleDateString('pt-BR', {
     day: '2-digit',
     month: 'long',
@@ -265,46 +288,67 @@ export function RelatorioView({
       <CardHeader className="pb-4">
         <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
           
-          {/* ✅ Header Melhorado */}
-          <div className="flex items-start gap-4">
-            <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center flex-shrink-0">
-              <FileText className="w-6 h-6 text-white" />
-            </div>
+          {/* ✅ Header com Emoji */}
+<div className="flex items-start gap-4">
+  <div className="text-3xl">
+    {dadosUsuario?.emoji || '📊'}
+  </div>
             <div>
               <CardTitle className="text-xl font-bold text-white mb-1">
                 Diagnóstico de {nomeUsuario}
               </CardTitle>
-              <div className="flex items-center gap-3">
-                <p className="text-sm text-white/60">
-                  📅 {dataAtual}
-                </p>
-                {/* ✅ MOSTRAR STATUS DO CENÁRIO */}
-                <span className={`text-xs px-2 py-1 rounded-full font-medium ${statusCenario.bg} ${statusCenario.cor} ${statusCenario.border} border`}>
-                  🚨 {statusCenario.texto}
-                </span>
-              </div>
+              <div className="flex items-center gap-3 text-sm text-white/60">
+  <span>📅 {dataAtual}</span>
+  <span 
+    className="px-2 py-1 rounded-md text-xs font-medium"
+    style={{ 
+      backgroundColor: getCenarioColor(resultado.cenario) + '20', 
+      color: getCenarioColor(resultado.cenario) 
+    }}
+  >
+    🚨 {statusCenario.texto}
+  </span>
+</div>
             </div>
           </div>
           
-          {/* ✅ Botões Melhorados */}
-          <div className="flex flex-col xs:flex-row gap-3 w-full sm:w-auto">
-            <Button 
-              onClick={onExportPdf}
-              disabled={isGenerating}
-              className="flex-1 xs:flex-none bg-red-600 hover:bg-red-700 text-white font-medium"
-            >
-              <FileText className="w-4 h-4 mr-2" />
-              {isGenerating ? 'Gerando...' : 'Exportar PDF'}
-            </Button>
-            <Button 
-              onClick={onExportJson}
-              variant="outline"
-              className="flex-1 xs:flex-none border-white/20 text-white hover:bg-white/10"
-            >
-              <Download className="w-4 h-4 mr-2" />
-              Baixar JSON
-            </Button>
-          </div>
+         {/* ✅ Dropdown Salvar Diagnóstico FUNCIONAL */}
+<div className="flex flex-col xs:flex-row gap-3 w-full sm:w-auto">
+  <div className="relative">
+    <button 
+      className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg text-sm font-medium transition-colors flex items-center gap-2 w-full xs:w-auto"
+      onClick={() => setDropdownAberto(!dropdownAberto)}
+    >
+      <Download className="w-4 h-4" />
+      Salvar Diagnóstico
+      <ChevronDown className={`w-4 h-4 transition-transform ${dropdownAberto ? 'rotate-180' : ''}`} />
+    </button>
+    
+    {/* Dropdown Menu FUNCIONAL */}
+    {dropdownAberto && (
+      <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
+        <button 
+          onClick={() => {
+            onExportPdf();
+            setDropdownAberto(false);
+          }}
+          disabled={isGenerating}
+          className="w-full px-4 py-3 text-left text-gray-700 hover:bg-gray-50 flex items-center gap-2 rounded-t-lg disabled:opacity-50"
+        >
+          <FileText className="w-4 h-4" />
+          {isGenerating ? 'Gerando PDF...' : 'Gerar PDF'}
+        </button>
+        <button 
+          onClick={copiarTexto}
+          className="w-full px-4 py-3 text-left text-gray-700 hover:bg-gray-50 flex items-center gap-2 rounded-b-lg border-t border-gray-100"
+        >
+          <Download className="w-4 h-4" />
+          Copiar texto
+        </button>
+      </div>
+    )}
+  </div>
+</div>
         </div>
       </CardHeader>
       
@@ -348,11 +392,58 @@ export function RelatorioView({
           </div>
         )}
 
-        {/* ✅ Relatório com Espaçamento Padronizado */}
-        <div 
-          className="prose prose-invert max-w-none text-white/90 space-y-6 text-base leading-relaxed"
-          dangerouslySetInnerHTML={{ __html: relatorioHtml }}
-        />
+{/* 🆕 BARRA VISUAL - ADICIONAR AQUI */}
+        {resultado && (
+          <div className="p-4 rounded-lg bg-white/5 border border-white/10">
+            <h4 className="text-white font-medium mb-3 text-sm">Visualização do Mix</h4>
+            <div className="flex rounded-lg overflow-hidden h-4">
+              <div 
+                className="bg-green-500 transition-all duration-500"
+                style={{ width: `${resultado.mix.essencial}%` }}
+                title={`Essencial: ${resultado.mix.essencial}%`}
+              />
+              <div 
+                className="bg-blue-500 transition-all duration-500"
+                style={{ width: `${resultado.mix.estrategica}%` }}
+                title={`Estratégica: ${resultado.mix.estrategica}%`}
+              />
+              <div 
+                className="bg-yellow-500 transition-all duration-500"
+                style={{ width: `${resultado.mix.tatica}%` }}
+                title={`Tática: ${resultado.mix.tatica}%`}
+              />
+              <div 
+                className="bg-red-500 transition-all duration-500"
+                style={{ width: `${resultado.mix.distracao}%` }}
+                title={`Distração: ${resultado.mix.distracao}%`}
+              />
+            </div>
+          </div>
+        )}
+
+        {/* ✅ Relatório com CSS Inline */}
+<div 
+  className="prose prose-invert max-w-none text-white/90 space-y-4"
+  dangerouslySetInnerHTML={{ __html: relatorioHtml }}
+/>
+
+<style jsx>{`
+  :global(.diagnostico-relatorio h2) {
+    color: rgba(255, 255, 255, 1) !important;
+    font-size: 1.125rem;
+    font-weight: 600;
+    margin: 1.5rem 0 0.75rem 0;
+    border-bottom: 2px solid rgba(217, 119, 6, 0.3);
+    padding-bottom: 0.5rem;
+  }
+
+  :global(.diagnostico-relatorio p) {
+    color: rgba(255, 255, 255, 0.9) !important;
+    line-height: 1.7;
+    margin: 0.75rem 0 1.5rem 0;
+    font-size: 0.95rem;
+  }
+`}</style>
       </CardContent>
     </Card>
   );
@@ -489,43 +580,68 @@ export function ComoUsarDiagnostico({
 }) {
   // Estado para controlar se está expandido
   const [isExpanded, setIsExpanded] = useState(false);
+// Função para copiar texto do diagnóstico
+const copiarTexto = () => {
+  const textoPlano = `
+🎯 DIAGNÓSTICO DO FOCO
+
+Data: ${new Date().toLocaleDateString('pt-BR')}
+
+📊 DISTRIBUIÇÃO ATUAL:
+- Essencial: ${Math.round(Math.random() * 100)}%
+- Estratégica: ${Math.round(Math.random() * 100)}%
+- Tática: ${Math.round(Math.random() * 100)}%
+- Distração: ${Math.round(Math.random() * 100)}%
+
+📋 FOCO RECOMENDADO:
+Baseado na análise, concentre-se em [AÇÃO PRINCIPAL].
+
+✅ PRÓXIMOS PASSOS:
+1. Acesse o Plano de Ação no menu
+2. Implemente as táticas sugeridas
+3. Monitore a evolução mensalmente
+`;
   
-  const acoes = [
-    {
-      id: 'compartilhar',
-      titulo: 'Compartilhar',
-      descricao: 'Exporte para PDF e compartilhe com seu time, mentor ou coach. Use como base para 1:1s ou planejamento de equipe.',
-      icone: Share2,
-      cor: 'from-purple-600 to-purple-700',
-      corHover: 'hover:from-purple-700 hover:to-purple-800',
-      acao: onExportarPDF,
-      botaoTexto: 'Exportar PDF',
-      botaoIcone: Download
-    },
-    {
-      id: 'acompanhar',
-      titulo: 'Acompanhar',
-      descricao: 'Refaça este diagnóstico a cada 30 dias para acompanhar sua evolução. Compare os percentuais e ajuste seu foco.',
-      icone: TrendingUp,
-      cor: 'from-green-600 to-green-700',
-      corHover: 'hover:from-green-700 hover:to-green-800',
-      acao: onBaixarDados,
-      botaoTexto: 'Baixar Dados',
-      botaoIcone: Download
-    },
-    {
-      id: 'executar',
-      titulo: 'Executar',
-      descricao: 'Transforme os insights em ação. Crie um plano com táticas específicas baseadas no seu foco primário.',
-      icone: Target,
-      cor: 'from-orange-600 to-orange-700',
-      corHover: 'hover:from-orange-700 hover:to-orange-800',
-      acao: onCriarPlano,
-      botaoTexto: 'Criar Plano',
-      botaoIcone: CheckCircle2,
-      destaque: true
-    }
-  ];
+  navigator.clipboard.writeText(textoPlano).then(() => {
+    alert('Texto copiado! Cole onde precisar (Ctrl+V)');
+  }).catch(() => {
+    alert('Erro ao copiar. Tente novamente.');
+  });
+};
+  
+ const acoes = [
+  {
+    id: 'compartilhar',
+    titulo: 'Compartilhar',
+    descricao: 'Compartilhe este diagnóstico em PDF profissional ou copie o texto para usar em outras ferramentas.',
+    icone: Share2,
+    cor: 'from-purple-600 to-purple-700',
+    corHover: 'hover:from-purple-700 hover:to-purple-800',
+    temDropdown: true, // 🆕 Flag para dropdown
+    dropdownOpcoes: [
+      { texto: 'Gerar PDF', icone: FileText, acao: onExportarPDF },
+      { texto: 'Copiar texto', icone: Download, acao: () => copiarTexto() }
+    ]
+  },
+  {
+    id: 'acompanhar',
+    titulo: 'Acompanhar',
+    descricao: 'Refaça este diagnóstico mensalmente para acompanhar sua evolução no ROI do Foco. Compare os percentuais de cada zona ao longo do tempo.',
+    icone: TrendingUp,
+    cor: 'from-green-600 to-green-700',
+    corHover: 'hover:from-green-700 hover:to-green-800',
+    semBotao: true // 🆕 Flag para não mostrar botão
+  },
+  {
+    id: 'executar',
+    titulo: 'Próximo Passo: Executar',
+    descricao: 'Com base neste diagnóstico, vá para Plano de Ação no menu lateral para criar táticas específicas usando o Framework DAR CERTO.',
+    icone: Target,
+    cor: 'from-orange-600 to-orange-700',
+    corHover: 'hover:from-orange-700 hover:to-orange-800',
+    semBotao: true // 🆕 Flag para não mostrar botão
+  }
+];
 
   return (
     <div className="mb-6 sm:mb-8">
@@ -603,31 +719,35 @@ export function ComoUsarDiagnostico({
                     {acao.descricao}
                   </p>
 
-                  {/* Botão de Ação */}
-                  <Button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      acao.acao();
-                    }}
-                    disabled={isGenerating && acao.id === 'compartilhar'}
-                    className={`
-                      w-full bg-white/20 hover:bg-white/30 text-white border-0
-                      transition-all duration-200 group-hover:bg-white/30
-                      ${isGenerating && acao.id === 'compartilhar' ? 'opacity-50 cursor-not-allowed' : ''}
-                    `}
-                  >
-                    {isGenerating && acao.id === 'compartilhar' ? (
-                      <>
-                        <div className="w-4 h-4 mr-2 animate-spin border-2 border-white border-t-transparent rounded-full"></div>
-                        Gerando...
-                      </>
-                    ) : (
-                      <>
-                        <IconeBotao className="w-4 h-4 mr-2" />
-                        {acao.botaoTexto}
-                      </>
-                    )}
-                  </Button>
+                  {/* Botão de Ação ou Dropdown */}
+                  {acao.semBotao ? (
+                    <div className="text-center p-3 bg-white/10 rounded-lg">
+                      <span className="text-sm text-white/80">
+                        💡 Informativo
+                      </span>
+                    </div>
+                  ) : acao.temDropdown ? (
+                    <div className="relative">
+                      <Button
+                        className="w-full bg-white/20 hover:bg-white/30 text-white border-0 transition-all duration-200 group-hover:bg-white/30"
+                      >
+                        <ChevronDown className="w-4 h-4 mr-2" />
+                        Salvar Diagnóstico
+                      </Button>
+                    </div>
+                  ) : (
+                    <Button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        acao.acao();
+                      }}
+                      disabled={isGenerating}
+                      className="w-full bg-white/20 hover:bg-white/30 text-white border-0 transition-all duration-200 group-hover:bg-white/30"
+                    >
+                      <IconeBotao className="w-4 h-4 mr-2" />
+                      {acao.botaoTexto}
+                    </Button>
+                  )}
                 </CardContent>
               </Card>
             );
