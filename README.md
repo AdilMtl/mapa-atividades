@@ -46,7 +46,7 @@ npm run dev
 
 ```mermaid
 graph LR
-    A[Landing Page] → B[Autenticação] 
+    A → [Landing Page] → B → [Autenticação] 
     B → C[Dashboard]
     C → D[Diagnóstico]
     D → E[Plano de Ação]
