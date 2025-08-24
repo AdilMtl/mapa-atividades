@@ -52,12 +52,14 @@ graph LR
     D → E[Plano de Ação]
     E → F[Execução]
 ```
+## 🎯 Fluxo do Usuário
 
 1. **Landing Page** → Apresentação e captação de assinantes
 2. **Autenticação** → Login/cadastro com emails autorizados
-3. **Dashboard** → Mapeamento na matriz Impacto × Clareza
-4. **Diagnóstico** → Análise automática + relatório personalizado
-5. **Plano de Ação** → Táticas específicas baseadas no diagnóstico
+3. **Reset de Senha** → Página dedicada com emails customizados
+4. **Dashboard** → Mapeamento na matriz Impacto × Clareza
+5. **Diagnóstico** → Análise automática + relatório personalizado
+6. **Plano de Ação** → Táticas específicas baseadas no diagnóstico
 
 ## 📂 Estrutura do Projeto
 
@@ -65,6 +67,7 @@ graph LR
 src/
 ├── app/
 │   ├── auth/              # Autenticação
+|   ├── reset-password/   # Reset de senha dedicado
 │   ├── dashboard/         # Mapa de atividades
 │   ├── diagnostico/       # Análise do foco
 │   ├── plano-acao/        # Framework DAR CERTO

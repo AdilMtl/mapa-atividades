@@ -14,6 +14,34 @@ e este projeto adere ao \[Semantic Versioning](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [v1.8.4] - 2025-08-23 - 🔐 Sistema de Reset de Senha Completo
+
+### ✅ Adicionado
+- **Página Dedicada Reset** - Nova rota `/reset-password` seguindo padrão de mercado
+- **Emails Customizados** - Templates visuais profissionais para reset e cadastro
+- **Fluxo Linear** - Esqueci senha → email → nova senha → login automático
+- **Rate Limits Ajustados** - Configurações otimizadas no Supabase
+- **UX Intuitiva** - Detecção automática de tokens válidos/expirados
+
+### 🔧 Corrigido
+- **Lógica Confusa** - Removida implementação problemática da página auth
+- **Links Quebrados** - Configuração correta de redirects no Supabase
+- **Rate Limiting** - Identificação e solução de bloqueios por excesso de requests
+- **Token Validation** - Detecção robusta de parâmetros em query string e hash
+
+### 🎨 Melhorado
+- **Separação de Responsabilidades** - Auth só para login/cadastro, reset isolado
+- **Feedback Visual** - Loading states e mensagens claras de erro/sucesso
+- **Mobile First** - Layout responsivo para todos os dispositivos
+- **Templates Email** - Visual consistente com identidade da marca
+
+### 📊 Técnico
+- **Arquivos Criados:** `src/app/reset-password/page.tsx`
+- **Arquivos Modificados:** `src/app/auth/page.tsx`
+- **Configurações:** Supabase SMTP, Rate Limits, Redirect URLs
+- **Padrão:** Seguindo benchmarks Gmail, GitHub, Outlook
+
+---
 
 
 \## \[v1.8.3] - 2025-08-22 - 🎯 Diagnóstico Premium + Export Otimizado
