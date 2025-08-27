@@ -1,5 +1,5 @@
 // ═══════════════════════════════════════════════════════════════════
-// 📧 API: CAPTURA DE LEADS - PRÉ-DIAGNÓSTICO  
+// 📧 API: CAPTURA DE LEADS - PRÉ-DIAGNÓSTICO - FIXED 
 // ═══════════════════════════════════════════════════════════════════
 // Arquivo: src/app/api/prediag/lead/route.ts
 // POST /api/prediag/lead
@@ -9,7 +9,9 @@ import { supabase } from '@/lib/supabase';
 import { Resend } from 'resend';
 import { gerarRecomendacoes } from '../recommendations';
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+// 🔧 FIX: Remover inicialização global do Resend
+// ❌ ANTES: const resend = new Resend(process.env.RESEND_API_KEY);
+// ✅ AGORA: Inicializar apenas quando usar (dentro da função POST)
 
 // ═══════════════════════════════════════════════════════════════════
 // 🛡️ VALIDAÇÃO DE EMAIL
@@ -114,7 +116,6 @@ async function salvarLead(
 // 📊 REGISTRAR EVENTO DE CONVERSÃO
 // ═══════════════════════════════════════════════════════════════════
 
-
 async function registrarEventoLead(sessionId: string, email: string) {
   try {
     if (!sessionId) return;
@@ -176,59 +177,68 @@ export async function POST(request: NextRequest) {
       await registrarEventoLead(sessionId, email);
     }
     
+    // 6️⃣ Enviar email profissional
+    try {
+      // 🔧 FIX: Inicializar Resend apenas aqui, dentro do try/catch
+      const apiKey = process.env.RESEND_API_KEY;
+      
+      if (!apiKey) {
+        console.warn('⚠️ RESEND_API_KEY não configurada - email não será enviado');
+      } else {
+        const resend = new Resend(apiKey); // ✅ Inicialização segura
+        
+        const { gerarTemplateEmail, gerarAssuntoEmail } = await import('../email-template');
+        
+        let recomendacoes = [];
+        let sessionData = null;
+        
+        if (sessionId) {
+          const { data: sessao } = await supabase
+            .from('roi_prediag_sessions')
+            .select('*') //.select('profile, agenda, pain, top_activity, goal, results')
+            .eq('id', sessionId)
+            .single();
+            
+          if (sessao) {
+            recomendacoes = gerarRecomendacoes(
+              sessao.profile,
+              sessao.agenda,
+              sessao.pain,
+              sessao.top_activity,
+              sessao.goal
+            );
 
-  // 6️⃣ Enviar email profissional
-try {
-  const { gerarTemplateEmail, gerarAssuntoEmail } = await import('../email-template');
-  
-  let recomendacoes = [];
- let sessionData = null;
-  
-  if (sessionId) {
-    const { data: sessao } = await supabase
-      .from('roi_prediag_sessions')
-   .select('*') //.select('profile, agenda, pain, top_activity, goal, results')
+            sessionData = {
+              diagnostico: sessao.results?.mix || null
+            };
+          }
+        }
 
-       .eq('id', sessionId)
-      .single();
-        if (sessao) {
-      recomendacoes = gerarRecomendacoes(
-        sessao.profile,
-        sessao.agenda,
-        sessao.pain,
-        sessao.top_activity,
-        sessao.goal
-      );
-
-sessionData = {
-      diagnostico: sessao.results?.mix || null
-};
+        await resend.emails.send({
+          from: process.env.EMAIL_FROM_ADDRESS || 'onboarding@resend.dev',
+          to: email,
+          subject: gerarAssuntoEmail(profileSegment || 'profissional'),
+          html: gerarTemplateEmail({
+            profileSegment: profileSegment || 'profissional',
+            recomendacoes,
+            firstName: email.split('@')[0],
+            sessionData
+          })
+        });
+        
+        console.log('✅ Email profissional enviado para:', email);
+      }
+    } catch (emailError) {
+      console.error('❌ Erro Resend:', emailError);
+      // Não retornar erro - email é opcional
     }
-  }
 
-  await resend.emails.send({
-    from: process.env.EMAIL_FROM_ADDRESS || 'onboarding@resend.dev',
-    to: email,
-    subject: gerarAssuntoEmail(profileSegment || 'profissional'),
-    html: gerarTemplateEmail({
-      profileSegment: profileSegment || 'profissional',
-      recomendacoes,
-      firstName: email.split('@')[0],
-   sessionData
-    })
-  });
-  
-  console.log('Email profissional enviado para:', email);
-} catch (emailError) {
-  console.error('Erro Resend:', emailError);
-}
-
-// 7️⃣ Retornar sucesso
-return NextResponse.json({
-  success: true,
-  message: 'Email salvo com sucesso!',
-  leadId: resultado.leadId
-});
+    // 7️⃣ Retornar sucesso
+    return NextResponse.json({
+      success: true,
+      message: 'Email salvo com sucesso!',
+      leadId: resultado.leadId
+    });
     
   } catch (error) {
     console.error('Erro na API lead:', error);
