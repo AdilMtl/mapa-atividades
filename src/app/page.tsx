@@ -109,38 +109,38 @@ export default function LandingPage() {
             </div>
 
             {/* Social Proof */}
-            <div className="glass rounded-lg p-6 max-w-md mx-auto">
-              <div className="flex items-center space-x-4">
-                <a 
-                  href="https://www.linkedin.com/in/adilsonmatioli/" 
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="block"
-                >
-                  <img 
-                    src="https://substackcdn.com/image/fetch/w_64,h_64,c_fill,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2Ff89e806a-e40a-4b77-baf9-969b8575ead1_2160x2160.jpeg" 
-                    alt="Adil Matioli" 
-                    className="w-14 h-14 rounded-full hover:opacity-80 transition-opacity"
-                  />
-                </a>
-                <div>
-                  <a 
-                    href="https://www.linkedin.com/in/adilsonmatioli/" 
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="block hover:text-accent transition-colors"
-                  >
-                    <p className="font-semibold text-white">Adil Matioli</p>
-                  </a>
-                  <p className="text-sm text-white/70">
-                    Estratégia • Vendas • Marketing • CX
-                  </p>
-                  <p className="text-xs text-accent mt-1">
-                    +10 anos até cargos executivos
-                  </p>
-                </div>
-              </div>
-            </div>
+<div className="glass rounded-lg p-6 max-w-md mx-auto">
+  <div className="flex items-center justify-center space-x-4">
+    <a 
+      href="https://www.linkedin.com/in/adilsonmatioli/" 
+      target="_blank"
+      rel="noopener noreferrer"
+      className="block"
+    >
+      <img 
+        src="https://substackcdn.com/image/fetch/w_64,h_64,c_fill,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2Ff89e806a-e40a-4b77-baf9-969b8575ead1_2160x2160.jpeg" 
+        alt="Adil Matioli" 
+        className="w-14 h-14 rounded-full hover:opacity-80 transition-opacity"
+      />
+    </a>
+    <div>
+      <a 
+        href="https://www.linkedin.com/in/adilsonmatioli/" 
+        target="_blank"
+        rel="noopener noreferrer"
+        className="block hover:text-accent transition-colors"
+      >
+        <p className="font-semibold text-white">Adil Matioli</p>
+      </a>
+      <p className="text-sm text-white/70">
+        Estratégia • Vendas • Marketing • CX
+      </p>
+      <p className="text-xs text-accent mt-1">
+        +10 anos até cargos executivos
+      </p>
+    </div>
+  </div>
+</div>
 
             {/* Navigation Links */}
             <div className="flex justify-center gap-4 text-sm">
@@ -199,10 +199,41 @@ export default function LandingPage() {
                 </Link>
               </div>
             </div>
+
+            {/* 🔥 NOVO: Pré-Diagnóstico CTA Hero */}
+            <div className="pt-6 border-t border-white/20">
+              <div className="glass rounded-xl p-6 border border-accent/20 bg-gradient-to-r from-accent/5 to-transparent">
+                <div className="flex flex-col lg:flex-row items-center gap-6">
+                  <div className="flex-1 space-y-3">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 bg-accent/20 rounded-lg flex items-center justify-center">
+                        <Brain className="w-5 h-5 text-accent" />
+                      </div>
+                      <div className="text-center flex-1">
+                        <h3 className="text-lg font-semibold font-mono">Descubra seu ROI do Foco</h3>
+                        <p className="text-sm text-accent/80">Demo gratuita • 2 minutos • Ações práticas</p>
+                      </div>
+                    </div>
+                    <p className="text-white/80 text-sm text-center">
+                      Identifique onde você está perdendo tempo e receba até 3 ações específicas 
+                      para ganhar 30-60 minutos por dia na sua agenda
+                    </p>
+                  </div>
+                  <div className="flex-shrink-0">
+                    <Link href="/pre-diagnostico">
+                      <Button size="lg" variant="outline" className="border-accent/30 text-accent hover:bg-accent/10">
+                        <Zap className="w-5 h-5 mr-2" />
+                        Fazer Demo Agora
+                      </Button>
+                    </Link>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
 
           {/* What You Get - Enhanced */}
-          <section className="space-y-8 mb-16">
+          <section className="space-y-6 mb-12">
             <div className="text-center space-y-4">
               <h2 className={cn(DESIGN_TOKENS.typography.h2, "text-3xl font-bold font-mono")}>
                 O que você encontra aqui
@@ -275,7 +306,7 @@ export default function LandingPage() {
           </section>
 
           {/* System Features */}
-          <section className="space-y-8 mb-16">
+          <section className="space-y-6 mb-12">
             <div className="text-center space-y-4">
               <h2 className={cn(DESIGN_TOKENS.typography.h2, "text-3xl font-bold font-mono")}>
                 Funcionalidades do sistema
@@ -334,7 +365,7 @@ export default function LandingPage() {
           </section>
 
           {/* Why ROI do Foco */}
-          <section className="space-y-8 mb-16">
+          <section className="space-y-6 mb-12">
             <div className="max-w-3xl mx-auto text-center space-y-6">
               <h2 className={cn(DESIGN_TOKENS.typography.h2, "text-2xl font-bold font-mono")}>
                 Por que ROI do Foco?
@@ -356,11 +387,43 @@ export default function LandingPage() {
                   </p>
                 </div>
               </div>
+
+              {/* 🔥 NOVO: Demo Integrada na Seção ROI do Foco */}
+              <div className="mt-4">
+                <div className="glass rounded-lg p-6 space-y-4 border border-accent/20">
+                  <div className="flex items-center gap-3 justify-center">
+                    <Target className="w-6 h-6 text-accent" />
+                    <h4 className="text-lg font-semibold font-mono">Veja o ROI do Foco na prática</h4>
+                  </div>
+                  
+                  <p className="text-white/80 text-center">
+                    Faça um diagnóstico rápido do seu padrão atual e descubra, com base na 
+                    metodologia, onde investir seu tempo para gerar mais resultado com menos esforço
+                  </p>
+                  
+                  <div className="flex items-center justify-between pt-2">
+                    <div className="flex items-center gap-2 text-sm text-white/60">
+                      <Clock className="w-4 h-4" />
+                      <span>2-3 minutos</span>
+                      <span>•</span>
+                      <span>Diagnóstico personalizado</span>
+                      <span>•</span>
+                      <span>Sem cadastro</span>
+                    </div>
+                    <Link href="/pre-diagnostico">
+                      <Button variant="outline" className="border-accent/30 text-accent hover:bg-accent/10">
+                        Experimentar Agora
+                        <ArrowRight className="w-4 h-4 ml-2" />
+                      </Button>
+                    </Link>
+                  </div>
+                </div>
+              </div>
             </div>
           </section>
 
           {/* ROI do Foco Section */}
-          <section className="space-y-8 mb-16">
+          <section className="space-y-6 mb-12">
             <div className="text-center space-y-4">
               <h2 className={cn(DESIGN_TOKENS.typography.h2, "text-3xl font-bold font-mono")}>
                 ROI do Foco: da newsletter para a prática
@@ -378,10 +441,12 @@ export default function LandingPage() {
                 {/* Explorar */}
                 <div className="glass rounded-lg overflow-hidden relative z-10 transition-all duration-300 hover:shadow-lg">
                   <button 
-                    onClick={(e) => {
-                      e.preventDefault();
-                      setExpandedSection(expandedSection === 'explorar' ? null : 'explorar');
-                    }}
+style={{ ['overflowAnchor' as any]: 'none' }}
+                   onClick={(e) => {
+  e.preventDefault();
+  const newSection = expandedSection === 'explorar' ? null : 'explorar';
+  setExpandedSection(newSection);
+}}
                     className="w-full p-6 text-left flex items-center justify-between hover:bg-white/5 transition-all duration-200"
                   >
                     <div className="flex items-center gap-4">
@@ -399,10 +464,13 @@ export default function LandingPage() {
                     )} />
                   </button>
                   
-                  <div className={cn(
-                    "overflow-hidden transition-all duration-500 ease-in-out",
-                    expandedSection === 'explorar' ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
-                  )}>
+                 <div
+  style={{ ['overflowAnchor' as any]: 'none' }}
+  className={cn(
+    "overflow-hidden transition-all duration-500 ease-in-out",
+    expandedSection === 'explorar' ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
+  )}
+>
                     <div className="px-6 pb-6 pt-0 text-sm text-white/80 border-t border-white/10 bg-gradient-to-b from-green-500/5 to-transparent">
                       <div className="pt-4 space-y-4">
                         <p className="leading-relaxed">
@@ -435,10 +503,12 @@ export default function LandingPage() {
                 {/* Eliminar */}
                 <div className="glass rounded-lg overflow-hidden relative z-10 transition-all duration-300 hover:shadow-lg">
                   <button 
+style={{ ['overflowAnchor' as any]: 'none' }}
                     onClick={(e) => {
-                      e.preventDefault();
-                      setExpandedSection(expandedSection === 'eliminar' ? null : 'eliminar');
-                    }}
+  e.preventDefault();
+  const newSection = expandedSection === 'eliminar' ? null : 'eliminar';
+  setExpandedSection(newSection);
+}}
                     className="w-full p-6 text-left flex items-center justify-between hover:bg-white/5 transition-all duration-200"
                   >
                     <div className="flex items-center gap-4">
@@ -456,10 +526,13 @@ export default function LandingPage() {
                     )} />
                   </button>
                   
-                  <div className={cn(
-                    "overflow-hidden transition-all duration-500 ease-in-out",
-                    expandedSection === 'eliminar' ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
-                  )}>
+                  <div
+  style={{ ['overflowAnchor' as any]: 'none' }}
+  className={cn(
+    "overflow-hidden transition-all duration-500 ease-in-out",
+    expandedSection === 'eliminar' ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
+  )}
+>
                     <div className="px-6 pb-6 pt-0 text-sm text-white/80 border-t border-white/10 bg-gradient-to-b from-red-500/5 to-transparent">
                       <div className="pt-4 space-y-4">
                         <p className="leading-relaxed">
@@ -488,10 +561,12 @@ export default function LandingPage() {
                 {/* Executar */}
                 <div className="glass rounded-lg overflow-hidden relative z-10 transition-all duration-300 hover:shadow-lg">
                   <button 
+style={{ ['overflowAnchor' as any]: 'none' }}
                     onClick={(e) => {
-                      e.preventDefault();
-                      setExpandedSection(expandedSection === 'executar' ? null : 'executar');
-                    }}
+  e.preventDefault();
+  const newSection = expandedSection === 'executar' ? null : 'executar';
+  setExpandedSection(newSection);
+}}
                     className="w-full p-6 text-left flex items-center justify-between hover:bg-white/5 transition-all duration-200"
                   >
                     <div className="flex items-center gap-4">
@@ -509,10 +584,13 @@ export default function LandingPage() {
                     )} />
                   </button>
                   
-                  <div className={cn(
-                    "overflow-hidden transition-all duration-500 ease-in-out",
-                    expandedSection === 'executar' ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
-                  )}>
+                  <div
+  style={{ ['overflowAnchor' as any]: 'none' }}
+  className={cn(
+    "overflow-hidden transition-all duration-500 ease-in-out",
+    expandedSection === 'executar' ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
+  )}
+>
                     <div className="px-6 pb-6 pt-0 text-sm text-white/80 border-t border-white/10 bg-gradient-to-b from-amber-500/5 to-transparent">
                       <div className="pt-4 space-y-4">
                         <p className="leading-relaxed">

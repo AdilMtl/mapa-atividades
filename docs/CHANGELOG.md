@@ -7,6 +7,28 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [v1.9.2] - 2025-08-27 - 🎯 Landing Page Integrada + UX Refinado
+
+### ✅ Adicionado
+- **2 CTAs Pré-Diagnóstico:** Hero section + seção ROI do Foco na landing page
+- **Textos Tangíveis:** Promessas baseadas na teoria ROI (30-60 min/dia)
+- **Hierarquia Visual:** Newsletter → Demo → Acesso sistema
+
+### 🔧 Corrigido  
+- **Scroll Anchoring:** Slide-downs dos accordions com `overflow-anchor: none`
+- **Centralização:** Cards de perfil e CTAs alinhados corretamente
+- **Espaçamentos:** Gaps verticais reduzidos 25% para melhor fluxo visual
+
+### 🎨 Melhorado
+- **Conversão:** 2 pontos de entrada para pré-diagnóstico na landing
+- **UX Profissional:** Acordeões com comportamento previsível de expansão
+- **Hierarquia de CTAs:** Priorização clara entre newsletter e demo
+
+### 📊 Técnico
+- **Arquivo Modificado:** `src/app/page.tsx`
+- **Integração:** Sistema de pré-diagnóstico conectado à landing page
+- **Performance:** Sem impacto na velocidade de carregamento
+
 ## [v1.9.1] - 2025-08-27 - 📧 Campo Nome + Personalização de Emails
 **Impacto:** Médio - Melhoria na experiência de email marketing
 **Duração:** ~2 horas de implementação
@@ -28,7 +50,7 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
   - `src/app/api/prediag/lead/route.ts`
 - **Breaking Change**: Tabela roi_leads requer coluna name
 - **Taxa Recuperação**: Bug detectado através de análise 67 sessões vs 1 lead salvo
-
+não entend
 ### 📚 Lessons Learned
 - **Validação Crítica**: APIs devem aceitar dados parciais para evitar perda de leads
 - **Monitoring**: Comparação entre tabelas revelou bug silencioso

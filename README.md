@@ -3,7 +3,7 @@
 **Sistema Enterprise para Diagnóstico e Otimização do Foco Profissional**
 
 [![Deploy](https://img.shields.io/badge/deploy-vercel-black?logo=vercel)](https://conversas-no-corredor.vercel.app)
-[![Versão](https://img.shields.io/badge/versão-v1.9.1-blue)](docs/CURRENT-STATUS.md)
+[![Versão](https://img.shields.io/badge/versão-v1.9.2-blue)](docs/CURRENT-STATUS.md)
 [![Status](https://img.shields.io/badge/status-✅%20operacional-green)](docs/CURRENT-STATUS.md)
 
 ## 🚀 Quick Start
@@ -29,6 +29,7 @@ npm run dev
 ## 📊 Sistema Completo
 
 ### ✅ Funcionalidades Principais
+- **🎯 Landing Page Integrada** - CTAs de pré-diagnóstico na página principal (**v1.9.2**)
 - **🎯 Pré-Diagnóstico** - Captura nome + recomendações personalizadas (**v1.9.1**)
 - **🗺️ Mapa de Atividades** - Matriz Impacto × Clareza (4 zonas)
 - **📊 Diagnóstico Automático** - Análise ROI do Foco com relatórios personalizados
@@ -49,8 +50,8 @@ npm run dev
 
 ### 🎯 Fluxo Completo Atualizado
 
-1. **Landing Page** → Apresentação e captação de assinantes
-2. **Pré-Diagnóstico** → Sistema de leads com nome + 5 etapas + email (**v1.9.1**)
+1. **Landing Page** → Apresentação com 2 CTAs para pré-diagnóstico (**v1.9.2**)
+2. **Pré-Diagnóstico** → Sistema de leads com nome + 5 etapas + email
 3. **Autenticação** → Login/cadastro com emails autorizados
 4. **Reset de Senha** → Página dedicada com emails customizados
 5. **Dashboard** → Mapeamento na matriz Impacto × Clareza
@@ -62,13 +63,14 @@ npm run dev
 ```
 src/
 ├── app/
+│   ├── page.tsx                      # Landing page principal com CTAs integrados (v1.9.2)
 │   ├── pre-diagnostico/page.tsx      # Pré-diagnóstico conversacional
 │   ├── api/prediag/                  # APIs do pré-diagnóstico
 │   │   ├── diagnose/route.ts         # POST - Processar diagnóstico
 │   │   ├── lead/route.ts             # POST - Capturar nome + email + enviar
 │   │   ├── options/route.ts          # GET - Opções por perfil
-│   │   ├── email-template.ts         # Template HTML profissional
-│   │   └── recommendations.ts        # Heurística 450+ sugestões
+│   │   ├── email-template.ts         # Helper - Template HTML profissional
+│   │   └── recommendations.ts        # Helper - Heurística 450+ sugestões
 │   ├── auth/page.tsx                 # Autenticação
 │   ├── dashboard/page.tsx            # Mapa de atividades
 │   ├── diagnostico/page.tsx          # Análise do foco
@@ -137,29 +139,28 @@ Atualizar documentação com comandos Windows.
 
 > 💡 **Dica:** Mantenha um documento no Obsidian com estes templates para agilizar o processo!
 
-## 🎯 Versão Atual: v1.9.1 - Campo Nome + Personalização
+## 🎯 Versão Atual: v1.9.2 - Landing Page Integrada
 
-**Foco da Sessão (27/08/2025 - Tarde):** Correção de bug crítico + campo nome
+**Foco da Sessão (27/08/2025 - Tarde):** Integração landing page + refinamentos UX
 
 ### ✅ Implementado Nesta Versão
-- **📧 Campo Nome Obrigatório** - EmailGate captura nome completo
-- **🎯 Emails Personalizados** - "Olá João" em vez de "joao.silva@email.com"
-- **🔧 Bug Crítico Corrigido** - 53 leads perdidos recuperados
-- **🛡️ Validação Robusta** - Nome mínimo 2 caracteres + email válido
+- **🎯 2 CTAs Estratégicos** - Pré-diagnóstico integrado na landing page principal
+- **📝 Textos Tangíveis** - "30-60 minutos por dia" baseados na teoria ROI do Foco
+- **🎨 UX Refinado** - Espaçamentos otimizados e alinhamentos corrigidos
+- **🔧 Scroll Anchoring** - Accordions com comportamento suave e previsível
 
-### 🔧 Funcionalidades do Pré-Diagnóstico
+### 🚀 Funnel de Conversão Completo
 ```typescript
-// Fluxo de 6 etapas implementado:
-1. ProfileSelector    # Perfil profissional (estudante, analista, gestor, etc.)
-2. AgendaSelector     # Estado da agenda (sempre_lotada, equilibrada, etc.)
-3. PainSelector       # Principal dor (urgencias, reunioes, falta_clareza, etc.)
-4. ActivitySelector   # Atividade que mais consome tempo
-5. GoalSelector       # Objetivo principal (vender_mais, tempo_planejamento, etc.)
-6. EmailGate         # Captura nome + email com validação (NOVO v1.9.1)
+// Fluxo integrado implementado:
+Landing Page → [Hero CTA] ou [ROI Section CTA] → Pré-Diagnóstico (5 etapas) → 
+EmailGate (nome + email) → Recomendações por email → Newsletter ou Sistema Completo
 
-// Email personalizado com nome real
-"Olá João" em vez de "joao.silva" → 3 sugestões categorizadas → CTAs para newsletter/sistema
-```
+// CTAs implementados:
+Hero: "Identifique onde você está perdendo tempo e receba até 3 ações específicas 
+       para ganhar 30-60 minutos por dia na sua agenda"
+ROI:  "Faça um diagnóstico rápido e descubra onde investir seu tempo para 
+       gerar mais resultado com menos esforço"
+
 
 ### 🗄️ Banco de Dados Expandido (v1.9.1)
 ```sql
@@ -235,6 +236,13 @@ git push             # Deploy automático
 # Debug
 npm run type-check   # Verificar TypeScript
 npm run analyze      # Análise do bundle
+
+# Testar integração completa
+# http://localhost:3000                 # Landing page com CTAs
+# http://localhost:3000/pre-diagnostico # Pré-diagnóstico
+
+# Deploy
+git commit -m "feat: landing page integrada + UX refinado v1.9.2"
 ```
 
 ## 🌐 Deploy e Acesso
@@ -291,7 +299,7 @@ Baseado na metodologia **ROI do Foco** da newsletter [Conversas no Corredor](htt
 
 ---
 
-📋 **Status:** Sistema 100% operacional com pré-diagnóstico + nome personalizado  
-📅 **Última atualização:** 27 de agosto de 2025  
-📄 **Próxima versão:** Integração com landing page principal + analytics avançados  
+📋 **Status:** Sistema completo com funnel de conversão integrado  
+📅 **Última atualização:** 27 de agosto de 2025 - Tarde  
+📄 **Próxima versão:** Analytics avançados + otimização de conversão
 📊 **Métricas:** [Veja status detalhado no CURRENT-STATUS.md](docs/CURRENT-STATUS.md)
