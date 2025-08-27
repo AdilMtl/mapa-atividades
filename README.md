@@ -3,7 +3,7 @@
 **Sistema Enterprise para Diagnóstico e Otimização do Foco Profissional**
 
 [![Deploy](https://img.shields.io/badge/deploy-vercel-black?logo=vercel)](https://conversas-no-corredor.vercel.app)
-[![Versão](https://img.shields.io/badge/versão-v1.8.3-blue)](docs/CURRENT-STATUS.md)
+[![Versão](https://img.shields.io/badge/versão-v1.9.0-blue)](docs/CURRENT-STATUS.md)
 [![Status](https://img.shields.io/badge/status-✅%20operacional-green)](docs/CURRENT-STATUS.md)
 
 ## 🚀 Quick Start
@@ -18,7 +18,7 @@ npm install
 
 # Configurar variáveis de ambiente
 cp .env.example .env.local
-# Configurar Supabase URLs no .env.local
+# Configurar Supabase URLs + Resend API no .env.local
 
 # Executar em desenvolvimento
 npm run dev
@@ -29,9 +29,11 @@ npm run dev
 ## 📊 Sistema Completo
 
 ### ✅ Funcionalidades Principais
+- **🎯 Pré-Diagnóstico** - Captura de leads com recomendações por email (**NOVO v1.9.0**)
 - **🗺️ Mapa de Atividades** - Matriz Impacto × Clareza (4 zonas)
 - **📊 Diagnóstico Automático** - Análise ROI do Foco com relatórios personalizados
 - **📋 Plano de Ação** - Framework DAR CERTO com IA V2.1
+- **📧 Email Marketing** - Templates profissionais via Resend (**NOVO v1.9.0**)
 - **📄 Export Profissional** - PDF otimizado + cópia de texto
 - **👤 Perfil Completo** - Configurações pessoais + compliance LGPD
 - **🔐 Autenticação Segura** - RLS (Row Level Security) + emails autorizados
@@ -39,49 +41,50 @@ npm run dev
 ### 🛠️ Stack Tecnológica
 - **Frontend:** Next.js 14 + TypeScript + Tailwind CSS
 - **Backend:** Supabase (PostgreSQL + Auth + RLS)
+- **Email:** Resend API com templates HTML (**NOVO v1.9.0**)
 - **Deploy:** Vercel (automático via Git)
 - **Metodologia:** ROI do Foco + Framework DAR CERTO
 
 ## 🌊 Fluxo do Usuário
 
-```mermaid
-graph LR
-    A → [Landing Page] → B → [Autenticação] 
-    B → C[Dashboard]
-    C → D[Diagnóstico]
-    D → E[Plano de Ação]
-    E → F[Execução]
-```
-## 🎯 Fluxo do Usuário
+### 🎯 Fluxo Completo Atualizado
 
 1. **Landing Page** → Apresentação e captação de assinantes
-2. **Autenticação** → Login/cadastro com emails autorizados
-3. **Reset de Senha** → Página dedicada com emails customizados
-4. **Dashboard** → Mapeamento na matriz Impacto × Clareza
-5. **Diagnóstico** → Análise automática + relatório personalizado
-6. **Plano de Ação** → Táticas específicas baseadas no diagnóstico
+2. **Pré-Diagnóstico** → Sistema de leads com 5 etapas + email (**NOVO v1.9.0**)
+3. **Autenticação** → Login/cadastro com emails autorizados
+4. **Reset de Senha** → Página dedicada com emails customizados
+5. **Dashboard** → Mapeamento na matriz Impacto × Clareza
+6. **Diagnóstico** → Análise automática + relatório personalizado
+7. **Plano de Ação** → Táticas específicas baseadas no diagnóstico
 
 ## 📂 Estrutura do Projeto
 
 ```
 src/
 ├── app/
-│   ├── auth/              # Autenticação
-|   ├── reset-password/   # Reset de senha dedicado
-│   ├── dashboard/         # Mapa de atividades
-│   ├── diagnostico/       # Análise do foco
-│   ├── plano-acao/        # Framework DAR CERTO
-│   ├── perfil/            # Configurações
-│   └── privacidade/       # LGPD compliance
+│   ├── pre-diagnostico/page.tsx      # Pré-diagnóstico conversacional
+│   ├── api/prediag/                  # APIs do pré-diagnóstico
+│   │   ├── diagnose/route.ts         # POST - Processar diagnóstico
+│   │   ├── lead/route.ts             # POST - Capturar email + enviar
+│   │   ├── options/route.ts          # GET - Opções por perfil
+│   │   ├── email-template.ts         # Template HTML profissional
+│   │   └── recommendations.ts        # Heurística 450+ sugestões
+│   ├── auth/page.tsx                 # Autenticação
+│   ├── dashboard/page.tsx            # Mapa de atividades
+│   ├── diagnostico/page.tsx          # Análise do foco
+│   ├── plano-acao/page.tsx          # Framework DAR CERTO
+│   ├── perfil/page.tsx              # Configurações
+│   ├── privacidade/page.tsx         # LGPD compliance
+│   └── reset-password/page.tsx      # Reset de senha
 ├── components/
-│   ├── base/              # 8 componentes reutilizáveis
-│   ├── mapa/              # 5 componentes do mapa
-│   └── plano/             # 7 componentes do plano
+│   ├── base/                        # 8 componentes reutilizáveis
+│   ├── mapa/                        # 5 componentes do mapa
+│   └── plano/                       # 7 componentes do plano
 └── lib/
-    ├── diagnostico-engine.ts    # Motor de análise
-    ├── heuristica-engine.ts     # IA V2.1 para táticas
-    ├── design-system.ts         # Tokens centralizados
-    └── supabase.ts             # Configuração do banco
+    ├── diagnostico-engine.ts        # Motor de análise
+    ├── heuristica-engine.ts         # IA V2.1 para táticas
+    ├── design-system.ts             # Tokens centralizados
+    └── supabase.ts                  # Configuração do banco
 ```
 
 ## 📚 Sistema de Documentação Modular
@@ -91,12 +94,22 @@ src/
 - **📅 [CHANGELOG.md](docs/CHANGELOG.md)** - Histórico completo de versões
 - **🔧 [troubleshooting-acesso.md](docs/troubleshooting-acesso.md)** - Soluções para problemas comuns
 
+### 📖 **Documentação Técnica v1.9.0**
+```
+docs/
+├── api-prediagnostico.md            # Especificação completa das 3 APIs
+├── pagina-prediagnostico.md         # Interface conversacional + UX
+├── tabelas-supabase.md              # Schema das 3 tabelas + RLS
+└── deploy-configuracao.md           # Guia completo Vercel + Supabase + Resend
+```
+
 ### 📖 **Versões Detalhadas**
 ```
 docs/versions/
-├── v1.8.3-diagnostico-premium.md     # Versão atual - Sessão 22/08/2025
-├── v1.8.2-fluxo-padronizado.md       # ROI do Foco + nome real usuário
-└── v1.8.1-heuristica-refinada.md     # IA V2.1 + Framework DAR CERTO
+├── v1.9.0-prediagnostico-completo.md  # Versão atual - Sessão 27/08/2025
+├── v1.8.3-diagnostico-premium.md      # Export otimizado - Sessão 22/08/2025
+├── v1.8.2-fluxo-padronizado.md        # ROI do Foco + nome real usuário
+└── v1.8.1-heuristica-refinada.md      # IA V2.1 + Framework DAR CERTO
 ```
 
 ### 🔄 **Workflow de Desenvolvimento**
@@ -123,38 +136,79 @@ Atualizar documentação com comandos Windows.
 
 > 💡 **Dica:** Mantenha um documento no Obsidian com estes templates para agilizar o processo!
 
-## 🎯 Versão Atual: v1.8.3 - Diagnóstico Premium
+## 🎯 Versão Atual: v1.9.0 - Sistema de Pré-Diagnóstico Completo
 
-**Foco da Sessão (22/08/2025):** Export Otimizado + Interface Profissional
+**Foco da Sessão (27/08/2025):** Pré-Diagnóstico + Email Marketing + APIs Completas
 
 ### ✅ Implementado Nesta Versão
-- **📄 Export PDF Corrigido** - Removido html2canvas, sem caracteres corrompidos
-- **🎨 Dropdown "Salvar Diagnóstico"** - PDF + Copiar texto (substituiu 2 botões feios)
-- **👤 Header Personalizado** - Nome real + emoji do perfil do usuário
-- **📊 Barra Visual Integrada** - Distribuição de zonas dentro do RelatorioView  
-- **🧹 Interface Limpa** - Removida seção redundante "Distribuição do Seu Tempo"
-- **💅 CSS Melhorado** - Formatação profissional do texto do relatório
+- **🎯 Landing Page Pré-Diagnóstico** - `/pre-diagnostico` com fluxo de 5 etapas
+- **🔧 APIs Completas** - `/api/prediag/*` para diagnóstico, leads e recomendações
+- **📧 Sistema Email Marketing** - Resend configurado com templates HTML profissionais
+- **🧠 Heurística Inteligente** - 450+ recomendações categorizadas por perfil + dor + objetivo
+- **🗄️ Banco Expandido** - 3 novas tabelas (sessions, leads, events)
+- **📊 Analytics** - Sistema de eventos para tracking de conversão
+- **🛡️ Segurança** - Validações robustas + RLS em todas as novas tabelas
+
+### 🔧 Funcionalidades do Pré-Diagnóstico
+```typescript
+// Fluxo de 5 etapas implementado:
+1. ProfileSelector    # Perfil profissional (estudante, analista, gestor, etc.)
+2. AgendaSelector     # Estado da agenda (sempre_lotada, equilibrada, etc.)
+3. PainSelector       # Principal dor (urgencias, reunioes, falta_clareza, etc.)
+4. ActivitySelector   # Atividade que mais consome tempo
+5. GoalSelector       # Objetivo principal (vender_mais, tempo_planejamento, etc.)
+
+// Email com recomendações personalizadas
+Template HTML profissional → 3 sugestões categorizadas → CTAs para newsletter/sistema
+```
+
+### 🗄️ Banco de Dados Expandido (v1.9.0)
+```sql
+-- 3 TABELAS IMPLEMENTADAS:
+roi_prediag_sessions  # Dados completos do diagnóstico
+  - profile, agenda, pain, top_activity, goal (inputs usuário)
+  - mix_essencial, mix_estrategico, mix_tatico, mix_distracao (outputs %)
+  - insight_hash, ip_address, user_agent, duration_seconds (metadados)
+
+roi_leads            # Leads capturados para marketing
+  - email, source, last_session_id (identificação)
+  - profile_segment, pain_segment (segmentação)
+  - email_sent, email_opened, subscribed (engajamento)
+
+roi_events          # Analytics de conversão
+  - session_id, event_name, payload (tracking)
+  - 'prediag_completed', 'email_submitted' (eventos principais)
+```
+
+### 📧 Integração de Email (v1.9.0)
+- **Serviço:** Resend API configurada e funcionando
+- **Templates:** HTML profissional com design consistente
+- **Personalização:** Baseada em perfil + dor + atividade + objetivo
+- **CTAs:** Newsletter principal + sistema completo
 
 ### 🔧 Status de Funcionalidades
-- ✅ **PDF Export:** Funcional (versão simplificada sem html2canvas)
-- ✅ **Dropdown:** Criado com opções PDF + Copiar texto  
-- ⚠️ **Nome do usuário:** Pode precisar debug (busca profiles correta implementada)
-- ✅ **Layout:** Cards otimizados, fluxo linear preservado
-- ✅ **Barra visual:** Integrada no relatório principal
+- ✅ **Pré-Diagnóstico:** Funcional com 5 etapas + validações
+- ✅ **API Lead Capture:** Capturando emails + enviando recomendações
+- ✅ **Email Templates:** Design profissional com barras de diagnóstico
+- ✅ **Heurística:** 450+ recomendações funcionando
+- ✅ **Analytics:** Eventos sendo rastreados no Supabase
+- ✅ **RLS:** Políticas de segurança configuradas
 
 ### 📋 Detalhes Técnicos
 ```typescript
-// Export PDF otimizado (sem html2canvas)
-const pdf = new jsPDF('p', 'mm', 'a4');
-pdf.text('DIAGNOSTICO DO FOCO', margin, currentY);
+// APIs implementadas
+POST /api/prediag/diagnose   # Gerar diagnóstico + salvar sessão
+POST /api/prediag/lead       # Capturar email + enviar recomendações
+GET /api/prediag/options     # Opções dinâmicas por perfil
 
-// Dropdown funcional  
-const [dropdownAberto, setDropdownAberto] = useState(false);
+// Correção crítica implementada
+const { data: sessao } = await supabase
+  .select('*')  // Solução: buscar todos os campos
+  .eq('id', sessionId)
+  .single();
 
-// Busca nome real do perfil
-const { data: profile } = await supabase
-  .from('profiles')
-  .select('full_name, emoji, email')
+// Sistema de recomendações funcionando
+450+ sugestões → Scoring por relevância → Top 3 por categoria (HABITO/TAREFA/MINDSET)
 ```
 
 ### 🔧 Comandos Úteis
@@ -165,9 +219,12 @@ npm run dev          # Servidor local
 npm run build        # Build de produção
 npm run lint         # Verificar código
 
+# Testar pré-diagnóstico
+# http://localhost:3000/pre-diagnostico
+
 # Deploy
 git add .            # Adicionar mudanças
-git commit -m "feat: nova funcionalidade"
+git commit -m "feat: sistema pré-diagnóstico v1.9.0"
 git push             # Deploy automático
 
 # Debug
@@ -178,6 +235,7 @@ npm run analyze      # Análise do bundle
 ## 🌐 Deploy e Acesso
 
 **Produção:** https://conversas-no-corredor.vercel.app
+**Pré-Diagnóstico:** https://conversas-no-corredor.vercel.app/pre-diagnostico
 
 ### Sistema de Emails Autorizados
 Arquivo: `public/emails-autorizados.txt`
@@ -192,6 +250,15 @@ Para adicionar novos usuários:
 3. Fazer commit: `git push`
 4. Deploy automático em 2-3 minutos
 
+### Configuração Email Marketing (v1.9.0)
+```env
+# Adicionar ao .env.local:
+SUPABASE_URL=https://xxxxxxxxxx.supabase.co
+SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+RESEND_API_KEY=re_xxxxxxxxxxxxxxxxx
+EMAIL_FROM_ADDRESS=onboarding@resend.dev
+```
+
 ## 🎨 Design System
 
 **Cores principais:**
@@ -202,7 +269,7 @@ Para adicionar novos usuários:
 - Tática: `#eab308` (amarelo)
 - Distração: `#ef4444` (vermelho)
 
-**Componentes modulares:** 19 componentes totalmente reutilizáveis com design tokens centralizados.
+**Componentes modulares:** 19+ componentes totalmente reutilizáveis com design tokens centralizados.
 
 ## 🤝 Sobre o Projeto
 
@@ -213,6 +280,7 @@ Baseado na metodologia **ROI do Foco** da newsletter [Conversas no Corredor](htt
 
 ---
 
-📋 **Status:** Sistema 100% operacional em produção  
-📅 **Última atualização:** 22 de agosto de 2025  
-🔄 **Próxima versão:** [Veja roadmap no CURRENT-STATUS.md](docs/CURRENT-STATUS.md)
+📋 **Status:** Sistema 100% operacional com pré-diagnóstico funcionando  
+📅 **Última atualização:** 27 de agosto de 2025  
+🔄 **Próxima versão:** Integração com landing page principal + analytics avançados  
+📊 **Métricas:** [Veja status detalhado no CURRENT-STATUS.md](docs/CURRENT-STATUS.md)

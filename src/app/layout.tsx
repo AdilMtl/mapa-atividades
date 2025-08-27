@@ -56,7 +56,7 @@ if (!session?.user && pathname !== '/auth' && pathname !== '/') {
 }
 
   // Páginas que não mostram o menu
-  const authPages = ['/auth', '/']
+  const authPages = ['/auth', '/', '/pre-diagnostico']
   const showNavigation = user && !authPages.includes(pathname)
 
   // 🎯 NAVEGAÇÃO CORRIGIDA - Com ícone Target
