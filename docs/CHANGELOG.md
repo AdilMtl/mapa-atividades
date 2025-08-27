@@ -7,6 +7,35 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [v1.9.1] - 2025-08-27 - 📧 Campo Nome + Personalização de Emails
+**Impacto:** Médio - Melhoria na experiência de email marketing
+**Duração:** ~2 horas de implementação
+
+### ✅ Adicionado
+- **Campo Nome Obrigatório**: EmailGate agora captura nome completo do usuário
+- **Personalização Real**: Emails mostram "Olá João" em vez de "Olá joao.silva"
+- **Validação Robusta**: Nome mínimo 2 caracteres + email válido
+- **Coluna Banco**: `roi_leads.name VARCHAR(100)` adicionada
+
+### 🔧 Corrigido
+- **Bug API Lead**: Sistema não salvava leads (53 perdidos detectados)
+- **Validação Entrada**: API agora processa campo nome corretamente
+- **Template Email**: firstName usa nome real extraído do formulário
+
+### 📊 Técnico
+- **Arquivos Modificados**: 
+  - `src/components/prediagnostico/EmailGate.tsx`
+  - `src/app/api/prediag/lead/route.ts`
+- **Breaking Change**: Tabela roi_leads requer coluna name
+- **Taxa Recuperação**: Bug detectado através de análise 67 sessões vs 1 lead salvo
+
+### 📚 Lessons Learned
+- **Validação Crítica**: APIs devem aceitar dados parciais para evitar perda de leads
+- **Monitoring**: Comparação entre tabelas revelou bug silencioso
+- **UX Impact**: Campo nome melhora personalização sem fricção significativa
+- **Data Quality**: Tracking granular menos importante que conversão principal
+
+
 ## [v1.9.0] - 2025-08-27 - 🎯 Sistema de Pré-Diagnóstico Completo
 **Impacto:** Alto - Nova funcionalidade de captura de leads
 **Duração:** ~8 horas de implementação completa

@@ -4,7 +4,7 @@
 // Arquivo: src/components/prediagnostico/EmailGate.tsx
 
 import React, { useState } from 'react';
-import { Mail, Loader2, CheckCircle2, ArrowRight, Shield } from 'lucide-react';
+import { Mail, Loader2, CheckCircle2, ArrowRight, Shield, Users } from 'lucide-react';
 import { DESIGN_TOKENS } from '@/lib/design-system';
 
 interface EmailGateProps {
@@ -14,6 +14,7 @@ interface EmailGateProps {
 }
 
 export function EmailGate({ sessionId, profile, onSuccess }: EmailGateProps) {
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
@@ -28,6 +29,11 @@ export function EmailGate({ sessionId, profile, onSuccess }: EmailGateProps) {
     e.preventDefault();
     
     // Validações
+    if (!name.trim()) {
+      setError('Por favor, digite seu nome');
+      return;
+    }
+
     if (!email.trim()) {
       setError('Por favor, digite seu email');
       return;
@@ -46,6 +52,7 @@ export function EmailGate({ sessionId, profile, onSuccess }: EmailGateProps) {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
+          name: name.trim(),
           email: email.trim().toLowerCase(),
           sessionId
         })
@@ -54,9 +61,9 @@ export function EmailGate({ sessionId, profile, onSuccess }: EmailGateProps) {
       const data = await response.json();
 
       if (data.success) {
-  setSuccess(true);
-  // Removido redirecionamento automático
-} else {
+        setSuccess(true);
+        // Removido redirecionamento automático
+      } else {
         setError(data.error || 'Erro ao salvar email. Tente novamente.');
       }
     } catch (error) {
@@ -68,37 +75,37 @@ export function EmailGate({ sessionId, profile, onSuccess }: EmailGateProps) {
   };
 
   if (success) {
-  return (
-    <div className="w-full max-w-md mx-auto text-center fade-in">
-      <div className="p-6 bg-green-500/10 border border-green-500/30 rounded-xl">
-        <CheckCircle2 
-          className="w-12 h-12 mx-auto mb-4" 
-          style={{ color: '#22c55e' }}
-        />
-        <h3 className="text-white font-semibold text-lg mb-2">
-          📧 Solicitação enviada com sucesso!
-        </h3>
-        <p className="text-white/80 text-sm mb-4">
-          Você receberá uma análise personalizada por email em até 24 horas.
-        </p>
-        <div className="space-y-3 mt-6">
-          <p className="text-white/60 text-xs">
-            Enquanto isso, assine nossa newsletter para receber insights semanais:
+    return (
+      <div className="w-full max-w-md mx-auto text-center fade-in">
+        <div className="p-6 bg-green-500/10 border border-green-500/30 rounded-xl">
+          <CheckCircle2 
+            className="w-12 h-12 mx-auto mb-4" 
+            style={{ color: '#22c55e' }}
+          />
+          <h3 className="text-white font-semibold text-lg mb-2">
+            📧 Solicitação enviada com sucesso!
+          </h3>
+          <p className="text-white/80 text-sm mb-4">
+            Você receberá uma análise personalizada por email em até 24 horas.
           </p>
-          
+          <div className="space-y-3 mt-6">
+            <p className="text-white/60 text-xs">
+              Enquanto isso, assine nossa newsletter para receber insights semanais:
+            </p>
+            
             <a href="https://conversasnocorredor.substack.com/subscribe"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 px-6 py-3 bg-white/10 hover:bg-white/20 border border-white/20 rounded-xl text-white text-sm font-medium transition-all duration-200"
-          >
-            Assinar Newsletter Gratuita
-            <ArrowRight className="w-4 h-4" />
-          </a>
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 px-6 py-3 bg-white/10 hover:bg-white/20 border border-white/20 rounded-xl text-white text-sm font-medium transition-all duration-200"
+            >
+              Assinar Newsletter Gratuita
+              <ArrowRight className="w-4 h-4" />
+            </a>
+          </div>
         </div>
       </div>
-    </div>
-  );
-}
+    );
+  }
 
   return (
     <div className="w-full max-w-md mx-auto">
@@ -125,33 +132,54 @@ export function EmailGate({ sessionId, profile, onSuccess }: EmailGateProps) {
 
       {/* Formulário */}
       <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <div className="relative">
-            <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-white/40" />
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => {
-                setEmail(e.target.value);
-                if (error) setError('');
-              }}
-              placeholder="seu-email@exemplo.com"
-              className="w-full pl-11 pr-4 py-3 bg-white/5 border border-white/20 rounded-xl text-white placeholder-white/50 focus:border-orange-500 focus:bg-white/10 transition-all duration-200 focus:outline-none"
-              disabled={isLoading}
-            />
+        <div className="space-y-4">
+          {/* Campo Nome */}
+          <div>
+            <div className="relative">
+              <Users className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-white/40" />
+              <input
+                type="text"
+                value={name}
+                onChange={(e) => {
+                  setName(e.target.value);
+                  if (error) setError('');
+                }}
+                placeholder="Seu nome completo"
+                className="w-full pl-11 pr-4 py-3 bg-white/5 border border-white/20 rounded-xl text-white placeholder-white/50 focus:border-orange-500 focus:bg-white/10 transition-all duration-200 focus:outline-none"
+                disabled={isLoading}
+              />
+            </div>
           </div>
-          
-          {error && (
-            <p className="text-red-400 text-xs mt-2 flex items-center gap-1">
-              <span>⚠️</span> {error}
-            </p>
-          )}
+
+          {/* Campo Email */}
+          <div>
+            <div className="relative">
+              <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-white/40" />
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => {
+                  setEmail(e.target.value);
+                  if (error) setError('');
+                }}
+                placeholder="seu-email@exemplo.com"
+                className="w-full pl-11 pr-4 py-3 bg-white/5 border border-white/20 rounded-xl text-white placeholder-white/50 focus:border-orange-500 focus:bg-white/10 transition-all duration-200 focus:outline-none"
+                disabled={isLoading}
+              />
+            </div>
+          </div>
         </div>
+          
+        {error && (
+          <p className="text-red-400 text-xs mt-2 flex items-center gap-1">
+            <span>⚠️</span> {error}
+          </p>
+        )}
 
         {/* Submit Button */}
         <button
           type="submit"
-          disabled={isLoading || !email.trim()}
+          disabled={isLoading || !email.trim() || !name.trim()}
           className="w-full py-3 px-4 rounded-xl font-semibold text-black transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed hover:scale-105 flex items-center justify-center gap-2"
           style={{
             backgroundColor: DESIGN_TOKENS.colors.primary,
@@ -188,9 +216,9 @@ export function EmailGate({ sessionId, profile, onSuccess }: EmailGateProps) {
             <span>1 hábito semanal para manter o foco</span>
           </div>
           <div className="flex items-start gap-2 text-white/70">
-  <span className="text-green-400 mt-0.5">✓</span>
-  <span>Instruções para ter acesso a plataforma</span>
-</div>
+            <span className="text-green-400 mt-0.5">✓</span>
+            <span>Instruções para ter acesso a plataforma</span>
+          </div>
           <div className="flex items-start gap-2 text-white/70">
             <span className="text-green-400 mt-0.5">✓</span>
             <span>Insights da metodologia ROI do Foco</span>

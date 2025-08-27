@@ -65,657 +65,395 @@ export function gerarTemplateEmail(data: TemplateData): string {
     <title>Seu snapshot está pronto</title>
     <!--[if mso]><xml><o:OfficeDocumentSettings><o:PixelsPerInch>96</o:PixelsPerInch></o:OfficeDocumentSettings></xml><![endif]-->
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            line-height: 1.6;
-            color: #374151;
-            background: #f9fafb;
-            margin: 0;
-            padding: 20px 0;
-        }
-        
-        .container {
-            max-width: 600px;
-            margin: 0 auto;
-            background: white;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
-            border-radius: 8px;
-            overflow: hidden;
-        }
-        
-        /* Header */
-        .header {
-            background: linear-gradient(135deg, #042f2e 0%, #0d4a42 100%);
-            padding: 32px 40px 24px;
-            text-align: center;
-        }
-        
-        .logo {
-            font-family: 'Monaco', 'Menlo', 'SF Mono', monospace;
-            font-size: 28px;
-            font-weight: 700;
-            color: #d97706;
-            margin-bottom: 4px;
-            letter-spacing: -0.5px;
-        }
-        
-        .tagline {
-            font-size: 14px;
-            color: rgba(255,255,255,0.7);
-            font-weight: 400;
-        }
-        
-        /* Hero Section */
-        .hero {
-            padding: 40px 32px;
-            text-align: center;
-            background: linear-gradient(180deg, #fefefe 0%, #f9fafb 100%);
-        }
-        
-        .hero h1 {
-            font-size: 28px;
-            color: #042f2e;
-            font-weight: 700;
-            line-height: 1.2;
-            margin-bottom: 16px;
-        }
-        
-        .hero-highlight {
-            color: #d97706;
-            font-weight: 700;
-        }
-        
-        .hero-subtitle {
-            font-size: 16px;
-            color: #6b7280;
-            margin-bottom: 32px;
-            line-height: 1.5;
-        }
-        
-        /* CORREÇÃO: Snapshot Visual Refeito */
-        .snapshot-visual {
-            background: white;
-            border: 2px solid #e5e7eb;
-            border-radius: 12px;
-            padding: 24px 20px;
-            margin: 24px auto;
-            max-width: 380px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-        }
-        
-        .mix-title {
-            font-size: 14px;
-            color: #6b7280;
-            text-transform: uppercase;
-            font-weight: 600;
-            margin-bottom: 16px;
-            letter-spacing: 0.5px;
-            text-align: center;
-        }
-        
-        /* CORREÇÃO: Barras com altura fixa e proporção visual */
-        .mix-bars {
-            display: flex;
-            width: 100%;
-            height: 32px;
-            border-radius: 16px;
-            overflow: hidden;
-            background: #f3f4f6;
-            margin-bottom: 20px;
-            border: 1px solid #e5e7eb;
-        }
-        
-        .bar-essencial { 
-            background: #22c55e; 
-            width: ${distribuicao.essencial}%; 
-            min-width: 8px;
-        }
-        .bar-estrategica { 
-            background: #3b82f6; 
-            width: ${distribuicao.estrategica}%; 
-            min-width: 8px;
-        }
-        .bar-tatica { 
-            background: #eab308; 
-            width: ${distribuicao.tatica}%; 
-            min-width: 8px;
-        }
-        .bar-distracao { 
-            background: #ef4444; 
-            width: ${distribuicao.distracao}%; 
-            min-width: 8px;
-        }
-        
-        /* CORREÇÃO: Legenda com grid responsivo e alinhamento */
-        .mix-legend {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px 16px;
-            font-size: 13px;
-        }
-        
-        .legend-item {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        
-        .legend-dot {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            flex-shrink: 0;
-        }
-        
-        .legend-text {
-            font-size: 13px;
-            color: #4b5563;
-            font-weight: 500;
-        }
-        
-        /* Recomendações */
-        .recomendacoes {
-            padding: 0 32px 40px;
-        }
-        
-        .section-title {
-            font-size: 24px;
-            color: #042f2e;
-            font-weight: 700;
-            text-align: center;
-            margin-bottom: 24px;
-        }
-        
-        .recomendacao-card {
-            background: #f8fafc;
-            border: 1px solid #e2e8f0;
-            border-radius: 12px;
-            padding: 20px;
-            margin-bottom: 16px;
-            border-left: 4px solid var(--accent-color);
-        }
-        
-        .rec-header {
-            display: flex;
-            align-items: flex-start;
-            gap: 16px;
-            margin-bottom: 12px;
-        }
-        
-        .rec-number {
-            width: 32px;
-            height: 32px;
-            background: var(--accent-color);
-            color: white;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 700;
-            font-size: 14px;
-            flex-shrink: 0;
-            margin-top: 2px;
-        }
-        
-        .rec-content h3 {
-            font-size: 18px;
-            color: #1f2937;
-            font-weight: 600;
-            margin-bottom: 8px;
-            line-height: 1.3;
-        }
-        
-        .rec-meta {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 12px;
-            flex-wrap: wrap;
-        }
-        
-        .badge {
-            padding: 4px 8px;
-            border-radius: 6px;
-            font-size: 11px;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.3px;
-        }
-        
-        .badge-habito { background: #dcfce7; color: #166534; }
-        .badge-tarefa { background: #dbeafe; color: #1e40af; }
-        .badge-mindset { background: #ede9fe; color: #7c3aed; }
-        .badge-alto { background: #dcfce7; color: #166534; }
-        .badge-medio { background: #fef3c7; color: #92400e; }
-        .badge-baixo { background: #f3f4f6; color: #6b7280; }
-        
-        .rec-description {
-            font-size: 15px;
-            color: #4b5563;
-            margin-bottom: 16px;
-            line-height: 1.5;
-        }
-        
-        .rec-action {
-            background: white;
-            border: 1px solid #d1d5db;
-            border-radius: 8px;
-            padding: 12px 16px;
-            font-size: 14px;
-            color: #374151;
-        }
-        
-        .action-label {
-            font-size: 11px;
-            color: #6b7280;
-            text-transform: uppercase;
-            font-weight: 600;
-            margin-bottom: 4px;
-            letter-spacing: 0.3px;
-        }
-        
-        /* Benefícios */
-        .beneficios {
-            background: #f8fafc;
-            padding: 40px 32px;
-            border-top: 1px solid #e5e7eb;
-        }
-        
-        .beneficios h2 {
-            font-size: 26px;
-            color: #042f2e;
-            font-weight: 700;
-            text-align: center;
-            margin-bottom: 16px;
-        }
-        
-        .beneficios-subtitle {
-            font-size: 16px;
-            color: #6b7280;
-            text-align: center;
-            margin-bottom: 32px;
-            line-height: 1.5;
-        }
-        
-        .beneficios-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-            margin-bottom: 32px;
-        }
-        
-        .beneficio-item {
-            background: white;
-            padding: 20px;
-            border-radius: 12px;
-            border: 1px solid #e5e7eb;
-            text-align: center;
-        }
-        
-        /* CORREÇÃO: Ícones centralizados com posicionamento fixo */
-        .beneficio-icon {
-            width: 48px;
-            height: 48px;
-            background: linear-gradient(135deg, #d97706, #ea580c);
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 16px auto;
-            font-size: 18px;
-            line-height: 1;
-            color: white;
-            font-weight: normal;
-        }
-        
-        .beneficio-item h4 {
-            font-size: 16px;
-            color: #1f2937;
-            font-weight: 600;
-            margin-bottom: 8px;
-        }
-        
-        .beneficio-item p {
-            font-size: 14px;
-            color: #6b7280;
-            line-height: 1.5;
-        }
-        
-        /* Autoridade */
-        .autoridade {
-            padding: 32px;
-            text-align: center;
-            background: linear-gradient(135deg, #042f2e 0%, #0d4a42 100%);
-            color: white;
-        }
-        
-        .quote {
-            font-size: 18px;
-            font-style: italic;
-            line-height: 1.6;
-            margin-bottom: 20px;
-            position: relative;
-            padding: 0 24px;
-        }
-        
-        .quote::before {
-            content: '"';
-            font-size: 48px;
-            color: #d97706;
-            position: absolute;
-            top: -16px;
-            left: -4px;
-            font-family: serif;
-        }
-        
-        .author {
-            font-size: 14px;
-            color: rgba(255,255,255,0.8);
-            font-weight: 500;
-        }
-        
-        /* CTA Section */
-        .cta-section {
-            padding: 40px 32px;
-            text-align: center;
-            background: white;
-        }
-        
-        .cta-title {
-            font-size: 26px;
-            color: #042f2e;
-            font-weight: 700;
-            margin-bottom: 12px;
-        }
-        
-        .cta-subtitle {
-            font-size: 16px;
-            color: #6b7280;
-            margin-bottom: 28px;
-        }
-        
-        .cta-buttons {
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-            max-width: 400px;
-            margin: 0 auto;
-        }
-        
-        .btn {
-            display: block;
-            padding: 16px 32px;
-            border-radius: 12px;
-            text-decoration: none;
-            font-weight: 600;
-            font-size: 16px;
-            text-align: center;
-            border: none;
-        }
-        
-        .btn-primary {
-            background: linear-gradient(135deg, #d97706, #ea580c);
-            color: white;
-        }
-        
-        .btn-secondary {
-            background: white;
-            color: #042f2e;
-            border: 2px solid #042f2e;
-        }
-        
-        .microcopy {
-            font-size: 13px;
-            color: #9ca3af;
-            margin-top: 8px;
-            font-style: italic;
-        }
-        
-        /* Footer */
-        .footer {
-            background: #1f2937;
-            padding: 28px 32px;
-            text-align: center;
-            color: #9ca3af;
-        }
-        
-        .footer-brand {
-            font-size: 16px;
-            font-weight: 600;
-            color: #d1d5db;
-            margin-bottom: 8px;
-        }
-        
-        .footer-subtitle {
-    font-size: 13px;
-    color: #6b7280;
-    font-style: italic;
-    margin-bottom: 16px;
-}
-        
-        .footer-links {
-            display: flex;
-            justify-content: center;
-            gap: 20px;
-            margin-bottom: 12px;
-            flex-wrap: wrap;
-        }
-        
-        .footer-link {
-            color: #d97706;
-            text-decoration: none;
-            font-size: 14px;
-            font-weight: 500;
-        }
-        
-        .footer-text {
-            font-size: 12px;
-            color: #6b7280;
-        }
-        
-        /* Responsivo */
-        @media (max-width: 640px) {
-            .container { 
-                margin: 0 16px; 
-                border-radius: 0;
-            }
-            
-            .header, .hero, .recomendacoes, .beneficios, .autoridade, .cta-section, .footer {
-                padding-left: 20px;
-                padding-right: 20px;
-            }
-            
-            .hero h1 { font-size: 24px; }
-            .beneficios-grid { 
-                grid-template-columns: 1fr; 
-                gap: 16px; 
-            }
-            .rec-header { 
-                flex-direction: row;
-                align-items: flex-start;
-            }
-            .rec-meta { flex-wrap: wrap; }
-            .mix-legend {
-                grid-template-columns: 1fr;
-                gap: 8px;
-            }
-            .snapshot-visual {
-                padding: 20px 16px;
-                margin: 16px auto;
-            }
+        @media screen and (max-width: 600px) {
+            .mobile-full { width: 100% !important; }
+            .mobile-pad { padding-left: 20px !important; padding-right: 20px !important; }
+            .mobile-center { text-align: center !important; }
+            .mobile-stack { display: block !important; width: 100% !important; }
         }
     </style>
 </head>
-<body>
-    <div class="container">
-        <!-- Header -->
-        <div class="header">
-            <div class="logo">ROI do Foco</div>
-            <div class="tagline">Conversas no Corredor</div>
-        </div>
-        
-        <!-- Hero -->
-        <div class="hero">
-            <h1>Suas 3 recomendações estão aqui, <span class="hero-highlight">${firstName}</span></h1>
-            <p class="hero-subtitle">
-                Você viu onde seu tempo está hoje. Agora descubra como <strong>virar o jogo</strong>.
-            </p>
-            
-            <div class="snapshot-visual">
-                <div class="mix-title">Seu mix atual (perfil: ${profile})</div>
-                <div class="mix-bars">
-                    <div class="bar-essencial"></div>
-                    <div class="bar-estrategica"></div>
-                    <div class="bar-tatica"></div>
-                    <div class="bar-distracao"></div>
-                </div>
-                <div class="mix-legend">
-                    <div class="legend-item">
-                        <div class="legend-dot" style="background: #22c55e;"></div>
-                        <span class="legend-text">Essencial (${distribuicao.essencial}%)</span>
-                    </div>
-                    <div class="legend-item">
-                        <div class="legend-dot" style="background: #3b82f6;"></div>
-                        <span class="legend-text">Estratégica (${distribuicao.estrategica}%)</span>
-                    </div>
-                    <div class="legend-item">
-                        <div class="legend-dot" style="background: #eab308;"></div>
-                        <span class="legend-text">Tática (${distribuicao.tatica}%)</span>
-                    </div>
-                    <div class="legend-item">
-                        <div class="legend-dot" style="background: #ef4444;"></div>
-                        <span class="legend-text">Distração (${distribuicao.distracao}%)</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Recomendações -->
-        <div class="recomendacoes">
-            <h2 class="section-title">Suas próximas ações</h2>
-            
-            ${recomendacoes.length > 0 ? recomendacoes.map((rec, i) => {
-              const categoryColors = {
-                'HABITO': '#22c55e',
-                'TAREFA': '#3b82f6', 
-                'MINDSET': '#8b5cf6'
-              };
-              
-              const categoryClass = {
-                'HABITO': 'badge-habito',
-                'TAREFA': 'badge-tarefa',
-                'MINDSET': 'badge-mindset'
-              };
-              
-              const impactClass = {
-                'ALTO': 'badge-alto',
-                'MEDIO': 'badge-medio',
-                'BAIXO': 'badge-baixo'
-              };
-              
-              return `
-              <div class="recomendacao-card" style="--accent-color: ${categoryColors[rec.categoria]}">
-                <div class="rec-header">
-                  <div class="rec-number">${i + 1}</div>
-                  <div class="rec-content">
-                    <h3>${rec.titulo}</h3>
-                    <div class="rec-meta">
-                      <span class="badge ${categoryClass[rec.categoria]}">${rec.categoria === 'HABITO' ? 'Hábito Diário' : rec.categoria === 'TAREFA' ? 'Tarefa' : 'Mindset'}</span>
-                      <span class="badge ${impactClass[rec.impacto]}">${rec.impacto} Impacto</span>
-                    </div>
-                  </div>
-                </div>
-                <p class="rec-description">${rec.descricao}</p>
-                <div class="rec-action">
-                  <div class="action-label">Próximo passo</div>
-                  ${rec.acao}
-                </div>
-              </div>
-              `;
-            }).join('') : `
-              <div style="text-align: center; padding: 32px 20px; color: #6b7280;">
-                <p>Suas recomendações estão sendo processadas...</p>
-                <p style="font-size: 14px; margin-top: 8px;">Elas aparecerão aqui em breve!</p>
-              </div>
-            `}
-        </div>
-        
-        <!-- Benefícios -->
-        <div class="beneficios">
-            <h2>E se você pudesse liberar +4h semanais?</h2>
-            <p class="beneficios-subtitle">
-                O sistema completo ROI do Foco oferece acompanhamento contínuo para otimizar seu tempo de forma consistente.
-            </p>
-            
-            <div class="beneficios-grid">
-                <div class="beneficio-item">
-                    <div class="beneficio-icon">📊</div>
-                    <h4>Diagnóstico Contínuo</h4>
-                    <p>Mapa de atividades atualizado mensalmente com insights personalizados sobre onde seu tempo gera mais retorno.</p>
-                </div>
+<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; background-color: #F5F7FA; line-height: 1.5;">
+    
+    <!-- Container Principal -->
+    <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: #F5F7FA;">
+        <tr>
+            <td align="center" style="padding: 20px 10px;">
                 
-                <div class="beneficio-item">
-                    <div class="beneficio-icon">🎯</div>
-                    <h4>Priorização Estruturada</h4>
-                    <p>Framework DAR CERTO que sugere táticas específicas baseadas no seu perfil e objetivos de carreira.</p>
-                </div>
+                <!-- Email Container -->
+                <table width="600" cellpadding="0" cellspacing="0" border="0" class="mobile-full" style="max-width: 600px; background-color: #FFFFFF; border-radius: 12px; border: 1px solid #E5E7EB;">
+                    
+                    <!-- Header -->
+                    <tr>
+                        <td style="background-color: #042F2E; padding: 32px 40px 24px; text-align: center; border-radius: 12px 12px 0 0;">
+                            <div style="font-family: Monaco, Menlo, 'SF Mono', monospace; font-size: 28px; font-weight: 700; color: #D97706; margin-bottom: 4px; letter-spacing: -0.5px;">ROI do Foco</div>
+                            <div style="font-size: 14px; color: rgba(255,255,255,0.7); font-weight: 400;">Conversas no Corredor</div>
+                        </td>
+                    </tr>
+                    
+                    <!-- Hero Section -->
+                    <tr>
+                        <td style="padding: 40px 32px; text-align: center; background-color: #FFFFFF;" class="mobile-pad">
+                            <h1 style="font-size: 26px; color: #042F2E; font-weight: 700; line-height: 1.2; margin: 0 0 16px 0;">
+                                Suas 3 recomendações estão aqui, <span style="color: #D97706; font-weight: 700;">${firstName}</span>
+                            </h1>
+                            <p style="font-size: 16px; color: #6B7280; margin: 0 0 32px 0; line-height: 1.5;">
+                                Você viu onde seu tempo está hoje. Agora descubra como <strong>virar o jogo</strong>.
+                            </p>
+                            
+                            <!-- Snapshot Visual -->
+                            <table width="420" cellpadding="0" cellspacing="0" border="0" class="mobile-full" style="max-width: 420px; margin: 24px auto; background-color: #042F2E; border-radius: 12px; border: 1px solid #E5E7EB;">
+                                <tr>
+                                    <td style="padding: 24px 20px; color: #FFFFFF;" class="mobile-pad">
+                                        
+                                        <!-- Status Badge -->
+                                        <table width="auto" cellpadding="0" cellspacing="0" border="0" style="margin: 0 auto 24px auto;">
+                                            <tr>
+                                                <td style="background-color: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.4); color: #EF4444; padding: 8px 16px; border-radius: 20px; font-size: 12px; font-weight: 600;">
+                                                    <span style="display: inline-block; width: 8px; height: 8px; background-color: #EF4444; border-radius: 50%; margin-right: 6px; vertical-align: middle;"></span>
+                                                    Crítico
+                                                </td>
+                                            </tr>
+                                        </table>
+                                        
+                                        <!-- Header com ícone -->
+                                        <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom: 24px;">
+                                            <tr>
+                                                <td style="text-align: center;">
+                                                    <span style="font-size: 14px; margin-right: 6px;">📊</span>
+                                                    <span style="font-size: 18px; color: #FFFFFF; font-weight: 600;">Seu Mix Atual</span>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                        
+                                        <!-- Barras Horizontais -->
+                                        <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom: 24px;">
+                                            <!-- Essencial -->
+                                            <tr>
+                                                <td style="padding-bottom: 12px;">
+                                                    <table width="100%" cellpadding="0" cellspacing="0" border="0">
+                                                        <tr>
+                                                            <td width="20" style="vertical-align: middle;">
+                                                                <span style="display: inline-block; width: 12px; height: 12px; background-color: #22C55E; border-radius: 50%; vertical-align: middle;"></span>
+                                                            </td>
+                                                            <td width="90" style="font-size: 14px; color: rgba(255,255,255,0.9); vertical-align: middle; padding-left: 8px;">
+                                                                Essencial
+                                                            </td>
+                                                            <td style="vertical-align: middle; padding-left: 8px; padding-right: 8px;">
+                                                                <div style="height: 8px; background-color: rgba(255,255,255,0.15); border-radius: 4px; position: relative;">
+                                                                    <div style="position: absolute; top: 0; left: 0; height: 100%; background-color: #22C55E; border-radius: 4px; width: ${distribuicao.essencial}%;"></div>
+                                                                </div>
+                                                            </td>
+                                                            <td width="45" style="font-size: 16px; font-weight: 700; color: #FFFFFF; text-align: right; vertical-align: middle;">
+                                                                ${distribuicao.essencial}%
+                                                            </td>
+                                                        </tr>
+                                                    </table>
+                                                </td>
+                                            </tr>
+                                            
+                                            <!-- Estratégico -->
+                                            <tr>
+                                                <td style="padding-bottom: 12px;">
+                                                    <table width="100%" cellpadding="0" cellspacing="0" border="0">
+                                                        <tr>
+                                                            <td width="20" style="vertical-align: middle;">
+                                                                <span style="display: inline-block; width: 12px; height: 12px; background-color: #3B82F6; border-radius: 50%; vertical-align: middle;"></span>
+                                                            </td>
+                                                            <td width="90" style="font-size: 14px; color: rgba(255,255,255,0.9); vertical-align: middle; padding-left: 8px;">
+                                                                Estratégico
+                                                            </td>
+                                                            <td style="vertical-align: middle; padding-left: 8px; padding-right: 8px;">
+                                                                <div style="height: 8px; background-color: rgba(255,255,255,0.15); border-radius: 4px; position: relative;">
+                                                                    <div style="position: absolute; top: 0; left: 0; height: 100%; background-color: #3B82F6; border-radius: 4px; width: ${distribuicao.estrategica}%;"></div>
+                                                                </div>
+                                                            </td>
+                                                            <td width="45" style="font-size: 16px; font-weight: 700; color: #FFFFFF; text-align: right; vertical-align: middle;">
+                                                                ${distribuicao.estrategica}%
+                                                            </td>
+                                                        </tr>
+                                                    </table>
+                                                </td>
+                                            </tr>
+                                            
+                                            <!-- Tático -->
+                                            <tr>
+                                                <td style="padding-bottom: 12px;">
+                                                    <table width="100%" cellpadding="0" cellspacing="0" border="0">
+                                                        <tr>
+                                                            <td width="20" style="vertical-align: middle;">
+                                                                <span style="display: inline-block; width: 12px; height: 12px; background-color: #EAB308; border-radius: 50%; vertical-align: middle;"></span>
+                                                            </td>
+                                                            <td width="90" style="font-size: 14px; color: rgba(255,255,255,0.9); vertical-align: middle; padding-left: 8px;">
+                                                                Tático
+                                                            </td>
+                                                            <td style="vertical-align: middle; padding-left: 8px; padding-right: 8px;">
+                                                                <div style="height: 8px; background-color: rgba(255,255,255,0.15); border-radius: 4px; position: relative;">
+                                                                    <div style="position: absolute; top: 0; left: 0; height: 100%; background-color: #EAB308; border-radius: 4px; width: ${distribuicao.tatica}%;"></div>
+                                                                </div>
+                                                            </td>
+                                                            <td width="45" style="font-size: 16px; font-weight: 700; color: #FFFFFF; text-align: right; vertical-align: middle;">
+                                                                ${distribuicao.tatica}%
+                                                            </td>
+                                                        </tr>
+                                                    </table>
+                                                </td>
+                                            </tr>
+                                            
+                                            <!-- Distração -->
+                                            <tr>
+                                                <td style="padding-bottom: 0;">
+                                                    <table width="100%" cellpadding="0" cellspacing="0" border="0">
+                                                        <tr>
+                                                            <td width="20" style="vertical-align: middle;">
+                                                                <span style="display: inline-block; width: 12px; height: 12px; background-color: #EF4444; border-radius: 50%; vertical-align: middle;"></span>
+                                                            </td>
+                                                            <td width="90" style="font-size: 14px; color: rgba(255,255,255,0.9); vertical-align: middle; padding-left: 8px;">
+                                                                Distração
+                                                            </td>
+                                                            <td style="vertical-align: middle; padding-left: 8px; padding-right: 8px;">
+                                                                <div style="height: 8px; background-color: rgba(255,255,255,0.15); border-radius: 4px; position: relative;">
+                                                                    <div style="position: absolute; top: 0; left: 0; height: 100%; background-color: #EF4444; border-radius: 4px; width: ${distribuicao.distracao}%;"></div>
+                                                                </div>
+                                                            </td>
+                                                            <td width="45" style="font-size: 16px; font-weight: 700; color: #FFFFFF; text-align: right; vertical-align: middle;">
+                                                                ${distribuicao.distracao}%
+                                                            </td>
+                                                        </tr>
+                                                    </table>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                        
+                                        <!-- Diagnóstico -->
+                                        <table width="auto" cellpadding="0" cellspacing="0" border="0" style="margin: 0 auto 20px auto;">
+                                            <tr>
+                                                <td style="background-color: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 20px; padding: 10px 20px; font-size: 14px;">
+                                                    <span style="font-size: 14px; color: #FBBF24; margin-right: 6px;">⚠️</span>
+                                                    <span>Foco disperso</span>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                        
+                                        <!-- Texto de referência -->
+                                        <table width="100%" cellpadding="0" cellspacing="0" border="0">
+                                            <tr>
+                                                <td style="font-size: 12px; color: rgba(255,255,255,0.6); text-align: center; line-height: 1.4;">
+                                                    Ideal: 40-55% Essencial • 20-30% Estratégico • <25% Tático • <15% Distração
+                                                </td>
+                                            </tr>
+                                        </table>
+                                        
+                                    </td>
+                                </tr>
+                            </table>
+                            
+                        </td>
+                    </tr>
+                    
+                    <!-- Recomendações -->
+                    <tr>
+                        <td style="padding: 0 32px 40px;" class="mobile-pad">
+                            <h2 style="font-size: 22px; color: #042F2E; font-weight: 700; text-align: center; margin: 0 0 24px 0;">Suas próximas ações</h2>
+                            
+                            ${recomendacoes.length > 0 ? recomendacoes.map((rec, i) => {
+                              const categoryColors = {
+                                'HABITO': '#22C55E',
+                                'TAREFA': '#3B82F6', 
+                                'MINDSET': '#8B5CF6'
+                              };
+                              
+                              const categoryClass = {
+                                'HABITO': 'background-color: #DCFCE7; color: #166534;',
+                                'TAREFA': 'background-color: #DBEAFE; color: #1E40AF;',
+                                'MINDSET': 'background-color: #EDE9FE; color: #7C3AED;'
+                              };
+                              
+                              const impactClass = {
+                                'ALTO': 'background-color: #DCFCE7; color: #166534;',
+                                'MEDIO': 'background-color: #FEF3C7; color: #92400E;',
+                                'BAIXO': 'background-color: #F3F4F6; color: #6B7280;'
+                              };
+                              
+                              return `
+                              <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 12px; border-left: 4px solid ${categoryColors[rec.categoria]}; margin-bottom: 16px;">
+                                <tr>
+                                  <td style="padding: 20px;">
+                                    <table width="100%" cellpadding="0" cellspacing="0" border="0">
+                                      <tr>
+                                        <td width="32" style="vertical-align: top; padding-right: 16px;">
+                                          <div style="width: 32px; height: 32px; background-color: ${categoryColors[rec.categoria]}; color: #FFFFFF; border-radius: 50%; display: inline-block; text-align: center; line-height: 32px; font-weight: 700; font-size: 14px; margin-top: 2px;">
+                                            ${i + 1}
+                                          </div>
+                                        </td>
+                                        <td style="vertical-align: top;">
+                                          <h3 style="font-size: 18px; color: #1F2937; font-weight: 600; margin: 0 0 8px 0; line-height: 1.3;">${rec.titulo}</h3>
+                                          <div style="margin-bottom: 12px;">
+                                            <span style="display: inline-block; padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px; margin-right: 8px; margin-bottom: 4px; ${categoryClass[rec.categoria]}">${rec.categoria === 'HABITO' ? 'Hábito Diário' : rec.categoria === 'TAREFA' ? 'Tarefa' : 'Mindset'}</span>
+                                            <span style="display: inline-block; padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px; margin-bottom: 4px; ${impactClass[rec.impacto]}">${rec.impacto} Impacto</span>
+                                          </div>
+                                          <p style="font-size: 15px; color: #4B5563; margin: 0 0 16px 0; line-height: 1.5;">${rec.descricao}</p>
+                                          <div style="background-color: #FFFFFF; border: 1px solid #D1D5DB; border-radius: 8px; padding: 12px 16px;">
+                                            <div style="font-size: 11px; color: #6B7280; text-transform: uppercase; font-weight: 600; margin-bottom: 4px; letter-spacing: 0.3px;">Próximo passo</div>
+                                            <div style="font-size: 14px; color: #374151;">${rec.acao}</div>
+                                          </div>
+                                        </td>
+                                      </tr>
+                                    </table>
+                                  </td>
+                                </tr>
+                              </table>
+                              `;
+                            }).join('') : `
+                              <table width="100%" cellpadding="0" cellspacing="0" border="0">
+                                <tr>
+                                  <td style="text-align: center; padding: 32px 20px; color: #6B7280;">
+                                    <p style="margin: 0 0 8px 0;">Suas recomendações estão sendo processadas...</p>
+                                    <p style="font-size: 14px; margin: 0;">Elas aparecerão aqui em breve!</p>
+                                  </td>
+                                </tr>
+                              </table>
+                            `}
+                        </td>
+                    </tr>
+                    
+                    <!-- Benefícios -->
+                    <tr>
+                        <td style="background-color: #F8FAFC; border-top: 1px solid #E5E7EB; padding: 48px 32px;" class="mobile-pad">
+                            <h2 style="font-size: 24px; color: #042F2E; font-weight: 700; text-align: center; margin: 0 0 16px 0;">E se você pudesse liberar +4h semanais?</h2>
+                            <p style="font-size: 16px; color: #6B7280; text-align: center; margin: 0 0 40px 0; line-height: 1.5;">
+                                O sistema completo ROI do Foco oferece acompanhamento contínuo para otimizar seu tempo de forma consistente.
+                            </p>
+                            
+                            <!-- Grid de Benefícios -->
+                            <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom: 32px;">
+                                <tr>
+                                    <td width="50%" style="vertical-align: top; padding-right: 12px; padding-bottom: 24px;" class="mobile-stack">
+                                        <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: #FFFFFF; border: 1px solid #E5E7EB; border-radius: 16px;">
+                                            <tr>
+                                                <td style="padding: 24px; text-align: center;">
+                                                    <div style="width: 48px; height: 48px; background-color: #F3F4F6; border-radius: 12px; display: inline-block; text-align: center; line-height: 48px; margin-bottom: 16px;">
+                                                        <span style="display: inline-block; font-size: 18px; line-height: 1; vertical-align: middle; color: #6B7280;">📊</span>
+                                                    </div>
+                                                    <h4 style="font-size: 16px; color: #1F2937; font-weight: 600; margin: 0 0 8px 0;">Diagnóstico Contínuo</h4>
+                                                    <p style="font-size: 14px; color: #6B7280; line-height: 1.5; margin: 0;">Mapa de atividades atualizado mensalmente com insights personalizados sobre onde seu tempo gera mais retorno.</p>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                    <td width="50%" style="vertical-align: top; padding-left: 12px; padding-bottom: 24px;" class="mobile-stack">
+                                        <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: #FFFFFF; border: 1px solid #E5E7EB; border-radius: 16px;">
+                                            <tr>
+                                                <td style="padding: 24px; text-align: center;">
+                                                    <div style="width: 48px; height: 48px; background-color: #F3F4F6; border-radius: 12px; display: inline-block; text-align: center; line-height: 48px; margin-bottom: 16px;">
+                                                        <span style="display: inline-block; font-size: 18px; line-height: 1; vertical-align: middle; color: #6B7280;">🎯</span>
+                                                    </div>
+                                                    <h4 style="font-size: 16px; color: #1F2937; font-weight: 600; margin: 0 0 8px 0;">Priorização Estruturada</h4>
+                                                    <p style="font-size: 14px; color: #6B7280; line-height: 1.5; margin: 0;">Framework DAR CERTO que sugere táticas específicas baseadas no seu perfil e objetivos de carreira.</p>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td width="50%" style="vertical-align: top; padding-right: 12px;" class="mobile-stack">
+                                        <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: #FFFFFF; border: 1px solid #E5E7EB; border-radius: 16px;">
+                                            <tr>
+                                                <td style="padding: 24px; text-align: center;">
+                                                    <div style="width: 48px; height: 48px; background-color: #F3F4F6; border-radius: 12px; display: inline-block; text-align: center; line-height: 48px; margin-bottom: 16px;">
+                                                        <span style="display: inline-block; font-size: 18px; line-height: 1; vertical-align: middle; color: #6B7280;">📈</span>
+                                                    </div>
+                                                    <h4 style="font-size: 16px; color: #1F2937; font-weight: 600; margin: 0 0 8px 0;">Acompanhamento de ROI</h4>
+                                                    <p style="font-size: 14px; color: #6B7280; line-height: 1.5; margin: 0;">Visualize onde você está investindo seu tempo e como focar no que realmente move sua carreira.</p>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                    <td width="50%" style="vertical-align: top; padding-left: 12px;" class="mobile-stack">
+                                        <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: #FFFFFF; border: 1px solid #E5E7EB; border-radius: 16px;">
+                                            <tr>
+                                                <td style="padding: 24px; text-align: center;">
+                                                    <div style="width: 48px; height: 48px; background-color: #F3F4F6; border-radius: 12px; display: inline-block; text-align: center; line-height: 48px; margin-bottom: 16px;">
+                                                        <span style="display: inline-block; font-size: 18px; line-height: 1; vertical-align: middle; color: #6B7280;">💬</span>
+                                                    </div>
+                                                    <h4 style="font-size: 16px; color: #1F2937; font-weight: 600; margin: 0 0 8px 0;">Comunidade + Reflexões</h4>
+                                                    <p style="font-size: 14px; color: #6B7280; line-height: 1.5; margin: 0;">Insights semanais e acesso à comunidade de profissionais que já aplicam a metodologia ROI do Foco.</p>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                    
+                    <!-- CTA Section -->
+                    <tr>
+                        <td style="padding: 48px 32px; text-align: center; background-color: #FFFFFF;" class="mobile-pad">
+                            <table width="480" cellpadding="0" cellspacing="0" border="0" class="mobile-full" style="max-width: 480px; margin: 0 auto; background-color: #FFFFFF; border: 1px solid #E5E7EB; border-radius: 16px;">
+                                <tr>
+                                    <td style="padding: 32px;" class="mobile-pad">
+                                        <h2 style="font-size: 22px; color: #042F2E; font-weight: 700; margin: 0 0 8px 0; line-height: 1.2;">Começar a conversa</h2>
+                                        <p style="font-size: 16px; color: #6B7280; margin: 0 0 24px 0; line-height: 1.4;">
+                                            Assine a newsletter anualmente e tenha acesso completo à metodologia ROI do Foco.
+                                        </p>
+                                        
+                                        <!--[if mso]>
+                                        <v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="https://conversasnocorredor.substack.com/subscribe" style="height:50px;v-text-anchor:middle;width:200px;" arcsize="24%" stroke="f" fillcolor="#D97706">
+                                        <w:anchorlock/>
+                                        <center>
+                                        <![endif]-->
+                                        <a href="https://conversasnocorredor.substack.com/subscribe" style="background-color: #D97706; border-radius: 12px; color: #FFFFFF; display: inline-block; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 16px; font-weight: 600; line-height: 50px; text-align: center; text-decoration: none; width: 200px; margin-bottom: 16px;">Fazer parte da conversa →</a>
+                                        <!--[if mso]>
+                                        </center>
+                                        </v:roundrect>
+                                        <![endif]-->
+                                        
+                                        <p style="font-size: 14px; color: #6B7280; margin: 0 0 24px 0; line-height: 1.4;">
+                                            Assinatura anual • Reflexões semanais • Acesso completo
+                                        </p>
+                                        
+                                        <a href="https://conversasnocorredor.substack.com/subscribe" style="color: #6B7280; text-decoration: underline; font-size: 14px; font-weight: 500;">
+                                            Ou assine gratuitamente primeiro
+                                        </a>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                    
+                    <!-- Footer -->
+                    <tr>
+                        <td style="background-color: #F8FAFC; border-top: 1px solid #E5E7EB; padding: 32px; text-align: center;" class="mobile-pad">
+                            <div style="font-size: 16px; font-weight: 600; color: #374151; margin-bottom: 8px;">Conversas no Corredor</div>
+                            <div style="font-size: 13px; color: #6B7280; font-style: italic; margin-bottom: 20px;">Reflexões que eu gostaria de ter tido com meus gestores</div>
+                            
+                            <table width="auto" cellpadding="0" cellspacing="0" border="0" style="margin: 0 auto 16px auto;">
+                                <tr>
+                                    <td style="padding-right: 24px;">
+                                        <a href="https://conversasnocorredor.substack.com/about" style="color: #D97706; text-decoration: underline; font-size: 14px; font-weight: 500;">Sobre</a>
+                                    </td>
+                                    <td style="padding-right: 24px;">
+                                        <a href="https://conversasnocorredor.substack.com/s/roi-do-foco" style="color: #D97706; text-decoration: underline; font-size: 14px; font-weight: 500;">Série ROI do Foco</a>
+                                    </td>
+                                    <td>
+                                        <a href="https://www.linkedin.com/in/adilsonmatioli/" style="color: #D97706; text-decoration: underline; font-size: 14px; font-weight: 500;">LinkedIn</a>
+                                    </td>
+                                </tr>
+                            </table>
+                            
+                            <div style="font-size: 12px; color: #9CA3AF;">
+                                Newsletter semanal sobre crescimento profissional
+                            </div>
+                        </td>
+                    </tr>
+                    
+                </table>
                 
-                <div class="beneficio-item">
-                    <div class="beneficio-icon">📈</div>
-                    <h4>Acompanhamento de ROI</h4>
-                    <p>Visualize onde você está investindo seu tempo e como focar no que realmente move sua carreira.</p>
-                </div>
-                
-                <div class="beneficio-item">
-                    <div class="beneficio-icon">💬</div>
-                    <h4>Comunidade + Reflexões</h4>
-                    <p>Insights semanais e acesso à comunidade de profissionais que já aplicam a metodologia ROI do Foco.</p>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Autoridade -->
-        <div class="autoridade">
-            <p class="quote">
-                Conversas que eu gostaria de ter tido com meus gestores. Ajudo líderes e liderados que sentem falta de um chefe para recorrer. Trago reflexões práticas que aceleram sua carreira, aumentam suas chances de promoção e dão suporte para crescer com confiança.
-            </p>
-            <p class="author">Adilson Matioli, criador e editor da newsleter e da plataforma Conversas no Corredor</p>
-        </div>
-        
-        <!-- CTA -->
-        <div class="cta-section">
-            <h2 class="cta-title">Pronto para virar o jogo?</h2>
-            <p class="cta-subtitle">
-                Transforme suas 3 recomendações em um sistema completo de crescimento profissional.
-            </p>
-            
-            <div class="cta-buttons">
-                <a href="https://conversasnocorredor.substack.com/subscribe" class="btn btn-primary">
-                    Quero acompanhar minha evolução
-                </a>
-                <div class="microcopy">Liberar +4h semanais focando no que importa</div>
-                
-                <a href="https://conversasnocorredor.substack.com/subscribe" class="btn btn-secondary">
-                    Assinar Newsletter Gratuita
-                </a>
-            </div>
-        </div>
-        
-        <!-- Footer -->
-<div class="footer">
-    <div class="footer-brand">Conversas no Corredor</div>
-    <div class="footer-subtitle">Reflexões que eu gostaria de ter tido com meus gestores</div>
-    <div class="footer-links">
-        <a href="https://conversasnocorredor.substack.com/about" class="footer-link">Sobre</a>
-        <a href="https://conversasnocorredor.substack.com/s/roi-do-foco" class="footer-link">Série ROI do Foco</a>
-        <a href="https://www.linkedin.com/in/adilsonmatioli/" class="footer-link">LinkedIn</a>
-    </div>
-    <div class="footer-text">
-        Newsletter semanal sobre crescimento profissional
-    </div>
-</div>
-    </div>
+            </td>
+        </tr>
+    </table>
+    
 </body>
 </html>
   `.trim();

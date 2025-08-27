@@ -431,7 +431,16 @@ WHERE email\_opened = TRUE AND email\_clicked = TRUE
 ORDER BY created\_at DESC;
 
 ```
+-- BREAKING CHANGE v1.9.1: Adicionada coluna name
+ALTER TABLE roi_leads ADD COLUMN name VARCHAR(100);
 
+-- Exemplo de dados v1.9.1
+{
+  "name": "João Silva",
+  "email": "joao.silva@empresa.com",
+  "firstName_extracted": "João",  -- usado no template email
+  ...
+}
 
 
 ---

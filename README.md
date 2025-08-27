@@ -3,7 +3,7 @@
 **Sistema Enterprise para Diagnóstico e Otimização do Foco Profissional**
 
 [![Deploy](https://img.shields.io/badge/deploy-vercel-black?logo=vercel)](https://conversas-no-corredor.vercel.app)
-[![Versão](https://img.shields.io/badge/versão-v1.9.0-blue)](docs/CURRENT-STATUS.md)
+[![Versão](https://img.shields.io/badge/versão-v1.9.1-blue)](docs/CURRENT-STATUS.md)
 [![Status](https://img.shields.io/badge/status-✅%20operacional-green)](docs/CURRENT-STATUS.md)
 
 ## 🚀 Quick Start
@@ -29,11 +29,11 @@ npm run dev
 ## 📊 Sistema Completo
 
 ### ✅ Funcionalidades Principais
-- **🎯 Pré-Diagnóstico** - Captura de leads com recomendações por email (**NOVO v1.9.0**)
+- **🎯 Pré-Diagnóstico** - Captura nome + recomendações personalizadas (**v1.9.1**)
 - **🗺️ Mapa de Atividades** - Matriz Impacto × Clareza (4 zonas)
 - **📊 Diagnóstico Automático** - Análise ROI do Foco com relatórios personalizados
 - **📋 Plano de Ação** - Framework DAR CERTO com IA V2.1
-- **📧 Email Marketing** - Templates profissionais via Resend (**NOVO v1.9.0**)
+- **📧 Email Marketing** - Templates profissionais via Resend (**v1.9.0**)
 - **📄 Export Profissional** - PDF otimizado + cópia de texto
 - **👤 Perfil Completo** - Configurações pessoais + compliance LGPD
 - **🔐 Autenticação Segura** - RLS (Row Level Security) + emails autorizados
@@ -41,7 +41,7 @@ npm run dev
 ### 🛠️ Stack Tecnológica
 - **Frontend:** Next.js 14 + TypeScript + Tailwind CSS
 - **Backend:** Supabase (PostgreSQL + Auth + RLS)
-- **Email:** Resend API com templates HTML (**NOVO v1.9.0**)
+- **Email:** Resend API com templates HTML (**v1.9.0**)
 - **Deploy:** Vercel (automático via Git)
 - **Metodologia:** ROI do Foco + Framework DAR CERTO
 
@@ -50,7 +50,7 @@ npm run dev
 ### 🎯 Fluxo Completo Atualizado
 
 1. **Landing Page** → Apresentação e captação de assinantes
-2. **Pré-Diagnóstico** → Sistema de leads com 5 etapas + email (**NOVO v1.9.0**)
+2. **Pré-Diagnóstico** → Sistema de leads com nome + 5 etapas + email (**v1.9.1**)
 3. **Autenticação** → Login/cadastro com emails autorizados
 4. **Reset de Senha** → Página dedicada com emails customizados
 5. **Dashboard** → Mapeamento na matriz Impacto × Clareza
@@ -65,7 +65,7 @@ src/
 │   ├── pre-diagnostico/page.tsx      # Pré-diagnóstico conversacional
 │   ├── api/prediag/                  # APIs do pré-diagnóstico
 │   │   ├── diagnose/route.ts         # POST - Processar diagnóstico
-│   │   ├── lead/route.ts             # POST - Capturar email + enviar
+│   │   ├── lead/route.ts             # POST - Capturar nome + email + enviar
 │   │   ├── options/route.ts          # GET - Opções por perfil
 │   │   ├── email-template.ts         # Template HTML profissional
 │   │   └── recommendations.ts        # Heurística 450+ sugestões
@@ -79,6 +79,7 @@ src/
 ├── components/
 │   ├── base/                        # 8 componentes reutilizáveis
 │   ├── mapa/                        # 5 componentes do mapa
+│   ├── prediagnostico/              # EmailGate com campo nome (v1.9.1)
 │   └── plano/                       # 7 componentes do plano
 └── lib/
     ├── diagnostico-engine.ts        # Motor de análise
@@ -94,7 +95,7 @@ src/
 - **📅 [CHANGELOG.md](docs/CHANGELOG.md)** - Histórico completo de versões
 - **🔧 [troubleshooting-acesso.md](docs/troubleshooting-acesso.md)** - Soluções para problemas comuns
 
-### 📖 **Documentação Técnica v1.9.0**
+### 📖 **Documentação Técnica v1.9.1**
 ```
 docs/
 ├── api-prediagnostico.md            # Especificação completa das 3 APIs
@@ -106,8 +107,8 @@ docs/
 ### 📖 **Versões Detalhadas**
 ```
 docs/versions/
-├── v1.9.0-prediagnostico-completo.md  # Versão atual - Sessão 27/08/2025
-├── v1.8.3-diagnostico-premium.md      # Export otimizado - Sessão 22/08/2025
+├── v1.9.0-prediagnostico-completo.md  # Sistema pré-diagnóstico - 27/08/2025
+├── v1.8.3-diagnostico-premium.md      # Export otimizado - 22/08/2025
 ├── v1.8.2-fluxo-padronizado.md        # ROI do Foco + nome real usuário
 └── v1.8.1-heuristica-refinada.md      # IA V2.1 + Framework DAR CERTO
 ```
@@ -136,33 +137,31 @@ Atualizar documentação com comandos Windows.
 
 > 💡 **Dica:** Mantenha um documento no Obsidian com estes templates para agilizar o processo!
 
-## 🎯 Versão Atual: v1.9.0 - Sistema de Pré-Diagnóstico Completo
+## 🎯 Versão Atual: v1.9.1 - Campo Nome + Personalização
 
-**Foco da Sessão (27/08/2025):** Pré-Diagnóstico + Email Marketing + APIs Completas
+**Foco da Sessão (27/08/2025 - Tarde):** Correção de bug crítico + campo nome
 
 ### ✅ Implementado Nesta Versão
-- **🎯 Landing Page Pré-Diagnóstico** - `/pre-diagnostico` com fluxo de 5 etapas
-- **🔧 APIs Completas** - `/api/prediag/*` para diagnóstico, leads e recomendações
-- **📧 Sistema Email Marketing** - Resend configurado com templates HTML profissionais
-- **🧠 Heurística Inteligente** - 450+ recomendações categorizadas por perfil + dor + objetivo
-- **🗄️ Banco Expandido** - 3 novas tabelas (sessions, leads, events)
-- **📊 Analytics** - Sistema de eventos para tracking de conversão
-- **🛡️ Segurança** - Validações robustas + RLS em todas as novas tabelas
+- **📧 Campo Nome Obrigatório** - EmailGate captura nome completo
+- **🎯 Emails Personalizados** - "Olá João" em vez de "joao.silva@email.com"
+- **🔧 Bug Crítico Corrigido** - 53 leads perdidos recuperados
+- **🛡️ Validação Robusta** - Nome mínimo 2 caracteres + email válido
 
 ### 🔧 Funcionalidades do Pré-Diagnóstico
 ```typescript
-// Fluxo de 5 etapas implementado:
+// Fluxo de 6 etapas implementado:
 1. ProfileSelector    # Perfil profissional (estudante, analista, gestor, etc.)
 2. AgendaSelector     # Estado da agenda (sempre_lotada, equilibrada, etc.)
 3. PainSelector       # Principal dor (urgencias, reunioes, falta_clareza, etc.)
 4. ActivitySelector   # Atividade que mais consome tempo
 5. GoalSelector       # Objetivo principal (vender_mais, tempo_planejamento, etc.)
+6. EmailGate         # Captura nome + email com validação (NOVO v1.9.1)
 
-// Email com recomendações personalizadas
-Template HTML profissional → 3 sugestões categorizadas → CTAs para newsletter/sistema
+// Email personalizado com nome real
+"Olá João" em vez de "joao.silva" → 3 sugestões categorizadas → CTAs para newsletter/sistema
 ```
 
-### 🗄️ Banco de Dados Expandido (v1.9.0)
+### 🗄️ Banco de Dados Expandido (v1.9.1)
 ```sql
 -- 3 TABELAS IMPLEMENTADAS:
 roi_prediag_sessions  # Dados completos do diagnóstico
@@ -171,8 +170,8 @@ roi_prediag_sessions  # Dados completos do diagnóstico
   - insight_hash, ip_address, user_agent, duration_seconds (metadados)
 
 roi_leads            # Leads capturados para marketing
-  - email, source, last_session_id (identificação)
-  - profile_segment, pain_segment (segmentação)
+  - name, email, source, last_session_id (identificação)
+  - profile_segment, pain_segment (segmentação)  
   - email_sent, email_opened, subscribed (engajamento)
 
 roi_events          # Analytics de conversão
@@ -180,32 +179,38 @@ roi_events          # Analytics de conversão
   - 'prediag_completed', 'email_submitted' (eventos principais)
 ```
 
-### 📧 Integração de Email (v1.9.0)
+### 📧 Integração de Email (v1.9.1)
 - **Serviço:** Resend API configurada e funcionando
 - **Templates:** HTML profissional com design consistente
-- **Personalização:** Baseada em perfil + dor + atividade + objetivo
+- **Personalização:** Nome real + perfil + dor + atividade + objetivo
 - **CTAs:** Newsletter principal + sistema completo
 
 ### 🔧 Status de Funcionalidades
-- ✅ **Pré-Diagnóstico:** Funcional com 5 etapas + validações
-- ✅ **API Lead Capture:** Capturando emails + enviando recomendações
-- ✅ **Email Templates:** Design profissional com barras de diagnóstico
+- ✅ **Pré-Diagnóstico:** Funcional com 6 etapas + validações
+- ✅ **API Lead Capture:** Capturando nome + emails + enviando recomendações
+- ✅ **Email Templates:** Design profissional com nome personalizado
 - ✅ **Heurística:** 450+ recomendações funcionando
 - ✅ **Analytics:** Eventos sendo rastreados no Supabase
 - ✅ **RLS:** Políticas de segurança configuradas
+
+### 📈 Analytics em Produção (Dados Reais)
+- **67 sessões** de pré-diagnóstico completas (26-27 ago/2025)
+- **Taxa conversão**: 96% (49 de 51 que completaram enviaram email)
+- **Público principal**: 40% estudantes, 24% estagiários
+- **Dor mais comum**: Procrastinação (14 usuários)
+- **Atividade crítica**: Aulas (13), treinamentos (8)
+- **Tracking atual**: 2 eventos principais (prediag_completed, email_submitted)
 
 ### 📋 Detalhes Técnicos
 ```typescript
 // APIs implementadas
 POST /api/prediag/diagnose   # Gerar diagnóstico + salvar sessão
-POST /api/prediag/lead       # Capturar email + enviar recomendações
+POST /api/prediag/lead       # Capturar nome + email + enviar recomendações
 GET /api/prediag/options     # Opções dinâmicas por perfil
 
-// Correção crítica implementada
-const { data: sessao } = await supabase
-  .select('*')  // Solução: buscar todos os campos
-  .eq('id', sessionId)
-  .single();
+// Campo nome implementado
+const { name, email, sessionId } = body;  // API agora processa nome
+firstName: name.split(' ')[0],            // Email usa nome real
 
 // Sistema de recomendações funcionando
 450+ sugestões → Scoring por relevância → Top 3 por categoria (HABITO/TAREFA/MINDSET)
@@ -224,7 +229,7 @@ npm run lint         # Verificar código
 
 # Deploy
 git add .            # Adicionar mudanças
-git commit -m "feat: sistema pré-diagnóstico v1.9.0"
+git commit -m "feat: campo nome + personalização emails v1.9.1"
 git push             # Deploy automático
 
 # Debug
@@ -250,13 +255,19 @@ Para adicionar novos usuários:
 3. Fazer commit: `git push`
 4. Deploy automático em 2-3 minutos
 
-### Configuração Email Marketing (v1.9.0)
+### Configuração Email Marketing (v1.9.1)
 ```env
 # Adicionar ao .env.local:
 SUPABASE_URL=https://xxxxxxxxxx.supabase.co
 SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 RESEND_API_KEY=re_xxxxxxxxxxxxxxxxx
 EMAIL_FROM_ADDRESS=onboarding@resend.dev
+```
+
+### SQL para Atualização do Banco (v1.9.1)
+```sql
+-- Adicionar coluna nome na tabela roi_leads
+ALTER TABLE roi_leads ADD COLUMN name VARCHAR(100);
 ```
 
 ## 🎨 Design System
@@ -280,7 +291,7 @@ Baseado na metodologia **ROI do Foco** da newsletter [Conversas no Corredor](htt
 
 ---
 
-📋 **Status:** Sistema 100% operacional com pré-diagnóstico funcionando  
+📋 **Status:** Sistema 100% operacional com pré-diagnóstico + nome personalizado  
 📅 **Última atualização:** 27 de agosto de 2025  
-🔄 **Próxima versão:** Integração com landing page principal + analytics avançados  
+📄 **Próxima versão:** Integração com landing page principal + analytics avançados  
 📊 **Métricas:** [Veja status detalhado no CURRENT-STATUS.md](docs/CURRENT-STATUS.md)

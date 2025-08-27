@@ -23,7 +23,12 @@ function validarEmail(email: string): boolean {
 }
 
 function validarEntrada(body: any): { valido: boolean; erro?: string } {
-  const { email, sessionId } = body;
+  const { name, email, sessionId } = body;
+  
+  // Nome é obrigatório
+  if (!name || typeof name !== 'string' || name.trim().length < 2) {
+    return { valido: false, erro: 'Nome é obrigatório (mínimo 2 caracteres)' };
+  }
   
   // Email é obrigatório
   if (!email || typeof email !== 'string') {
@@ -52,6 +57,7 @@ if (sessionId && sessionId !== null && typeof sessionId === 'string') {
 // ═══════════════════════════════════════════════════════════════════
 
 async function salvarLead(
+  name: string,
   email: string, 
   sessionId?: string,
   metadados: {
@@ -79,10 +85,11 @@ async function salvarLead(
     
     // 2️⃣ Inserir ou atualizar lead
     const { data, error } = await supabase
-      .from('roi_leads')
-      .upsert({
-        email: email.toLowerCase().trim(),
-        source: 'prediagnostico',
+  .from('roi_leads')
+  .upsert({
+    name: name.trim(),
+    email: email.toLowerCase().trim(),
+    source: 'prediagnostico',
         last_session_id: sessionId || null,
         profile_segment: profileSegment,
         pain_segment: painSegment,
@@ -144,7 +151,7 @@ export async function POST(request: NextRequest) {
   try {
     // 1️⃣ Obter dados da requisição
     const body = await request.json();
-    const { email, sessionId } = body;
+    const { name, email, sessionId } = body;
     
     // 2️⃣ Validar entrada
     const validacao = validarEntrada(body);
@@ -162,7 +169,7 @@ export async function POST(request: NextRequest) {
     const userAgent = request.headers.get('user-agent') || 'unknown';
     
     // 4️⃣ Salvar lead
-    const resultado = await salvarLead(email, sessionId, { ip, userAgent });
+    const resultado = await salvarLead(name, email, sessionId, { ip, userAgent });
     const { profileSegment, painSegment } = resultado;
 
     if (!resultado.sucesso) {
@@ -209,8 +216,13 @@ export async function POST(request: NextRequest) {
             );
 
             sessionData = {
-              diagnostico: sessao.results?.mix || null
-            };
+  diagnostico: {
+    essencial: sessao.mix_essencial,
+    estrategica: sessao.mix_estrategico, 
+    tatica: sessao.mix_tatico,
+    distracao: sessao.mix_distracao
+  }
+};
           }
         }
 
@@ -221,7 +233,7 @@ export async function POST(request: NextRequest) {
           html: gerarTemplateEmail({
             profileSegment: profileSegment || 'profissional',
             recomendacoes,
-            firstName: email.split('@')[0],
+            firstName: name.split(' ')[0],
             sessionData
           })
         });
