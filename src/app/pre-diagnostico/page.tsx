@@ -4,14 +4,28 @@
 // Arquivo: src/app/pre-diagnostico/page.tsx
 
 'use client'
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { ArrowLeft, Coffee } from 'lucide-react';
 import Link from 'next/link';
 import { DESIGN_TOKENS } from '@/lib/design-system';
 import { ChatFlow } from '@/components/prediagnostico/ChatFlow';
 
 export default function PreDiagnosticoPage() {
-  
+  const [mounted, setMounted] = useState(false);
+
+  // Evitar hidration mismatch
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) {
+    return (
+      <div className={`min-h-screen bg-[${DESIGN_TOKENS.colors.background}] flex items-center justify-center`}>
+        <div className="text-white">Carregando...</div>
+      </div>
+    );
+  }
+
   return (
     <div 
       className="min-h-screen"

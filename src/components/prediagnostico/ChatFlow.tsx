@@ -96,10 +96,9 @@ export function ChatFlow() {
   // 🔄 CARREGAR OPÇÕES INICIAIS
   // ═══════════════════════════════════════════════════════════════════
 
-//Ajustes para previnir hidratação 
-  React.useLayoutEffect(() => {
-  carregarOpcoes();
-}, []);
+  useEffect(() => {
+    carregarOpcoes();
+  }, []);
 
   const carregarOpcoes = async () => {
     try {

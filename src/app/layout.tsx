@@ -31,7 +31,7 @@ export default function RootLayout({ children }: LayoutProps) {
 
       // Redirecionar não autenticados (exceto página auth)
       // Redirecionar não autenticados (exceto landing e auth)
-if (!session?.user && pathname !== '/auth' && pathname !== '/') {
+if (!session?.user && pathname !== '/auth' && pathname !== '/' && pathname !== '/pre-diagnostico') {
   router.push('/')
 }
     }
@@ -41,7 +41,7 @@ if (!session?.user && pathname !== '/auth' && pathname !== '/') {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
         setUser(session?.user || null)
-        if (!session?.user && pathname !== '/auth' && pathname !== '/') {
+        if (!session?.user && pathname !== '/auth' && pathname !== '/' && pathname !== '/pre-diagnostico') {
   router.push('/')
 }
       }
