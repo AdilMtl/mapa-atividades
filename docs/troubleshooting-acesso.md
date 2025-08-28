@@ -628,9 +628,58 @@ Limpar histórico e dados
 
 ---
 
+## 6. PROBLEMAS ESPECÍFICOS ANDROID/RLS
 
+### 🤖 **PROBLEMA D: ANDROID REDIRECT PARA LANDING PAGE (RESOLVIDO v1.9.3)**
 
-\## 6. COMANDOS DE MONITORAMENTO
+**Sintomas:**
+- Página `/pre-diagnostico` carrega mas redireciona em <1 segundo
+- Funciona no iPhone/Desktop, falha no Android
+- Usuário não consegue acessar pré-diagnóstico
+
+**Causa Raiz:**
+Sistema de autenticação no `layout.tsx` redirecionava usuários não autenticados
+
+**Solução Aplicada:**
+```typescript
+// ANTES (problema):
+if (!session?.user && pathname !== '/auth' && pathname !== '/') {
+  router.push('/')
+}
+
+// DEPOIS (corrigido):
+if (!session?.user && pathname !== '/auth' && pathname !== '/' && pathname !== '/pre-diagnostico') {
+  router.push('/')
+}
+Status: ✅ Resolvido na versão v1.9.3
+
+📧 PROBLEMA E: EMAIL NÃO ENVIADO - RLS BLOQUEANDO (RESOLVIDO v1.9.3)
+Sintomas:
+
+API /api/prediag/lead retorna erro 500
+Console mostra: Error 42501: new row violates row-level security policy
+Pré-diagnóstico funciona mas email não é enviado
+
+Causa Raiz:
+Políticas RLS muito restritivas impediam inserções das APIs públicas na tabela roi_leads
+Solução Aplicada:
+sql-- Remover políticas restritivas
+DROP POLICY IF EXISTS "roi_leads_insert_policy" ON public.roi_leads;
+
+-- Criar política permissiva para APIs públicas
+CREATE POLICY "roi_leads_allow_all" ON public.roi_leads
+FOR ALL
+USING (true)
+WITH CHECK (true);
+Status: ✅ Resolvido na versão v1.9.3
+
+**E RENUMERAR as seções seguintes:**
+- "6. Comandos de Monitoramento" vira "7. Comandos de Monitoramento"  
+- "7. Prevenção e Manutenção" vira "8. Prevenção e Manutenção"
+
+Esses são os únicos acréscimos necessários para documentar os problemas críticos que resolvemos nesta sessão.
+
+\## 7. COMANDOS DE MONITORAMENTO
 
 
 
@@ -736,7 +785,7 @@ ORDER BY au.created\_at DESC;
 
 
 
-\## 7. PREVENÇÃO E MANUTENÇÃO
+\## 8. PREVENÇÃO E MANUTENÇÃO
 
 
 
