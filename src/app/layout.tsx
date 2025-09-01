@@ -6,6 +6,7 @@ import { supabase } from '@/lib/supabase'
 import { Button } from '@/components/ui/button'
 import { BarChart3, Map, User, Settings, LogOut, Menu, X, Target, Shield, TrendingUp } from 'lucide-react'
 import './globals.css'
+import Script from 'next/script'
 
 // Usando as mesmas cores do mapa-atividades
 const BG = "#042f2e"
@@ -110,6 +111,20 @@ if (!session?.user && pathname !== '/auth' && pathname !== '/' && pathname !== '
         `}</style>
       </head>
       <body>
+{/* Google Analytics */}
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=G-0HX5BX2XL7"
+          strategy="afterInteractive"
+        />
+        <Script id="google-analytics" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'G-0HX5BX2XL7');
+          `}
+        </Script>
+
         <div className="min-h-screen">
           {showNavigation ? (
             <div className="flex h-screen">
