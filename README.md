@@ -139,7 +139,28 @@ Atualizar documentação com comandos Windows.
 
 > 💡 **Dica:** Mantenha um documento no Obsidian com estes templates para agilizar o processo!
 
-## 🎯 Versão Atual: v1.9.3 - Correções Android + RLS
+## 🎯 Versão Atual: v1.9.4 - Google Ads Setup Inicial
+
+**Foco da Sessão (01/09/2025):** Configuração inicial Google Ads sem modificação de código
+**Sessão Anterior (27/08/2025):** Correções críticas Android + RLS
+
+### ✅ Google Ads Configurado
+- **🎯 2 Campanhas Ativas** - Analistas (R$ 15/dia) + Gestores (R$ 20/dia)  
+- **📊 Monitoramento Simples** - Google Ads dashboard + Grafana atual
+- **🎯 Targeting Focado** - Palavras-chave de produtividade profissional
+- **📈 Sem Modificações** - Sistema atual suporta tracking via roi_leads
+
+### 🚀 Aquisição Paga Iniciada
+Google Ads → /pre-diagnostico → Sistema atual (nome+email) →
+Dashboard Grafana mostra conversões via roi_leads
+
+### 📊 Abordagem Conservadora
+- **Monitoramento:** Google Ads nativo + Dashboard Grafana existente
+- **Dados:** roi_leads Supabase captura conversões automaticamente
+- **Decisão Futura:** Avaliar UTM/tracking avançado após 2-3 semanas
+
+
+## 🎯 Versão Anterior: v1.9.3 - Correções Android + RLS
 
 **Foco da Sessão (27/08/2025 - Tarde):** Integração landing page + refinamentos UX
 **Sessão Anterior (27/08/2025 - Noite):** Correções críticas Android + RLS

@@ -16,6 +16,28 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [v1.9.4] - 2025-09-01 - 🎯 Google Ads Setup Inicial
+
+### ✅ Adicionado
+- **2 Campanhas Google Ads:** Analistas (R$ 15/dia) + Gestores Multinacionais (R$ 20/dia)
+- **Targeting Estratégico:** Palavras-chave focadas em produtividade e gestão de tempo
+- **Budget Management:** R$ 1.050/mês distribuído entre 2 campanhas
+- **Landing Page:** /pre-diagnostico como destino único
+
+### 🎯 Configurado
+- **Monitoramento:** Google Ads dashboard para métricas iniciais
+- **Conversões:** Tracking via roi_leads existente no Supabase
+- **Alertas:** CPC > R$ 8 para pausar palavras-chave
+- **Otimização:** Plano de realocação após 2 semanas
+
+### 📊 Técnico
+- **Plataforma:** Google Ads com campanhas de pesquisa
+- **Tracking:** Dashboard Grafana atual + dados Supabase roi_leads
+- **Budget:** Controle diário automático Google Ads
+- **Código:** Nenhuma modificação necessária no sistema atual
+
+---
+
 ## [v1.9.3] - 2025-08-27 - 🔧 Correções Críticas Android + RLS
 
 ### 🚨 Corrigido - Problemas Críticos

@@ -12,6 +12,32 @@
 
 ### **🚀 PRINCIPAIS CORREÇÕES:**
 
+---
+
+## 🎯 SESSÃO ATUAL: GOOGLE ADS SETUP INICIAL
+**Data:** 1 de Setembro de 2025  
+**Duração:** ~1 hora de configuração  
+**Impacto:** Médio - Início de campanhas pagas
+
+### **🚀 GOOGLE ADS CONFIGURADO:**
+
+#### ✅ **CAMPANHAS ATIVAS**
+- **Campanha Analistas:** R$ 15/dia focada em profissionais de análise
+  - Palavras-chave: "produtividade trabalho", "foco profissional", "gestão tempo"
+  - Público: 25-40 anos, mercado corporativo
+  - Landing: /pre-diagnostico (sem tracking adicional por enquanto)
+
+- **Campanha Gestores Multinacionais:** R$ 20/dia para lideranças seniores  
+  - Palavras-chave: "eficiência executiva", "ROI tempo", "foco estratégico"
+  - Público: 30-50 anos, multinacionais, alta renda
+  - Landing: /pre-diagnostico (sem tracking adicional por enquanto)
+
+#### ✅ **MONITORAMENTO ATUAL**
+- **Orçamento Total:** R$ 1.050/mês (R$ 35/dia)
+- **Tracking:** Apenas Google Ads dashboard nativo
+- **Métricas-Chave:** CPC < R$ 6, conversões > 10/semana
+- **Analytics:** Dados do roi_leads Supabase para conversõ
+
 #### ✅ **PROBLEMA ANDROID RESOLVIDO**
 - **Causa Raiz:** Sistema de autenticação no `layout.tsx` bloqueava acesso não autenticado à `/pre-diagnostico`
 - **Sintoma:** Redirecionamento automático para landing page em <1 segundo no Android
