@@ -183,7 +183,20 @@ export async function POST(request: NextRequest) {
     if (sessionId) {
       await registrarEventoLead(sessionId, email);
     }
-    
+
+    // 🎯 GOOGLE ADS CONVERSÃO
+const conversionCode = `
+  <script>
+    if (typeof gtag !== 'undefined') {
+      gtag('event', 'conversion', {
+        'send_to': 'AW-16601345592/0K0dCMm6oo4bELjckew9',
+        'value': 1.0,
+        'currency': 'BRL'
+      });
+    }
+  </script>
+`;
+
     // 6️⃣ Enviar email profissional
     try {
       // 🔧 FIX: Inicializar Resend apenas aqui, dentro do try/catch

@@ -453,7 +453,16 @@ export function gerarTemplateEmail(data: TemplateData): string {
             </td>
         </tr>
     </table>
-    
+    <!-- Google Ads Conversion -->
+<script>
+if (typeof gtag !== 'undefined') {
+  gtag('event', 'conversion', {
+    'send_to': 'AW-16601345592/0K0dCMm6oo4bELjckew9',
+    'value': 1.0,
+    'currency': 'BRL'
+  });
+}
+</script>
 </body>
 </html>
   `.trim();

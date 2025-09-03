@@ -122,6 +122,7 @@ if (!session?.user && pathname !== '/auth' && pathname !== '/' && pathname !== '
             function gtag(){dataLayer.push(arguments);}
             gtag('js', new Date());
             gtag('config', 'G-0HX5BX2XL7');
+            gtag('config', 'AW-16601345592');
           `}
         </Script>
 
