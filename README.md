@@ -296,12 +296,7 @@ Para adicionar novos usuários:
 4. Deploy automático em 2-3 minutos
 
 ### Configuração Email Marketing (v1.9.1)
-```env
-# Adicionar ao .env.local:
-SUPABASE_URL=https://xxxxxxxxxx.supabase.co
-SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
-RESEND_API_KEY=re_xxxxxxxxxxxxxxxxx
-EMAIL_FROM_ADDRESS=onboarding@resend.dev
+
 ```
 
 ### SQL para Atualização do Banco (v1.9.1)
