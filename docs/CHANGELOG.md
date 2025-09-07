@@ -16,6 +16,29 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [v1.9.5] - 2025-09-07 - 🎯 UX Melhorado Pré-Diagnóstico
+
+### ✅ Adicionado
+- **Contexto Educativo:** Seções explicativas sobre metodologia ROI do Foco antes do chat
+- **Credibilidade Pessoal:** Biografia do criador com link para LinkedIn
+- **Personalização Destacada:** 3 blocos mostrando inteligência adaptativa do sistema
+- **Sistema Completo:** Nova seção mostrando benefícios da versão completa
+- **Progressive Disclosure:** Interface em 2 estados (educativo → conversacional)
+
+### 🎨 Melhorado
+- **Taxa de Conversão:** Visitantes Google Ads agora entendem proposta de valor
+- **Fluxo UX:** Educação progressiva antes da interação
+- **Consistência Visual:** Reuso de componentes da landing page
+- **Clareza:** Distinção entre pré-diagnóstico gratuito e sistema completo
+
+### 📊 Técnico
+- **Arquivo Modificado:** `src/app/pre-diagnostico/page.tsx`
+- **Novo Estado:** `showChat` para controlar visualização progressiva
+- **Links Adicionados:** LinkedIn do autor + artigo sobre produto digital
+- **Performance:** Mantida com lazy loading do ChatFlow
+
+---
+
 ## [v1.9.4] - 2025-09-01 - 🎯 Google Ads Setup Inicial
 
 ### ✅ Adicionado
