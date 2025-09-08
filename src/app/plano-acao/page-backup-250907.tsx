@@ -3,7 +3,7 @@
 
 'use client'
 import React, { useEffect, useMemo, useState } from "react";
-import { Map, HelpCircle, ChevronDown, Target, Zap, Edit, Filter, LayoutGrid, List, Search, Clock, CheckCircle, Circle, CheckSquare, Eye, ArrowRight, Save } from "lucide-react";
+import { Map, HelpCircle, ChevronDown, Target, Zap, Edit, Filter, LayoutGrid, List, Search, Clock, CheckCircle, Circle, CheckSquare, Eye, ArrowRight } from "lucide-react";
 
 // Importar componentes base da Wave 1
 import { PageContainer, EmptyState } from '@/components/base';
@@ -62,7 +62,6 @@ const [modalDAR_CERTO, setModalDAR_CERTO] = useState<{
   atividadeId?: string;
 }>({ isOpen: false });
 
-const [showInstructions, setShowInstructions] = useState(false);
 const [comoUsarExpanded, setComoUsarExpanded] = useState(false);
 const [zonasFiltradas, setZonasFiltradas] = useState<Set<string>>(new Set());
 const [modoVisualizacao, setModoVisualizacao] = useState<'atividades' | 'taticas'>('atividades');
@@ -70,7 +69,6 @@ const [ordemAtividades, setOrdemAtividades] = useState<'tempo' | 'impacto' | 'cl
 const [filtroTaticas, setFiltroTaticas] = useState<'todas' | 'tarefas' | 'habitos' | 'concluidas' | 'pendentes'>('todas');
 const [ordemTaticas, setOrdemTaticas] = useState<'status' | 'data' | 'alfabetica'>('status');
 const [buscaTatica, setBuscaTatica] = useState('');
-const [showZoneFilters, setShowZoneFilters] = useState(false);
 
   // Converter atividades do mapa para formato do plano
   const atividades = useMemo(() => {
@@ -203,35 +201,28 @@ const [showZoneFilters, setShowZoneFilters] = useState(false);
   // 📊 MÉTRICAS E ESTATÍSTICAS
   // ═══════════════════════════════════════════════════════════════════
   
-const estatisticas = useMemo(() => {
-  const totais = { Distração: 0, Tática: 0, Estratégica: 0, Essencial: 0 };
-  
-  atividades.forEach((a) => {
-    const zona = zonaDaAtividade(a);
-    totais[zona] += a.horasDia || 0;
-  });
-  
-  const totalHoras = Object.values(totais).reduce((s, n) => s + n, 0) || 1;
-  const totalAtividades = atividades.length;
-  const todasTaticas = Object.values(planos).flat();
-  const totalTaticas = todasTaticas.length;
-  const taticasConcluidas = todasTaticas.filter(t => t.concluida).length;
-  
-  // 🆕 CONTAGEM DE TAREFAS E HÁBITOS
-  const tarefas = todasTaticas.filter(t => t.tipo === "TAREFA" || !t.tipo).length;
-  const habitos = todasTaticas.filter(t => t.tipo === "HABITO").length;
-  
-  return {
-    totais,
-    totalHoras,
-    totalAtividades,
-    totalTaticas,
-    taticasConcluidas,
-    tarefas,     // 🆕 NOVO
-    habitos,     // 🆕 NOVO
-    progresso: totalTaticas > 0 ? (taticasConcluidas / totalTaticas) * 100 : 0
-  };
-}, [atividades, planos]);
+  const estatisticas = useMemo(() => {
+    const totais = { Distração: 0, Tática: 0, Estratégica: 0, Essencial: 0 };
+    
+    atividades.forEach((a) => {
+      const zona = zonaDaAtividade(a);
+      totais[zona] += a.horasDia || 0;
+    });
+    
+    const totalHoras = Object.values(totais).reduce((s, n) => s + n, 0) || 1;
+    const totalAtividades = atividades.length;
+    const totalTaticas = Object.values(planos).flat().length;
+    const taticasConcluidas = Object.values(planos).flat().filter(t => t.concluida).length;
+    
+    return {
+      totais,
+      totalHoras,
+      totalAtividades,
+      totalTaticas,
+      taticasConcluidas,
+      progresso: totalTaticas > 0 ? (taticasConcluidas / totalTaticas) * 100 : 0
+    };
+  }, [atividades, planos]);
 
   // ═══════════════════════════════════════════════════════════════════
   // 🎛️ FUNÇÕES DE CONTROLE (MODULARIZADAS)
@@ -666,29 +657,6 @@ function onSalvarModalDAR_CERTO(novaTatica: Tatica) {
     );
   }
 
-// ✅ VALIDAÇÃO: Redirecionar se não tem atividades
-  if (!isLoading && atividadesMap.length === 0) {
-    return (
-      <PageContainer>
-        <div className="text-center py-16">
-          <Map className="w-16 h-16 mx-auto mb-4 text-white/40" />
-          <h2 className="text-2xl font-semibold mb-3 text-white">
-            Primeiro, mapeie suas atividades
-          </h2>
-          <p className="text-white/70 mb-6 max-w-md mx-auto">
-            Para criar um plano de ação, você precisa ter atividades mapeadas no dashboard.
-          </p>
-          <button 
-            onClick={() => window.location.href = '/dashboard'}
-            className="px-6 py-3 rounded-xl bg-orange-500 text-white font-medium hover:opacity-90 transition-all"
-          >
-            Ir para o Mapa de Atividades
-          </button>
-        </div>
-      </PageContainer>
-    );
-  }
-
   return (
     <PageContainer>
       {/* 📋 HEADER MODULAR */}
@@ -769,7 +737,7 @@ function onSalvarModalDAR_CERTO(novaTatica: Tatica) {
         </div>
       </div>
 
-     
+      {/* 🎯 COMO USAR ESTE PLANO DE AÇÃO */}
 
       {/* 📊 ESTATÍSTICAS MODULARES */}
       <PlanoStats 
@@ -778,38 +746,40 @@ function onSalvarModalDAR_CERTO(novaTatica: Tatica) {
       />
 
       {/* 🎯 COMO USAR ESTE PLANO DE AÇÃO */}
-<div className="mb-4 sm:mb-6">
-  
-  {/* Header Retrátil - SEM CARD */}
-  <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-4">
-    <button
-      onClick={() => setComoUsarExpanded(!comoUsarExpanded)}
-      className="w-full flex items-center justify-between text-left focus:outline-none group"
-    >
-      <div className="flex items-center gap-3">
-        <div className="w-10 h-10 bg-orange-600/20 rounded-lg flex items-center justify-center">
-          <HelpCircle className="w-5 h-5 text-orange-400" />
-        </div>
-        <div>
-          <h2 className="text-lg font-semibold text-white group-hover:text-orange-300 transition-colors">
-            Como usar este plano de ação
-          </h2>
-          <p className="text-sm text-white/60">
-            Transforme diagnósticos em ações práticas
-          </p>
-        </div>
-      </div>
-      
-      <ChevronDown className={cn(
-        "w-5 h-5 text-white/60 transition-transform duration-200",
-        comoUsarExpanded && "rotate-180"
-      )} />
-    </button>
-  </div>
+      <div className="mb-6 sm:mb-8">
+        
+        {/* Header Retrátil */}
+        <Card className="bg-white/5 backdrop-blur-sm border border-white/10 mb-4">
+          <CardContent className="p-4">
+            <button
+              onClick={() => setComoUsarExpanded(!comoUsarExpanded)}
+              className="w-full flex items-center justify-between text-left focus:outline-none group"
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-orange-600/20 rounded-lg flex items-center justify-center">
+                  <HelpCircle className="w-5 h-5 text-orange-400" />
+                </div>
+                <div>
+                  <h2 className="text-lg font-semibold text-white group-hover:text-orange-300 transition-colors">
+                    Como usar este plano de ação
+                  </h2>
+                  <p className="text-sm text-white/60">
+                    Transforme diagnósticos em ações práticas
+                  </p>
+                </div>
+              </div>
+              
+              <ChevronDown className={cn(
+                "w-5 h-5 text-white/60 transition-transform duration-200",
+                comoUsarExpanded && "rotate-180"
+              )} />
+            </button>
+          </CardContent>
+        </Card>
 
         {/* Conteúdo Expandido */}
         <div className={`overflow-hidden transition-all duration-300 ease-in-out ${
-          comoUsarExpanded ? 'max-h-[1000px] opacity-100 mt-4' : 'max-h-0 opacity-0'
+          comoUsarExpanded ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
         }`}>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 pb-4">
             
@@ -820,25 +790,25 @@ function onSalvarModalDAR_CERTO(novaTatica: Tatica) {
                   <div className="p-2 rounded-lg bg-blue-600/20">
                     <Target className="w-5 h-5 text-blue-300" />
                   </div>
-                  <h3 className="font-semibold text-blue-200">Suas Atividades Priorizadas</h3>
+                  <h3 className="font-semibold text-blue-200">Suas tarefas estão ordenadas</h3>
                 </div>
                 <p className="text-blue-100 text-sm leading-relaxed">
-                  Comece pelas primeiras da lista - elas têm maior potencial de impacto baseado no seu diagnóstico. Defina quais Táticas (Tarefas ou Hábitos) você vai usar para eliminar o que tem baixo impacto e potencializar o que dá mais resultado.
+                  Comece pelas primeiras da lista - elas têm maior potencial de impacto baseado no seu diagnóstico.
                 </p>
               </CardContent>
             </Card>
 
-            {/* Passo 2: Táticas Inteligentes */}
+            {/* Passo 2: Táticas Automáticas */}
             <Card className="bg-gradient-to-br from-green-600/10 to-green-700/10 border-green-400/20 backdrop-blur-sm">
               <CardContent className="p-6">
                 <div className="flex items-center gap-3 mb-4">
                   <div className="p-2 rounded-lg bg-green-600/20">
                     <Zap className="w-5 h-5 text-green-300" />
                   </div>
-                  <h3 className="font-semibold text-green-200">Sistema Inteligente ROI do Foco</h3>
+                  <h3 className="font-semibold text-green-200">Táticas sugeridas automaticamente</h3>
                 </div>
                 <p className="text-green-100 text-sm leading-relaxed">
-                  Não sabe por onde começar? Use o botão "Aplicar Sugestões Inteligentes" para gerar Táticas (Tarefas ou Hábitos) automaticamente com base nas suas principais atividades.
+                  Use o botão "Aplicar Táticas Automaticamente" para gerar sugestões baseadas no Framework DAR CERTO.
                 </p>
               </CardContent>
             </Card>
@@ -850,10 +820,11 @@ function onSalvarModalDAR_CERTO(novaTatica: Tatica) {
                   <div className="p-2 rounded-lg bg-orange-600/20">
                     <Edit className="w-5 h-5 text-orange-300" />
                   </div>
-                  <h3 className="font-semibold text-orange-200">Seu plano detalhado</h3>
+                  <h3 className="font-semibold text-orange-200">Insira e edite suas táticas</h3>
                 </div>
                 <p className="text-orange-100 text-sm leading-relaxed mb-4">
-                  Edite e Acompanhe as suas táticas individuais (Tarefas ou Hábitos). Você pode adicionar prazos, comentários, detalhes de como executar tarefas ou inserir frequência e gatilhos para seus hábitos.              </p>
+                  Adicione táticas individuais no formato TAREFA ou HÁBITO. Edite qualquer uma conforme sua necessidade.
+                </p>
                 <div className="p-3 rounded-lg bg-orange-600/10 border border-orange-400/20">
                   <div className="flex items-center gap-2 mb-2">
                     <CheckCircle className="w-4 h-4 text-orange-300" />
@@ -871,446 +842,303 @@ function onSalvarModalDAR_CERTO(novaTatica: Tatica) {
       </div>
 
       {/* 🎯 ORIENTAÇÃO DO DIAGNÓSTICO */}
-   <OrientacaoDiagnostico 
-  dadosDiagnostico={dadosDiagnostico}
-  onAplicarTaticasAutomaticas={() => {
-    console.log('Botão clicado!');
-    
-    const todasTaticasExistentes = Object.values(planos).flat();
-    console.log('Total de táticas existentes:', todasTaticasExistentes.length);
-    console.log('Número de atividades:', atividades.length);
-    
-    // LIMITE MAIS RESTRITIVO: mais de 1 tática por atividade em média
-    if (todasTaticasExistentes.length > 0) {
-      console.log('Deveria mostrar confirmação');
-      const confirmar = confirm("Você já tem táticas criadas. Aplicar sugestões automáticas pode gerar táticas duplicadas ou similares. Deseja continuar mesmo assim?");
-      if (!confirmar) {
-        console.log('Usuário cancelou');
-        return;
-      }
-    }
-    
-    console.log('Chamando aplicarTaticasAutomaticas');
-    aplicarTaticasAutomaticas();
-  }}
-/>
-{/* 📊 FILTROS POR ZONA - CENTRALIZADO COM DROPDOWN */}
-<div className="mb-4 sm:mb-6">
-  
-  {/* Header clicável - LARGURA COMPLETA */}
-  <div className="w-full mb-4">
-    <button
-      onClick={() => setShowZoneFilters(!showZoneFilters)}
-      className="w-full flex items-center justify-between p-4 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-all duration-200"
-    >
-      <div className="flex items-center gap-3">
-  <div className="w-10 h-10 bg-orange-600/20 rounded-lg flex items-center justify-center">
-    <Filter className="w-5 h-5 text-orange-400" />
-  </div>
-  <div>
-    <h3 className="text-lg font-semibold text-white">
+      <OrientacaoDiagnostico 
+        dadosDiagnostico={dadosDiagnostico}
+        onAplicarTaticasAutomaticas={aplicarTaticasAutomaticas}
+      />
+{/* 📊 FILTROS POR ZONA */}
+      <div className="mb-6 sm:mb-8">
+        <div className="flex items-center gap-3 mb-4">
+          <Filter className="w-5 h-5 text-orange-400" />
+          <h3 className="text-lg font-semibold text-white">
             Filtrar atividades por zona
           </h3>
-          <p className="text-sm text-white/60">
+          <span className="text-sm text-white/60">
             ({zonasFiltradas.size === 0 ? 'Todas' : zonasFiltradas.size} zona{zonasFiltradas.size !== 1 ? 's' : ''} selecionada{zonasFiltradas.size !== 1 ? 's' : ''})
-          </p>
+          </span>
+        </div>
+        
+        {/* Matriz 2x2 de Filtros */}
+        <div className="grid grid-cols-2 gap-3 max-w-md">
+          
+          {/* Linha Superior: Tática + Essencial */}
+          <button
+            onClick={() => toggleZona('Tática')}
+            className={cn(
+              "p-4 rounded-xl text-sm font-medium transition-all duration-200",
+              "border-2 hover:scale-105",
+              zonasFiltradas.has('Tática') 
+                ? "bg-yellow-600 border-yellow-600 text-white shadow-lg" 
+                : "bg-transparent border-yellow-600/30 text-yellow-300 hover:border-yellow-600/50"
+            )}
+          >
+            <div className="text-center">
+              <div className="font-bold">🟡 TÁTICA</div>
+              <div className="text-xs mt-1 opacity-90">
+                Clara, baixo impacto
+              </div>
+            </div>
+          </button>
+
+          <button
+            onClick={() => toggleZona('Essencial')}
+            className={cn(
+              "p-4 rounded-xl text-sm font-medium transition-all duration-200",
+              "border-2 hover:scale-105",
+              zonasFiltradas.has('Essencial') 
+                ? "bg-green-600 border-green-600 text-white shadow-lg" 
+                : "bg-transparent border-green-600/30 text-green-300 hover:border-green-600/50"
+            )}
+          >
+            <div className="text-center">
+              <div className="font-bold">🟢 ESSENCIAL</div>
+              <div className="text-xs mt-1 opacity-90">
+                Clara, alto impacto
+              </div>
+            </div>
+          </button>
+
+          {/* Linha Inferior: Distração + Estratégica */}
+          <button
+            onClick={() => toggleZona('Distração')}
+            className={cn(
+              "p-4 rounded-xl text-sm font-medium transition-all duration-200",
+              "border-2 hover:scale-105",
+              zonasFiltradas.has('Distração') 
+                ? "bg-red-600 border-red-600 text-white shadow-lg" 
+                : "bg-transparent border-red-600/30 text-red-300 hover:border-red-600/50"
+            )}
+          >
+            <div className="text-center">
+              <div className="font-bold">🔴 DISTRAÇÃO</div>
+              <div className="text-xs mt-1 opacity-90">
+                Baixa clareza e impacto
+              </div>
+            </div>
+          </button>
+
+          <button
+            onClick={() => toggleZona('Estratégica')}
+            className={cn(
+              "p-4 rounded-xl text-sm font-medium transition-all duration-200",
+              "border-2 hover:scale-105",
+              zonasFiltradas.has('Estratégica') 
+                ? "bg-blue-600 border-blue-600 text-white shadow-lg" 
+                : "bg-transparent border-blue-600/30 text-blue-300 hover:border-blue-600/50"
+            )}
+          >
+            <div className="text-center">
+              <div className="font-bold">🔵 ESTRATÉGICA</div>
+              <div className="text-xs mt-1 opacity-90">
+                Alto impacto, pouca clareza
+              </div>
+            </div>
+          </button>
+
         </div>
       </div>
-      <ChevronDown className={cn(
-        "w-5 h-5 text-white/60 transition-transform duration-200",
-        showZoneFilters && "rotate-180"
-      )} />
-    </button>
-  </div>
 
-  {/* Dropdown expandido - ALTURA MAIOR */}
-  <div className={`overflow-hidden transition-all duration-300 ease-in-out ${
-    showZoneFilters ? 'max-h-100 opacity-100' : 'max-h-0 opacity-0'
-  }`}>
-    
-    {/* Mobile: Dropdown */}
-    <div className="sm:hidden mb-4">
-      <select 
-        className="w-full p-3 rounded-lg bg-gray-900 border border-white/20 text-white"
-        value={zonasFiltradas.size === 0 ? 'all' : Array.from(zonasFiltradas)[0] || 'all'}
-        onChange={(e) => {
-          if (e.target.value === 'all') {
-            setZonasFiltradas(new Set());
-          } else {
-            setZonasFiltradas(new Set([e.target.value]));
-          }
-        }}
-      >
-        <option value="all">Todas as zonas</option>
-        <option value="Distração">🔴 Distração</option>
-        <option value="Tática">🟡 Tática</option>
-        <option value="Estratégica">🔵 Estratégica</option>
-        <option value="Essencial">🟢 Essencial</option>
-      </select>
-    </div>
-    
-    {/* Desktop: Grid centralizado */}
-    <div className="hidden sm:flex justify-center">
-      <div className="grid grid-cols-2 gap-3 max-w-md">
-        {/* Linha Superior: Tática + Essencial */}
-        <button
-          onClick={() => toggleZona('Tática')}
-          className={cn(
-            "p-4 rounded-xl text-sm font-medium transition-all duration-200",
-            "border-2 hover:scale-105",
-            zonasFiltradas.has('Tática') 
-              ? "bg-yellow-600 border-yellow-600 text-white shadow-lg" 
-              : "bg-transparent border-yellow-600/30 text-yellow-300 hover:border-yellow-600/50"
-          )}
-        >
-          <div className="text-center">
-            <div className="font-bold">🟡 TÁTICA</div>
-            <div className="text-xs mt-1 opacity-90">
-              Clara, baixo impacto
-            </div>
-          </div>
-        </button>
-
-        <button
-          onClick={() => toggleZona('Essencial')}
-          className={cn(
-            "p-4 rounded-xl text-sm font-medium transition-all duration-200",
-            "border-2 hover:scale-105",
-            zonasFiltradas.has('Essencial') 
-              ? "bg-green-600 border-green-600 text-white shadow-lg" 
-              : "bg-transparent border-green-600/30 text-green-300 hover:border-green-600/50"
-          )}
-        >
-          <div className="text-center">
-            <div className="font-bold">🟢 ESSENCIAL</div>
-            <div className="text-xs mt-1 opacity-90">
-              Clara, alto impacto
-            </div>
-          </div>
-        </button>
-
-        {/* Linha Inferior: Distração + Estratégica */}
-        <button
-          onClick={() => toggleZona('Distração')}
-          className={cn(
-            "p-4 rounded-xl text-sm font-medium transition-all duration-200",
-            "border-2 hover:scale-105",
-            zonasFiltradas.has('Distração') 
-              ? "bg-red-600 border-red-600 text-white shadow-lg" 
-              : "bg-transparent border-red-600/30 text-red-300 hover:border-red-600/50"
-          )}
-        >
-          <div className="text-center">
-            <div className="font-bold">🔴 DISTRAÇÃO</div>
-            <div className="text-xs mt-1 opacity-90">
-              Baixa clareza e impacto
-            </div>
-          </div>
-        </button>
-
-        <button
-          onClick={() => toggleZona('Estratégica')}
-          className={cn(
-            "p-4 rounded-xl text-sm font-medium transition-all duration-200",
-            "border-2 hover:scale-105",
-            zonasFiltradas.has('Estratégica') 
-              ? "bg-blue-600 border-blue-600 text-white shadow-lg" 
-              : "bg-transparent border-blue-600/30 text-blue-300 hover:border-blue-600/50"
-          )}
-        >
-          <div className="text-center">
-            <div className="font-bold">🔵 ESTRATÉGICA</div>
-            <div className="text-xs mt-1 opacity-90">
-              Alto impacto, pouca clareza
-            </div>
-          </div>
-        </button>
-      </div>
-    </div>
-  </div>
-</div>
-    {/* 🔄 TOGGLE DE VISUALIZAÇÃO */}
-{/* 🔄 TOGGLE DE VISUALIZAÇÃO - APENAS REORGANIZADO */}
-<div className="mb-6 sm:mb-8">
-  
-  {/* Abas principais centralizadas - NOVO */}
-  <div className="flex items-center justify-center mb-4">
-    <div className="flex items-center gap-1 p-1 rounded-xl bg-white/5 border border-white/10 w-full sm:w-auto">
-      <button
-        onClick={() => setModoVisualizacao('atividades')}
-        className={cn(
-          "flex-1 sm:flex-initial flex items-center justify-center gap-2 px-3 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-medium transition-all duration-200",
-          modoVisualizacao === 'atividades'
-            ? "bg-orange-600 text-white shadow-lg"
-            : "bg-white/5 text-white/70 hover:bg-white/10"
-        )}
-      >
-        <LayoutGrid className="w-4 h-4" />
-        <span>Atividades</span>
-      </button>
-      <button
-        onClick={() => setModoVisualizacao('taticas')}
-        className={cn(
-          "flex-1 sm:flex-initial flex items-center justify-center gap-2 px-3 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-medium transition-all duration-200",
-          modoVisualizacao === 'taticas'
-            ? "bg-orange-600 text-white shadow-lg"
-            : "bg-white/5 text-white/70 hover:bg-white/10"
-        )}
-      >
-        <List className="w-4 h-4" />
-        <span>Táticas</span>
-      </button>
-    </div>
-  </div>
-
-  {/* RESTO EXATAMENTE IGUAL - copiando do código original */}
-  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
-    
-    {/* Controles Contextuais */}
-    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 w-full sm:w-auto">
-      {modoVisualizacao === 'atividades' ? (
-        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 w-full sm:w-auto">
-          <span className="text-sm text-white/60">Ordenar:</span>
-          <div className="grid grid-cols-2 sm:flex gap-2 w-full sm:w-auto">
+      {/* 🔄 TOGGLE DE VISUALIZAÇÃO */}
+      <div className="mb-6 sm:mb-8">
+        <div className="flex items-center justify-between mb-4">
+          {/* Toggle Atividades vs Táticas */}
+          <div className="flex items-center gap-2">
             <button
-              onClick={() => setOrdemAtividades('tempo')}
+              onClick={() => setModoVisualizacao('atividades')}
               className={cn(
-                "flex items-center justify-center gap-1 px-2 sm:px-3 py-2 rounded-lg text-xs sm:text-sm font-medium transition-all duration-200",
-                ordemAtividades === 'tempo'
+                "flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200",
+                modoVisualizacao === 'atividades'
                   ? "bg-orange-600 text-white shadow-lg"
                   : "bg-white/5 text-white/70 hover:bg-white/10"
               )}
             >
-              <Clock className="w-3 h-3 sm:w-4 sm:h-4" />
-              <span className="hidden sm:inline">Tempo ↓</span>
-              <span className="sm:hidden">Tempo</span>
+              <LayoutGrid className="w-4 h-4" />
+              Por Atividades
             </button>
             <button
-              onClick={() => setOrdemAtividades('impacto')}
+              onClick={() => setModoVisualizacao('taticas')}
               className={cn(
-                "flex items-center justify-center gap-1 px-2 sm:px-3 py-2 rounded-lg text-xs sm:text-sm font-medium transition-all duration-200",
-                ordemAtividades === 'impacto'
+                "flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200",
+                modoVisualizacao === 'taticas'
                   ? "bg-orange-600 text-white shadow-lg"
                   : "bg-white/5 text-white/70 hover:bg-white/10"
               )}
             >
-              <Target className="w-3 h-3 sm:w-4 sm:h-4" />
-              <span className="hidden sm:inline">Impacto ↓</span>
-              <span className="sm:hidden">Impacto</span>
+              <List className="w-4 h-4" />
+              Por Táticas
             </button>
-            <button
-              onClick={() => setOrdemAtividades('clareza')}
-              className={cn(
-                "flex items-center justify-center gap-1 px-2 sm:px-3 py-2 rounded-lg text-xs sm:text-sm font-medium transition-all duration-200",
-                ordemAtividades === 'clareza'
-                  ? "bg-orange-600 text-white shadow-lg"
-                  : "bg-white/5 text-white/70 hover:bg-white/10"
-              )}
-            >
-              <Eye className="w-3 h-3 sm:w-4 sm:h-4" />
-              <span className="hidden sm:inline">Clareza ↓</span>
-              <span className="sm:hidden">Clareza</span>
-            </button>
-            <button
-              onClick={() => setOrdemAtividades('alfabetica')}
-              className={cn(
-                "flex items-center justify-center px-2 sm:px-3 py-2 rounded-lg text-xs sm:text-sm font-medium transition-all duration-200",
-                ordemAtividades === 'alfabetica'
-                  ? "bg-orange-600 text-white shadow-lg"
-                  : "bg-white/5 text-white/70 hover:bg-white/10"
-              )}
-            >
-              🔤 A-Z
-            </button>
+          </div>
+
+          {/* Controles Contextuais */}
+          <div className="flex items-center gap-3">
+            {modoVisualizacao === 'atividades' ? (
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-white/60">Ordenar:</span>
+                <button
+                  onClick={() => setOrdemAtividades('tempo')}
+                  className={cn(
+                    "flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200",
+                    ordemAtividades === 'tempo'
+                      ? "bg-orange-600 text-white shadow-lg"
+                      : "bg-white/5 text-white/70 hover:bg-white/10"
+                  )}
+                >
+                  <Clock className="w-4 h-4" />
+                  Tempo ↓
+                </button>
+                <button
+                  onClick={() => setOrdemAtividades('impacto')}
+                  className={cn(
+                    "flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200",
+                    ordemAtividades === 'impacto'
+                      ? "bg-orange-600 text-white shadow-lg"
+                      : "bg-white/5 text-white/70 hover:bg-white/10"
+                  )}
+                >
+                  <Target className="w-4 h-4" />
+                  Impacto ↓
+                </button>
+                <button
+                  onClick={() => setOrdemAtividades('clareza')}
+                  className={cn(
+                    "flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200",
+                    ordemAtividades === 'clareza'
+                      ? "bg-orange-600 text-white shadow-lg"
+                      : "bg-white/5 text-white/70 hover:bg-white/10"
+                  )}
+                >
+                  <Eye className="w-4 h-4" />
+                  Clareza ↓
+                </button>
+                <button
+                  onClick={() => setOrdemAtividades('alfabetica')}
+                  className={cn(
+                    "flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200",
+                    ordemAtividades === 'alfabetica'
+                      ? "bg-orange-600 text-white shadow-lg"
+                      : "bg-white/5 text-white/70 hover:bg-white/10"
+                  )}
+                >
+                  🔤 A-Z
+                </button>
+              </div>
+            ) : (
+              <>
+                <div className="relative">
+                  <Search className="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-white/40" />
+                  <input
+                    type="text"
+                    placeholder="Buscar táticas..."
+                    value={buscaTatica}
+                    onChange={(e) => setBuscaTatica(e.target.value)}
+                    className="bg-white/5 border border-white/10 rounded-lg pl-10 pr-3 py-2 text-sm text-white placeholder-white/40 w-48"
+                  />
+                </div>
+                
+                {/* Filtro por Tipo */}
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-white/60">Tipo:</span>
+                  <button
+                    onClick={() => setFiltroTaticas('todas')}
+                    className={cn(
+                      "px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200",
+                      filtroTaticas === 'todas'
+                        ? "bg-orange-600 text-white shadow-lg"
+                        : "bg-white/5 text-white/70 hover:bg-white/10"
+                    )}
+                  >
+                    Todas
+                  </button>
+                  <button
+                    onClick={() => setFiltroTaticas('tarefas')}
+                    className={cn(
+                      "flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200",
+                      filtroTaticas === 'tarefas'
+                        ? "bg-orange-600 text-white shadow-lg"
+                        : "bg-white/5 text-white/70 hover:bg-white/10"
+                    )}
+                  >
+                    📋 Tarefas
+                  </button>
+                  <button
+                    onClick={() => setFiltroTaticas('habitos')}
+                    className={cn(
+                      "flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200",
+                      filtroTaticas === 'habitos'
+                        ? "bg-orange-600 text-white shadow-lg"
+                        : "bg-white/5 text-white/70 hover:bg-white/10"
+                    )}
+                  >
+                    🔄 Hábitos
+                  </button>
+                </div>
+
+                {/* Ordenação específica para táticas */}
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-white/60">Ordenar:</span>
+                  <button
+                    onClick={() => setOrdemTaticas('status')}
+                    className={cn(
+                      "flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200",
+                      ordemTaticas === 'status'
+                        ? "bg-orange-600 text-white shadow-lg"
+                        : "bg-white/5 text-white/70 hover:bg-white/10"
+                    )}
+                  >
+                    🎯 Status
+                  </button>
+                  <button
+                    onClick={() => setOrdemTaticas('data')}
+                    className={cn(
+                      "flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200",
+                      ordemTaticas === 'data'
+                        ? "bg-orange-600 text-white shadow-lg"
+                        : "bg-white/5 text-white/70 hover:bg-white/10"
+                    )}
+                  >
+                    📅 Data
+                  </button>
+                  <button
+                    onClick={() => setOrdemTaticas('alfabetica')}
+                    className={cn(
+                      "flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200",
+                      ordemTaticas === 'alfabetica'
+                        ? "bg-orange-600 text-white shadow-lg"
+                        : "bg-white/5 text-white/70 hover:bg-white/10"
+                    )}
+                  >
+                    🔤 A-Z
+                  </button>
+                </div>
+              </>
+            )}
           </div>
         </div>
-      ) : (
-        <>
-          {/* Busca - Desktop e Mobile */}
-          <div className="relative w-full sm:w-48">
-            <Search className="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-white/40" />
-            <input
-              type="text"
-              placeholder="Buscar táticas..."
-              value={buscaTatica}
-              onChange={(e) => setBuscaTatica(e.target.value)}
-              className="bg-white/5 border border-white/10 rounded-lg pl-10 pr-3 py-2 text-sm text-white placeholder-white/40 w-full"
-            />
+
+        {/* Estatísticas Contextuais */}
+        <div className="flex items-center justify-between">
+          <div className="text-sm text-white/60">
+            {modoVisualizacao === 'atividades' ? (
+              `${atividadesFiltradas.length} atividades • ${atividadesFiltradas.reduce((sum, a) => sum + (a.horasMes || 0), 0).toFixed(1)}h/mês total`
+            ) : (
+              `${todasTaticas.length} táticas • ${todasTaticas.filter(t => t.concluida).length} concluídas • ${todasTaticas.filter(t => t.tipo === 'TAREFA').length} tarefas • ${todasTaticas.filter(t => t.tipo === 'HABITO').length} hábitos`
+            )}
           </div>
           
-          {/* Filtros Mobile */}
-          <div className="flex flex-col gap-2 w-full sm:hidden">
-            <div className="grid grid-cols-3 gap-2">
-              <button
-                onClick={() => setFiltroTaticas('todas')}
-                className={cn(
-                  "px-2 py-2 rounded-lg text-xs font-medium transition-all duration-200",
-                  filtroTaticas === 'todas'
-                    ? "bg-orange-600 text-white shadow-lg"
-                    : "bg-white/5 text-white/70"
-                )}
-              >
-                Todas
-              </button>
-              <button
-                onClick={() => setFiltroTaticas('tarefas')}
-                className={cn(
-                  "px-2 py-2 rounded-lg text-xs font-medium transition-all duration-200",
-                  filtroTaticas === 'tarefas'
-                    ? "bg-orange-600 text-white shadow-lg"
-                    : "bg-white/5 text-white/70"
-                )}
-              >
-               📋 Tarefas
-              </button>
-              <button
-                onClick={() => setFiltroTaticas('habitos')}
-                className={cn(
-                  "px-2 py-2 rounded-lg text-xs font-medium transition-all duration-200",
-                  filtroTaticas === 'habitos'
-                    ? "bg-orange-600 text-white shadow-lg"
-                    : "bg-white/5 text-white/70"
-                )}
-              >
-                🔄 Hábitos
-              </button>
-            </div>
-            <div className="grid grid-cols-3 gap-2">
-              <button
-                onClick={() => setOrdemTaticas('status')}
-                className={cn(
-                  "px-2 py-2 rounded-lg text-xs font-medium transition-all duration-200",
-                  ordemTaticas === 'status'
-                    ? "bg-orange-600 text-white shadow-lg"
-                    : "bg-white/5 text-white/70"
-                )}
-              >
-               🎯 Status
-              </button>
-              <button
-                onClick={() => setOrdemTaticas('data')}
-                className={cn(
-                  "px-2 py-2 rounded-lg text-xs font-medium transition-all duration-200",
-                  ordemTaticas === 'data'
-                    ? "bg-orange-600 text-white shadow-lg"
-                    : "bg-white/5 text-white/70"
-                )}
-              >
-               📅 Data
-              </button>
-              <button
-                onClick={() => setOrdemTaticas('alfabetica')}
-                className={cn(
-                  "px-2 py-2 rounded-lg text-xs font-medium transition-all duration-200",
-                  ordemTaticas === 'alfabetica'
-                    ? "bg-orange-600 text-white shadow-lg"
-                    : "bg-white/5 text-white/70"
-                )}
-              >
-                🔤 A-Z
-              </button>
-            </div>
-          </div>
+          {/* Botão Salvar Plano */}
+          <button
+            onClick={salvarPlano}
+            className={cn(
+              "flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200",
+              "bg-green-600 hover:bg-green-700 text-white shadow-lg hover:scale-105"
+            )}
+          >
+            <CheckCircle className="w-4 h-4" />
+            Salvar Plano
+          </button>
+        </div>
+      </div>
 
-          {/* Filtros Desktop */}
-          <div className="hidden sm:flex items-center gap-2">
-            <span className="text-sm text-white/60">Tipo:</span>
-            <button
-              onClick={() => setFiltroTaticas('todas')}
-              className={cn(
-                "px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200",
-                filtroTaticas === 'todas'
-                  ? "bg-orange-600 text-white shadow-lg"
-                  : "bg-white/5 text-white/70 hover:bg-white/10"
-              )}
-            >
-              Todas
-            </button>
-            <button
-              onClick={() => setFiltroTaticas('tarefas')}
-              className={cn(
-                "flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200",
-                filtroTaticas === 'tarefas'
-                  ? "bg-orange-600 text-white shadow-lg"
-                  : "bg-white/5 text-white/70 hover:bg-white/10"
-              )}
-            >
-              📋 Tarefas
-            </button>
-            <button
-              onClick={() => setFiltroTaticas('habitos')}
-              className={cn(
-                "flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200",
-                filtroTaticas === 'habitos'
-                  ? "bg-orange-600 text-white shadow-lg"
-                  : "bg-white/5 text-white/70 hover:bg-white/10"
-              )}
-            >
-              🔄 Hábitos
-            </button>
-          </div>
-
-          <div className="hidden sm:flex items-center gap-2">
-            <span className="text-sm text-white/60">Ordenar:</span>
-            <button
-              onClick={() => setOrdemTaticas('status')}
-              className={cn(
-                "flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200",
-                ordemTaticas === 'status'
-                  ? "bg-orange-600 text-white shadow-lg"
-                  : "bg-white/5 text-white/70 hover:bg-white/10"
-              )}
-            >
-              🎯 Status
-            </button>
-            <button
-              onClick={() => setOrdemTaticas('data')}
-              className={cn(
-                "flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200",
-                ordemTaticas === 'data'
-                  ? "bg-orange-600 text-white shadow-lg"
-                  : "bg-white/5 text-white/70 hover:bg-white/10"
-              )}
-            >
-              📅 Data
-            </button>
-            <button
-              onClick={() => setOrdemTaticas('alfabetica')}
-              className={cn(
-                "flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200",
-                ordemTaticas === 'alfabetica'
-                  ? "bg-orange-600 text-white shadow-lg"
-                  : "bg-white/5 text-white/70 hover:bg-white/10"
-              )}
-            >
-              🔤 A-Z
-            </button>
-          </div>
-        </>
-      )}
-    </div>
-  </div>
-
-  {/* Estatísticas Contextuais */}
-  <div className="flex items-center justify-between">
-    <div className="text-sm text-white/60">
-      {modoVisualizacao === 'atividades' ? (
-        `${atividadesFiltradas.length} atividades • ${atividadesFiltradas.reduce((sum, a) => sum + (a.horasMes || 0), 0).toFixed(1)}h/mês total`
-      ) : (
-        `${todasTaticas.length} táticas • ${todasTaticas.filter(t => t.concluida).length} concluídas • ${todasTaticas.filter(t => t.tipo === 'TAREFA').length} tarefas • ${todasTaticas.filter(t => t.tipo === 'HABITO').length} hábitos`
-      )}
-    </div>
-    
-    {/* Botão Salvar Plano */}
-    <button
-  onClick={salvarPlano}
-  className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 bg-orange-600 hover:bg-orange-700 text-white shadow-lg hover:scale-105"
->
-  <Save className="w-4 h-4" />
-  Salvar Plano
-</button>
-  </div>
-</div>
       {/* 📋 CONTEÚDO DINÂMICO BASEADO NA VISUALIZAÇÃO */}
       {atividades.length === 0 ? (
         <EmptyState
@@ -1376,7 +1204,7 @@ function onSalvarModalDAR_CERTO(novaTatica: Tatica) {
                     .map((tatica) => (
                       <div 
                         key={tatica.id}
-                        className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-4 rounded-lg bg-white/5 hover:bg-white/10 transition-colors"
+                        className="flex items-center justify-between p-4 rounded-lg bg-white/5 hover:bg-white/10 transition-colors"
                       >
                         <div className="flex items-center gap-4">
                           <button
@@ -1411,20 +1239,20 @@ function onSalvarModalDAR_CERTO(novaTatica: Tatica) {
                           </div>
                         </div>
 
-                        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 mt-3 sm:mt-0">
+                        <div className="flex items-center gap-3">
                           <button
                             onClick={() => {
                               // Ir para a atividade
                               setModoVisualizacao('atividades');
                               setExpandidos(prev => ({ ...prev, [tatica.atividade.id]: true }));
                             }}
-                            className="text-xs px-3 py-1 rounded-lg bg-white/10 text-white/70 hover:text-white hover:bg-white/20 transition-colors w-full sm:w-auto text-left"
+                            className="text-xs px-3 py-1 rounded-lg bg-white/10 text-white/70 hover:text-white hover:bg-white/20 transition-colors"
                           >
                             → {tatica.atividade.titulo} ({tatica.zona})
                           </button>
                           <button
                             onClick={() => onEditarTatica(tatica.atividade, tatica)}
-                            className="p-2 rounded-lg hover:bg-white/10 transition-colors self-end sm:self-auto"
+                            className="p-2 rounded-lg hover:bg-white/10 transition-colors"
                           >
                             <Edit className="w-4 h-4 text-white/60 hover:text-white" />
                           </button>
@@ -1460,7 +1288,7 @@ function onSalvarModalDAR_CERTO(novaTatica: Tatica) {
                     .map((tatica) => (
                       <div 
                         key={tatica.id}
-                        className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-4 rounded-lg bg-white/5 hover:bg-white/10 transition-colors"
+                        className="flex items-center justify-between p-4 rounded-lg bg-white/5 hover:bg-white/10 transition-colors"
                       >
                         <div className="flex items-center gap-4">
                           <button
@@ -1503,24 +1331,24 @@ function onSalvarModalDAR_CERTO(novaTatica: Tatica) {
                           </div>
                         </div>
 
-                        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 mt-3 sm:mt-0">
-  <button
-    onClick={() => {
-      // Ir para a atividade
-      setModoVisualizacao('atividades');
-      setExpandidos(prev => ({ ...prev, [tatica.atividade.id]: true }));
-    }}
-    className="text-xs px-3 py-1 rounded-lg bg-white/10 text-white/70 hover:text-white hover:bg-white/20 transition-colors w-full sm:w-auto text-left"
-  >
-    → {tatica.atividade.titulo} ({tatica.zona})
-  </button>
-  <button
-    onClick={() => onEditarTatica(tatica.atividade, tatica)}
-    className="p-2 rounded-lg hover:bg-white/10 transition-colors self-end sm:self-auto"
-  >
-    <Edit className="w-4 h-4 text-white/60 hover:text-white" />
-  </button>
-</div>
+                        <div className="flex items-center gap-3">
+                          <button
+                            onClick={() => {
+                              // Ir para a atividade
+                              setModoVisualizacao('atividades');
+                              setExpandidos(prev => ({ ...prev, [tatica.atividade.id]: true }));
+                            }}
+                            className="text-xs px-3 py-1 rounded-lg bg-white/10 text-white/70 hover:text-white hover:bg-white/20 transition-colors"
+                          >
+                            → {tatica.atividade.titulo} ({tatica.zona})
+                          </button>
+                          <button
+                            onClick={() => onEditarTatica(tatica.atividade, tatica)}
+                            className="p-2 rounded-lg hover:bg-white/10 transition-colors"
+                          >
+                            <Edit className="w-4 h-4 text-white/60 hover:text-white" />
+                          </button>
+                        </div>
                       </div>
                     ))}
                 </div>
@@ -1561,18 +1389,7 @@ function onSalvarModalDAR_CERTO(novaTatica: Tatica) {
   onClose={onFecharModalDAR_CERTO}
   onSalvar={onSalvarModalDAR_CERTO}
 />
-   )}
-
-      {/* Botão Salvar Flutuante (Mobile) */}
-<div className="fixed bottom-4 right-4 z-40 sm:hidden">
-  <button
-    onClick={salvarPlano}
-    className="p-4 rounded-full bg-orange-600 text-white shadow-lg hover:bg-orange-700 transition-all"
-  >
-    <Save className="w-6 h-6" />
-  </button>
-</div>
-
+      )}
     </PageContainer>
   );
 }

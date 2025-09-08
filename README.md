@@ -3,7 +3,7 @@
 **Sistema Enterprise para Diagnóstico e Otimização do Foco Profissional**
 
 [![Deploy](https://img.shields.io/badge/deploy-vercel-black?logo=vercel)](https://conversas-no-corredor.vercel.app)
-[![Versão](https://img.shields.io/badge/versão-v1.9.5-blue)](docs/CURRENT-STATUS.md)
+[![Versão](https://img.shields.io/badge/versão-v1.9.6-blue)](docs/CURRENT-STATUS.md)
 [![Status](https://img.shields.io/badge/status-✅%20operacional-green)](docs/CURRENT-STATUS.md)
 
 ## 🚀 Quick Start
@@ -34,7 +34,7 @@ npm run dev
 - **🎯 Pré-Diagnóstico** - Captura nome + recomendações personalizadas (**v1.9.1**)
 - **🗺️ Mapa de Atividades** - Matriz Impacto × Clareza (4 zonas)
 - **📊 Diagnóstico Automático** - Análise ROI do Foco com relatórios personalizados
-- **📋 Plano de Ação** - Framework DAR CERTO com IA V2.1
+- **📋 Plano de Ação Redesenhado** - Interface otimizada com dashboard de estatísticas e controles centralizados (**v1.9.6**)
 - **📧 Email Marketing** - Templates profissionais via Resend (**v1.9.0**)
 - **📄 Export Profissional** - PDF otimizado + cópia de texto
 - **👤 Perfil Completo** - Configurações pessoais + compliance LGPD
@@ -57,7 +57,7 @@ npm run dev
 4. **Reset de Senha** → Página dedicada com emails customizados
 5. **Dashboard** → Mapeamento na matriz Impacto × Clareza
 6. **Diagnóstico** → Análise automática + relatório personalizado
-7. **Plano de Ação** → Táticas específicas baseadas no diagnóstico
+7. **Plano de Ação** → Interface redesenhada com dashboard e controles centralizados (**v1.9.6**)
 
 ## 📂 Estrutura do Projeto
 
@@ -140,7 +140,42 @@ Atualizar documentação com comandos Windows.
 
 > 💡 **Dica:** Mantenha um documento no Obsidian com estes templates para agilizar o processo!
 
-## 🎯 Versão Atual: v1.9.4 - Google Ads Setup Inicial
+## 🎯 Versão Atual: v1.9.6 - Plano de Ação UX Redesign
+
+**Foco da Sessão (08/09/2025):** Redesign completo da página Plano de Ação
+**Sessão Anterior (07/09/2025):** Pré-diagnóstico UX melhorado
+
+### ✅ Plano de Ação Redesenhado
+- **📊 Dashboard Visual** - Contadores de atividades, táticas, tarefas e hábitos
+- **🎛️ Controles Centralizados** - Abas e filtros organizados e responsivos
+- **📱 Mobile-First** - Layout otimizado para smartphone com UX nativa
+- **🎨 Design Consistente** - Ícones e cores padronizados em toda a página
+- **⚙️ Filtros Inteligentes** - Seções colapsáveis com animações suaves
+
+### 🚀 Experiência Otimizada
+Página Plano de Ação → Interface limpa e organizada → 
+Filtros contextuais → Dashboard de progresso → Ações unificadas
+
+### 📊 Melhorias de UX
+- **Hierarquia Clara:** Estatísticas → Filtros → Conteúdo → Ações
+- **Responsividade Total:** Mobile, tablet e desktop otimizados
+- **Feedback Visual:** Estados de loading, hover e interação
+- **Prevenção de Erros:** Validações antes de ações críticas
+
+### 🔧 Comandos Úteis
+
+```bash
+# Desenvolvimento
+npm run dev          # Servidor local
+npm run build        # Build de produção
+npm run lint         # Verificar código
+
+# Deploy
+git add .
+git commit -m "feat: plano de ação UX redesign v1.9.6"
+git push             # Deploy automático Vercel
+
+## 🎯 Versão Anterior: v1.9.5 - Melhorias na página pré-diagnóstico
 
 **Foco da Sessão (01/09/2025):** Configuração inicial Google Ads sem modificação de código
 **Sessão Anterior (27/08/2025):** Correções críticas Android + RLS
@@ -160,6 +195,7 @@ Dashboard Grafana mostra conversões via roi_leads
 - **Dados:** roi_leads Supabase captura conversões automaticamente
 - **Decisão Futura:** Avaliar UTM/tracking avançado após 2-3 semanas
 
+## Versões anteriores a seguir
 
 ## 🎯 Versão Anterior: v1.9.3 - Correções Android + RLS
 
@@ -328,6 +364,6 @@ Baseado na metodologia **ROI do Foco** da newsletter [Conversas no Corredor](htt
 ---
 
 📋 **Status:** Sistema completo com funnel de conversão integrado  
-📅 **Última atualização:** 27 de agosto de 2025 - Noite
+📅 **Última atualização:** 08 de setembro de 2025
 📄 **Próxima versão:** Analytics avançados + otimização de conversão
 📊 **Métricas:** [Veja status detalhado no CURRENT-STATUS.md](docs/CURRENT-STATUS.md)

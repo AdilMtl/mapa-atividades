@@ -16,6 +16,34 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [v1.9.6] - 2025-09-08 - 📋 Plano de Ação UX Redesign
+
+### ✅ Adicionado
+- **Dashboard de Estatísticas:** Seção "Seu plano de ação contém" com contadores de atividades, táticas, tarefas e hábitos
+- **Controles Centralizados:** Abas Atividades/Táticas centralizadas com design consistente
+- **Filtros Colapsáveis:** Seção "Filtrar atividades por zona" com dropdown recolhível
+- **Ícones Padronizados:** Sistema consistente de ícones laranjas em fundos quadrados para todas as seções
+- **Botões Salvar Unificados:** Ícone de disquete + cor laranja padrão em todos os 3 botões salvar
+
+### 🎨 Melhorado
+- **Layout Mobile:** Header responsivo com botão salvar embaixo no mobile, ao lado no desktop
+- **Espaçamentos:** Padronização de margens entre seções (mb-4 sm:mb-6)
+- **Hierarquia Visual:** Seções colapsáveis seguindo padrão consistente da página
+- **Grid Responsivo:** Estatísticas em grid 2x2 no mobile, linha única no desktop
+- **Prevenção de Duplicatas:** Validação antes de aplicar sugestões inteligentes globais
+
+### 🔧 Corrigido
+- **Altura de Cards:** Padronização de altura entre todos os cards colapsáveis
+- **Espaçamento Dropdown:** Adicionado margin-top correto no conteúdo expandido
+- **Layout Responsivo:** Quebras de linha adequadas em ícones e números no mobile
+- **Texto de Táticas:** Remoção de \n\n nos detalhes das táticas geradas
+
+### 📊 Técnico
+- **Arquivos Modificados:** `src/app/plano-acao/page.tsx`, `src/components/plano/index.tsx`
+- **Novos Estados:** `showZoneFilters` para controle de filtros colapsáveis
+- **Imports Adicionados:** `Save`, `TrendingUp` do lucide-react
+- **Componentes:** PlanoHeader, PlanoStats, OrientacaoDiagnostico redesenhados
+
 ## [v1.9.5] - 2025-09-07 - 🎯 UX Melhorado Pré-Diagnóstico
 
 ### ✅ Adicionado
