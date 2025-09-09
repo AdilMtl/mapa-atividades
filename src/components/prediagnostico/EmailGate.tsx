@@ -61,6 +61,15 @@ export function EmailGate({ sessionId, profile, onSuccess }: EmailGateProps) {
       const data = await response.json();
 
       if (data.success) {
+// 🎯 GOOGLE ADS CONVERSÃO - Executar aqui quando lead salvo com sucesso
+  if (data.triggerConversion && typeof gtag !== 'undefined') {
+    gtag('event', 'conversion', {
+      'send_to': 'AW-16601345592/0K0dCMm6oo4bELjckew9',
+      'value': 1.0,
+      'currency': 'BRL'
+    });
+    console.log('Google Ads conversion triggered');
+  }
         setSuccess(true);
         // Removido redirecionamento automático
       } else {

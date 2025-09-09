@@ -184,18 +184,8 @@ export async function POST(request: NextRequest) {
       await registrarEventoLead(sessionId, email);
     }
 
-    // 🎯 GOOGLE ADS CONVERSÃO
-const conversionCode = `
-  <script>
-    if (typeof gtag !== 'undefined') {
-      gtag('event', 'conversion', {
-        'send_to': 'AW-16601345592/0K0dCMm6oo4bELjckew9',
-        'value': 1.0,
-        'currency': 'BRL'
-      });
-    }
-  </script>
-`;
+    // 🎯 GOOGLE ADS CONVERSÃO - Flag para frontend
+const shouldTriggerConversion = true;
 
     // 6️⃣ Enviar email profissional
     try {
@@ -259,11 +249,12 @@ const conversionCode = `
     }
 
     // 7️⃣ Retornar sucesso
-    return NextResponse.json({
-      success: true,
-      message: 'Email salvo com sucesso!',
-      leadId: resultado.leadId
-    });
+   return NextResponse.json({
+  success: true,
+  message: 'Email salvo com sucesso!',
+  leadId: resultado.leadId,
+  triggerConversion: shouldTriggerConversion
+});
     
   } catch (error) {
     console.error('Erro na API lead:', error);
