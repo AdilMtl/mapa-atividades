@@ -15,6 +15,32 @@ O formato é baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.
 e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
 ---
+## [v1.9.7] - 2025-09-09 - 📊 Google Ads Conversion Tracking
+
+### ✅ Adicionado
+- **Conversion Tracking:** Google Ads gtag() executado quando usuário vira lead qualificado
+- **Backend Flag:** API /lead retorna triggerConversion para frontend executar
+- **Console Logging:** Confirmação visual "Google Ads conversion triggered"
+- **Pixel Integration:** Conversão dispara no momento da captura nome + email
+
+### 🔧 Corrigido
+- **False Negative:** Sistema sempre funcionou - problema era email duplicado no upsert
+- **Debug Process:** Identificação de que created_at não mudava em emails repetidos
+- **Validation Issue:** Descoberta de que upsert mantém timestamp original
+
+### 🎨 Melhorado
+- **Tracking Accuracy:** Conversão registrada no momento exato de lead qualificado
+- **Error Handling:** Sistema continua funcionando mesmo se gtag falhar
+- **Data Quality:** Confirmação de que pipeline completa está operacional
+
+### 📊 Técnico
+- **Arquivos Modificados:**
+  - `src/app/api/prediag/lead/route.ts` - Adiciona triggerConversion flag
+  - `src/components/prediagnostico/EmailGate.tsx` - Executa gtag() conversion
+- **Flow:** Google Ads → Pré-diagnóstico → Lead capturado → Conversão disparada
+- **Debugging:** Logs temporários removidos após confirmação
+
+---
 
 ## [v1.9.6] - 2025-09-08 - 📋 Plano de Ação UX Redesign
 

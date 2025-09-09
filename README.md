@@ -3,7 +3,7 @@
 **Sistema Enterprise para Diagnóstico e Otimização do Foco Profissional**
 
 [![Deploy](https://img.shields.io/badge/deploy-vercel-black?logo=vercel)](https://conversas-no-corredor.vercel.app)
-[![Versão](https://img.shields.io/badge/versão-v1.9.6-blue)](docs/CURRENT-STATUS.md)
+[![Versão](https://img.shields.io/badge/versão-v1.9.7-blue)](docs/CURRENT-STATUS.md)
 [![Status](https://img.shields.io/badge/status-✅%20operacional-green)](docs/CURRENT-STATUS.md)
 
 ## 🚀 Quick Start
@@ -140,11 +140,42 @@ Atualizar documentação com comandos Windows.
 
 > 💡 **Dica:** Mantenha um documento no Obsidian com estes templates para agilizar o processo!
 
-## 🎯 Versão Atual: v1.9.6 - Plano de Ação UX Redesign
+## 🎯 Versão Atual: v1.9.7 - Google Ads Conversion Tracking
+
+**Foco da Sessão (09/09/2025):** Implementação completa de tracking de conversão Google Ads
+**Sessão Anterior (08/09/2025):** Plano de Ação UX Redesign
+
+### ✅ Google Ads Conversion Tracking
+- **📊 Conversion Pipeline** - Google Ads → Pré-diagnóstico → Lead → Conversão registrada
+- **🎯 Trigger Preciso** - Conversão dispara no momento da captura nome + email
+- **💻 Frontend Integration** - gtag() executado via JavaScript no navegador
+- **🔍 Debug Confirmation** - Console mostra "Google Ads conversion triggered"
+
+### 🚀 Sistema Completo Validado
+Pipeline de Conversão → Todas as etapas funcionando → 
+Tracking confirmado → ROI do Google Ads mensurável
+
+### 📊 Descobertas Importantes
+- **Sistema Sempre Funcionou:** Problema era teste com mesmo email repetidamente
+- **Upsert Behavior:** created_at mantém data original, usar updated_at para tracking
+- **Conversion Accuracy:** Disparo no momento exato de lead qualificado
+
+### 🔧 Comandos Úteis
+
+```bash
+# Desenvolvimento
+npm run dev          # Servidor local
+npm run build        # Build de produção
+npm run lint         # Verificar código
+
+# Deploy
+git add .
+git commit -m "feat: Google Ads conversion tracking v1.9.7"
+git push             # Deploy automático Vercel
+
+## 🎯 Versão Anterior: v1.9.6 - Plano de Ação UX Redesign
 
 **Foco da Sessão (08/09/2025):** Redesign completo da página Plano de Ação
-**Sessão Anterior (07/09/2025):** Pré-diagnóstico UX melhorado
-
 ### ✅ Plano de Ação Redesenhado
 - **📊 Dashboard Visual** - Contadores de atividades, táticas, tarefas e hábitos
 - **🎛️ Controles Centralizados** - Abas e filtros organizados e responsivos
@@ -364,6 +395,6 @@ Baseado na metodologia **ROI do Foco** da newsletter [Conversas no Corredor](htt
 ---
 
 📋 **Status:** Sistema completo com funnel de conversão integrado  
-📅 **Última atualização:** 08 de setembro de 2025
+📅 **Última atualização:** 09 de setembro de 2025
 📄 **Próxima versão:** Analytics avançados + otimização de conversão
 📊 **Métricas:** [Veja status detalhado no CURRENT-STATUS.md](docs/CURRENT-STATUS.md)
