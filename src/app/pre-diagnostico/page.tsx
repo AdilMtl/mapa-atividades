@@ -97,14 +97,12 @@ export default function PreDiagnosticoPage() {
                 {/* Título e Descrição */}
                 <div className="space-y-4 max-w-2xl mx-auto">
                   <h2 className="text-3xl sm:text-4xl font-bold text-white font-mono">
-                    Descubra onde seu tempo está sendo 
-                    <span className="text-orange-500"> desperdiçado</span>
+                    Saiba onde você está 
+                    <span className="text-orange-500"> INVESTINDO ou PERDENDO</span> seu tempo!
                   </h2>
                   
                   <p className="text-lg text-white/80 leading-relaxed">
-                    O diagnóstico ROI do Foco analisa seu padrão atual e mostra exatamente 
-                    onde você pode <strong className="text-white">ganhar 30-60 minutos por dia</strong> com 
-                    apenas 3 ajustes na sua rotina.
+                    Descubra em 2 minutos os 3 ajustes que podem <strong className="text-white">liberar até 1h da sua rotina</strong> com o Diagnóstico ROI do Foco. 
                   </p>
 
                   {/* Credibilidade - Novo */}
@@ -119,11 +117,30 @@ export default function PreDiagnosticoPage() {
                       >
                         Adilson Matioli
                       </a>
-                      , que já transformou equipes e <strong className="text-white">estratégias de crescimento empresarial</strong> em 
-                      histórias de sucesso. Agora, esse mesmo poder estratégico foi adaptado 
-                      para simplificar sua rotina e gestão do tempo.
+                      , que já aplicou estratégias de crescimento em grandes equipes e hoje traduz essa experiência em um 
+  <strong> método simples </strong> 
+  para você 
+  <strong> organizar o tempo </strong> 
+  e colher 
+  <strong> resultados reais </strong>.
                     </p>
                   </div>
+
+ {/* CTA para Iniciar */}
+              <section className="py-6 text-center">
+                <button
+                  onClick={() => setShowChat(true)}
+                  className="inline-flex items-center gap-3 px-8 py-4 bg-orange-600 hover:bg-orange-700 text-white rounded-lg font-medium transition-all transform hover:scale-105"
+                >
+                  <Brain className="w-5 h-5" />
+                  Fazer Diagnóstico Agora
+                  <ChevronRight className="w-5 h-5" />
+                </button>
+                
+                <p className="text-xs text-white/40 mt-3">
+                  Sem cadastro • 100% gratuito • Resultado em 2 minutos
+                </p>
+              </section>
                 </div>
               </section>
 
@@ -336,7 +353,7 @@ export default function PreDiagnosticoPage() {
                   className="inline-flex items-center gap-3 px-8 py-4 bg-orange-600 hover:bg-orange-700 text-white rounded-lg font-medium transition-all transform hover:scale-105"
                 >
                   <Brain className="w-5 h-5" />
-                  Começar Diagnóstico Gratuito
+                  Fazer Diagnóstico Gratuito
                   <ChevronRight className="w-5 h-5" />
                 </button>
                 
@@ -353,7 +370,7 @@ export default function PreDiagnosticoPage() {
                       "Uma rotina de impacto não precisa parecer lotada, atribulada e sem tempo para nada."
                     </p>
                     <p className="text-xs text-white/60 mt-2">
-                      — Metodologia ROI do Foco
+                      Adilson Matioli, criador do método ROI do Foco
                     </p>
                   </div>
                 </div>
