@@ -92,22 +92,22 @@ export function EmailGate({ sessionId, profile, onSuccess }: EmailGateProps) {
             style={{ color: '#22c55e' }}
           />
           <h3 className="text-white font-semibold text-lg mb-2">
-            📧 Solicitação enviada com sucesso!
+            📧 Diagnóstico enviado com sucesso!
           </h3>
           <p className="text-white/80 text-sm mb-4">
-            Você receberá uma análise personalizada por email em até 24 horas.
+            Você receberá um snapshot personalizado por email e mais 3 recomendações para investir seu tempo melhor.
           </p>
           <div className="space-y-3 mt-6">
             <p className="text-white/60 text-xs">
-              Enquanto isso, assine nossa newsletter para receber insights semanais:
+              Enquanto isso, conheça e assine a newsletter Conversas no Corredor, é de graça! Trago reflexões práticas que aceleram sua carreira, aumentam suas chances de promoção e dão suporte para crescer com confiança.
             </p>
             
-            <a href="https://conversasnocorredor.substack.com/subscribe"
+            <a href="https://conversasnocorredor.substack.com"
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 px-6 py-3 bg-white/10 hover:bg-white/20 border border-white/20 rounded-xl text-white text-sm font-medium transition-all duration-200"
             >
-              Assinar Newsletter Gratuita
+              Conhecer a Newsletter Conversas no Corredor
               <ArrowRight className="w-4 h-4" />
             </a>
           </div>
