@@ -189,19 +189,72 @@ function showNotification(message: string, type: 'success' | 'error' = 'success'
         }
 
         // 4. Carregar planos salvos anteriormente
-        try {
-          const planosLocal = localStorage.getItem('planos-de-acao');
-          if (planosLocal) {
-            const planosData = JSON.parse(planosLocal) as PlanoDeAcao[];
-            const planosMap: Record<string, Tatica[]> = {};
-            planosData.forEach(plano => {
-              planosMap[plano.atividadeId] = plano.taticas;
-            });
-            setPlanos(planosMap);
-          }
-        } catch (error) {
-          console.error('Erro ao carregar planos:', error);
-        }
+        // 4. Carregar planos salvos (Supabase primeiro, localStorage como fallback)
+try {
+  // Tentar carregar do Supabase primeiro
+  const { data: taticasSupabase, error } = await supabase
+    .from('taticas')
+    .select('*')
+    .eq('user_id', session.user.id);
+
+  if (!error && taticasSupabase && taticasSupabase.length > 0) {
+    // Dados encontrados no Supabase - usar como fonte principal
+    const planosMap: Record<string, Tatica[]> = {};
+    
+    taticasSupabase.forEach(tatica => {
+      if (!planosMap[tatica.atividade_id]) {
+        planosMap[tatica.atividade_id] = [];
+      }
+      
+      // Converter formato Supabase → formato do componente
+      planosMap[tatica.atividade_id].push({
+        id: tatica.id,
+        titulo: tatica.titulo,
+        detalhe: tatica.detalhe,
+        tipo: tatica.tipo,
+        categoria: tatica.categoria,
+        estimativaHoras: tatica.estimativa_horas,
+        dataSugerida: tatica.data_sugerida,
+        frequencia: tatica.frequencia,
+        gatilho: tatica.gatilho,
+        impactos: tatica.impactos,
+        concluida: tatica.concluida
+      });
+    });
+    
+    setPlanos(planosMap);
+    console.log('Dados carregados do Supabase:', Object.keys(planosMap).length, 'atividades');
+    
+  } else {
+    // Fallback: carregar do localStorage se Supabase falhar ou estiver vazio
+    const planosLocal = localStorage.getItem('planos-de-acao');
+    if (planosLocal) {
+      const planosData = JSON.parse(planosLocal) as PlanoDeAcao[];
+      const planosMap: Record<string, Tatica[]> = {};
+      planosData.forEach(plano => {
+        planosMap[plano.atividadeId] = plano.taticas;
+      });
+      setPlanos(planosMap);
+      console.log('Dados carregados do localStorage (fallback):', Object.keys(planosMap).length, 'atividades');
+    }
+  }
+} catch (error) {
+  console.error('Erro ao carregar planos:', error);
+  // Em caso de erro, tentar localStorage
+  try {
+    const planosLocal = localStorage.getItem('planos-de-acao');
+    if (planosLocal) {
+      const planosData = JSON.parse(planosLocal) as PlanoDeAcao[];
+      const planosMap: Record<string, Tatica[]> = {};
+      planosData.forEach(plano => {
+        planosMap[plano.atividadeId] = plano.taticas;
+      });
+      setPlanos(planosMap);
+    }
+  } catch (fallbackError) {
+    console.error('Erro no fallback localStorage:', fallbackError);
+  }
+}
 
       } catch (error) {
         console.error('Erro geral:', error);
