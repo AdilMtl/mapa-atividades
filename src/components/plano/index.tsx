@@ -688,7 +688,7 @@ export function TaticaItem({
                   {tatica.tipo === "TAREFA" && tatica.dataSugerida && (
                     <div className="flex items-center gap-1 text-xs" style={{ color: TEMA.subtext }}>
                       <Calendar className="w-3 h-3" />
-                      {new Date(tatica.dataSugerida).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })}
+                      {new Date(tatica.dataSugerida + 'T12:00:00').toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })}
                     </div>
                   )}
                 </div>

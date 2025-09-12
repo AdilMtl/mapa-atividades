@@ -38,9 +38,10 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 ### 📊 Técnico
 - **Nova Tabela:** `public.taticas` com 15 campos (user_id, atividade_id, titulo, etc.)
 - **Arquivos Modificados:** 
-  - `src/app/plano-acao/page.tsx` - função salvarPlano() + sistema de notificações
+  - `src/app/plano-acao/page.tsx` - função salvarPlano() + carregamento Supabase + notificações
   - SQL Schema aplicado no Supabase com RLS ativo
-- **Migração:** Automática do localStorage para Supabase quando usuário clica "Salvar Plano"
+- **Carregamento Híbrido:** Supabase primeiro, localStorage como fallback
+- **Migração Automática:** Sistema detecta dados mais recentes automaticamente
 - **Segurança:** Política RLS `auth.uid() = user_id` testada e funcionando
 
 ---

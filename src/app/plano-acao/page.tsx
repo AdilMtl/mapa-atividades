@@ -188,8 +188,7 @@ function showNotification(message: string, type: 'success' | 'error' = 'success'
           setAtividadesMap(atividadesFormatadas);
         }
 
-        // 4. Carregar planos salvos anteriormente
-        // 4. Carregar planos salvos (Supabase primeiro, localStorage como fallback)
+      // 4. Carregar planos salvos (Supabase primeiro, localStorage como fallback)
 try {
   // Tentar carregar do Supabase primeiro
   const { data: taticasSupabase, error } = await supabase
