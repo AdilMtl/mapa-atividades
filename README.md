@@ -3,7 +3,7 @@
 **Sistema Enterprise para Diagnóstico e Otimização do Foco Profissional**
 
 [![Deploy](https://img.shields.io/badge/deploy-vercel-black?logo=vercel)](https://conversas-no-corredor.vercel.app)
-[![Versão](https://img.shields.io/badge/versão-v1.9.7-blue)](docs/CURRENT-STATUS.md)
+[![Versão](https://img.shields.io/badge/versão-v1.9.8-blue)](docs/CURRENT-STATUS.md)
 [![Status](https://img.shields.io/badge/status-✅%20operacional-green)](docs/CURRENT-STATUS.md)
 
 ## 🚀 Quick Start
@@ -140,7 +140,33 @@ Atualizar documentação com comandos Windows.
 
 > 💡 **Dica:** Mantenha um documento no Obsidian com estes templates para agilizar o processo!
 
-## 🎯 Versão Atual: v1.9.7 - Google Ads Conversion Tracking
+## 🎯 Versão Atual: v1.9.8 - Sincronização Supabase + Notificações ROI do Foco
+
+**Foco da Sessão (09/12/2025):** Migração localStorage → Supabase + Sistema de notificações
+**Sessão Anterior (09/09/2025):** Google Ads Conversion Tracking
+
+### ✅ Sincronização Entre Dispositivos
+- **🔄 Salvamento Híbrido** - localStorage + Supabase simultaneamente
+- **📊 Tabela Táticas** - Nova tabela `public.taticas` com RLS ativo
+- **🔄 Strategy Replace All** - Deleta antigas e insere novas (evita duplicatas)
+- **📱 Problema Resolvido** - Táticas agora sincronizam entre celular e computador
+
+### 🎨 Notificações ROI do Foco
+- **✨ UX Melhorada** - Substituição dos alert() feios por notificações visuais
+- **🎯 Design Consistente** - Cores e tipografia alinhadas com identidade
+- **⏱️ Feedback Temporal** - Notificações aparecem por 3 segundos
+- **🏷️ Branding Integrado** - Todas mostram "ROI do Foco"
+
+### 🚀 Sistema Robusto Implementado
+Salvamento Local → Sincronização Supabase → Notificação Visual →
+Dados disponíveis em qualquer dispositivo
+
+### 🔧 Arquivos Principais Modificados
+- `src/app/plano-acao/page.tsx` - função salvarPlano() + notificações
+- Schema SQL Supabase - tabela taticas com 15 campos + RLS
+
+
+## 🎯 Versão Anterior: v1.9.7 - Google Ads Conversion Tracking
 
 **Foco da Sessão (09/09/2025):** Implementação completa de tracking de conversão Google Ads
 **Sessão Anterior (08/09/2025):** Plano de Ação UX Redesign
@@ -395,6 +421,6 @@ Baseado na metodologia **ROI do Foco** da newsletter [Conversas no Corredor](htt
 ---
 
 📋 **Status:** Sistema completo com funnel de conversão integrado  
-📅 **Última atualização:** 09 de setembro de 2025
+📅 **Última atualização:** 12 de dezembro de 2025
 📄 **Próxima versão:** Analytics avançados + otimização de conversão
 📊 **Métricas:** [Veja status detalhado no CURRENT-STATUS.md](docs/CURRENT-STATUS.md)

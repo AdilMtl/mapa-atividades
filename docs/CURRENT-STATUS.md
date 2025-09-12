@@ -1,4 +1,43 @@
-## 🎯 SESSÃO ATUAL: Google Ads Conversion Tracking
+## 🎯 SESSÃO ATUAL: Sincronização Supabase + Notificações ROI do Foco
+**Data:** 09 de Dezembro de 2025
+**Versão:** v1.9.8
+**Status:** ✅ Implementado e funcionando
+
+### **🚀 PRINCIPAIS ENTREGAS:**
+
+#### ✅ **MIGRAÇÃO LOCALSTORAGE → SUPABASE**
+- **Tabela Unificada:** Criada `public.taticas` seguindo hierarquia ATIVIDADE → TÁTICA
+- **Salvamento Híbrido:** Sistema salva em ambos (localStorage + Supabase) garantindo compatibilidade
+- **Strategy Replace All:** Deleta antigas e insere novas a cada salvamento (evita duplicatas)
+- **RLS Seguro:** Política `auth.uid() = user_id` seguindo boas práticas já testadas
+
+#### ✅ **NOTIFICAÇÕES PROFISSIONAIS ROI DO FOCO**
+- **Substituição Total:** Alertas feios do `alert()` por notificações visuais consistentes
+- **Design System:** Cores, bordas e tipografia alinhadas com identidade visual
+- **Branding Integrado:** Todas as notificações mostram "ROI do Foco"
+- **UX Melhorada:** Notificações aparecem por 3 segundos no canto superior direito
+
+#### ✅ **SINCRONIZAÇÃO ENTRE DISPOSITIVOS**
+- **Problema Resolvido:** Táticas e hábitos agora sincronizam entre celular e computador
+- **Teste Confirmado:** Sistema funcionando após correção do campo `estimativa_horas` (DECIMAL)
+- **Tolerância a Falhas:** Se Supabase falhar, localStorage continua funcionando
+
+### **🔧 ARQUIVOS MODIFICADOS:**
+src/app/plano-acao/page.tsx           # Função salvarPlano() + sistema notificações
+docs/CHANGELOG.md                     # Nova versão v1.9.8 documentada
+docs/CURRENT-STATUS.md                # Status atualizado
+README.md                             # Versão e data atualizadas
+Schema SQL Supabase                   # Tabela taticas criada
+
+### **📊 ESTRUTURA TÉCNICA:**
+- **Tabela:** `public.taticas` (15 campos) com RLS ativo
+- **Estratégia:** Salvamento híbrido mantém compatibilidade total
+- **Migração:** Automática e transparente para o usuário
+- **Performance:** Zero impacto visual, usuário nem percebe mudança
+
+---
+
+## 🎯 SESSÃO Anterior: Google Ads Conversion Tracking
 **Data:** 09 de Setembro de 2025
 **Versão:** v1.9.7
 **Status:** ✅ Implementado e funcionando

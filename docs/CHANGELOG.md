@@ -15,6 +15,36 @@ O formato é baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.
 e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
 ---
+
+## [v1.9.8] - 2025-12-09 - 🔄 Sincronização Supabase + Notificações ROI do Foco
+
+### ✅ Adicionado
+- **Tabela Táticas:** Nova tabela `public.taticas` no Supabase para sincronização entre dispositivos
+- **Salvamento Híbrido:** Sistema salva simultaneamente no localStorage e Supabase
+- **Notificações ROI do Foco:** Substituição dos alert() feios por notificações visuais consistentes
+- **RLS Completo:** Row Level Security implementado seguindo boas práticas já testadas
+
+### 🔧 Corrigido
+- **Sincronização:** Táticas e hábitos agora sincronizam entre celular e computador
+- **UX Inconsistente:** Alertas padrão do navegador substituídos por design system próprio
+- **Dados Isolados:** localStorage causava perda de dados ao trocar de dispositivo
+
+### 🎨 Melhorado
+- **Compatibilidade Total:** Sistema funciona offline (localStorage) e online (Supabase)
+- **Feedback Visual:** Notificações aparecem no canto superior direito com branding "ROI do Foco"
+- **Performance:** Strategy "replace all" evita duplicatas no banco
+- **Tolerância a Erros:** Sistema continua funcionando se Supabase falhar
+
+### 📊 Técnico
+- **Nova Tabela:** `public.taticas` com 15 campos (user_id, atividade_id, titulo, etc.)
+- **Arquivos Modificados:** 
+  - `src/app/plano-acao/page.tsx` - função salvarPlano() + sistema de notificações
+  - SQL Schema aplicado no Supabase com RLS ativo
+- **Migração:** Automática do localStorage para Supabase quando usuário clica "Salvar Plano"
+- **Segurança:** Política RLS `auth.uid() = user_id` testada e funcionando
+
+---
+
 ## [v1.9.7] - 2025-09-09 - 📊 Google Ads Conversion Tracking
 
 ### ✅ Adicionado
