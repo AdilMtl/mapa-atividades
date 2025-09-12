@@ -3,7 +3,7 @@
 **Sistema Enterprise para Diagnóstico e Otimização do Foco Profissional**
 
 [![Deploy](https://img.shields.io/badge/deploy-vercel-black?logo=vercel)](https://conversas-no-corredor.vercel.app)
-[![Versão](https://img.shields.io/badge/versão-v1.9.8-blue)](docs/CURRENT-STATUS.md)
+[![Versão](https://img.shields.io/badge/versão-v2.0.0-blue)](docs/CURRENT-STATUS.md)
 [![Status](https://img.shields.io/badge/status-✅%20operacional-green)](docs/CURRENT-STATUS.md)
 
 ## 🚀 Quick Start
@@ -46,10 +46,11 @@ npm run dev
 - **Email:** Resend API com templates HTML (**v1.9.0**)
 - **Deploy:** Vercel (automático via Git)
 - **Metodologia:** ROI do Foco + Framework DAR CERTO
+- **Drag & Drop:** @dnd para Kanban visual
 
 ## 🌊 Fluxo do Usuário
 
-### 🎯 Fluxo Completo Atualizado
+### 🎯 Fluxo Completo v2.0.0
 
 1. **Landing Page** → Apresentação com 2 CTAs para pré-diagnóstico (**v1.9.2**)
 2. **Pré-Diagnóstico** → Sistema de leads com nome + 5 etapas + email
@@ -58,6 +59,7 @@ npm run dev
 5. **Dashboard** → Mapeamento na matriz Impacto × Clareza
 6. **Diagnóstico** → Análise automática + relatório personalizado
 7. **Plano de Ação** → Interface redesenhada com dashboard e controles centralizados (**v1.9.6**)
+8. **Fluxo Semanal** → Kanban visual para execução de táticas (**v2.0.0** 🆕)
 
 ## 📂 Estrutura do Projeto
 
@@ -72,6 +74,10 @@ src/
 │   │   ├── options/route.ts          # GET - Opções por perfil
 │   │   ├── email-template.ts         # Helper - Template HTML profissional
 │   │   └── recommendations.ts        # Helper - Heurística 450+ sugestões
+│   ├── painel-semanal/               # 🆕 v2.0.0 - Kanban visual
+│   │   ├── page.tsx                  # Wrapper da página
+│   │   └── components/
+│   │       └── KanbanPage.tsx        # Componente principal com drag & drop
 │   ├── auth/page.tsx                 # Autenticação
 │   ├── dashboard/page.tsx            # Mapa de atividades
 │   ├── diagnostico/page.tsx          # Análise do foco
@@ -89,6 +95,9 @@ src/
     ├── heuristica-engine.ts         # IA V2.1 para táticas
     ├── design-system.ts             # Tokens centralizados
     └── supabase.ts                  # Configuração do banco
+    ├── kanban/                       # 🆕 v2.0.0 - Funções específicas
+    │   └── database.ts               # Integração Supabase para Kanban
+
 ```
 
 ## 📚 Sistema de Documentação Modular
@@ -110,6 +119,7 @@ docs/
 ### 📖 **Versões Detalhadas**
 ```
 docs/versions/
+├── v2.0.0-kanban-visual.md            # Kanban visual completo - 13/12/2025 🆕
 ├── v1.9.0-prediagnostico-completo.md  # Sistema pré-diagnóstico - 27/08/2025
 ├── v1.8.3-diagnostico-premium.md      # Export otimizado - 22/08/2025
 ├── v1.8.2-fluxo-padronizado.md        # ROI do Foco + nome real usuário
@@ -140,7 +150,42 @@ Atualizar documentação com comandos Windows.
 
 > 💡 **Dica:** Mantenha um documento no Obsidian com estes templates para agilizar o processo!
 
-## 🎯 Versão Atual: v1.9.8 - Sincronização Supabase + Notificações ROI do Foco
+## 🎯 Versão Atual: v2.0.0 - Kanban Visual: Fluxo Semanal
+
+**Foco da Sessão (13/12/2025):** Implementação completa do sistema Kanban visual
+**Sessão Anterior (09/12/2025):** Sincronização Supabase + Notificações ROI do Foco
+
+### ✅ Nova Funcionalidade Major: Fluxo Semanal
+- **🎯 Kanban Visual** - Sistema drag & drop com 4 colunas (Backlog → Para Fazer → Fazendo → Feito)
+- **📊 Integração Total** - Utiliza táticas criadas no Plano de Ação automaticamente
+- **🎨 Design Consistente** - Glass effects + animações + tema unificado com projeto
+- **📱 Responsivo** - Layout otimizado para desktop com scroll horizontal funcional
+
+### 🗄️ Extensão do Banco Supabase
+- **📋 Tabela Estendida** - 3 novos campos na tabela 'taticas' existente
+- **🔧 Campos Adicionados** - status_kanban, ordem_coluna, semana_referencia  
+- **⚡ Performance** - Novo índice idx_taticas_kanban para queries otimizadas
+- **🔒 Compatibilidade** - Zero breaking changes, funcionalidades v1.9.8 preservadas
+
+### 🚀 Arquitetura v2.0.0 Implementada
+ATIVIDADES (dashboard/mapa)
+└── TÁTICAS (plano-acao)
+└── STATUS KANBAN (painel-semanal) ← NOVO v2.0.0
+
+### 🔧 Tecnologias Adicionadas
+- **Biblioteca:** @hello-pangea/dnd para drag & drop performático
+- **Next.js:** Atualizado v15.0.0-canary → v15.5.3 (vulnerabilidade SSRF resolvida)
+- **SQL:** Constraint + índice para validação e performance do Kanban
+
+### 📱 UX/UI Implementada
+- **Drag & Drop:** Cards com cursor grab/grabbing + animações suaves
+- **Feedback Visual:** Colunas destacam ao receber drag + contadores automáticos
+- **Hierarquia:** Cards mostram atividade mãe + zona ROI + categoria automaticamente
+- **Navegação:** Botão "Fluxo Semanal" adicionado na sidebar lateral
+
+--- 
+
+## 🎯 Versão Anterior: v1.9.8 - Sincronização Supabase + Notificações ROI do Foco
 
 **Foco da Sessão (09/12/2025):** Migração localStorage → Supabase + Sistema de notificações
 **Sessão Anterior (09/09/2025):** Google Ads Conversion Tracking
@@ -421,6 +466,6 @@ Baseado na metodologia **ROI do Foco** da newsletter [Conversas no Corredor](htt
 ---
 
 📋 **Status:** Sistema completo com funnel de conversão integrado  
-📅 **Última atualização:** 12 de dezembro de 2025
-📄 **Próxima versão:** Analytics avançados + otimização de conversão
+📅 **Última atualização:** 13 de dezembro de 2025
+📄 **Próxima versão:** Filtros avançados + ordenação por atividade + funcionalidades mobile
 📊 **Métricas:** [Veja status detalhado no CURRENT-STATUS.md](docs/CURRENT-STATUS.md)

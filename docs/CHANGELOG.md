@@ -16,6 +16,30 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [v2.0.0] - 2025-12-13 - 🎯 KANBAN VISUAL - FLUXO SEMANAL
+
+### ✅ Adicionado
+- **Página Fluxo Semanal:** Nova rota /painel-semanal com Kanban de 4 colunas
+- **Drag & Drop:** Sistema visual para mover táticas entre status (Backlog → Feito)
+- **Biblioteca:** @hello-pangea/dnd para drag & drop performático
+- **Campos Kanban:** status_kanban, ordem_coluna, semana_referencia na tabela táticas
+
+### 🔧 Corrigido
+- **Next.js:** Atualizado v15.0.0-canary → v15.5.3 (vulnerabilidade SSRF resolvida)
+- **Performance:** Novo índice no Supabase para queries do Kanban
+- **UX:** Cursor grab/grabbing + feedback visual durante arrastar
+
+### 🎨 Melhorado
+- **Arquitetura:** Sistema agora suporta dois fluxos (Plano de Ação + Fluxo Semanal)
+- **Hierarquia:** Cards do Kanban mostram atividade mãe + zona ROI automaticamente
+- **Design:** Glass effects + animações + cores consistentes com design system
+
+### 📊 Técnico
+- **Zero Breaking Changes:** Funcionalidades v1.9.8 preservadas 100%
+- **Estrutura:** Nova pasta src/app/painel-semanal + src/lib/kanban
+- **Tipos:** Interfaces KanbanBoard, TaticaKanban, KanbanStatus adicionadas
+---
+
 ## [v1.9.8] - 2025-12-09 - 🔄 Sincronização Supabase + Notificações ROI do Foco
 
 ### ✅ Adicionado

@@ -114,46 +114,6 @@ export interface Habito extends AcaoBase {
   perfilAlvo?: string[]; // ['lider', 'ic', 'freelancer']
 }
 
-// ═══════════════════════════════════════════════════════════════════
-// 🎯 TIPOS KANBAN (EXTENSÃO PARA PAINEL SEMANAL)
-// ═══════════════════════════════════════════════════════════════════
-
-// Status do Kanban
-export type KanbanStatus = 'backlog' | 'para_fazer' | 'fazendo' | 'feito';
-
-// Zona ROI (já existente, confirmando nomenclatura)
-export type ZonaROI = 'essencial' | 'estrategica' | 'tatica' | 'distracao';
-
-// Interface da tática no Kanban (estendendo a atual)
-export interface TaticaKanban extends Tatica {
-  // Novos campos para Kanban
-  status_kanban: KanbanStatus;
-  ordem_coluna?: number;
-  semana_referencia?: string;
-  
-  // Dados da atividade mãe (via JOIN)
-  atividade?: {
-    id: string;
-    nome: string;
-    zona: ZonaROI;
-    cor: string;
-  };
-}
-
-// Estrutura do Board
-export interface KanbanBoard {
-  backlog: TaticaKanban[];
-  para_fazer: TaticaKanban[];
-  fazendo: TaticaKanban[];
-  feito: TaticaKanban[];
-}
-
-// Opções de ordenação
-export type OrdenacaoKanban = 
-  | "por_atividade"     // Agrupa por atividade mãe
-  | "por_zona"          // Ordena por zona ROI
-  | "manual";           // Ordem definida pelo usuário
-
 // União para compatibilidade
 export type Acao = Tarefa | Habito;
 

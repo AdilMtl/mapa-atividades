@@ -4,7 +4,7 @@ import { usePathname, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
 import { Button } from '@/components/ui/button'
-import { BarChart3, Map, User, Settings, LogOut, Menu, X, Target, Shield, TrendingUp } from 'lucide-react'
+import { BarChart3, Map, User, Settings, LogOut, Menu, X, Target, Shield, TrendingUp, Calendar } from 'lucide-react'
 import './globals.css'
 import Script from 'next/script'
 
@@ -60,11 +60,12 @@ if (!session?.user && pathname !== '/auth' && pathname !== '/' && pathname !== '
   const authPages = ['/auth', '/', '/pre-diagnostico']
   const showNavigation = user && !authPages.includes(pathname)
 
-  // 🎯 NAVEGAÇÃO CORRIGIDA - Com ícone Target
+  // 🎯 NAVEGAÇÃO CORRIGIDA - Com Fluxo Semanal
   const navigationItems = [
     { href: '/dashboard', label: 'Mapa', icon: Map },
     { href: '/diagnostico', label: 'Diagnóstico', icon: TrendingUp },
     { href: '/plano-acao', label: 'Plano de Ação', icon: Target },
+    { href: '/painel-semanal', label: 'Fluxo Semanal', icon: Calendar },
     { href: '/relatorios', label: 'Relatórios', icon: BarChart3 },
     { href: '/perfil', label: 'Perfil', icon: User },
     { href: '/configuracoes', label: 'Configurações', icon: Settings },
