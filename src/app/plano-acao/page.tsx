@@ -72,6 +72,21 @@ const [ordemTaticas, setOrdemTaticas] = useState<'status' | 'data' | 'alfabetica
 const [buscaTatica, setBuscaTatica] = useState('');
 const [showZoneFilters, setShowZoneFilters] = useState(false);
 
+// Estado para notificações bonitas
+const [notification, setNotification] = useState<{
+  message: string;
+  type: 'success' | 'error';
+  show: boolean;
+}>({ message: '', type: 'success', show: false });
+
+// Função para mostrar notificação do ROI do Foco
+function showNotification(message: string, type: 'success' | 'error' = 'success') {
+  setNotification({ message, type, show: true });
+  setTimeout(() => {
+    setNotification(prev => ({ ...prev, show: false }));
+  }, 3000);
+}
+
   // Converter atividades do mapa para formato do plano
   const atividades = useMemo(() => {
     return atividadesMap.map(mapearAtividade);
@@ -320,20 +335,62 @@ function adicionarTaticaGenerica(atividade: AtividadePlano) {
     });
   }
 
-  function salvarPlano() {
-    const payload: PlanoDeAcao[] = atividades.map((a) => ({
-      atividadeId: a.id,
-      taticas: planos[a.id] || []
-    }));
+  async function salvarPlano() {
+  const payload: PlanoDeAcao[] = atividades.map((a) => ({
+    atividadeId: a.id,
+    taticas: planos[a.id] || []
+  }));
+  
+  try {
+    // 1. SALVAR NO LOCALSTORAGE (manter funcionando)
+    localStorage.setItem('planos-de-acao', JSON.stringify(payload));
     
-    try {
-      localStorage.setItem('planos-de-acao', JSON.stringify(payload));
-      alert('✅ Plano de ação salvo com sucesso!');
-    } catch (error) {
-      console.error('Erro ao salvar:', error);
-      alert('❌ Erro ao salvar plano de ação');
+    // 2. SALVAR NO SUPABASE (nova funcionalidade)
+    if (user?.id) {
+      // Preparar dados para o Supabase
+      const taticasParaSupabase = payload.flatMap(plano => 
+        plano.taticas.map(tatica => ({
+          user_id: user.id,
+          atividade_id: plano.atividadeId,
+          titulo: tatica.titulo,
+          detalhe: tatica.detalhe || '',
+          tipo: tatica.tipo || 'TAREFA',
+          categoria: tatica.categoria,
+          estimativa_horas: tatica.estimativaHoras,
+          data_sugerida: tatica.dataSugerida || null,
+          frequencia: tatica.frequencia,
+          gatilho: tatica.gatilho,
+          impactos: tatica.impactos || {},
+          concluida: tatica.concluida || false
+        }))
+      );
+      
+      if (taticasParaSupabase.length > 0) {
+        // Deletar táticas antigas do usuário primeiro
+        await supabase
+          .from('taticas')
+          .delete()
+          .eq('user_id', user.id);
+        
+        // Inserir táticas atualizadas
+        const { error } = await supabase
+          .from('taticas')
+          .insert(taticasParaSupabase);
+        
+        if (error) {
+          console.error('Erro ao salvar no Supabase:', error);
+          showNotification('Plano salvo localmente - erro na sincronização', 'error');
+          return;
+        }
+      }
     }
+    
+    showNotification('Plano de ação salvo!', 'success');
+  } catch (error) {
+    console.error('Erro ao salvar:', error);
+    showNotification('Erro ao salvar plano de ação', 'error');
   }
+}
 
 function aplicarTaticasAutomaticas() {
     if (!dadosDiagnostico) return;
@@ -1572,7 +1629,27 @@ function onSalvarModalDAR_CERTO(novaTatica: Tatica) {
     <Save className="w-6 h-6" />
   </button>
 </div>
+{/* Notificação estilo ROI do Foco */}
+{notification.show && (
+  <div className={`fixed top-4 right-4 z-50 p-4 rounded-xl shadow-lg transition-all duration-300 border ${
+    notification.type === 'success' 
+      ? 'bg-green-600/90 text-white border-green-500/50 backdrop-blur-sm' 
+      : 'bg-red-600/90 text-white border-red-500/50 backdrop-blur-sm'
+  }`}>
+    <div className="flex items-center gap-3">
+      {notification.type === 'success' ? (
+        <CheckCircle className="w-5 h-5" />
+      ) : (
+        <Circle className="w-5 h-5" />
+      )}
+      <div>
+        <div className="font-medium">{notification.message}</div>
+        <div className="text-xs opacity-75 mt-1">ROI do Foco</div>
+      </div>
+    </div>
+  </div>
+)}
 
-    </PageContainer>
+      </PageContainer>
   );
 }
