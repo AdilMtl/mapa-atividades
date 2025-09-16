@@ -176,7 +176,7 @@ export default function LandingPage() {
           <div className="flex items-center gap-3">
             <Coffee className="w-6 h-6 accent" />
             <div className="text-lg font-bold font-mono accent">
-              Conversas no Corredor+
+              +Conversas no Corredor
             </div>
           </div>
           
@@ -224,7 +224,7 @@ export default function LandingPage() {
             <div className="space-y-6">
               <div className="space-y-4">
                 <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold font-mono">
-                  <span className="accent">Conversas no Corredor+</span>
+                  <span className="accent">+Conversas no Corredor</span>
                 </h1>
                 
                 <p className="text-lg sm:text-xl text-white/90 font-medium">
