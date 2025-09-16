@@ -3,7 +3,7 @@
 **Sistema Enterprise para Diagnóstico e Otimização do Foco Profissional**
 
 [![Deploy](https://img.shields.io/badge/deploy-vercel-black?logo=vercel)](https://conversas-no-corredor.vercel.app)
-[![Versão](https://img.shields.io/badge/versão-v2.0.0-blue)](docs/CURRENT-STATUS.md)
+[![Versão](https://img.shields.io/badge/versão-v3.0.0-blue)](docs/CURRENT-STATUS.md)
 [![Status](https://img.shields.io/badge/status-✅%20operacional-green)](docs/CURRENT-STATUS.md)
 
 ## 🚀 Quick Start
@@ -29,6 +29,8 @@ npm run dev
 ## 📊 Sistema Completo
 
 ### ✅ Funcionalidades Principais
+- **🎬 Landing Page Interativa** - 4 vídeos com scroll-trigger automático (**v3.0.0**)
+- **💼 Ecossistema Completo** - Newsletter + Plataforma integradas (**v3.0.0**)
 - **🎯 Pré-Diagnóstico Educativo** - Interface progressiva com contexto sobre metodologia (**v1.9.5**)
 - **🎯 Landing Page Integrada** - CTAs de pré-diagnóstico na página principal (**v1.9.2**)
 - **🎯 Pré-Diagnóstico** - Captura nome + recomendações personalizadas (**v1.9.1**)
@@ -50,11 +52,11 @@ npm run dev
 
 ## 🌊 Fluxo do Usuário
 
-### 🎯 Fluxo Completo v2.0.0
+### 🎯 Fluxo Completo v3.0.0
 
-1. **Landing Page** → Apresentação com 2 CTAs para pré-diagnóstico (**v1.9.2**)
-2. **Pré-Diagnóstico** → Sistema de leads com nome + 5 etapas + email
-3. **Autenticação** → Login/cadastro com emails autorizados
+1. **Landing Page Premium** → 4 vídeos demonstrativos com auto-play (**v3.0.0**)
+2. **Ecossistema Virtual** → Apresentação completa Conversas no Corredor + (**v3.0.0**)
+3. **Pré-Diagnóstico** → Sistema de leads com nome + 5 etapas + email
 4. **Reset de Senha** → Página dedicada com emails customizados
 5. **Dashboard** → Mapeamento na matriz Impacto × Clareza
 6. **Diagnóstico** → Análise automática + relatório personalizado
@@ -66,7 +68,7 @@ npm run dev
 ```
 src/
 ├── app/
-│   ├── page.tsx                      # Landing page principal com CTAs integrados (v1.9.2)
+│   ├── page.tsx                      # Landing page com vídeos interativos (v3.0.0)
 │   ├── pre-diagnostico/page.tsx      # Pré-diagnóstico conversacional
 │   ├── api/prediag/                  # APIs do pré-diagnóstico
 │   │   ├── diagnose/route.ts         # POST - Processar diagnóstico
@@ -91,13 +93,18 @@ src/
 │   ├── prediagnostico/              # EmailGate com campo nome (v1.9.1)
 │   └── plano/                       # 7 componentes do plano
 └── lib/
-    ├── diagnostico-engine.ts        # Motor de análise
-    ├── heuristica-engine.ts         # IA V2.1 para táticas
-    ├── design-system.ts             # Tokens centralizados
-    └── supabase.ts                  # Configuração do banco
-    ├── kanban/                       # 🆕 v2.0.0 - Funções específicas
-    │   └── database.ts               # Integração Supabase para Kanban
-
+|   ├── diagnostico-engine.ts        # Motor de análise
+|   ├── heuristica-engine.ts         # IA V2.1 para táticas
+|   ├── design-system.ts             # Tokens centralizados
+|   └── supabase.ts                  # Configuração do banco
+|   ├── kanban/                       # 🆕 v2.0.0 - Funções específicas
+|   │   └── database.ts               # Integração Supabase para Kanban
+└── public/
+    └── videos/                        # 4 vídeos de demonstração (v3.0.0)
+        ├── mapeamento.mp4
+        ├── diagnostico.mp4
+        ├── taticas.mp4
+        └── kanban.mp4
 ```
 
 ## 📚 Sistema de Documentação Modular
@@ -150,10 +157,12 @@ Atualizar documentação com comandos Windows.
 
 > 💡 **Dica:** Mantenha um documento no Obsidian com estes templates para agilizar o processo!
 
-## 🎯 Versão Atual: v2.0.0 - Kanban Visual: Fluxo Semanal
 
-**Foco da Sessão (13/12/2025):** Implementação completa do sistema Kanban visual
-**Sessão Anterior (09/12/2025):** Sincronização Supabase + Notificações ROI do Foco
+## 🎯 Versão Atual: v3.0.0 - Landing Page Premium com Vídeos Interativos
+
+**Foco da Sessão (17/01/2024):** Redesign completo da landing page com demonstrações em vídeo
+**Sessão Anterior (13/12/2025):** Kanban Visual - Fluxo Semanal
+
 
 ### ✅ Nova Funcionalidade Major: Fluxo Semanal
 - **🎯 Kanban Visual** - Sistema drag & drop com 4 colunas (Backlog → Para Fazer → Fazendo → Feito)
@@ -465,7 +474,7 @@ Baseado na metodologia **ROI do Foco** da newsletter [Conversas no Corredor](htt
 
 ---
 
-📋 **Status:** Sistema completo com funnel de conversão integrado  
-📅 **Última atualização:** 13 de dezembro de 2025
-📄 **Próxima versão:** Filtros avançados + ordenação por atividade + funcionalidades mobile
+📋 **Status:** Sistema completo com landing page premium e vídeos interativos
+📅 **Última atualização:** 16 de Setembro e 2025
+📄 **Próxima versão:** Pequenos deploys e correção e bugs, criação de view free
 📊 **Métricas:** [Veja status detalhado no CURRENT-STATUS.md](docs/CURRENT-STATUS.md)

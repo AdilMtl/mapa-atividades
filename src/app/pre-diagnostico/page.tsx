@@ -127,20 +127,26 @@ export default function PreDiagnosticoPage() {
                   </div>
 
  {/* CTA para Iniciar */}
-              <section className="py-6 text-center">
-                <button
-                  onClick={() => setShowChat(true)}
-                  className="inline-flex items-center gap-3 px-8 py-4 bg-orange-600 hover:bg-orange-700 text-white rounded-lg font-medium transition-all transform hover:scale-105"
-                >
-                  <Brain className="w-5 h-5" />
-                  Fazer Diagnóstico Agora
-                  <ChevronRight className="w-5 h-5" />
-                </button>
-                
-                <p className="text-xs text-white/40 mt-3">
-                  Sem cadastro • 100% gratuito • Resultado em 2 minutos
-                </p>
-              </section>
+<section className="py-6 text-center">
+  <button
+    onClick={() => setShowChat(true)}
+    className="relative inline-flex items-center gap-3 px-8 py-4 bg-orange-600 hover:bg-orange-700 text-white rounded-lg font-medium transition-all transform hover:scale-105 overflow-hidden group"
+  >
+    {/* Gradiente de reflexo que desliza */}
+    <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent transform -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out"></div>
+    </div>
+    
+    {/* Conteúdo do botão */}
+    <Brain className="w-5 h-5 relative z-10" />
+    <span className="relative z-10">Fazer Diagnóstico Agora</span>
+    <ChevronRight className="w-5 h-5 relative z-10" />
+  </button>
+  
+  <p className="text-xs text-white/40 mt-3">
+    Sem cadastro • 100% gratuito • Resultado em 2 minutos
+  </p>
+</section>
                 </div>
               </section>
 
@@ -347,20 +353,26 @@ export default function PreDiagnosticoPage() {
               </section>
 
               {/* CTA para Iniciar */}
-              <section className="py-6 text-center">
-                <button
-                  onClick={() => setShowChat(true)}
-                  className="inline-flex items-center gap-3 px-8 py-4 bg-orange-600 hover:bg-orange-700 text-white rounded-lg font-medium transition-all transform hover:scale-105"
-                >
-                  <Brain className="w-5 h-5" />
-                  Fazer Diagnóstico Gratuito
-                  <ChevronRight className="w-5 h-5" />
-                </button>
-                
-                <p className="text-xs text-white/40 mt-3">
-                  Sem cadastro • 100% gratuito • Resultado em 2 minutos
-                </p>
-              </section>
+<section className="py-6 text-center">
+  <button
+    onClick={() => setShowChat(true)}
+    className="relative inline-flex items-center gap-3 px-8 py-4 bg-orange-600 hover:bg-orange-700 text-white rounded-lg font-medium transition-all transform hover:scale-105 overflow-hidden group"
+  >
+    {/* Gradiente de reflexo que desliza */}
+    <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent transform -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out"></div>
+    </div>
+    
+    {/* Conteúdo do botão */}
+    <Brain className="w-5 h-5 relative z-10" />
+    <span className="relative z-10">Fazer Diagnóstico Gratuito</span>
+    <ChevronRight className="w-5 h-5 relative z-10" />
+  </button>
+  
+  <p className="text-xs text-white/40 mt-3">
+    Sem cadastro • 100% gratuito • Resultado em 2 minutos
+  </p>
+</section>
 
               {/* Citação Inspiradora */}
               <section className="py-6 border-t border-white/10">
@@ -498,6 +510,32 @@ export default function PreDiagnosticoPage() {
             font-size: 0.95rem;
           }
         }
+/* Efeito de reflexo deslizante + glow para botões */
+.group:hover {
+  box-shadow: 
+    0 0 20px rgba(249, 115, 22, 0.4),
+    0 0 40px rgba(249, 115, 22, 0.2),
+    0 0 60px rgba(249, 115, 22, 0.1);
+}
+
+.group:hover .absolute.inset-0.bg-gradient-to-r {
+  animation: slideReflection 0.7s ease-out;
+}
+
+@keyframes slideReflection {
+  0% {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+}
+
       `}</style>
     </div>
   );

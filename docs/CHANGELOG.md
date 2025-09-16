@@ -16,6 +16,35 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [v3.0.0] - 2024-01-17 - 🎬 Landing Page Premium com Vídeos Interativos
+
+### ✅ Adicionado
+- **Seção de Vídeos Interativa:** 4 vídeos com scroll-trigger automático (desktop) e cards responsivos (mobile)
+- **Ecossistema Virtual:** Novo posicionamento "Conversas no Corredor +" como ecossistema completo
+- **Seções Completas:** Pricing, Metodologia, Gestão Profissional, Para Quem É, Resultados Esperados
+- **CTAs Estratégicos:** Botões com gradiente laranja e hover effects profissionais
+- **Observer Pattern:** Intersection Observer para troca automática de vídeos no scroll
+
+### 🔧 Corrigido
+- **Sticky Position:** Vídeo centralizado verticalmente com `calc(50vh - 12rem)`
+- **Mobile Experience:** Cards de vídeo com controles nativos e layout otimizado
+- **Padding Bottom:** `pb-[15vh]` na coluna de textos para scroll completo
+- **Bordas Arredondadas:** Padronização com `rounded-xl` em todos os componentes
+
+### 🎨 Melhorado
+- **Copy Refinado:** Textos focados em benefícios tangíveis e ROI do tempo
+- **Hierarquia Visual:** 2 colunas no hero, metodologia em 3 cards, CTAs duplos
+- **Responsividade:** Grid adaptativo desktop/tablet/mobile em todas as seções
+- **Performance:** Lazy loading de vídeos com transições suaves de opacidade
+
+### 📊 Técnico
+- **Arquivo Principal:** `src/app/page.tsx` completamente redesenhado
+- **Vídeos:** 4 arquivos MP4 em `/public/videos/` (mapeamento, diagnostico, taticas, kanban)
+- **Estados React:** currentVideo, isVideoSectionVisible, videoRefs, sectionRefs
+- **CSS Profissional:** Glass effects, shadows, gradients, transforms
+
+---
+
 ## [v2.0.0] - 2025-12-13 - 🎯 KANBAN VISUAL - FLUXO SEMANAL
 
 ### ✅ Adicionado
