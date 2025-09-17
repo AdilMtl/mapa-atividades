@@ -282,7 +282,7 @@ Meu objetivo é ajudar profissionais que sentem falta de um líder para recorrer
                 </div>
                 <div className="flex items-start gap-3">
                   <CheckCircle2 className="w-5 h-5 mt-0.5 text-green-500 flex-shrink-0" />
-                  <span className="text-sm">Gestão de equipes de alta perforamance e impacto</span>
+                  <span className="text-sm">Gestão de equipes de alta performance e impacto</span>
                 </div>
                 <div className="flex items-start gap-3">
                   <CheckCircle2 className="w-5 h-5 mt-0.5 text-green-500 flex-shrink-0" />
@@ -404,7 +404,7 @@ Meu objetivo é ajudar profissionais que sentem falta de um líder para recorrer
     <Link href="/pre-diagnostico">
       <Button 
         variant="outline" 
-        className="border-blue-500/30 text-blue-400 hover:bg-blue-500/10 hover:shadow-lg hover:shadow-blue-500/40 transform hover:scale-105 transition-all duration-300"
+        className="bg-white border-blue-500/30 text-blue-400 hover:bg-blue-500/10 hover:shadow-lg hover:shadow-blue-500/40 transform hover:scale-105 transition-all duration-300"
       >
         Fazer pré-diagnóstico gratuito
         <ArrowRight className="w-4 h-4 ml-2" />
