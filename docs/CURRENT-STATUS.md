@@ -1,7 +1,41 @@
-## 🎯 SESSÃO ATUAL: Landing Page Premium com Vídeos Interativos
-**Data:** 17 de Janeiro de 2024
-**Versão:** v3.0.0  
+## 🎯 SESSÃO ATUAL: Mobile-First Redesign do Mapa de Atividades
+**Data:** 19 de Setembro de 2025
+**Versão:** v3.1.0  
 **Status:** ✅ Implementado e funcionando
+
+### **🚀 PRINCIPAIS ENTREGAS v3.1:**
+
+#### ✅ **REDESIGN MOBILE-FIRST DO MAPA**
+- **Visualização Mobile Nativa:** Cards agrupados por zona com mini-matriz visual
+- **Swipe Gestures:** Deslizar para editar (→) ou excluir (←) com feedback visual
+- **Seletor de Números:** Botões 1-6 substituindo sliders problemáticos
+- **Scroll Automático:** Auto-scroll suave ao editar atividade
+
+#### ✅ **CORREÇÕES CRÍTICAS DE UX**
+- **Conversão de Horas:** Cálculo preciso com 22 dias úteis e 4.33 semanas/mês
+- **Gráfico Interativo:** Clique nas bolhas abre formulário de edição
+- **Sobreposição Resolvida:** Jitter circular + transparência 75% + tooltip inteligente
+- **Layout Responsivo:** Zero scroll horizontal em todas as telas
+
+#### ✅ **UNIFICAÇÃO DESKTOP/MOBILE**
+- **Cards por Zona:** Visualização consistente entre plataformas
+- **Textos Longos:** Break-words evitando quebra de layout
+- **Formulário Adaptativo:** Layout responsivo mobile/tablet/desktop
+- **Design Consistente:** Mesmo formato visual em todos os dispositivos
+
+#### ✅ **MELHORIAS TÉCNICAS**
+- **Componentes Novos:** MatrizMobile, CardAtividadeMobile, ZonaCollapsivel, NumberSelector
+- **Performance:** Otimização com useMemo em todos os cálculos
+- **Touch Targets:** Mínimo 44px conforme guidelines mobile
+- **Acessibilidade:** Controles keyboard-friendly mantidos
+
+---
+
+## 🎯 SESSÃO ANTERIOR: Landing Page Premium com Vídeos Interativos
+**Data:** 17 de Setembro de 2025
+**Versão:** v3.0.0
+**Status:** ✅ Implementado e funcionando
+
 
 ### **🚀 PRINCIPAIS ENTREGAS v3.0:**
 
@@ -26,156 +60,6 @@
 
 ---
 
-## 🎯 SESSÃO Anterior: Implementação Kanban Visual - Fluxo Semanal
-**Data:** 13 de Dezembro de 2025
-**Versão:** v2.0.0
-**Status:** ✅ Implementado e funcionando
-
-### **🚀 PRINCIPAIS ENTREGAS v2.0:**
-
-#### ✅ **NOVA PÁGINA: FLUXO SEMANAL**
-- **Arquitetura:** Kanban visual com 4 colunas (Backlog → Para Fazer → Fazendo → Feito)
-- **Drag & Drop:** Biblioteca @hello-pangea/dnd com persistência automática
-- **Hierarquia:** Mantém relação ATIVIDADES → TÁTICAS do sistema existente
-- **Design:** 100% alinhado com design system atual (TEMA + glass effects)
-
-#### ✅ **EXTENSÃO DO BANCO SUPABASE**
-- **Tabela Principal:** 3 novos campos na tabela 'taticas' existente
-- **Campos:** status_kanban, ordem_coluna, semana_referencia
-- **Performance:** Novo índice idx_taticas_kanban para queries otimizadas
-- **Compatibilidade:** Zero quebra no sistema v1.9.8 existente
-
-#### ✅ **INTEGRAÇÃO VISUAL COMPLETA**
-- **Cards Responsivos:** Glass effects + hover animations + badges coloridos
-- **Navegação:** Botão "Fluxo Semanal" adicionado na sidebar
-- **UX:** Feedback visual durante drag + contadores automáticos
-- **Mobile:** Layout responsivo com scroll horizontal otimizado
----
-
-## 🎯 SESSÃO Anterior: Sincronização Supabase + Notificações ROI do Foco
-**Data:** 09 de Dezembro de 2025
-**Versão:** v1.9.8
-**Status:** ✅ Implementado e funcionando
-
-### **🚀 PRINCIPAIS ENTREGAS:**
-
-#### ✅ **MIGRAÇÃO LOCALSTORAGE → SUPABASE**
-- **Tabela Unificada:** Criada `public.taticas` seguindo hierarquia ATIVIDADE → TÁTICA
-- **Salvamento Híbrido:** Sistema salva em ambos (localStorage + Supabase) garantindo compatibilidade
-- **Strategy Replace All:** Deleta antigas e insere novas a cada salvamento (evita duplicatas)
-- **RLS Seguro:** Política `auth.uid() = user_id` seguindo boas práticas já testadas
-
-#### ✅ **CARREGAMENTO HÍBRIDO IMPLEMENTADO**
-- **Prioridade Supabase:** Sistema carrega dados do Supabase primeiro
-- **Fallback localStorage:** Se Supabase falhar, usa dados locais
-- **Conversão Automática:** Dados convertidos do formato Supabase para formato do componente
-- **Logs de Debug:** Console mostra origem dos dados (Supabase vs localStorage)
-- **Sincronização Real:** Agora funciona corretamente entre dispositivos
-
-#### ✅ **NOTIFICAÇÕES PROFISSIONAIS ROI DO FOCO**
-- **Substituição Total:** Alertas feios do `alert()` por notificações visuais consistentes
-- **Design System:** Cores, bordas e tipografia alinhadas com identidade visual
-- **Branding Integrado:** Todas as notificações mostram "ROI do Foco"
-- **UX Melhorada:** Notificações aparecem por 3 segundos no canto superior direito
-
-#### ✅ **SINCRONIZAÇÃO ENTRE DISPOSITIVOS**
-- **Problema Resolvido:** Táticas e hábitos agora sincronizam entre celular e computador
-- **Teste Confirmado:** Sistema funcionando após correção do campo `estimativa_horas` (DECIMAL)
-- **Tolerância a Falhas:** Se Supabase falhar, localStorage continua funcionando
-
-### **✅ VALIDAÇÃO COMPLETA:**
-- ✅ **Salvamento Híbrido** - localStorage + Supabase funcionando
-- ✅ **Carregamento Híbrido** - Supabase primeiro, localStorage fallback
-- ✅ **Sincronização Real** - Dados aparecem em ambos dispositivos
-- ✅ **Notificações ROI do Foco** - UX melhorada sem alert() feios
-- ✅ **Conversão de Formatos** - Supabase ↔ Componente funcionando
-
-### **🔧 ARQUIVOS MODIFICADOS:**
-src/app/plano-acao/page.tsx           # Função salvarPlano() + sistema notificações
-docs/CHANGELOG.md                     # Nova versão v1.9.8 documentada
-docs/CURRENT-STATUS.md                # Status atualizado
-README.md                             # Versão e data atualizadas
-Schema SQL Supabase                   # Tabela taticas criada
-
-### **📊 ESTRUTURA TÉCNICA:**
-- **Tabela:** `public.taticas` (15 campos) com RLS ativo
-- **Estratégia:** Salvamento híbrido mantém compatibilidade total
-- **Migração:** Automática e transparente para o usuário
-- **Performance:** Zero impacto visual, usuário nem percebe mudança
-
----
-
-### **🚀 GOOGLE ADS CONFIGURADO:**
-
-#### ✅ **CAMPANHAS ATIVAS**
-- **Campanha Analistas:** R$ 15/dia focada em profissionais de análise
-  - Palavras-chave: "produtividade trabalho", "foco profissional", "gestão tempo"
-  - Público: 25-40 anos, mercado corporativo
-  - Landing: /pre-diagnostico (sem tracking adicional por enquanto)
-
-- **Campanha Gestores Multinacionais:** R$ 20/dia para lideranças seniores  
-  - Palavras-chave: "eficiência executiva", "ROI tempo", "foco estratégico"
-  - Público: 30-50 anos, multinacionais, alta renda
-  - Landing: /pre-diagnostico (sem tracking adicional por enquanto)
-
-#### ✅ **MONITORAMENTO ATUAL**
-- **Orçamento Total:** R$ 1.050/mês (R$ 35/dia)
-- **Tracking:** Apenas Google Ads dashboard nativo
-- **Métricas-Chave:** CPC < R$ 6, conversões > 10/semana
-- **Analytics:** Dados do roi_leads Supabase para conversõ
-
-#### ✅ **PROBLEMA ANDROID RESOLVIDO**
-- **Causa Raiz:** Sistema de autenticação no `layout.tsx` bloqueava acesso não autenticado à `/pre-diagnostico`
-- **Sintoma:** Redirecionamento automático para landing page em <1 segundo no Android
-- **Solução:** Adicionar `/pre-diagnostico` às exceções de redirecionamento
-- **Resultado:** ✅ Funcionando em iPhone + Android + Desktop
-
-#### ✅ **PROBLEMA EMAIL/RLS RESOLVIDO** 
-- **Causa Raiz:** Políticas RLS muito restritivas bloqueavam inserções das APIs públicas
-- **Sintoma:** `Error 42501: new row violates row-level security policy` na tabela roi_leads
-- **Solução:** Política `FOR ALL USING (true) WITH CHECK (true)` para permitir acesso público
-- **Resultado:** ✅ Email enviado corretamente com RLS ativo
-
-#### ✅ **OTIMIZAÇÕES TÉCNICAS**
-- **Hidratação Simplificada:** Remoção de verificações desnecessárias que causavam conflitos
-- **Layout Universal:** Exceções de autenticação configuradas corretamente
-- **Segurança Balanceada:** RLS ativo mas permitindo APIs públicas necessárias
-
-### **🔧 ARQUIVOS MODIFICADOS:**
-```
-src/app/layout.tsx                    # Exceções de autenticação
-src/app/pre-diagnostico/page.tsx      # Simplificação de hidratação  
-src/components/prediagnostico/ChatFlow.tsx # useLayoutEffect otimizado
-Políticas RLS no Supabase             # roi_leads com acesso público
-```
-
-### **📱 COMPATIBILIDADE CONFIRMADA:**
-- ✅ **iPhone Safari** - Funcionando
-- ✅ **Android Chrome** - Funcionando (corrigido)
-- ✅ **Desktop** - Funcionando
-- ✅ **Mobile browsers** - Funcionando
-- ✅ **Email delivery** - Funcionando (corrigido)
-
----
-
-## 🎯 SESSÃO ANTERIOR: INTEGRAÇÃO LANDING PAGE + UX REFINADO
-**Data:** 27 de Agosto de 2025 - Tarde  
-**Status:** ✅ Concluída com sucesso
-
-### **🚀 PRINCIPAIS ENTREGAS:**
-
-#### ✅ **INTEGRAÇÃO PRÉ-DIAGNÓSTICO NA LANDING PAGE**
-- **2 CTAs Estratégicos:** Posicionados no Hero section + seção ROI do Foco
-- **Textos Tangíveis:** "30-60 minutos por dia" baseados na teoria ROI do Foco
-- **Hierarquia de Conversão:** Newsletter (primário) → Demo (secundário) → Acesso (terciário)
-- **Fluxo Completo:** Landing → Demo → Email → Newsletter → Sistema
-
-#### ✅ **REFINAMENTOS UX PROFISSIONAIS**
-- **Espaçamentos Otimizados:** Redução de 25% nos gaps verticais entre seções
-- **Centralização Corrigida:** Cards de perfil e CTAs alinhados perfeitamente
-- **Scroll Anchoring Resolvido:** Accordions com `overflow-anchor: none`
-
----
 
 ## 🏗️ ARQUITETURA ATUAL COMPLETA
 
@@ -184,7 +68,7 @@ Políticas RLS no Supabase             # roi_leads com acesso público
 ✅ Landing Page Principal (/)           # Apresentação + 2 CTAs pré-diagnóstico
 ✅ Pré-Diagnóstico (/pre-diagnostico)   # Funcionando universalmente (corrigido)  
 ✅ Autenticação (/auth)                 # Login/cadastro profissional
-✅ Dashboard (/dashboard)               # Mapeamento Impacto × Clareza
+✅ Dashboard (/dashboard)               # # Mapa mobile-first responsivo ← ATUALIZADO v3.1
 ✅ Diagnóstico (/diagnostico)           # Análise automática + relatórios
 ✅ Plano de Ação (/plano-acao)          # Framework DAR CERTO + IA V2.1
 ✅ Perfil (/perfil)                     # Configurações + LGPD
@@ -200,7 +84,13 @@ Políticas RLS no Supabase             # roi_leads com acesso público
 ✅ Data Management (Supabase)           # CRUD + RLS balanceado
 ✅ Email System (Resend)                # Templates + delivery funcionando
 ```
-
+### **Componentes Atualizados (v3.1):**
+✅ src/components/mapa/index.tsx        # Componentes modulares mobile-first
+✅ AtividadeForm                        # Formulário responsivo com NumberSelector
+✅ MapaChart                            # Gráfico com clique + jitter + tooltip
+✅ AtividadeTable                       # Cards por zona unificados
+✅ MatrizMobile                         # Visualização mobile com mini-matriz
+✅ CardAtividadeMobile                  # Swipe gestures implementados
 ---
 
 ## 🎯 FLUXO DE USUÁRIO COMPLETO

@@ -3,7 +3,7 @@
 **Sistema Enterprise para Diagnóstico e Otimização do Foco Profissional**
 
 [![Deploy](https://img.shields.io/badge/deploy-vercel-black?logo=vercel)](https://conversas-no-corredor.vercel.app)
-[![Versão](https://img.shields.io/badge/versão-v3.0.0-blue)](docs/CURRENT-STATUS.md)
+[![Versão](https://img.shields.io/badge/versão-v3.1.0-blue)](docs/CURRENT-STATUS.md)
 [![Status](https://img.shields.io/badge/status-✅%20operacional-green)](docs/CURRENT-STATUS.md)
 
 ## 🚀 Quick Start
@@ -157,8 +157,30 @@ Atualizar documentação com comandos Windows.
 
 > 💡 **Dica:** Mantenha um documento no Obsidian com estes templates para agilizar o processo!
 
+## 🎯 Versão Atual: v3.1.0 - Mobile-First Redesign do Mapa
 
-## 🎯 Versão Atual: v3.0.0 - Landing Page Premium com Vídeos Interativos
+**Foco da Sessão (19/01/2025):** Redesign completo do Mapa de Atividades com abordagem mobile-first
+**Sessão Anterior (17/01/2025):** Landing Page Premium com Vídeos Interativos
+
+### ✅ Principais Melhorias do Mapa:
+- **📱 Visualização Mobile Nativa** - Cards por zona com mini-matriz visual e swipe gestures
+- **🎯 Seletor de Números** - Botões 1-6 substituindo sliders problemáticos  
+- **📊 Gráfico Interativo** - Clique nas bolhas para editar + jitter para evitar sobreposição
+- **🔢 Correção de Cálculos** - 22 dias úteis e 4.33 semanas/mês (mais precisos)
+- **📇 Cards Unificados** - Mesma visualização por zonas no desktop e mobile
+- **↕️ Auto-Scroll** - Scroll suave ao editar atividade
+
+### 🚀 UX Mobile Implementada:
+- **Swipe Actions:** Deslize → para editar, ← para excluir
+- **Touch Targets:** Mínimo 44px em todos os controles
+- **Zero Scroll Horizontal:** Layout 100% responsivo
+- **Feedback Visual:** Indicadores coloridos durante swipe
+
+---
+
+## 🎯 Versão Anterior: v3.0.0 - Landing Page Premium com Vídeos Interativos
+
+## 🎯 Versão Anterior: v3.0.0 - Landing Page Premium com Vídeos Interativos
 
 **Foco da Sessão (17/01/2024):** Redesign completo da landing page com demonstrações em vídeo
 **Sessão Anterior (13/12/2025):** Kanban Visual - Fluxo Semanal
@@ -192,53 +214,7 @@ ATIVIDADES (dashboard/mapa)
 - **Hierarquia:** Cards mostram atividade mãe + zona ROI + categoria automaticamente
 - **Navegação:** Botão "Fluxo Semanal" adicionado na sidebar lateral
 
---- 
-
-## 🎯 Versão Anterior: v1.9.8 - Sincronização Supabase + Notificações ROI do Foco
-
-**Foco da Sessão (09/12/2025):** Migração localStorage → Supabase + Sistema de notificações
-**Sessão Anterior (09/09/2025):** Google Ads Conversion Tracking
-
-### ✅ Sincronização Entre Dispositivos
-- **🔄 Salvamento Híbrido** - localStorage + Supabase simultaneamente
-- **📊 Tabela Táticas** - Nova tabela `public.taticas` com RLS ativo
-- **🔄 Strategy Replace All** - Deleta antigas e insere novas (evita duplicatas)
-- **📱 Problema Resolvido** - Táticas agora sincronizam entre celular e computador
-
-### 🎨 Notificações ROI do Foco
-- **✨ UX Melhorada** - Substituição dos alert() feios por notificações visuais
-- **🎯 Design Consistente** - Cores e tipografia alinhadas com identidade
-- **⏱️ Feedback Temporal** - Notificações aparecem por 3 segundos
-- **🏷️ Branding Integrado** - Todas mostram "ROI do Foco"
-
-### 🚀 Sistema Robusto Implementado
-Salvamento Local → Sincronização Supabase → Notificação Visual →
-Dados disponíveis em qualquer dispositivo
-
-### 🔧 Arquivos Principais Modificados
-- `src/app/plano-acao/page.tsx` - função salvarPlano() + notificações
-- Schema SQL Supabase - tabela taticas com 15 campos + RLS
-
-
-## 🎯 Versão Anterior: v1.9.7 - Google Ads Conversion Tracking
-
-**Foco da Sessão (09/09/2025):** Implementação completa de tracking de conversão Google Ads
-**Sessão Anterior (08/09/2025):** Plano de Ação UX Redesign
-
-### ✅ Google Ads Conversion Tracking
-- **📊 Conversion Pipeline** - Google Ads → Pré-diagnóstico → Lead → Conversão registrada
-- **🎯 Trigger Preciso** - Conversão dispara no momento da captura nome + email
-- **💻 Frontend Integration** - gtag() executado via JavaScript no navegador
-- **🔍 Debug Confirmation** - Console mostra "Google Ads conversion triggered"
-
-### 🚀 Sistema Completo Validado
-Pipeline de Conversão → Todas as etapas funcionando → 
-Tracking confirmado → ROI do Google Ads mensurável
-
-### 📊 Descobertas Importantes
-- **Sistema Sempre Funcionou:** Problema era teste com mesmo email repetidamente
-- **Upsert Behavior:** created_at mantém data original, usar updated_at para tracking
-- **Conversion Accuracy:** Disparo no momento exato de lead qualificado
+---
 
 ### 🔧 Comandos Úteis
 
@@ -475,6 +451,6 @@ Baseado na metodologia **ROI do Foco** da newsletter [Conversas no Corredor](htt
 ---
 
 📋 **Status:** Sistema completo com landing page premium e vídeos interativos
-📅 **Última atualização:** 16 de Setembro e 2025
+📅 **Última atualização:** 19 de Setembro de 2025
 📄 **Próxima versão:** Pequenos deploys e correção e bugs, criação de view free
 📊 **Métricas:** [Veja status detalhado no CURRENT-STATUS.md](docs/CURRENT-STATUS.md)

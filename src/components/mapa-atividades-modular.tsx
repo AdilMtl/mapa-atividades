@@ -5,7 +5,7 @@
 'use client'
 import React, { useEffect, useMemo, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-
+import html2canvas from "html2canvas";
 import { supabase } from "@/lib/supabase";
 import { Button } from "@/components/ui/button";
 import { 
@@ -29,6 +29,7 @@ import {
   AtividadeTable,
   MapaControls,
   MapaStats,
+  MatrizMobile,
   Atividade,
   normalizarParaHorasMes,
   type Zona
@@ -262,6 +263,7 @@ export default function MapaAtividadesModular() {
   const [eixoY, setEixoY] = useState(3);
   const [periodo, setPeriodo] = useState<Periodo>("mes");
   const [horasNoPeriodo, setHorasNoPeriodo] = useState<number>(10);
+  const exportRef = React.useRef<HTMLDivElement>(null);
 
 
 
@@ -396,13 +398,28 @@ export default function MapaAtividadesModular() {
   }
 
   function editar(a: Atividade) {
-    setEditId(a.id || null);
-    setNome(a.nome);
-    setEixoX(a.eixoX);
-    setEixoY(a.eixoY);
-    setPeriodo("mes");
-    setHorasNoPeriodo(a.horasMes);
-  }
+  setEditId(a.id || null);
+  setNome(a.nome);
+  setEixoX(a.eixoX);
+  setEixoY(a.eixoY);
+  setPeriodo("mes");
+  setHorasNoPeriodo(a.horasMes);
+  
+  // Scroll suave para o formulário
+  setTimeout(() => {
+    // Buscar pelo ID ou por uma classe mais simples
+    const formulario = document.getElementById('formulario-atividade');
+    if (formulario) {
+      formulario.scrollIntoView({ 
+        behavior: 'smooth', 
+        block: 'start' 
+      });
+    } else {
+      // Fallback: scroll para o topo
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }, 100);
+}
 
   const logout = async () => {
     await supabase.auth.signOut();
@@ -410,6 +427,18 @@ export default function MapaAtividadesModular() {
   };
 
   
+const exportarPNG = async () => {
+  if (!exportRef.current) return;
+  try {
+    const canvas = await html2canvas(exportRef.current);
+    const link = document.createElement('a');
+    link.download = `mapa-atividades-${new Date().toISOString().split('T')[0]}.png`;
+    link.href = canvas.toDataURL();
+    link.click();
+  } catch (error) {
+    console.error('Erro ao exportar:', error);
+  }
+};
 
   // ═══════════════════════════════════════════════════════════════════
   // 🎨 LOADING STATE (ORIGINAL)
@@ -541,7 +570,9 @@ export default function MapaAtividadesModular() {
           {/* ✅ MELHORIA 1: FORMULÁRIO DESTACADO COMO AÇÃO PRINCIPAL */}
           <div className="lg:col-span-1 space-y-6">
             {/* 🎛️ FORMULÁRIO DESTACADO */}
-            <div className="ring-2 ring-orange-500/30 bg-white/8 rounded-xl p-6 border border-orange-400/20 transition-all duration-300 hover:ring-orange-500/40 hover:bg-white/10">
+            <div 
+id="formulario-atividade"
+className={`ring-2 ${editId ? 'ring-orange-500 bg-orange-900/20' : 'ring-orange-500/30 bg-white/8'} rounded-xl p-6 border border-orange-400/20 transition-all duration-300 hover:ring-orange-500/40 hover:bg-white/10`}>
               <div className="flex items-center gap-3 mb-6">
                 <div className="p-3 rounded-lg bg-orange-500/20 transition-all duration-300 hover:bg-orange-500/30">
                   <Plus className="w-6 h-6 text-orange-300" />
@@ -549,8 +580,13 @@ export default function MapaAtividadesModular() {
                 <div>
                   {/* ✅ MELHORIA 2: Tipografia consistente */}
                   <h2 className="text-xl font-semibold text-white">
-                    {editId ? "Editar Atividade" : "Adicionar Atividade"}
-                  </h2>
+  {editId ? "✏️ Editando Atividade" : "Adicionar Atividade"}
+</h2>
+{editId && (
+  <div className="mt-1 text-xs text-orange-400 font-medium">
+    Alterando: {nome || "..."}
+  </div>
+)}
                   <p className="text-sm text-white/70">Ação principal • Preencha os campos abaixo</p>
                 </div>
               </div>
@@ -573,104 +609,118 @@ export default function MapaAtividadesModular() {
             </div>
             
             {/* 📊 ESTATÍSTICAS - ✅ MELHORIA 4: Micro-interação */}
-            <div className="hover-lift">
-              <MapaStats atividades={atividades} />
-            </div>
-{/* 🎯 CALL-TO-ACTION INTELIGENTE */}
-            {atividades.length > 0 && (() => {
-              const totalHorasMes = atividades.reduce((acc, a) => acc + (a.horasMes || 0), 0);
-              const LIMITE_SAUDAVEL = 160; // 20 dias × 8 horas
-              
-              if (totalHorasMes > LIMITE_SAUDAVEL) {
-                const horasExcesso = totalHorasMes - LIMITE_SAUDAVEL;
-                const percentualExcesso = ((horasExcesso / LIMITE_SAUDAVEL) * 100).toFixed(0);
-                
-                return (
-                  <div className="mt-6 p-4 rounded-lg bg-orange-900/30 border border-orange-700/50 transition-all duration-300 hover:bg-orange-900/40">
-                    <div className="flex items-start gap-3">
-                      <div className="w-8 h-8 rounded-full bg-orange-500/20 flex items-center justify-center flex-shrink-0">
-                        <HelpCircle size={16} className="text-orange-300" />
-                      </div>
-                      <div className="flex-1">
-                        <h4 className="text-sm font-medium text-orange-200 mb-1">
-                          ⚠️ Sobrecarga detectada: {totalHorasMes.toFixed(0)}h/mês
-                        </h4>
-                        <p className="text-xs text-orange-300/80 mb-3">
-                          Você está {percentualExcesso}% acima do limite saudável ({LIMITE_SAUDAVEL}h/mês). 
-                          Isso pode indicar sobrecarga ou atividades de baixo impacto.
-                        </p>
-                        <div className="flex gap-2">
-                          <button 
-                            onClick={() => window.location.href = '/diagnostico'}
-                            className="px-3 py-1.5 text-xs bg-blue-600/80 hover:bg-blue-600 text-white rounded-md transition-colors"
-                          >
-                            📊 Gerar Diagnóstico
-                          </button>
-                          <button 
-                            onClick={() => window.location.href = '/plano-acao'}
-                            className="px-3 py-1.5 text-xs bg-orange-600/80 hover:bg-orange-600 text-white rounded-md transition-colors"
-                          >
-                            🎯 Criar Plano de Ação
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                );
-              }
-              return null;
-            })()}
-{/* 🔬 CARD "DESCUBRA SEU FOCO" - SEMPRE VISÍVEL */}
-            <Card className="bg-gradient-to-br from-orange-500/15 to-amber-500/15 border-orange-400/30 backdrop-blur-sm ring-2 ring-orange-400/20 transition-all duration-300 hover:from-orange-500/20 hover:to-amber-500/20 hover:border-orange-400/40 hover:ring-orange-400/30 hover:scale-105">
-              <CardContent className="p-6">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="p-2 rounded-lg bg-orange-500/20 transition-all duration-300 hover:bg-orange-500/30">
-                    <Search className="w-5 h-5 text-orange-300" />
-                  </div>
-                  <h3 className="text-lg font-semibold text-orange-200">🔬 Descubra seu Foco</h3>
-                </div>
-                
-                <p className="text-orange-100 text-sm leading-relaxed mb-2">
-                  Agora que você mapeou suas atividades, quer saber para onde seu tempo está indo de verdade? O diagnóstico vai te mostrar se você está investindo energia no que gera resultado ou só 'apagando incêndio'.
-                </p>
-                <p className="text-orange-100/80 text-xs italic mb-4">
-                  É como acender a luz num cômodo bagunçado - de repente você vê tudo.
-                </p>
-                
-                <Button 
-                  onClick={() => window.location.href = '/diagnostico'}
-                  className="w-full bg-orange-600 hover:bg-orange-700 text-white text-sm font-medium transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-orange-500/20"
-                >
-                  <Lightbulb className="w-4 h-4 mr-2" />
-                  Executar Diagnóstico
-                  <ChevronRight className="w-4 h-4 ml-2" />
-                </Button>
-              </CardContent>
-            </Card>
-          </div>
+<div className="hover-lift">
+  <MapaStats atividades={atividades} />
+</div>
 
+{/* 🎯 CALL-TO-ACTION INTELIGENTE */}
+{atividades.length > 0 && (() => {
+  const totalHorasMes = atividades.reduce((acc, a) => acc + (a.horasMes || 0), 0);
+  const LIMITE_SAUDAVEL = 160; // 20 dias × 8 horas
+  
+  if (totalHorasMes > LIMITE_SAUDAVEL) {
+    const horasExcesso = totalHorasMes - LIMITE_SAUDAVEL;
+    const percentualExcesso = ((horasExcesso / LIMITE_SAUDAVEL) * 100).toFixed(0);
+    
+    return (
+      <div className="mt-6 p-4 rounded-lg bg-orange-900/30 border border-orange-700/50 transition-all duration-300 hover:bg-orange-900/40">
+        <div className="flex items-start gap-3">
+          <div className="w-8 h-8 rounded-full bg-orange-500/20 flex items-center justify-center flex-shrink-0">
+            <HelpCircle size={16} className="text-orange-300" />
+          </div>
+          <div className="flex-1">
+            <h4 className="text-sm font-medium text-orange-200 mb-1">
+              ⚠️ Sobrecarga detectada: {totalHorasMes.toFixed(0)}h/mês
+            </h4>
+            <p className="text-xs text-orange-300/80 mb-3">
+              Você está {percentualExcesso}% acima do limite saudável ({LIMITE_SAUDAVEL}h/mês). 
+              Isso pode indicar sobrecarga ou atividades de baixo impacto.
+            </p>
+            <div className="flex gap-2">
+              <button 
+                onClick={() => window.location.href = '/diagnostico'}
+                className="px-3 py-1.5 text-xs bg-blue-600/80 hover:bg-blue-600 text-white rounded-md transition-colors"
+              >
+                📊 Gerar Diagnóstico
+              </button>
+              <button 
+                onClick={() => window.location.href = '/plano-acao'}
+                className="px-3 py-1.5 text-xs bg-orange-600/80 hover:bg-orange-600 text-white rounded-md transition-colors"
+              >
+                🎯 Criar Plano de Ação
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+  return null;
+})()}
+
+{/* 🔬 CARD DIAGNÓSTICO - Desktop apenas (escondido no mobile) */}
+<div className="hidden lg:block mt-6">
+  <Card className="bg-gradient-to-br from-orange-500/15 to-amber-500/15 border-orange-400/30 backdrop-blur-sm ring-2 ring-orange-400/20 transition-all duration-300 hover:from-orange-500/20 hover:to-amber-500/20 hover:border-orange-400/40 hover:ring-orange-400/30 hover:scale-105">
+    <CardContent className="p-6">
+      <div className="flex items-center gap-3 mb-4">
+        <div className="p-2 rounded-lg bg-orange-500/20 transition-all duration-300 hover:bg-orange-500/30">
+          <Search className="w-5 h-5 text-orange-300" />
+        </div>
+        <h3 className="text-lg font-semibold text-orange-200">🔬 Descubra seu Foco</h3>
+      </div>
+      
+      <p className="text-orange-100 text-sm leading-relaxed mb-2">
+        Agora que você mapeou suas atividades, quer saber para onde seu tempo está indo de verdade? O diagnóstico vai te mostrar se você está investindo energia no que gera resultado ou só 'apagando incêndio'.
+      </p>
+      <p className="text-orange-100/80 text-xs italic mb-4">
+        É como acender a luz num cômodo bagunçado - de repente você vê tudo.
+      </p>
+      
+      <Button 
+        onClick={() => window.location.href = '/diagnostico'}
+        className="w-full bg-orange-600 hover:bg-orange-700 text-white text-sm font-medium transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-orange-500/20"
+      >
+        <Lightbulb className="w-4 h-4 mr-2" />
+        Executar Diagnóstico
+        <ChevronRight className="w-4 h-4 ml-2" />
+      </Button>
+    </CardContent>
+  </Card>
+</div>
+</div>
           {/* 📈 COLUNA DIREITA - ✅ MELHORIA 4: Micro-interação */}
-          <Card className="glass border-0 lg:col-span-2 hover-lift transition-all duration-300 hover:bg-white/8">
-            <CardHeader>
-              {/* ✅ MELHORIA 2: Tipografia consistente */}
-              <CardTitle className="font-mono text-2xl font-bold text-white">Gráfico de bolhas</CardTitle>
-              <p className="text-sm text-white/70 leading-relaxed">
-                Impacto × Clareza (1-6) • Tamanho = horas/mês • 4 zonas automáticas
-              </p>
-            </CardHeader>
-            <CardContent>
-              <MapaChart 
-                atividades={atividades}
-                exportRef={null}
-              />
-              
-              <AtividadeTable
-                atividades={atividades}
-                onEdit={editar}
-                onDelete={excluir}
-              />
-            </CardContent>
-          </Card>
+         
+<Card className="glass border-0 lg:col-span-2 hover-lift transition-all duration-300 hover:bg-white/8">
+  <CardHeader>
+    <CardTitle className="font-mono text-2xl font-bold text-white">Matriz Impacto × Clareza</CardTitle>
+    <p className="text-sm text-white/70 leading-relaxed">
+      Impacto × Clareza (1-6) • Tamanho = horas/mês • 4 zonas automáticas
+    </p>
+  </CardHeader>
+  <CardContent>
+    {/* Versão Mobile - Cards por Zona */}
+    <MatrizMobile 
+      atividades={atividades}
+      onEdit={editar}
+      onDelete={excluir}
+    />
+    
+    {/* Versão Desktop - Gráfico Original */}
+    <div className="hidden md:block">
+      <MapaChart 
+        atividades={atividades}
+        exportRef={exportRef}
+        onEdit={editar}
+      />
+      
+      <AtividadeTable
+        atividades={atividades}
+        onEdit={editar}
+        onDelete={excluir}
+      />
+    </div>
+  </CardContent>
+</Card>
         </div>
       </main>
     </div>

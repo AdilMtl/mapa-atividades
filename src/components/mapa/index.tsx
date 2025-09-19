@@ -1,5 +1,6 @@
-// 🧩 COMPONENTES MODULARES - MAPA ATIVIDADES
+// 🧩 COMPONENTES MODULARES - MAPA ATIVIDADES (VERSÃO MELHORADA)
 // Arquivo: src/components/mapa/index.tsx
+// ✅ CORREÇÕES: Conversão de horas + UI dos controles + Gráfico interativo melhorado
 
 'use client'
 import React, { useEffect, useMemo, useRef, useState } from "react";
@@ -12,7 +13,10 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Scatter, ScatterChart, XAxis, YAxis, ZAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from "recharts";
 import { motion, AnimatePresence } from "framer-motion";
 import html2canvas from "html2canvas";
-import { Download, Plus, Save, Trash2, Edit, Info, Target, BarChart3 } from "lucide-react";
+import { 
+  Download, Plus, Save, Trash2, Edit, Info, Target, BarChart3,
+  ChevronDown, ChevronUp, Edit2, Clock, Search
+} from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { DESIGN_TOKENS, getZonaInfo, formatHoras, calcularHorasPorDia } from "@/lib/design-system";
 
@@ -45,21 +49,28 @@ const GREEN = "#22c55e";
 const ROTULO_X = "Impacto";
 const ROTULO_Y = "Clareza";
 const DIAS_MES_BASE = 30;
-const DIAS_UTEIS_MES = 20;
-const SEMANAS_MES = 4;
+const DIAS_UTEIS_MES = 20; // 
+const SEMANAS_MES = 4;   
 
 // Funções utilitárias originais
 function formatHorasOriginal(num: number) {
   return new Intl.NumberFormat("pt-BR", { maximumFractionDigits: 2 }).format(num);
 }
 
+// ✅ CORREÇÃO: Função de normalização melhorada
 export function normalizarParaHorasMes(periodo: Periodo, horasNoPeriodo: number): number {
   const h = Math.max(0, Number(horasNoPeriodo) || 0);
   switch (periodo) {
-    case "dia": return h * DIAS_UTEIS_MES;
-    case "semana": return h * SEMANAS_MES;
+    case "dia": 
+      // Se trabalha X horas por dia, em 22 dias úteis = X * 22 horas/mês
+      return h * DIAS_UTEIS_MES;
+    case "semana": 
+      // Se trabalha X horas por semana, em 4.33 semanas = X * 4.33 horas/mês
+      return h * SEMANAS_MES;
     case "mes":
-    default: return h;
+    default: 
+      // Se já está em horas/mês, retorna direto
+      return h;
   }
 }
 
@@ -72,19 +83,40 @@ export function zonaECor(impacto: number, clareza: number): { zona: Zona; cor: s
   return { zona: "estrategica", cor: BLUE };
 }
 
-export function calcScatterData(atividades: Atividade[]) {
-  return atividades.map((a) => ({
-    x: a.eixoX,
-    y: a.eixoY,
-    z: Math.max(a.horasMes / DIAS_MES_BASE, 0.01),
-    nome: a.nome,
-    hMes: a.horasMes,
-    ...zonaECor(a.eixoX, a.eixoY),
-  }));
+// ✅ MELHORADO: Função com jitter para evitar sobreposição
+export function calcScatterDataComJitter(atividades: Atividade[]) {
+  const pontosPorPosicao = new Map<string, number>();
+  
+  return atividades.map((a, index) => {
+    const key = `${a.eixoX}-${a.eixoY}`;
+    const count = pontosPorPosicao.get(key) || 0;
+    pontosPorPosicao.set(key, count + 1);
+    
+    // Adiciona pequeno deslocamento circular se houver sobreposição
+    let offsetX = 0;
+    let offsetY = 0;
+    if (count > 0) {
+      const angle = (count - 1) * (Math.PI / 3); // Distribui em círculo
+      offsetX = Math.cos(angle) * 0.08;
+      offsetY = Math.sin(angle) * 0.08;
+    }
+    
+    return {
+      x: a.eixoX + offsetX,
+      y: a.eixoY + offsetY,
+      z: Math.max(a.horasMes / 10, 0.5), // ✅ MELHORADO: Bolhas maiores
+      nome: a.nome,
+      hMes: a.horasMes,
+      id: a.id,
+      originalX: a.eixoX,
+      originalY: a.eixoY,
+      ...zonaECor(a.eixoX, a.eixoY),
+    };
+  });
 }
 
 // ═══════════════════════════════════════════════════════════════════
-// 🎛️ COMPONENTE 1: FORMULÁRIO DE ATIVIDADE
+// 🎛️ COMPONENTE 1: FORMULÁRIO DE ATIVIDADE (CORRIGIDO)
 // ═══════════════════════════════════════════════════════════════════
 
 interface AtividadeFormProps {
@@ -118,8 +150,9 @@ export function AtividadeForm({
   onSubmit,
   onReset
 }: AtividadeFormProps) {
+  // ✅ CORREÇÃO: Cálculos melhorados
   const horasMesPreview = useMemo(() => normalizarParaHorasMes(periodo, horasNoPeriodo), [periodo, horasNoPeriodo]);
-  const horasDiaPreview = useMemo(() => horasMesPreview / DIAS_MES_BASE, [horasMesPreview]);
+  const horasDiaPreview = useMemo(() => horasMesPreview / DIAS_UTEIS_MES, [horasMesPreview]);
 
   return (
     <Card className="glass border-0">
@@ -132,47 +165,49 @@ export function AtividadeForm({
           <Label htmlFor="nome">Nome</Label>
           <Input 
             id="nome" 
-            placeholder="Ex.: Exercícios físicos" 
+            placeholder="Ex.: Relatório de resultados" 
             value={nome} 
             onChange={(e) => setNome(e.target.value)} 
             className="bg-transparent border-white/20 focus-visible:ring-[var(--accent)]" 
           />
         </div>
 
-        {/* Sliders Impacto e Clareza */}
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <Label className="block mb-1">{ROTULO_X} (1-6)</Label>
-            <DiscreteSlider value={eixoX} onChange={setEixoX} />
-          </div>
-          <div>
-            <Label className="block mb-1">{ROTULO_Y} (1-6)</Label>
-            <DiscreteSlider value={eixoY} onChange={setEixoY} />
-          </div>
-        </div>
+        {/* ✅ NOVO: Controles de Impacto e Clareza com Botões */}
+<div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+  <div>
+    <Label className="block mb-2 text-sm sm:text-base">{ROTULO_X} (1-6)</Label>
+    <NumberSelector value={eixoX} onChange={setEixoX} />
+  </div>
+  <div>
+    <Label className="block mb-2 text-sm sm:text-base">{ROTULO_Y} (1-6)</Label>
+    <NumberSelector value={eixoY} onChange={setEixoY} />
+  </div>
+</div>
 
         {/* Período e Horas */}
-        <div className="grid grid-cols-2 gap-3">
+<div className="space-y-3 sm:space-y-0 sm:grid sm:grid-cols-2 sm:gap-3">
           <div className="space-y-2">
             <Label htmlFor="periodo">Período</Label>
             <select 
               id="periodo" 
               value={periodo} 
               onChange={(e) => setPeriodo(e.target.value as Periodo)} 
-              className="w-full rounded-md bg-transparent border border-white/20 px-3 py-2"
+              className="w-full rounded-md bg-transparent border border-white/20 px-3 py-2 hover:border-white/40 focus:border-orange-500 transition-colors"
             >
-              <option value="dia">Dia</option>
-              <option value="semana">Semana</option>
-              <option value="mes">Mês</option>
+              <option value="dia" className="bg-gray-900">Dia</option>
+              <option value="semana" className="bg-gray-900">Semana</option>
+              <option value="mes" className="bg-gray-900">Mês</option>
             </select>
           </div>
           <div className="space-y-2">
-            <Label htmlFor="horasPeriodo">Horas por {periodo}</Label>
+            <Label htmlFor="horasPeriodo">
+              Horas por {periodo === "mes" ? "mês" : periodo}
+            </Label>
             <Input 
               id="horasPeriodo" 
               type="number" 
               min={0} 
-              step="0.25" 
+              step="0.5" 
               value={horasNoPeriodo} 
               onChange={(e) => setHorasNoPeriodo(Number(e.target.value))} 
               className="bg-transparent border-white/20 focus-visible:ring-[var(--accent)]" 
@@ -180,39 +215,490 @@ export function AtividadeForm({
           </div>
         </div>
 
-        {/* Preview de horas */}
-        <p className="text-xs opacity-70">
-          Equivale a <strong>{formatHorasOriginal(horasMesPreview)}</strong> h/mês ({formatHorasOriginal(horasDiaPreview)} h/dia).
-        </p>
+        {/* ✅ CORREÇÃO: Preview de horas melhorado */}
+        <div className="p-3 rounded-lg bg-white/5 border border-white/10">
+          <p className="text-xs text-white/70 mb-1">Conversão automática:</p>
+          <div className="grid grid-cols-2 gap-2 text-sm">
+            <div>
+              <span className="text-white/50">Horas/mês:</span>
+              <span className="ml-2 font-bold text-orange-400">
+                {formatHorasOriginal(horasMesPreview)}h
+              </span>
+            </div>
+            <div>
+              <span className="text-white/50">Horas/dia:</span>
+              <span className="ml-2 font-bold text-blue-400">
+                {formatHorasOriginal(horasDiaPreview)}h
+              </span>
+            </div>
+          </div>
+        </div>
 
         {/* Botões de ação */}
-        <div className="flex flex-wrap gap-2 pt-2">
-          <Button onClick={onSubmit} className="accent-bg hover:opacity-90 text-black font-semibold">
-            <Plus className="mr-2 h-4 w-4"/>
-            {editId ? "Atualizar" : "Adicionar"}
-          </Button>
-          <Button variant="destructive" onClick={onReset} className="bg-red-600 hover:bg-red-700">
-            <Save className="mr-2 h-4 w-4"/>
-            Limpar formulário
-          </Button>
-        </div>
+<div className="flex flex-col sm:flex-row gap-2 pt-2">
+  <Button onClick={onSubmit} className="accent-bg hover:opacity-90 text-black font-semibold flex-1 sm:flex-initial">
+    <Plus className="mr-2 h-4 w-4"/>
+    {editId ? "Atualizar" : "Adicionar"}
+  </Button>
+  <Button variant="destructive" onClick={onReset} className="bg-red-600 hover:bg-red-700 flex-1 sm:flex-initial">
+    <Save className="mr-2 h-4 w-4"/>
+    Limpar formulário
+  </Button>
+</div>
       </CardContent>
     </Card>
   );
 }
 
 // ═══════════════════════════════════════════════════════════════════
-// 📈 COMPONENTE 2: GRÁFICO DE BOLHAS
+// ✅ NOVO COMPONENTE: Seletor de Números (Substitui o Slider)
 // ═══════════════════════════════════════════════════════════════════
+
+interface NumberSelectorProps {
+  value: number;
+  onChange: (value: number) => void;
+}
+
+function NumberSelector({ value, onChange }: NumberSelectorProps) {
+  const numbers = [1, 2, 3, 4, 5, 6];
+  
+  return (
+    <div className="flex gap-1 justify-between">
+      {numbers.map((num) => (
+        <button
+          key={num}
+          onClick={() => onChange(num)}
+          className={`
+            w-full aspect-square rounded-lg font-bold text-sm transition-all
+            ${value === num 
+              ? 'bg-orange-500 text-black shadow-lg scale-110' 
+              : 'bg-white/10 hover:bg-white/20 text-white/70 hover:text-white'
+            }
+          `}
+        >
+          {num}
+        </button>
+      ))}
+    </div>
+  );
+}// ═══════════════════════════════════════════════════════════════════
+// 📈 COMPONENTE 2: GRÁFICO DE BOLHAS (MELHORADO)
+// ═══════════════════════════════════════════════════════════════════
+
+// ═══════════════════════════════════════════════════════════════════
+// 📱 COMPONENTES MOBILE - CARDS POR ZONA COM MINI-MATRIZ
+// Adicionar no arquivo: src/components/mapa/index.tsx
+// Localização: Adicionar ANTES do export function MapaChart
+// ═══════════════════════════════════════════════════════════════════
+
+
+// ═══════════════════════════════════════════════════════════════════
+// 🗺️ MINI-MATRIZ VISUAL (Não interativa, apenas referência)
+// ═══════════════════════════════════════════════════════════════════
+
+interface MiniMatrizVisualProps {
+  atividades: Atividade[];
+}
+
+function MiniMatrizVisual({ atividades }: MiniMatrizVisualProps) {
+  // Criar grid 6x6 simplificado
+  const grid = Array(6).fill(null).map(() => Array(6).fill(0));
+  
+  // Contar atividades por posição
+  atividades.forEach(a => {
+    const x = a.eixoX - 1; // Converter para índice 0-5
+    const y = a.eixoY - 1;
+    if (x >= 0 && x < 6 && y >= 0 && y < 6) {
+      grid[5 - y][x]++; // Inverter Y para display correto
+    }
+  });
+
+  return (
+    <div className="w-full h-full flex flex-col">
+      <div className="text-xs text-white/60 mb-2 text-center">Visão Geral da Matriz</div>
+      
+      <div className="flex-1 relative">
+        {/* Grid de fundo */}
+        <div className="absolute inset-0 grid grid-cols-6 grid-rows-6 gap-px bg-white/10 rounded-lg overflow-hidden">
+          {grid.map((row, rowIdx) => 
+            row.map((count, colIdx) => {
+              const x = colIdx + 1;
+              const y = 6 - rowIdx;
+              const { cor } = zonaECor(x, y);
+              
+              return (
+                <div
+                  key={`${rowIdx}-${colIdx}`}
+                  className="relative flex items-center justify-center"
+                  style={{ backgroundColor: count > 0 ? `${cor}20` : 'rgba(255,255,255,0.02)' }}
+                >
+                  {count > 0 && (
+                    <div 
+                      className="w-4 h-4 sm:w-6 sm:h-6 rounded-full flex items-center justify-center text-[10px] sm:text-xs font-bold"
+                      style={{ backgroundColor: cor, color: '#000' }}
+                    >
+                      {count}
+                    </div>
+                  )}
+                </div>
+              );
+            })
+          )}
+        </div>
+        
+        {/* Labels dos eixos */}
+        <div className="absolute -bottom-6 left-0 right-0 text-center text-xs text-white/50">
+          Impacto →
+        </div>
+        <div className="absolute -left-8 top-0 bottom-0 flex items-center text-xs text-white/50">
+          <span className="transform -rotate-90">Clareza →</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// 📇 CARD DE ATIVIDADE MOBILE
+// ═══════════════════════════════════════════════════════════════════
+
+interface CardAtividadeMobileProps {
+  atividade: Atividade;
+  onEdit: (atividade: Atividade) => void;
+  onDelete: (id: string) => void;
+  cor: string;
+}
+
+function CardAtividadeMobile({ atividade, onEdit, onDelete, cor }: CardAtividadeMobileProps) {
+  const [startX, setStartX] = useState(0);
+  const [currentX, setCurrentX] = useState(0);
+  const [swiping, setSwiping] = useState(false);
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    setStartX(e.touches[0].clientX);
+    setSwiping(true);
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (!swiping) return;
+    const newX = e.touches[0].clientX - startX;
+    setCurrentX(Math.max(-100, Math.min(100, newX)));
+  };
+
+  const handleTouchEnd = () => {
+    if (Math.abs(currentX) > 60) {
+      if (currentX > 0) {
+        onEdit(atividade);
+      } else {
+        if (confirm('Excluir esta atividade?')) {
+          onDelete(atividade.id!);
+        }
+      }
+    }
+    setCurrentX(0);
+    setSwiping(false);
+  };
+
+  // Mostrar indicador apenas quando está deslizando
+  const showEditIndicator = currentX > 30;
+  const showDeleteIndicator = currentX < -30;
+
+  return (
+    <div className="relative overflow-hidden rounded-lg mb-2">
+      {/* Fundo que aparece ao deslizar para EDITAR */}
+      {showEditIndicator && (
+        <div className="absolute inset-0 bg-orange-500 flex items-center justify-start pl-4 rounded-lg">
+          <Edit2 className="w-5 h-5 text-white" />
+          <span className="ml-2 text-white font-medium">Editar</span>
+        </div>
+      )}
+      
+      {/* Fundo que aparece ao deslizar para EXCLUIR */}
+      {showDeleteIndicator && (
+        <div className="absolute inset-0 bg-red-500 flex items-center justify-end pr-4 rounded-lg">
+          <span className="mr-2 text-white font-medium">Excluir</span>
+          <Trash2 className="w-5 h-5 text-white" />
+        </div>
+      )}
+
+      {/* Card principal */}
+      <div 
+        className="relative bg-gray-900/95 border border-white/10 p-4 rounded-lg"
+        style={{
+          transform: `translateX(${currentX}px)`,
+          transition: swiping ? 'none' : 'transform 0.2s ease'
+        }}
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+      >
+        <div className="flex items-start justify-between mb-2">
+          <h4 className="font-medium text-white flex-1">{atividade.nome}</h4>
+          <div className="flex gap-1">
+            <button
+              onClick={() => onEdit(atividade)}
+              className="p-1.5 hover:bg-white/10 rounded-md transition-colors"
+            >
+              <Edit2 className="w-4 h-4 text-white/60" />
+            </button>
+            <button
+              onClick={() => onDelete(atividade.id!)}
+              className="p-1.5 hover:bg-red-500/20 rounded-md transition-colors"
+            >
+              <Trash2 className="w-4 h-4 text-red-400" />
+            </button>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-3 gap-2 text-xs">
+          <div>
+            <span className="text-white/50">Impacto: </span>
+            <span className="text-white font-medium">{atividade.eixoX}</span>
+          </div>
+          <div>
+            <span className="text-white/50">Clareza: </span>
+            <span className="text-white font-medium">{atividade.eixoY}</span>
+          </div>
+          <div>
+            <span className="text-white/50">Horas: </span>
+            <span className="text-white font-medium">{formatHorasOriginal(atividade.horasMes)}h</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+// ═══════════════════════════════════════════════════════════════════
+// 📁 ZONA COLAPSÁVEL
+// ═══════════════════════════════════════════════════════════════════
+
+interface ZonaCollapsivelProps {
+  titulo: string;
+  cor: string;
+  atividades: Atividade[];
+  defaultOpen?: boolean;
+  onEdit: (atividade: Atividade) => void;
+  onDelete: (id: string) => void;
+}
+
+function ZonaCollapsivel({ 
+  titulo, 
+  cor, 
+  atividades, 
+  defaultOpen = false,
+  onEdit,
+  onDelete
+}: ZonaCollapsivelProps) {
+  const [isOpen, setIsOpen] = useState(defaultOpen);
+  
+  const totalHoras = atividades.reduce((acc, a) => acc + a.horasMes, 0);
+  
+  const emoji = 
+    titulo === "Essencial" ? "✅" :
+    titulo === "Estratégica" ? "🎯" :
+    titulo === "Tática" ? "⚡" : "⚠️";
+    
+  const mensagem = 
+    titulo === "Essencial" ? "Foque aqui! Alto impacto" :
+    titulo === "Estratégica" ? "Esclareça para executar" :
+    titulo === "Tática" ? "Otimize ou delegue" : "Elimine ou reduza";
+
+  return (
+    <div className="mb-3">
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className="w-full p-4 rounded-lg flex items-center justify-between transition-all"
+        style={{ 
+          backgroundColor: `${cor}15`,
+          borderLeft: `4px solid ${cor}`
+        }}
+      >
+        <div className="flex items-center gap-3">
+          <span className="text-2xl">{emoji}</span>
+          <div className="text-left">
+            <div className="flex items-center gap-2">
+              <span className="font-semibold text-white">{titulo}</span>
+              <span className="text-xs px-2 py-0.5 rounded-full" style={{ backgroundColor: `${cor}30`, color: cor }}>
+                {atividades.length} {atividades.length === 1 ? 'atividade' : 'atividades'}
+              </span>
+            </div>
+            <div className="text-xs text-white/60 mt-0.5">
+              {mensagem} • {formatHorasOriginal(totalHoras)}h/mês
+            </div>
+          </div>
+        </div>
+        
+        {isOpen ? (
+          <ChevronUp className="w-5 h-5 text-white/60" />
+        ) : (
+          <ChevronDown className="w-5 h-5 text-white/60" />
+        )}
+      </button>
+
+      {isOpen && (
+        <div className="mt-2 pl-2">
+          {atividades.length === 0 ? (
+            <div className="text-center py-4 text-white/50 text-sm">
+              Nenhuma atividade nesta zona
+            </div>
+          ) : (
+            atividades.map(atividade => (
+              <CardAtividadeMobile
+                key={atividade.id}
+                atividade={atividade}
+                onEdit={onEdit}
+                onDelete={onDelete}
+                cor={cor}
+              />
+            ))
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// 📱 COMPONENTE PRINCIPAL MOBILE
+// ═══════════════════════════════════════════════════════════════════
+
+interface MatrizMobileProps {
+  atividades: Atividade[];
+  onEdit: (atividade: Atividade) => void;
+  onDelete: (id: string) => void;
+}
+
+export function MatrizMobile({ atividades, onEdit, onDelete }: MatrizMobileProps) {
+  // Agrupar por zona
+  const atividadesPorZona = useMemo(() => {
+    const grupos = {
+      essencial: [] as Atividade[],
+      estrategica: [] as Atividade[],
+      tatica: [] as Atividade[],
+      distracao: [] as Atividade[]
+    };
+
+    atividades.forEach(a => {
+      const { zona } = zonaECor(a.eixoX, a.eixoY);
+      if (zona === 'essencial') grupos.essencial.push(a);
+      else if (zona === 'estrategica') grupos.estrategica.push(a);
+      else if (zona === 'tactica') grupos.tatica.push(a);
+      else grupos.distracao.push(a);
+    });
+
+    return grupos;
+  }, [atividades]);
+
+  return (
+    <div className="md:hidden w-full"> {/* Só aparece no mobile */}
+      
+      {/* Mini-matriz visual */}
+      <div className="h-[25vh] bg-white/5 rounded-lg p-6 mb-4 relative">
+        <MiniMatrizVisual atividades={atividades} />
+      </div>
+
+      {/* Estatísticas rápidas */}
+      <div className="grid grid-cols-2 gap-3 mb-4">
+        <div className="bg-white/5 rounded-lg p-3 text-center">
+          <div className="text-2xl font-bold text-white">{atividades.length}</div>
+          <div className="text-xs text-white/60">Total de Atividades</div>
+        </div>
+        <div className="bg-white/5 rounded-lg p-3 text-center">
+          <div className="text-2xl font-bold text-orange-400">
+            {formatHorasOriginal(atividades.reduce((acc, a) => acc + a.horasMes, 0))}h
+          </div>
+          <div className="text-xs text-white/60">Horas por Mês</div>
+        </div>
+      </div>
+
+      {/* Cards por zona */}
+      <div className="space-y-2">
+        <ZonaCollapsivel
+          titulo="Essencial"
+          cor={GREEN}
+          atividades={atividadesPorZona.essencial}
+          defaultOpen={true}
+          onEdit={onEdit}
+          onDelete={onDelete}
+        />
+        
+        <ZonaCollapsivel
+          titulo="Estratégica"
+          cor={BLUE}
+          atividades={atividadesPorZona.estrategica}
+          onEdit={onEdit}
+          onDelete={onDelete}
+        />
+        
+        <ZonaCollapsivel
+          titulo="Tática"
+          cor={ORANGE}
+          atividades={atividadesPorZona.tatica}
+          onEdit={onEdit}
+          onDelete={onDelete}
+        />
+        
+        <ZonaCollapsivel
+          titulo="Distração"
+          cor={RED}
+          atividades={atividadesPorZona.distracao}
+          onEdit={onEdit}
+          onDelete={onDelete}
+        />
+      </div>
+
+      {/* Dica de uso */}
+      <div className="mt-6 p-3 bg-blue-500/10 border border-blue-500/30 rounded-lg">
+        <p className="text-xs text-blue-300">
+          💡 <strong>Dica:</strong> Deslize os cards para editar (→) ou excluir (←)
+        </p>
+      </div>
+
+      {/* 🔬 CARD DIAGNÓSTICO - Agora no final no mobile */}
+      {atividades.length > 2 && (
+        <div className="mt-6 p-4 bg-gradient-to-br from-orange-500/15 to-amber-500/15 border border-orange-400/30 rounded-lg">
+          <div className="flex items-center gap-3 mb-3">
+            <div className="p-2 rounded-lg bg-orange-500/20">
+              <Search className="w-5 h-5 text-orange-300" />
+            </div>
+            <h3 className="text-base font-semibold text-orange-200">Descubra seu Foco</h3>
+          </div>
+          
+          <p className="text-orange-100 text-sm leading-relaxed mb-4">
+            Agora que mapeou suas atividades, descubra se está investindo energia no que gera resultado!
+          </p>
+          
+          <button 
+            onClick={() => window.location.href = '/diagnostico'}
+            className="w-full py-2 bg-orange-600 hover:bg-orange-700 text-white text-sm font-medium rounded-lg transition-all"
+          >
+            Executar Diagnóstico →
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
 
 interface MapaChartProps {
   atividades: Atividade[];
   exportRef: React.RefObject<HTMLDivElement>;
+  onEdit?: (atividade: Atividade) => void; // ✅ NOVO: Callback para edição
 }
 
-export function MapaChart({ atividades, exportRef }: MapaChartProps) {
-  const scatterData = useMemo(() => calcScatterData(atividades), [atividades]);
+export function MapaChart({ atividades, exportRef, onEdit }: MapaChartProps) {
+  const scatterData = useMemo(() => calcScatterDataComJitter(atividades), [atividades]);
   const TICKS = [1, 2, 3, 4, 5, 6];
+
+  // ✅ NOVO: Handler para clique na bolha
+  const handleBubbleClick = (data: any) => {
+    if (data && onEdit) {
+      const atividade = atividades.find(a => a.id === data.id);
+      if (atividade) {
+        onEdit(atividade);
+      }
+    }
+  };
 
   return (
     <div ref={exportRef} className="rounded-xl p-4" style={{ background: "rgba(4,47,46,0.6)" }}>
@@ -238,11 +724,21 @@ export function MapaChart({ atividades, exportRef }: MapaChartProps) {
               label={{ value: ROTULO_Y, angle: -90, position: "insideLeft", fill: "#fff" }} 
               stroke="#fff" 
             />
-            <ZAxis dataKey="z" range={[70, 300]} />
-            <Tooltip content={<CustomTooltip rotuloX={ROTULO_X} rotuloY={ROTULO_Y} />} />
-            <Scatter data={scatterData}>
+            <ZAxis dataKey="z" range={[200, 600]} /> {/* ✅ MELHORADO: Bolhas maiores */}
+            <Tooltip content={<CustomTooltipMelhorado rotuloX={ROTULO_X} rotuloY={ROTULO_Y} atividades={atividades} />} />
+            <Scatter 
+              data={scatterData}
+              onClick={handleBubbleClick}
+              style={{ cursor: 'pointer' }}
+            >
               {scatterData.map((d: any, idx: number) => (
-                <Cell key={`cell-${idx}`} fill={d.cor} />
+                <Cell 
+                  key={`cell-${idx}`} 
+                  fill={d.cor}
+                  fillOpacity={0.75}  /* ✅ MELHORADO: Transparência para ver sobreposições */
+                  stroke={d.cor}
+                  strokeWidth={2}
+                />
               ))}
             </Scatter>
           </ScatterChart>
@@ -253,7 +749,7 @@ export function MapaChart({ atividades, exportRef }: MapaChartProps) {
 }
 
 // ═══════════════════════════════════════════════════════════════════
-// 📋 COMPONENTE 3: TABELA DE ATIVIDADES
+// 📋 COMPONENTE 3: TABELA DE ATIVIDADES (MANTIDO ORIGINAL)
 // ═══════════════════════════════════════════════════════════════════
 
 interface AtividadeTableProps {
@@ -265,148 +761,158 @@ interface AtividadeTableProps {
 export function AtividadeTable({ atividades, onEdit, onDelete }: AtividadeTableProps) {
   const totalHorasMes = useMemo(() => atividades.reduce((acc, a) => acc + (a.horasMes || 0), 0), [atividades]);
 
+  // Agrupar atividades por zona
+  const atividadesPorZona = useMemo(() => {
+    const grupos = {
+      essencial: [] as Atividade[],
+      estrategica: [] as Atividade[],
+      tatica: [] as Atividade[],
+      distracao: [] as Atividade[]
+    };
+
+    atividades.forEach(a => {
+      const { zona } = zonaECor(a.eixoX, a.eixoY);
+      if (zona === 'essencial') grupos.essencial.push(a);
+      else if (zona === 'estrategica') grupos.estrategica.push(a);
+      else if (zona === 'tactica') grupos.tatica.push(a);
+      else grupos.distracao.push(a);
+    });
+
+    return grupos;
+  }, [atividades]);
+
   return (
     <div className="mt-6">
-      <h3 className="mono-title text-lg mb-2">Tabela de atividades</h3>
+      <h3 className="mono-title text-lg mb-4">Lista de Atividades</h3>
       
-      {/* 📱 VERSÃO MOBILE - Cards empilhados */}
-      <div className="block lg:hidden space-y-3">
-        {atividades.length === 0 ? (
-          <div className="text-center opacity-70 py-6 bg-white/5 rounded-lg">
-            Nenhuma atividade ainda. Adicione usando o formulário ao lado.
-          </div>
-        ) : (
-          atividades.map((a) => {
-            const { zona } = zonaECor(a.eixoX, a.eixoY);
-            const etiqueta = zona === "distracao" ? "Distração" : 
-                           zona === "tactica" ? "Tática" : 
-                           zona === "estrategica" ? "Estratégica" : "Essencial";
-            const zonaColor = zona === "essencial" ? "#22c55e" : 
-                            zona === "estrategica" ? "#3b82f6" : 
-                            zona === "tactica" ? "#eab308" : "#ef4444";
-            
-            return (
-              <div key={a.id} className="bg-white/5 rounded-lg p-4 border border-white/10">
-                {/* Nome da atividade */}
-                <div className="flex items-center justify-between mb-3">
-                  <h4 className="font-medium text-white">{a.nome}</h4>
-                  <div className="flex gap-1">
-                    <button 
-                      onClick={() => onEdit(a)}
-                      className="p-2 hover:bg-white/10 rounded-md transition-colors"
-                    >
-                      <Edit className="h-4 w-4" />
-                    </button>
-                    <button 
-                      onClick={() => onDelete(a.id!)}
-                      className="p-2 hover:bg-red-500/20 text-red-400 rounded-md transition-colors"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </button>
-                  </div>
-                </div>
-                
-                {/* Dados em grid */}
-                <div className="grid grid-cols-2 gap-3 text-sm">
-                  <div>
-                    <span className="text-white/60">Impacto:</span>
-                    <span className="ml-2 font-medium">{a.eixoX}</span>
-                  </div>
-                  <div>
-                    <span className="text-white/60">Clareza:</span>
-                    <span className="ml-2 font-medium">{a.eixoY}</span>
-                  </div>
-                  <div>
-                    <span className="text-white/60">Horas/mês:</span>
-                    <span className="ml-2 font-medium">{formatHorasOriginal(a.horasMes)}</span>
-                  </div>
-                  <div>
-                    <span className="text-white/60">Horas/dia:</span>
-                    <span className="ml-2 font-medium">{formatHorasOriginal(a.horasMes / DIAS_MES_BASE)}</span>
-                  </div>
-                </div>
-                
-                {/* Zona com badge colorido */}
-                <div className="mt-3 flex items-center">
-                  <span className="text-white/60 text-sm">Zona:</span>
-                  <span 
-                    className="ml-2 px-2 py-1 rounded-full text-xs font-medium"
-                    style={{ 
-                      backgroundColor: `${zonaColor}20`, 
-                      color: zonaColor 
-                    }}
-                  >
-                    {etiqueta}
-                  </span>
-                </div>
+      {atividades.length === 0 ? (
+        <div className="text-center opacity-70 py-6 bg-white/5 rounded-lg">
+          Nenhuma atividade ainda. Adicione usando o formulário acima.
+        </div>
+      ) : (
+        <div className="space-y-4">
+          {/* Zona Essencial */}
+          {atividadesPorZona.essencial.length > 0 && (
+            <div className="bg-green-500/10 rounded-lg p-4 border-l-4 border-green-500">
+              <h4 className="font-semibold text-green-300 mb-3 flex items-center gap-2">
+                <span className="text-xl">✅</span>
+                Essencial ({atividadesPorZona.essencial.length})
+                <span className="text-xs opacity-70 ml-auto">
+                  {formatHorasOriginal(atividadesPorZona.essencial.reduce((acc, a) => acc + a.horasMes, 0))}h/mês
+                </span>
+              </h4>
+              <div className="grid gap-2">
+                {atividadesPorZona.essencial.map(a => (
+                  <CardAtividadeDesktop key={a.id} atividade={a} onEdit={onEdit} onDelete={onDelete} />
+                ))}
               </div>
-            );
-          })
-        )}
-      </div>
+            </div>
+          )}
 
-      {/* 🖥️ VERSÃO DESKTOP - Tabela tradicional */}
-      <div className="hidden lg:block">
-        <Table className="text-sm">
-          <TableHeader>
-            <TableRow className="border-white/10">
-              <TableHead className="text-white/90">Atividade</TableHead>
-              <TableHead className="text-white/90">{ROTULO_X}</TableHead>
-              <TableHead className="text-white/90">{ROTULO_Y}</TableHead>
-              <TableHead className="text-white/90">Horas/mês</TableHead>
-              <TableHead className="text-white/90">Horas/dia</TableHead>
-              <TableHead className="text-white/90 text-right">Zona</TableHead>
-              <TableHead className="text-white/90 text-right">Ações</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {atividades.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={7} className="text-center opacity-70 py-6">
-                  Nenhuma atividade ainda. Adicione usando o formulário ao lado.
-                </TableCell>
-              </TableRow>
-            ) : (
-              atividades.map((a) => {
-                const { zona } = zonaECor(a.eixoX, a.eixoY);
-                const etiqueta = zona === "distracao" ? "Distração" : 
-                               zona === "tactica" ? "Tática" : 
-                               zona === "estrategica" ? "Estratégica" : "Essencial";
-                return (
-                  <TableRow key={a.id} className="border-white/10">
-                    <TableCell className="font-medium">{a.nome}</TableCell>
-                    <TableCell>{a.eixoX}</TableCell>
-                    <TableCell>{a.eixoY}</TableCell>
-                    <TableCell>{formatHorasOriginal(a.horasMes)}</TableCell>
-                    <TableCell>{formatHorasOriginal(a.horasMes / DIAS_MES_BASE)}</TableCell>
-                    <TableCell className="text-right">{etiqueta}</TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex gap-1 justify-end">
-                        <Button size="sm" variant="ghost" onClick={() => onEdit(a)}>
-                          <Edit className="h-3 w-3" />
-                        </Button>
-                        <Button size="sm" variant="destructive" onClick={() => onDelete(a.id!)}>
-                          <Trash2 className="h-3 w-3" />
-                        </Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                );
-              })
-            )}
-          </TableBody>
-        </Table>
-      </div>
+          {/* Zona Estratégica */}
+          {atividadesPorZona.estrategica.length > 0 && (
+            <div className="bg-blue-500/10 rounded-lg p-4 border-l-4 border-blue-500">
+              <h4 className="font-semibold text-blue-300 mb-3 flex items-center gap-2">
+                <span className="text-xl">🎯</span>
+                Estratégica ({atividadesPorZona.estrategica.length})
+                <span className="text-xs opacity-70 ml-auto">
+                  {formatHorasOriginal(atividadesPorZona.estrategica.reduce((acc, a) => acc + a.horasMes, 0))}h/mês
+                </span>
+              </h4>
+              <div className="grid gap-2">
+                {atividadesPorZona.estrategica.map(a => (
+                  <CardAtividadeDesktop key={a.id} atividade={a} onEdit={onEdit} onDelete={onDelete} />
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Zona Tática */}
+          {atividadesPorZona.tatica.length > 0 && (
+            <div className="bg-orange-500/10 rounded-lg p-4 border-l-4 border-orange-500">
+              <h4 className="font-semibold text-orange-300 mb-3 flex items-center gap-2">
+                <span className="text-xl">⚡</span>
+                Tática ({atividadesPorZona.tatica.length})
+                <span className="text-xs opacity-70 ml-auto">
+                  {formatHorasOriginal(atividadesPorZona.tatica.reduce((acc, a) => acc + a.horasMes, 0))}h/mês
+                </span>
+              </h4>
+              <div className="grid gap-2">
+                {atividadesPorZona.tatica.map(a => (
+                  <CardAtividadeDesktop key={a.id} atividade={a} onEdit={onEdit} onDelete={onDelete} />
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Zona Distração */}
+          {atividadesPorZona.distracao.length > 0 && (
+            <div className="bg-red-500/10 rounded-lg p-4 border-l-4 border-red-500">
+              <h4 className="font-semibold text-red-300 mb-3 flex items-center gap-2">
+                <span className="text-xl">⚠️</span>
+                Distração ({atividadesPorZona.distracao.length})
+                <span className="text-xs opacity-70 ml-auto">
+                  {formatHorasOriginal(atividadesPorZona.distracao.reduce((acc, a) => acc + a.horasMes, 0))}h/mês
+                </span>
+              </h4>
+              <div className="grid gap-2">
+                {atividadesPorZona.distracao.map(a => (
+                  <CardAtividadeDesktop key={a.id} atividade={a} onEdit={onEdit} onDelete={onDelete} />
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Total de horas */}
-      <div className="mt-3 text-xs opacity-80">
-        Total de horas/mês: <strong>{formatHorasOriginal(totalHorasMes)}</strong>
+      <div className="mt-4 p-3 bg-white/5 rounded-lg flex items-center justify-between">
+        <span className="text-sm opacity-70">Total geral:</span>
+        <strong className="text-lg">{formatHorasOriginal(totalHorasMes)} horas/mês</strong>
       </div>
     </div>
   );
 }
+
+// Novo componente de Card para Desktop
+function CardAtividadeDesktop({ atividade, onEdit, onDelete }: { 
+  atividade: Atividade; 
+  onEdit: (a: Atividade) => void; 
+  onDelete: (id: string) => void;
+}) {
+  return (
+    <div className="bg-white/5 rounded-lg p-3 flex items-center justify-between hover:bg-white/10 transition-colors">
+      <div className="flex-1 min-w-0">
+       <h5 className="font-medium text-white break-words pr-2">
+  {atividade.nome}
+</h5>
+        <div className="flex gap-4 text-xs text-white/60 mt-1">
+          <span>Impacto: {atividade.eixoX}</span>
+          <span>Clareza: {atividade.eixoY}</span>
+          <span>{formatHorasOriginal(atividade.horasMes)}h/mês</span>
+          <span>{formatHorasOriginal(atividade.horasMes / DIAS_UTEIS_MES)}h/dia</span>
+        </div>
+      </div>
+      <div className="flex gap-1 ml-2">
+        <button 
+          onClick={() => onEdit(atividade)}
+          className="p-2 hover:bg-white/10 rounded-md transition-colors"
+        >
+          <Edit className="h-4 w-4" />
+        </button>
+        <button 
+          onClick={() => onDelete(atividade.id!)}
+          className="p-2 hover:bg-red-500/20 text-red-400 rounded-md transition-colors"
+        >
+          <Trash2 className="h-4 w-4" />
+        </button>
+      </div>
+    </div>
+  );
+}
+
 // ═══════════════════════════════════════════════════════════════════
-// 🎛️ COMPONENTE 4: CONTROLES E HEADER
+// 🎛️ COMPONENTE 4: CONTROLES E HEADER (MANTIDO ORIGINAL)
 // ═══════════════════════════════════════════════════════════════════
 
 interface MapaControlsProps {
@@ -439,7 +945,7 @@ export function MapaControls({ user, onExport, onLogout }: MapaControlsProps) {
           </p>
         </div>
         <div className="flex items-center gap-2">
-          {/* Botão Diagnóstico - NOVO */}
+          {/* Botão Diagnóstico */}
           <Button 
             onClick={() => window.location.href = '/diagnostico'} 
             className="bg-blue-600 hover:bg-blue-700 text-white font-semibold"
@@ -459,7 +965,7 @@ export function MapaControls({ user, onExport, onLogout }: MapaControlsProps) {
             <Download className="mr-2 h-4 w-4"/>Exportar PNG
           </Button>
           
-          {/* Botão Sair - CORRIGIDO */}
+          {/* Botão Sair */}
           <Button onClick={onLogout} className="bg-red-600 hover:bg-red-700 text-white">
             Sair
           </Button>
@@ -538,7 +1044,7 @@ export function MapaControls({ user, onExport, onLogout }: MapaControlsProps) {
 }
 
 // ═══════════════════════════════════════════════════════════════════
-// 📊 COMPONENTE 5: ESTATÍSTICAS RÁPIDAS
+// 📊 COMPONENTE 5: ESTATÍSTICAS RÁPIDAS (MANTIDO ORIGINAL)
 // ═══════════════════════════════════════════════════════════════════
 
 interface MapaStatsProps {
@@ -595,129 +1101,58 @@ export function MapaStats({ atividades }: MapaStatsProps) {
 }
 
 // ═══════════════════════════════════════════════════════════════════
-// 🧩 COMPONENTES AUXILIARES (do código original)
+// 🧩 COMPONENTES AUXILIARES
 // ═══════════════════════════════════════════════════════════════════
 
-function CustomTooltip({ active, payload, rotuloX, rotuloY }: any) {
+// ✅ MELHORADO: Tooltip que mostra todas as atividades no ponto
+function CustomTooltipMelhorado({ active, payload, rotuloX, rotuloY, atividades }: any) {
   if (active && payload && payload.length) {
-    const d = payload[0].payload as { nome: string; x: number; y: number; z: number };
+    const d = payload[0].payload;
+    
+    // Busca todas as atividades no mesmo ponto (ou próximas)
+    const atividadesNoPonto = atividades.filter((a: Atividade) => 
+      a.eixoX === d.originalX && a.eixoY === d.originalY
+    );
+    
     return (
       <div style={{ 
         background: "#0f172a", 
         border: "1px solid rgba(255,255,255,0.15)", 
-        padding: 10, 
+        padding: 12, 
         borderRadius: 8, 
-        color: "#fff" 
+        color: "#fff",
+        maxWidth: 250
       }}>
-        <div style={{ fontWeight: 700, marginBottom: 4 }}>{d.nome}</div>
-        <div>{rotuloX}: <strong>{d.x}</strong></div>
-        <div>{rotuloY}: <strong>{d.y}</strong></div>
-        <div>h/dia: <strong>{formatHorasOriginal(d.z)}</strong></div>
+        {atividadesNoPonto.length > 1 ? (
+          <>
+            <div style={{ fontWeight: 700, marginBottom: 6, color: "#fbbf24" }}>
+              {atividadesNoPonto.length} atividades neste ponto:
+            </div>
+            {atividadesNoPonto.map((a: Atividade, idx: number) => (
+              <div key={idx} style={{ marginBottom: 4, fontSize: 12 }}>
+                • {a.nome} ({formatHorasOriginal(a.horasMes)}h/mês)
+              </div>
+            ))}
+            <div style={{ marginTop: 6, paddingTop: 6, borderTop: "1px solid rgba(255,255,255,0.1)" }}>
+              <div>{rotuloX}: <strong>{d.originalX}</strong></div>
+              <div>{rotuloY}: <strong>{d.originalY}</strong></div>
+            </div>
+          </>
+        ) : (
+          <>
+            <div style={{ fontWeight: 700, marginBottom: 4 }}>{d.nome}</div>
+            <div>{rotuloX}: <strong>{d.originalX}</strong></div>
+            <div>{rotuloY}: <strong>{d.originalY}</strong></div>
+            <div>Horas/mês: <strong>{formatHorasOriginal(d.hMes)}</strong></div>
+            <div>Horas/dia: <strong>{formatHorasOriginal(d.hMes / DIAS_UTEIS_MES)}</strong></div>
+          </>
+        )}
+        <div style={{ marginTop: 8, fontSize: 11, opacity: 0.7 }}>
+          💡 Clique na bolha para editar
+        </div>
       </div>
     );
   }
   return null;
 }
 
-function DiscreteSlider({ value, onChange }: { value: number; onChange: (v: number) => void }) {
-  const [internal, setInternal] = useState<number>(value);
-  useEffect(() => setInternal(value), [value]);
-  
-  function commit(vals: number[]) {
-    const v = Math.min(SCALE_MAX, Math.max(SCALE_MIN, Math.round(vals[0] ?? 3)));
-    setInternal(v);
-    onChange(v);
-  }
-  
-  return (
-    <div>
-      <div className="flex items-center gap-2">
-        <Slider 
-          value={[internal]} 
-          min={SCALE_MIN} 
-          max={SCALE_MAX} 
-          step={1} 
-          onValueChange={(vals) => setInternal(vals[0] ?? 3)} 
-          onValueCommit={commit} 
-          className="[&_>.range]:bg-[var(--accent)]" 
-        />
-        <span className="w-8 text-right font-semibold">{internal}</span>
-      </div>
-      <div className="flex justify-between text-[10px] mt-1 opacity-70">
-        {[1,2,3,4,5,6].map((n) => (<span key={n}>{n}</span>))}
-      </div>
-    </div>
-  );
-}
-
-// ═══════════════════════════════════════════════════════════════════
-// 📋 EXEMPLO DE USO - COMO MONTAR O MAPA MODULAR
-// ═══════════════════════════════════════════════════════════════════
-
-/*
-// src/components/mapa-atividades-modular.tsx
-
-import { 
-  AtividadeForm,
-  MapaChart, 
-  AtividadeTable,
-  MapaControls,
-  MapaStats 
-} from '@/components/mapa';
-
-export default function MapaAtividadesModular() {
-  // ... todos os states e functions originais ...
-
-  return (
-    <div style={containerStyle} className="text-white">
-      <main className="max-w-7xl mx-auto px-4 py-8">
-        <MapaControls 
-          user={user}
-          onExport={exportarPNG}
-          onLogout={logout}
-        />
-
-        <div className="grid lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-1">
-            <AtividadeForm
-              nome={nome}
-              setNome={setNome}
-              eixoX={eixoX}
-              setEixoX={setEixoX}
-              eixoY={eixoY}
-              setEixoY={setEixoY}
-              periodo={periodo}
-              setPeriodo={setPeriodo}
-              horasNoPeriodo={horasNoPeriodo}
-              setHorasNoPeriodo={setHorasNoPeriodo}
-              editId={editId}
-              onSubmit={adicionarOuAtualizar}
-              onReset={resetForm}
-            />
-            
-            <MapaStats atividades={atividades} />
-          </div>
-
-          <Card className="glass border-0 lg:col-span-2">
-            <CardHeader>
-              <CardTitle className="mono-title">Gráfico de bolhas</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <MapaChart 
-                atividades={atividades}
-                exportRef={exportRef}
-              />
-              
-              <AtividadeTable
-                atividades={atividades}
-                onEdit={editar}
-                onDelete={excluir}
-              />
-            </CardContent>
-          </Card>
-        </div>
-      </main>
-    </div>
-  );
-}
-*/

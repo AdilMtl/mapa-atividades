@@ -1,0 +1,723 @@
+// 🧩 COMPONENTES MODULARES - MAPA ATIVIDADES
+// Arquivo: src/components/mapa/index.tsx
+
+'use client'
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Slider } from "@/components/ui/slider";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Scatter, ScatterChart, XAxis, YAxis, ZAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from "recharts";
+import { motion, AnimatePresence } from "framer-motion";
+import html2canvas from "html2canvas";
+import { Download, Plus, Save, Trash2, Edit, Info, Target, BarChart3 } from "lucide-react";
+import { supabase } from "@/lib/supabase";
+import { DESIGN_TOKENS, getZonaInfo, formatHoras, calcularHorasPorDia } from "@/lib/design-system";
+
+// ═══════════════════════════════════════════════════════════════════
+// 📊 TIPOS E INTERFACES (do código original)
+// ═══════════════════════════════════════════════════════════════════
+
+export interface Atividade {
+  id?: string;
+  nome: string;
+  eixoX: number;
+  eixoY: number;
+  horasMes: number;
+  user_id?: string;
+}
+
+type Periodo = "dia" | "semana" | "mes";
+export type Zona = "distracao" | "tactica" | "estrategica" | "essencial";
+
+// Constantes originais mantidas
+const BG = "#042f2e";
+const ACCENT = "#d97706";
+const SCALE_MIN = 1;
+const SCALE_MAX = 6;
+const THRESHOLD_HIGH = 4;
+const RED = "#ef4444";
+const ORANGE = "#f59e0b";
+const BLUE = "#3b82f6";
+const GREEN = "#22c55e";
+const ROTULO_X = "Impacto";
+const ROTULO_Y = "Clareza";
+const DIAS_MES_BASE = 30;
+const DIAS_UTEIS_MES = 20;
+const SEMANAS_MES = 4;
+
+// Funções utilitárias originais
+function formatHorasOriginal(num: number) {
+  return new Intl.NumberFormat("pt-BR", { maximumFractionDigits: 2 }).format(num);
+}
+
+export function normalizarParaHorasMes(periodo: Periodo, horasNoPeriodo: number): number {
+  const h = Math.max(0, Number(horasNoPeriodo) || 0);
+  switch (periodo) {
+    case "dia": return h * DIAS_UTEIS_MES;
+    case "semana": return h * SEMANAS_MES;
+    case "mes":
+    default: return h;
+  }
+}
+
+export function zonaECor(impacto: number, clareza: number): { zona: Zona; cor: string } {
+  const impactoAlto = impacto >= THRESHOLD_HIGH;
+  const clarezaAlta = clareza >= THRESHOLD_HIGH;
+  if (impactoAlto && clarezaAlta) return { zona: "essencial", cor: GREEN };
+  if (!impactoAlto && !clarezaAlta) return { zona: "distracao", cor: RED };
+  if (!impactoAlto && clarezaAlta) return { zona: "tactica", cor: ORANGE };
+  return { zona: "estrategica", cor: BLUE };
+}
+
+export function calcScatterData(atividades: Atividade[]) {
+  return atividades.map((a) => ({
+    x: a.eixoX,
+    y: a.eixoY,
+    z: Math.max(a.horasMes / DIAS_MES_BASE, 0.01),
+    nome: a.nome,
+    hMes: a.horasMes,
+    ...zonaECor(a.eixoX, a.eixoY),
+  }));
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// 🎛️ COMPONENTE 1: FORMULÁRIO DE ATIVIDADE
+// ═══════════════════════════════════════════════════════════════════
+
+interface AtividadeFormProps {
+  nome: string;
+  setNome: (nome: string) => void;
+  eixoX: number;
+  setEixoX: (valor: number) => void;
+  eixoY: number;
+  setEixoY: (valor: number) => void;
+  periodo: Periodo;
+  setPeriodo: (periodo: Periodo) => void;
+  horasNoPeriodo: number;
+  setHorasNoPeriodo: (horas: number) => void;
+  editId: string | null;
+  onSubmit: () => void;
+  onReset: () => void;
+}
+
+export function AtividadeForm({
+  nome,
+  setNome,
+  eixoX,
+  setEixoX,
+  eixoY,
+  setEixoY,
+  periodo,
+  setPeriodo,
+  horasNoPeriodo,
+  setHorasNoPeriodo,
+  editId,
+  onSubmit,
+  onReset
+}: AtividadeFormProps) {
+  const horasMesPreview = useMemo(() => normalizarParaHorasMes(periodo, horasNoPeriodo), [periodo, horasNoPeriodo]);
+  const horasDiaPreview = useMemo(() => horasMesPreview / DIAS_MES_BASE, [horasMesPreview]);
+
+  return (
+    <Card className="glass border-0">
+      <CardHeader>
+        <CardTitle className="mono-title">Atividade</CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-5">
+        {/* Campo Nome */}
+        <div className="space-y-2">
+          <Label htmlFor="nome">Nome</Label>
+          <Input 
+            id="nome" 
+            placeholder="Ex.: Exercícios físicos" 
+            value={nome} 
+            onChange={(e) => setNome(e.target.value)} 
+            className="bg-transparent border-white/20 focus-visible:ring-[var(--accent)]" 
+          />
+        </div>
+
+        {/* Sliders Impacto e Clareza */}
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <Label className="block mb-1">{ROTULO_X} (1-6)</Label>
+            <DiscreteSlider value={eixoX} onChange={setEixoX} />
+          </div>
+          <div>
+            <Label className="block mb-1">{ROTULO_Y} (1-6)</Label>
+            <DiscreteSlider value={eixoY} onChange={setEixoY} />
+          </div>
+        </div>
+
+        {/* Período e Horas */}
+        <div className="grid grid-cols-2 gap-3">
+          <div className="space-y-2">
+            <Label htmlFor="periodo">Período</Label>
+            <select 
+              id="periodo" 
+              value={periodo} 
+              onChange={(e) => setPeriodo(e.target.value as Periodo)} 
+              className="w-full rounded-md bg-transparent border border-white/20 px-3 py-2"
+            >
+              <option value="dia">Dia</option>
+              <option value="semana">Semana</option>
+              <option value="mes">Mês</option>
+            </select>
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="horasPeriodo">Horas por {periodo}</Label>
+            <Input 
+              id="horasPeriodo" 
+              type="number" 
+              min={0} 
+              step="0.25" 
+              value={horasNoPeriodo} 
+              onChange={(e) => setHorasNoPeriodo(Number(e.target.value))} 
+              className="bg-transparent border-white/20 focus-visible:ring-[var(--accent)]" 
+            />
+          </div>
+        </div>
+
+        {/* Preview de horas */}
+        <p className="text-xs opacity-70">
+          Equivale a <strong>{formatHorasOriginal(horasMesPreview)}</strong> h/mês ({formatHorasOriginal(horasDiaPreview)} h/dia).
+        </p>
+
+        {/* Botões de ação */}
+        <div className="flex flex-wrap gap-2 pt-2">
+          <Button onClick={onSubmit} className="accent-bg hover:opacity-90 text-black font-semibold">
+            <Plus className="mr-2 h-4 w-4"/>
+            {editId ? "Atualizar" : "Adicionar"}
+          </Button>
+          <Button variant="destructive" onClick={onReset} className="bg-red-600 hover:bg-red-700">
+            <Save className="mr-2 h-4 w-4"/>
+            Limpar formulário
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// 📈 COMPONENTE 2: GRÁFICO DE BOLHAS
+// ═══════════════════════════════════════════════════════════════════
+
+interface MapaChartProps {
+  atividades: Atividade[];
+  exportRef: React.RefObject<HTMLDivElement>;
+}
+
+export function MapaChart({ atividades, exportRef }: MapaChartProps) {
+  const scatterData = useMemo(() => calcScatterData(atividades), [atividades]);
+  const TICKS = [1, 2, 3, 4, 5, 6];
+
+  return (
+    <div ref={exportRef} className="rounded-xl p-4" style={{ background: "rgba(4,47,46,0.6)" }}>
+      <div className="h-[380px] w-full">
+        <ResponsiveContainer>
+          <ScatterChart margin={{ top: 20, right: 20, bottom: 20, left: 20 }}>
+            <CartesianGrid stroke="rgba(255,255,255,0.15)" />
+            <XAxis 
+              type="number" 
+              dataKey="x" 
+              domain={[SCALE_MIN, SCALE_MAX]} 
+              ticks={TICKS} 
+              allowDecimals={false} 
+              label={{ value: ROTULO_X, position: "insideBottom", offset: -8, fill: "#fff" }} 
+              stroke="#fff" 
+            />
+            <YAxis 
+              type="number" 
+              dataKey="y" 
+              domain={[SCALE_MIN, SCALE_MAX]} 
+              ticks={TICKS} 
+              allowDecimals={false} 
+              label={{ value: ROTULO_Y, angle: -90, position: "insideLeft", fill: "#fff" }} 
+              stroke="#fff" 
+            />
+            <ZAxis dataKey="z" range={[70, 300]} />
+            <Tooltip content={<CustomTooltip rotuloX={ROTULO_X} rotuloY={ROTULO_Y} />} />
+            <Scatter data={scatterData}>
+              {scatterData.map((d: any, idx: number) => (
+                <Cell key={`cell-${idx}`} fill={d.cor} />
+              ))}
+            </Scatter>
+          </ScatterChart>
+        </ResponsiveContainer>
+      </div>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// 📋 COMPONENTE 3: TABELA DE ATIVIDADES
+// ═══════════════════════════════════════════════════════════════════
+
+interface AtividadeTableProps {
+  atividades: Atividade[];
+  onEdit: (atividade: Atividade) => void;
+  onDelete: (id: string) => void;
+}
+
+export function AtividadeTable({ atividades, onEdit, onDelete }: AtividadeTableProps) {
+  const totalHorasMes = useMemo(() => atividades.reduce((acc, a) => acc + (a.horasMes || 0), 0), [atividades]);
+
+  return (
+    <div className="mt-6">
+      <h3 className="mono-title text-lg mb-2">Tabela de atividades</h3>
+      
+      {/* 📱 VERSÃO MOBILE - Cards empilhados */}
+      <div className="block lg:hidden space-y-3">
+        {atividades.length === 0 ? (
+          <div className="text-center opacity-70 py-6 bg-white/5 rounded-lg">
+            Nenhuma atividade ainda. Adicione usando o formulário ao lado.
+          </div>
+        ) : (
+          atividades.map((a) => {
+            const { zona } = zonaECor(a.eixoX, a.eixoY);
+            const etiqueta = zona === "distracao" ? "Distração" : 
+                           zona === "tactica" ? "Tática" : 
+                           zona === "estrategica" ? "Estratégica" : "Essencial";
+            const zonaColor = zona === "essencial" ? "#22c55e" : 
+                            zona === "estrategica" ? "#3b82f6" : 
+                            zona === "tactica" ? "#eab308" : "#ef4444";
+            
+            return (
+              <div key={a.id} className="bg-white/5 rounded-lg p-4 border border-white/10">
+                {/* Nome da atividade */}
+                <div className="flex items-center justify-between mb-3">
+                  <h4 className="font-medium text-white">{a.nome}</h4>
+                  <div className="flex gap-1">
+                    <button 
+                      onClick={() => onEdit(a)}
+                      className="p-2 hover:bg-white/10 rounded-md transition-colors"
+                    >
+                      <Edit className="h-4 w-4" />
+                    </button>
+                    <button 
+                      onClick={() => onDelete(a.id!)}
+                      className="p-2 hover:bg-red-500/20 text-red-400 rounded-md transition-colors"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </button>
+                  </div>
+                </div>
+                
+                {/* Dados em grid */}
+                <div className="grid grid-cols-2 gap-3 text-sm">
+                  <div>
+                    <span className="text-white/60">Impacto:</span>
+                    <span className="ml-2 font-medium">{a.eixoX}</span>
+                  </div>
+                  <div>
+                    <span className="text-white/60">Clareza:</span>
+                    <span className="ml-2 font-medium">{a.eixoY}</span>
+                  </div>
+                  <div>
+                    <span className="text-white/60">Horas/mês:</span>
+                    <span className="ml-2 font-medium">{formatHorasOriginal(a.horasMes)}</span>
+                  </div>
+                  <div>
+                    <span className="text-white/60">Horas/dia:</span>
+                    <span className="ml-2 font-medium">{formatHorasOriginal(a.horasMes / DIAS_MES_BASE)}</span>
+                  </div>
+                </div>
+                
+                {/* Zona com badge colorido */}
+                <div className="mt-3 flex items-center">
+                  <span className="text-white/60 text-sm">Zona:</span>
+                  <span 
+                    className="ml-2 px-2 py-1 rounded-full text-xs font-medium"
+                    style={{ 
+                      backgroundColor: `${zonaColor}20`, 
+                      color: zonaColor 
+                    }}
+                  >
+                    {etiqueta}
+                  </span>
+                </div>
+              </div>
+            );
+          })
+        )}
+      </div>
+
+      {/* 🖥️ VERSÃO DESKTOP - Tabela tradicional */}
+      <div className="hidden lg:block">
+        <Table className="text-sm">
+          <TableHeader>
+            <TableRow className="border-white/10">
+              <TableHead className="text-white/90">Atividade</TableHead>
+              <TableHead className="text-white/90">{ROTULO_X}</TableHead>
+              <TableHead className="text-white/90">{ROTULO_Y}</TableHead>
+              <TableHead className="text-white/90">Horas/mês</TableHead>
+              <TableHead className="text-white/90">Horas/dia</TableHead>
+              <TableHead className="text-white/90 text-right">Zona</TableHead>
+              <TableHead className="text-white/90 text-right">Ações</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {atividades.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={7} className="text-center opacity-70 py-6">
+                  Nenhuma atividade ainda. Adicione usando o formulário ao lado.
+                </TableCell>
+              </TableRow>
+            ) : (
+              atividades.map((a) => {
+                const { zona } = zonaECor(a.eixoX, a.eixoY);
+                const etiqueta = zona === "distracao" ? "Distração" : 
+                               zona === "tactica" ? "Tática" : 
+                               zona === "estrategica" ? "Estratégica" : "Essencial";
+                return (
+                  <TableRow key={a.id} className="border-white/10">
+                    <TableCell className="font-medium">{a.nome}</TableCell>
+                    <TableCell>{a.eixoX}</TableCell>
+                    <TableCell>{a.eixoY}</TableCell>
+                    <TableCell>{formatHorasOriginal(a.horasMes)}</TableCell>
+                    <TableCell>{formatHorasOriginal(a.horasMes / DIAS_MES_BASE)}</TableCell>
+                    <TableCell className="text-right">{etiqueta}</TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex gap-1 justify-end">
+                        <Button size="sm" variant="ghost" onClick={() => onEdit(a)}>
+                          <Edit className="h-3 w-3" />
+                        </Button>
+                        <Button size="sm" variant="destructive" onClick={() => onDelete(a.id!)}>
+                          <Trash2 className="h-3 w-3" />
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                );
+              })
+            )}
+          </TableBody>
+        </Table>
+      </div>
+
+      {/* Total de horas */}
+      <div className="mt-3 text-xs opacity-80">
+        Total de horas/mês: <strong>{formatHorasOriginal(totalHorasMes)}</strong>
+      </div>
+    </div>
+  );
+}
+// ═══════════════════════════════════════════════════════════════════
+// 🎛️ COMPONENTE 4: CONTROLES E HEADER
+// ═══════════════════════════════════════════════════════════════════
+
+interface MapaControlsProps {
+  user: any;
+  onExport: () => void;
+  onLogout: () => void;
+}
+
+export function MapaControls({ user, onExport, onLogout }: MapaControlsProps) {
+  const [mostrarOrientacao, setMostrarOrientacao] = useState(false);
+
+  return (
+    <>
+      <header className="mb-6 flex items-center justify-between gap-4">
+        <div className="flex-1">
+          <div className="flex items-center gap-3 mb-2">
+            <h1 className="mono-title text-3xl font-bold tracking-tight">Mapa de Atividades</h1>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setMostrarOrientacao(!mostrarOrientacao)}
+              className="p-1.5 hover:bg-white/10 text-white"
+              title="Como usar o Mapa"
+            >
+              <Info size={18} />
+            </Button>
+          </div>
+          <p className="text-sm opacity-80">
+            Logado como: {user?.email} • Impacto × Clareza (1-6)
+          </p>
+        </div>
+        <div className="flex items-center gap-2">
+          {/* Botão Diagnóstico - NOVO */}
+          <Button 
+            onClick={() => window.location.href = '/diagnostico'} 
+            className="bg-blue-600 hover:bg-blue-700 text-white font-semibold"
+            title="Gerar diagnóstico baseado no ROI do Foco"
+          >
+            <BarChart3 className="mr-2 h-4 w-4"/>Diagnóstico
+          </Button>
+          
+          <Button 
+            onClick={() => window.location.href = '/plano-acao'} 
+            className="accent-bg hover:opacity-90 text-black font-semibold"
+          >
+            <Target className="mr-2 h-4 w-4"/>Plano de Ação
+          </Button>
+          
+          <Button onClick={onExport} className="bg-green-600 hover:bg-green-700 text-white font-semibold">
+            <Download className="mr-2 h-4 w-4"/>Exportar PNG
+          </Button>
+          
+          {/* Botão Sair - CORRIGIDO */}
+          <Button onClick={onLogout} className="bg-red-600 hover:bg-red-700 text-white">
+            Sair
+          </Button>
+        </div>
+      </header>
+
+      {/* Painel de Orientação - ROI do Foco */}
+      {mostrarOrientacao && (
+        <div className="mb-6 p-4 rounded-lg bg-teal-800/50 border border-teal-700">
+          <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
+            <Info size={20} />
+            Como usar o Mapa de Atividades (Método ROI do Foco)
+          </h3>
+          
+          <div className="grid md:grid-cols-3 gap-4 text-sm">
+            <div className="bg-white/5 p-3 rounded">
+              <h4 className="font-medium mb-2 text-yellow-200">📋 1. Mapeie suas atividades</h4>
+              <p className="text-xs opacity-90 mb-2">
+                Liste todas as atividades da sua rotina e posicione no gráfico:
+              </p>
+              <ul className="space-y-1 text-xs opacity-80">
+                <li>• <strong>Impacto (Y):</strong> Contribuição para resultados</li>
+                <li>• <strong>Clareza (X):</strong> Você entende o porquê/como</li>
+              </ul>
+            </div>
+
+            <div className="bg-white/5 p-3 rounded">
+              <h4 className="font-medium mb-2 text-yellow-200">🎯 2. Entenda as 4 zonas</h4>
+              <div className="space-y-1 text-xs">
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                  <span><strong>Essencial:</strong> FOQUE aqui!</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                  <span><strong>Estratégica:</strong> EXPLORE</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
+                  <span><strong>Tática:</strong> OTIMIZE</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 bg-red-500 rounded-full"></div>
+                  <span><strong>Distração:</strong> ELIMINE</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-white/5 p-3 rounded">
+              <h4 className="font-medium mb-2 text-yellow-200">🚀 3. Próximos passos</h4>
+              <div className="space-y-2 text-xs">
+                <div className="bg-blue-600/30 px-2 py-1 rounded text-center">
+                  1️⃣ <strong>Diagnóstico</strong> para análise
+                </div>
+                <div className="bg-orange-600/30 px-2 py-1 rounded text-center">
+                  2️⃣ <strong>Plano de Ação</strong> baseado no mapa
+                </div>
+                <div className="bg-green-600/30 px-2 py-1 rounded text-center">
+                  3️⃣ <strong>Exportar</strong> evolução
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-4 pt-3 border-t border-teal-600">
+            <h4 className="font-medium mb-2 text-yellow-200">💡 Conceito ROI do Foco</h4>
+            <p className="text-xs opacity-90">
+              <strong>Explorar:</strong> Mapear todas atividades → <strong>Eliminar:</strong> Cortar baixo impacto → <strong>Executar:</strong> Focar no essencial e estratégico. 
+              O objetivo é investir seu tempo onde ele gera mais retorno.
+            </p>
+          </div>
+        </div>
+      )}
+    </>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// 📊 COMPONENTE 5: ESTATÍSTICAS RÁPIDAS
+// ═══════════════════════════════════════════════════════════════════
+
+interface MapaStatsProps {
+  atividades: Atividade[];
+}
+
+export function MapaStats({ atividades }: MapaStatsProps) {
+  const stats = useMemo(() => {
+    const total = atividades.length;
+    const totalHoras = atividades.reduce((acc, a) => acc + a.horasMes, 0);
+    const zonas = atividades.reduce((acc, a) => {
+      const { zona } = zonaECor(a.eixoX, a.eixoY);
+      acc[zona] = (acc[zona] || 0) + 1;
+      return acc;
+    }, {} as Record<string, number>);
+
+    return {
+      total,
+      totalHoras,
+      essencial: zonas.essencial || 0,
+      estrategica: zonas.estrategica || 0,
+      tactica: zonas.tactica || 0,
+      distracao: zonas.distracao || 0,
+    };
+  }, [atividades]);
+
+  if (atividades.length === 0) return null;
+
+  return (
+    <div className="mt-4 p-4 rounded-lg bg-white/5 border border-white/10">
+      <h4 className="text-sm font-semibold mb-2">Resumo</h4>
+      <div className="grid grid-cols-2 gap-4 text-xs">
+        <div>
+          <span className="opacity-70">Total:</span> <strong>{stats.total} atividades</strong>
+        </div>
+        <div>
+          <span className="opacity-70">Horas/mês:</span> <strong>{formatHorasOriginal(stats.totalHoras)}h</strong>
+        </div>
+        <div>
+          <span style={{ color: GREEN }}>●</span> Essencial: <strong>{stats.essencial}</strong>
+        </div>
+        <div>
+          <span style={{ color: BLUE }}>●</span> Estratégica: <strong>{stats.estrategica}</strong>
+        </div>
+        <div>
+          <span style={{ color: ORANGE }}>●</span> Tática: <strong>{stats.tactica}</strong>
+        </div>
+        <div>
+          <span style={{ color: RED }}>●</span> Distração: <strong>{stats.distracao}</strong>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// 🧩 COMPONENTES AUXILIARES (do código original)
+// ═══════════════════════════════════════════════════════════════════
+
+function CustomTooltip({ active, payload, rotuloX, rotuloY }: any) {
+  if (active && payload && payload.length) {
+    const d = payload[0].payload as { nome: string; x: number; y: number; z: number };
+    return (
+      <div style={{ 
+        background: "#0f172a", 
+        border: "1px solid rgba(255,255,255,0.15)", 
+        padding: 10, 
+        borderRadius: 8, 
+        color: "#fff" 
+      }}>
+        <div style={{ fontWeight: 700, marginBottom: 4 }}>{d.nome}</div>
+        <div>{rotuloX}: <strong>{d.x}</strong></div>
+        <div>{rotuloY}: <strong>{d.y}</strong></div>
+        <div>h/dia: <strong>{formatHorasOriginal(d.z)}</strong></div>
+      </div>
+    );
+  }
+  return null;
+}
+
+function DiscreteSlider({ value, onChange }: { value: number; onChange: (v: number) => void }) {
+  const [internal, setInternal] = useState<number>(value);
+  useEffect(() => setInternal(value), [value]);
+  
+  function commit(vals: number[]) {
+    const v = Math.min(SCALE_MAX, Math.max(SCALE_MIN, Math.round(vals[0] ?? 3)));
+    setInternal(v);
+    onChange(v);
+  }
+  
+  return (
+    <div>
+      <div className="flex items-center gap-2">
+        <Slider 
+          value={[internal]} 
+          min={SCALE_MIN} 
+          max={SCALE_MAX} 
+          step={1} 
+          onValueChange={(vals) => setInternal(vals[0] ?? 3)} 
+          onValueCommit={commit} 
+          className="[&_>.range]:bg-[var(--accent)]" 
+        />
+        <span className="w-8 text-right font-semibold">{internal}</span>
+      </div>
+      <div className="flex justify-between text-[10px] mt-1 opacity-70">
+        {[1,2,3,4,5,6].map((n) => (<span key={n}>{n}</span>))}
+      </div>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// 📋 EXEMPLO DE USO - COMO MONTAR O MAPA MODULAR
+// ═══════════════════════════════════════════════════════════════════
+
+/*
+// src/components/mapa-atividades-modular.tsx
+
+import { 
+  AtividadeForm,
+  MapaChart, 
+  AtividadeTable,
+  MapaControls,
+  MapaStats 
+} from '@/components/mapa';
+
+export default function MapaAtividadesModular() {
+  // ... todos os states e functions originais ...
+
+  return (
+    <div style={containerStyle} className="text-white">
+      <main className="max-w-7xl mx-auto px-4 py-8">
+        <MapaControls 
+          user={user}
+          onExport={exportarPNG}
+          onLogout={logout}
+        />
+
+        <div className="grid lg:grid-cols-3 gap-6">
+          <div className="lg:col-span-1">
+            <AtividadeForm
+              nome={nome}
+              setNome={setNome}
+              eixoX={eixoX}
+              setEixoX={setEixoX}
+              eixoY={eixoY}
+              setEixoY={setEixoY}
+              periodo={periodo}
+              setPeriodo={setPeriodo}
+              horasNoPeriodo={horasNoPeriodo}
+              setHorasNoPeriodo={setHorasNoPeriodo}
+              editId={editId}
+              onSubmit={adicionarOuAtualizar}
+              onReset={resetForm}
+            />
+            
+            <MapaStats atividades={atividades} />
+          </div>
+
+          <Card className="glass border-0 lg:col-span-2">
+            <CardHeader>
+              <CardTitle className="mono-title">Gráfico de bolhas</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <MapaChart 
+                atividades={atividades}
+                exportRef={exportRef}
+              />
+              
+              <AtividadeTable
+                atividades={atividades}
+                onEdit={editar}
+                onDelete={excluir}
+              />
+            </CardContent>
+          </Card>
+        </div>
+      </main>
+    </div>
+  );
+}
+*/
