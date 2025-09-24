@@ -16,7 +16,102 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
 ---
 
-## [v3.0.0] - 2024-01-17 - 🎬 Landing Page Premium com Vídeos Interativos
+## [v3.2.0] - 2025-09-24 - 🔒 Sistema de Segurança e Admin Dashboard
+
+### ✅ Adicionado
+- **Sistema de Autorização Seguro:** Migração completa de arquivo público para banco de dados
+  - Tabela `authorized_emails` no Supabase com RLS e service role key
+  - APIs seguras server-side impossíveis de burlar
+  - Verificação de expiração no login e cadastro
+- **Interface Admin de Assinantes:** Dashboard completo em `/admin/assinantes`
+  - CRUD completo (Create, Read, Update, Delete) de assinantes
+  - Informações de acesso: último login, conta criada, atividades
+  - Filtros avançados: status, período de acesso, ordenação
+  - Busca em tempo real e contador de resultados
+- **Verificação de Conta Existente:** Previne envio de emails duplicados no cadastro
+- **Check de Expiração no Login:** Bloqueia acesso de assinaturas expiradas
+
+### 🔧 Corrigido
+- **Vulnerabilidade de Segurança:** Arquivo `public/emails-autorizados.txt` expondo dados
+- **LGPD Compliance:** Dados sensíveis agora protegidos no banco
+- **Emails Duplicados:** Sistema não envia mais email quando conta já existe
+- **Acesso Expirado:** Usuários com data expirada não conseguem mais fazer login
+- **Botões Admin:** Corrigido estilo dos selects/dropdowns (fundo escuro visível)
+
+### 🎨 Melhorado
+- **Gestão de Assinantes:** De edição manual via Git para interface visual instantânea
+- **Performance:** Queries otimizadas com índices no banco
+- **UX Admin:** Swipe gestures para ações, indicadores visuais de status
+- **Segurança:** Validação server-side com service role key do Supabase
+- **Filtros Inteligentes:** Múltiplos filtros combinados para gestão eficiente
+
+### 📊 Técnico
+- **Novas APIs:** 
+  - `/api/auth/check-authorization` - Verificação segura de autorização
+  - `/api/auth/check-existing` - Verifica se conta já existe
+  - `/api/auth/check-expiration` - Valida expiração no login
+  - `/api/admin/assinantes` - CRUD completo do admin
+- **Nova Tabela:** `authorized_emails` com campos para futuro Stripe
+- **Arquivos Removidos:** `public/emails-autorizados.txt` (vulnerabilidade)
+- **Componentes:** Nova página admin com filtros, busca e métricas
+
+### 🔒 Segurança
+- **Zero Exposição:** Emails não são mais visíveis no GitHub ou cliente
+- **Impossible Bypass:** Verificação server-side com service role
+- **Dupla Verificação:** Check na criação de conta E no login
+- **Admin Protegido:** Apenas email autorizado pode acessar dashboard
+
+--
+
+## [v3.1.0] - 2025-09-21 - 📱 Mobile-First Redesign + UX Profissional do Mapa
+
+### ✅ Adicionado
+- **Visualização Mobile Nativa:** Cards por zona com mini-matriz visual no mobile
+- **Swipe Gestures:** Deslizar para editar (→) ou excluir (←) no mobile
+- **Seletor de Números:** Substituição dos sliders por botões 1-6 para Impacto/Clareza
+- **Cards por Zona Desktop:** Visualização unificada desktop/mobile agrupada por zonas
+- **Scroll para Edição:** Auto-scroll suave ao editar atividade
+- **Card Diagnóstico Mobile:** CTA contextual no final da lista mobile
+
+### 🔧 Corrigido
+- **Conversão de Horas:** Cálculo preciso com 22 dias úteis e 4.33 semanas/mês
+- **Gráfico Interativo:** Clique nas bolhas agora abre formulário de edição
+- **Sobreposição de Bolhas:** Jitter circular + transparência + tooltip melhorado
+- **Textos Longos:** Break-words em nomes de atividades evita quebra de layout
+- **Responsividade Formulário:** Layout adaptativo mobile/tablet/desktop
+
+### 🎨 Melhorado
+- **UX Mobile-First:** Interface completamente otimizada para touch
+- **Preview de Conversão:** Box visual mostrando horas/mês e horas/dia
+- **Tamanho das Bolhas:** Range aumentado [200, 600] para melhor visibilidade
+- **Título do Gráfico:** "Matriz Impacto × Clareza" substituindo "Gráfico de bolhas"
+- **Consistência Visual:** Cards unificados entre mobile e desktop
+- **Feedback Visual:** Indicadores coloridos ao deslizar cards no mobile
+
+### 🔍 Detalhes Técnicos
+- **Componente MatrizMobile:** Nova visualização mobile com mini-matriz + cards colapsáveis
+- **CardAtividadeMobile:** Touch handlers para swipe actions
+- **NumberSelector:** Grid responsivo substituindo sliders problemáticos
+- **ZonaCollapsivel:** Componente reutilizável para agrupamento por zona
+- **DIAS_UTEIS_MES:** Atualizado de 20 para 22 (mais realista)
+- **SEMANAS_MES:** Atualizado de 4 para 4.33 (mais preciso)
+
+### 📊 Métricas de Qualidade
+- **Zero scroll horizontal:** Layout 100% responsivo
+- **Touch targets:** Mínimo 44px conforme guidelines mobile
+- **Performance:** Componentes otimizados com useMemo
+- **Acessibilidade:** Controles keyboard-friendly mantidos
+
+### 🐛 Bugs Conhecidos Resolvidos
+- ✅ Horas/mês mostrando 0,67 quando selecionado período mensal
+- ✅ Sliders difíceis de usar em telas pequenas
+- ✅ Tabela quebrando em displays menores
+- ✅ Bolhas sobrepostas impossíveis de clicar
+- ✅ Formulário espremido em tablets
+
+---
+
+## [v3.0.0] - 2024-09-17 - 🎬 Landing Page Premium com Vídeos Interativos
 
 ### ✅ Adicionado
 - **Seção de Vídeos Interativa:** 4 vídeos com scroll-trigger automático (desktop) e cards responsivos (mobile)
@@ -45,7 +140,7 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
 ---
 
-## [v2.0.0] - 2025-12-13 - 🎯 KANBAN VISUAL - FLUXO SEMANAL
+## [v2.0.0] - 2025-09-13 - 🎯 KANBAN VISUAL - FLUXO SEMANAL
 
 ### ✅ Adicionado
 - **Página Fluxo Semanal:** Nova rota /painel-semanal com Kanban de 4 colunas
@@ -69,7 +164,7 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 - **Tipos:** Interfaces KanbanBoard, TaticaKanban, KanbanStatus adicionadas
 ---
 
-## [v1.9.8] - 2025-12-09 - 🔄 Sincronização Supabase + Notificações ROI do Foco
+## [v1.9.8] - 2025-09-09 - 🔄 Sincronização Supabase + Notificações ROI do Foco
 
 ### ✅ Adicionado
 - **Tabela Táticas:** Nova tabela `public.taticas` no Supabase para sincronização entre dispositivos

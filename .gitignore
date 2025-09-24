@@ -40,3 +40,7 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
+# Segurança - nunca mais commitar emails
+emails-autorizados.txt
+/public/emails-autorizados.txt
+

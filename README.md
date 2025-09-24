@@ -3,7 +3,7 @@
 **Sistema Enterprise para Diagnóstico e Otimização do Foco Profissional**
 
 [![Deploy](https://img.shields.io/badge/deploy-vercel-black?logo=vercel)](https://conversas-no-corredor.vercel.app)
-[![Versão](https://img.shields.io/badge/versão-v3.1.0-blue)](docs/CURRENT-STATUS.md)
+[![Versão](https://img.shields.io/badge/versão-v3.2.0-blue)](docs/CURRENT-STATUS.md)
 [![Status](https://img.shields.io/badge/status-✅%20operacional-green)](docs/CURRENT-STATUS.md)
 
 ## 🚀 Quick Start
@@ -41,96 +41,160 @@ npm run dev
 - **📄 Export Profissional** - PDF otimizado + cópia de texto
 - **👤 Perfil Completo** - Configurações pessoais + compliance LGPD
 - **🔐 Autenticação Segura** - RLS (Row Level Security) + emails autorizados
+- **🔒 Sistema de Segurança** - Autorização server-side + admin dashboard (**v3.2.0**)
+
+### **Páginas Funcionais:**
+✅ Landing Page Principal (/)           # Apresentação + 2 CTAs pré-diagnóstico
+✅ Pré-Diagnóstico (/pre-diagnostico)   # Funcionando universalmente
+✅ Autenticação (/auth)                 # Login/cadastro com verificação v3.2.0
+✅ Dashboard (/dashboard)               # Mapa mobile-first responsivo v3.1.0
+✅ Diagnóstico (/diagnostico)           # Análise automática + relatórios
+✅ Plano de Ação (/plano-acao)          # Framework DAR CERTO + IA V2.1
+✅ Perfil (/perfil)                     # Configurações + LGPD
+✅ Admin Assinantes (/admin/assinantes) # Dashboard gestão completo 🆕 v3.2.0
+✅ Painel Semanal (/painel-semanal)     # Kanban visual drag & drop v2.0.0
 
 ### 🛠️ Stack Tecnológica
-- **Frontend:** Next.js 14 + TypeScript + Tailwind CSS
+- **Frontend:** Next.js 15.5.3 + TypeScript + Tailwind CSS
 - **Backend:** Supabase (PostgreSQL + Auth + RLS)
-- **Email:** Resend API com templates HTML (**v1.9.0**)
+- **Email:** Resend API com templates HTML
+- **Segurança:** Service Role Key + Validação Server-Side (**v3.2.0**)
 - **Deploy:** Vercel (automático via Git)
 - **Metodologia:** ROI do Foco + Framework DAR CERTO
-- **Drag & Drop:** @dnd para Kanban visual
+- **Drag & Drop:** @hello-pangea/dnd para Kanban visual
+- **Admin:** Dashboard com filtros e métricas (**v3.2.0**)
 
 ## 🌊 Fluxo do Usuário
 
-### 🎯 Fluxo Completo v3.0.0
+### 🎯 Fluxo Completo v3.2.0
 
-1. **Landing Page Premium** → 4 vídeos demonstrativos com auto-play (**v3.0.0**)
-2. **Ecossistema Virtual** → Apresentação completa Conversas no Corredor + (**v3.0.0**)
+1. **Landing Page Premium** → 4 vídeos demonstrativos com auto-play
+2. **Ecossistema Virtual** → Apresentação completa Conversas no Corredor +
 3. **Pré-Diagnóstico** → Sistema de leads com nome + 5 etapas + email
-4. **Reset de Senha** → Página dedicada com emails customizados
-5. **Dashboard** → Mapeamento na matriz Impacto × Clareza
-6. **Diagnóstico** → Análise automática + relatório personalizado
-7. **Plano de Ação** → Interface redesenhada com dashboard e controles centralizados (**v1.9.6**)
-8. **Fluxo Semanal** → Kanban visual para execução de táticas (**v2.0.0** 🆕)
+4. **Autorização Segura** → Verificação server-side no cadastro (**v3.2.0**)
+5. **Verificação Login** → Check de expiração antes de permitir acesso (**v3.2.0**)
+6. **Dashboard** → Mapeamento mobile-first na matriz Impacto × Clareza
+7. **Diagnóstico** → Análise automática + relatório personalizado
+8. **Plano de Ação** → Interface redesenhada com dashboard e controles
+9. **Fluxo Semanal** → Kanban visual para execução de táticas
+10. **Admin Dashboard** → Gestão completa de assinantes (admin only) (**v3.2.0**)
+
+### 🔒 Fluxo de Segurança v3.2.0
+
+**Para Usuários:**
+- Cadastro → Verifica autorização no banco → Verifica se conta existe → Cria conta
+- Login → Verifica expiração → Permite ou bloqueia acesso
+- Uso → Todas as funcionalidades disponíveis até data de expiração
+
+**Para Admin:**
+- Login com email autorizado → Acesso ao `/admin/assinantes`
+- Dashboard completo → Adicionar, editar, remover assinantes
+- Métricas → Visualizar último acesso, status, atividades
+- Filtros → Buscar e filtrar por múltiplos critérios
+
 
 ## 📂 Estrutura do Projeto
 
 ```
 src/
 ├── app/
-│   ├── page.tsx                      # Landing page com vídeos interativos (v3.0.0)
-│   ├── pre-diagnostico/page.tsx      # Pré-diagnóstico conversacional
-│   ├── api/prediag/                  # APIs do pré-diagnóstico
-│   │   ├── diagnose/route.ts         # POST - Processar diagnóstico
-│   │   ├── lead/route.ts             # POST - Capturar nome + email + enviar
-│   │   ├── options/route.ts          # GET - Opções por perfil
-│   │   ├── email-template.ts         # Helper - Template HTML profissional
-│   │   └── recommendations.ts        # Helper - Heurística 450+ sugestões
-│   ├── painel-semanal/               # 🆕 v2.0.0 - Kanban visual
-│   │   ├── page.tsx                  # Wrapper da página
+│   ├── page.tsx                             # Landing page com vídeos interativos (v3.0.0)
+│   ├── pre-diagnostico/page.tsx             # Pré-diagnóstico conversacional
+│   ├── api/
+│   │   ├── prediag/                          # APIs do pré-diagnóstico
+│   │   │   ├── diagnose/route.ts             # POST - Processar diagnóstico
+│   │   │   ├── lead/route.ts                 # POST - Capturar nome + email + enviar
+│   │   │   ├── options/route.ts              # GET - Opções por perfil
+│   │   │   ├── email-template.ts             # Helper - Template HTML profissional
+│   │   │   └── recommendations.ts            # Helper - Heurística 450+ sugestões
+│   │   ├── auth/                             # 🆕 v3.2.0 - APIs de segurança
+│   │   │   ├── check-authorization/route.ts  # Verificar autorização segura
+│   │   │   ├── check-existing/route.ts       # Verificar conta existente
+│   │   │   └── check-expiration/route.ts     # Validar expiração no login
+│   │   └── admin/                            # 🆕 v3.2.0 - APIs administrativas
+│   │       └── assinantes/route.ts           # CRUD completo de assinantes
+│   ├── admin/                                # 🆕 v3.2.0 - Área administrativa
+│   │   └── assinantes/page.tsx               # Dashboard de gestão de assinantes
+│   ├── painel-semanal/                       # v2.0.0 - Kanban visual
+│   │   ├── page.tsx                          # Wrapper da página
 │   │   └── components/
-│   │       └── KanbanPage.tsx        # Componente principal com drag & drop
-│   ├── auth/page.tsx                 # Autenticação
-│   ├── dashboard/page.tsx            # Mapa de atividades
-│   ├── diagnostico/page.tsx          # Análise do foco
-│   ├── plano-acao/page.tsx          # Framework DAR CERTO
-│   ├── perfil/page.tsx              # Configurações
-│   ├── privacidade/page.tsx         # LGPD compliance
-│   └── reset-password/page.tsx      # Reset de senha
+│   │       └── KanbanPage.tsx                # Componente principal com drag & drop
+│   ├── auth/page.tsx                         # Autenticação com verificação v3.2.0
+│   ├── dashboard/page.tsx                   # Mapa de atividades mobile-first v3.1.0
+│   ├── diagnostico/page.tsx                 # Análise do foco
+│   ├── plano-acao/page.tsx                  # Framework DAR CERTO
+│   ├── perfil/page.tsx                      # Configurações
+│   ├── privacidade/page.tsx                 # LGPD compliance
+│   └── reset-password/page.tsx              # Reset de senha
 ├── components/
-│   ├── base/                        # 8 componentes reutilizáveis
-│   ├── mapa/                        # 5 componentes do mapa
-│   ├── prediagnostico/              # EmailGate com campo nome (v1.9.1)
-│   └── plano/                       # 7 componentes do plano
-└── lib/
-|   ├── diagnostico-engine.ts        # Motor de análise
-|   ├── heuristica-engine.ts         # IA V2.1 para táticas
-|   ├── design-system.ts             # Tokens centralizados
-|   └── supabase.ts                  # Configuração do banco
-|   ├── kanban/                       # 🆕 v2.0.0 - Funções específicas
-|   │   └── database.ts               # Integração Supabase para Kanban
+│   ├── base/                                # 8 componentes reutilizáveis
+│   ├── mapa/                                # Componentes do mapa + mobile v3.1.0
+│   ├── prediagnostico/                      # EmailGate com campo nome
+│   └── plano/                               # 7 componentes do plano
+├── lib/
+│   ├── diagnostico-engine.ts                # Motor de análise
+│   ├── heuristica-engine.ts                 # IA V2.1 para táticas
+│   ├── design-system.ts                     # Tokens centralizados
+│   ├── supabase.ts                          # Configuração do banco
+│   ├── email-validator.ts                   # 🆕 v3.2.0 - Validação segura
+│   └── kanban/                              # v2.0.0 - Funções específicas
+│       └── database.ts                      # Integração Supabase para Kanban
 └── public/
-    └── videos/                        # 4 vídeos de demonstração (v3.0.0)
-        ├── mapeamento.mp4
-        ├── diagnostico.mp4
-        ├── taticas.mp4
-        └── kanban.mp4
+     └── videos/                                  # 4 vídeos de demonstração (v3.0.0)
+          ├── mapeamento.mp4
+          ├── diagnostico.mp4
+          ├── taticas.mp4
+          └── kanban.mp4
 ```
 
-## 📚 Sistema de Documentação Modular
 
 ### 📋 **Documentação Principal**
-- **📊 [CURRENT-STATUS.md](docs/CURRENT-STATUS.md)** - Status atual sempre atualizado
-- **📅 [CHANGELOG.md](docs/CHANGELOG.md)** - Histórico completo de versões
-- **🔧 [troubleshooting-acesso.md](docs/troubleshooting-acesso.md)** - Soluções para problemas comuns
 
-### 📖 **Documentação Técnica v1.9.1**
-```
+- **📊 [CURRENT-STATUS.md](docs/CURRENT-STATUS.md)** - Status v3.2.0 com sistema de segurança
+- **📅 [CHANGELOG.md](docs/CHANGELOG.md)** - Histórico completo até v3.2.0
+- **🔒 [admin-dashboard.md](docs/admin-dashboard.md)** - Guia completo do admin 🆕
+- **🛡️ [seguranca-lgpd.md](docs/seguranca-lgpd.md)** - Proteção de dados 🆕
+- **🔧 [troubleshooting-acesso.md](docs/troubleshooting-acesso.md)** - Debug e soluções
+
+### 📖 **Documentação Técnica v3.2.0**
 docs/
 ├── api-prediagnostico.md            # Especificação completa das 3 APIs
+├── api-seguranca.md                 # 🆕 APIs de autorização e verificação
+├── admin-dashboard.md               # 🆕 Guia do sistema administrativo
 ├── pagina-prediagnostico.md         # Interface conversacional + UX
-├── tabelas-supabase.md              # Schema das 3 tabelas + RLS
-└── deploy-configuracao.md           # Guia completo Vercel + Supabase + Resend
+├── tabelas-supabase.md              # Schema das tabelas + RLS atualizado
+├── seguranca-lgpd.md                # 🆕 Compliance e proteção de dados
+├── deploy-configuracao.md           # Guia Vercel + Supabase + Resend
+└── troubleshooting-acesso.md        # Soluções para problemas comuns```
 ```
 
 ### 📖 **Versões Detalhadas**
-```
 docs/versions/
-├── v2.0.0-kanban-visual.md            # Kanban visual completo - 13/12/2025 🆕
-├── v1.9.0-prediagnostico-completo.md  # Sistema pré-diagnóstico - 27/08/2025
-├── v1.8.3-diagnostico-premium.md      # Export otimizado - 22/08/2025
-├── v1.8.2-fluxo-padronizado.md        # ROI do Foco + nome real usuário
-└── v1.8.1-heuristica-refinada.md      # IA V2.1 + Framework DAR CERTO
+├── v3.2.0-seguranca-admin.md          # Sistema seguro + admin dashboard - 19/01/2025 🆕
+├── v3.1.0-mobile-first-redesign.md    # Redesign mobile do mapa - 19/01/2025 🆕
+├── v3.0.0-landing-videos.md           # Landing page com vídeos - 17/01/2025 🆕
+├── v2.0.0-kanban-visual.md            # Kanban visual completo - 13/12/2024
+├── v1.9.8-sincronizacao-supabase.md   # Sincronização + notificações - 09/12/2024
+├── v1.9.7-google-ads-tracking.md      # Conversion tracking - 09/09/2024
+├── v1.9.6-plano-acao-redesign.md      # UX redesign plano - 08/09/2024
+├── v1.9.5-ux-prediagnostico.md        # Melhorias pré-diagnóstico - 07/09/2024
+├── v1.9.4-google-ads-setup.md         # Setup inicial Google Ads - 01/09/2024
+├── v1.9.3-correcoes-android.md        # Correções Android + RLS - 27/08/2024
+├── v1.9.2-landing-integrada.md        # Landing page integrada - 27/08/2024
+├── v1.9.1-campo-nome.md               # Campo nome + personalização - 27/08/2024
+├── v1.9.0-prediagnostico-completo.md  # Sistema pré-diagnóstico - 27/08/2024
+├── v1.8.3-diagnostico-premium.md      # Export otimizado - 22/08/2024
+├── v1.8.2-fluxo-padronizado.md        # ROI do Foco + nome real - 20/08/2024
+├── v1.8.1-heuristica-refinada.md      # IA V2.1 + Framework - 18/08/2024
+├── v1.8.0-framework-dar-certo.md      # Framework DAR CERTO - 15/08/2024
+├── v1.7.0-diagnostico-automatico.md   # Motor de análise - 12/08/2024
+├── v1.6.0-layout-otimizado.md         # Layout + UX consistente - 10/08/2024
+├── v1.5.0-perfil-lgpd.md              # Perfil completo + LGPD - 08/08/2024
+├── v1.4.0-wave1-modular.md            # Design system modular - 05/08/2024
+├── v1.3.0-sistema-diagnostico.md      # Sistema diagnóstico - 02/08/2024
+├── v1.2.0-mapa-atividades.md          # Mapa core - 30/07/2024
+├── v1.1.0-autenticacao.md             # Auth + banco - 25/07/2024
+└── v1.0.0-mvp-inicial.md              # MVP inicial - 20/07/2024
 ```
 
 ### 🔄 **Workflow de Desenvolvimento**
@@ -157,10 +221,55 @@ Atualizar documentação com comandos Windows.
 
 > 💡 **Dica:** Mantenha um documento no Obsidian com estes templates para agilizar o processo!
 
-## 🎯 Versão Atual: v3.1.0 - Mobile-First Redesign do Mapa
+## 🎯 Versão Atual: v3.2.0 - Sistema de Segurança e Admin Dashboard
 
-**Foco da Sessão (19/01/2025):** Redesign completo do Mapa de Atividades com abordagem mobile-first
-**Sessão Anterior (17/01/2025):** Landing Page Premium com Vídeos Interativos
+**Foco da Sessão (19/01/2025 - Tarde):** Sistema completo de autorização seguro + dashboard admin
+**Sessão Anterior (19/01/2025 - Manhã):** Mobile-First Redesign do Mapa de Atividades
+
+### ✅ Principais Melhorias de Segurança:
+- **🔒 Autorização Segura** - Migração de arquivo público para banco de dados
+- **👨‍💼 Admin Dashboard** - Interface completa para gestão de assinantes em `/admin/assinantes`
+- **🚫 Verificação Dupla** - Check no cadastro + check no login
+- **📊 Métricas de Acesso** - Último login, atividades, status da conta
+- **🔍 Filtros Avançados** - Status, período, ordenação, busca combinados
+- **⚡ Gestão Instantânea** - CRUD visual sem necessidade de Git
+
+### 🛡️ Segurança Implementada:
+- **Server-Side:** Validação impossível de burlar com service role key
+- **Banco de Dados:** Tabela `authorized_emails` com RLS ativo
+- **APIs Protegidas:** 4 novas rotas seguras para verificações
+- **LGPD Compliance:** Dados sensíveis protegidos no Supabase
+- **Zero Exposição:** Arquivo público removido do repositório
+
+### 📊 Dashboard Admin Features:
+- **Visualização Completa:** Email, expiração, último acesso, status, atividades
+- **Filtros Inteligentes:** Por status (ativos/expirados/sem conta) + período de acesso
+- **Ordenação Flexível:** Por nome, data, acesso, atividades
+- **Busca em Tempo Real:** Localização instantânea de assinantes
+- **Edição Inline:** Modificar email e data sem recarregar
+- **Ações Rápidas:** Adicionar, editar, remover com feedback visual
+
+
+## 🎯 Versão Anterior: v3.2.0 - Sistema de Segurança e Admin Dashboard
+
+**Foco da Sessão (19/09/2025 - Tarde):** Sistema completo de autorização seguro + dashboard admin
+**Sessão Anterior (19/09/2025 - Manhã):** Mobile-First Redesign do Mapa de Atividades
+
+### ✅ Principais Melhorias de Segurança:
+- **🔒 Autorização Segura** - Migração de arquivo público para banco de dados
+- **👨‍💼 Admin Dashboard** - Interface completa para gestão de assinantes
+- **🚫 Verificação Dupla** - Check no cadastro + check no login
+- **📊 Métricas de Acesso** - Último login, atividades, status da conta
+- **🔍 Filtros Avançados** - Status, período, ordenação, busca combinados
+- **⚡ Gestão Instantânea** - CRUD visual sem necessidade de Git
+
+---
+
+
+## 🎯 Versão Anterior: v3.1.0 - Mobile-First Redesign do Mapa
+
+**Foco da Sessão (19/09/2025):** Redesign completo do Mapa de Atividades com abordagem mobile-first
+**Sessão Anterior (17/09/2025):** Landing Page Premium com Vídeos Interativos
 
 ### ✅ Principais Melhorias do Mapa:
 - **📱 Visualização Mobile Nativa** - Cards por zona com mini-matriz visual e swipe gestures
@@ -406,18 +515,37 @@ git commit -m "feat: landing page integrada + UX refinado v1.9.2"
 **Produção:** https://conversas-no-corredor.vercel.app
 **Pré-Diagnóstico:** https://conversas-no-corredor.vercel.app/pre-diagnostico
 
-### Sistema de Emails Autorizados
-Arquivo: `public/emails-autorizados.txt`
-```
-email@dominio.com,31/12/2025
-usuario@gmail.com,30/06/2025
-```
+### 🔒 Sistema de Segurança (v3.2.0)
 
-Para adicionar novos usuários:
-1. Editar `public/emails-autorizados.txt`
-2. Adicionar linha: `email@dominio.com,DD/MM/AAAA`
-3. Fazer commit: `git push`
-4. Deploy automático em 2-3 minutos
+**Autorização de Usuários:**
+- Sistema migrado de arquivo público para banco de dados seguro
+- Verificação server-side impossível de burlar
+- Dupla verificação: no cadastro E no login
+- Interface admin em `/admin/assinantes` (acesso restrito)
+
+**Para gerenciar assinantes:**
+1. Acesse `/admin/assinantes` com email autorizado (admin only)
+2. Use a interface visual para adicionar/editar/remover
+3. Mudanças aplicadas instantaneamente
+4. Filtros e busca para gestão eficiente
+
+**Tabela no Supabase:**
+```sql
+authorized_emails
+├── id (uuid)
+├── email (text unique)
+├── expires_at (date)
+├── notes (text)
+├── stripe_customer_id (preparado para futuro)
+└── created_at (timestamp)
+
+Segurança implementada:
+
+✅ Zero exposição de dados sensíveis
+✅ Validação server-side com service role key
+✅ Verificação de expiração automática
+✅ Prevenção de emails duplicados
+✅ LGPD compliance total
 
 ### Configuração Email Marketing (v1.9.1)
 
@@ -451,6 +579,6 @@ Baseado na metodologia **ROI do Foco** da newsletter [Conversas no Corredor](htt
 ---
 
 📋 **Status:** Sistema completo com landing page premium e vídeos interativos
-📅 **Última atualização:** 19 de Setembro de 2025
+📅 **Última atualização:** 24 de Setembro de 2025
 📄 **Próxima versão:** Pequenos deploys e correção e bugs, criação de view free
 📊 **Métricas:** [Veja status detalhado no CURRENT-STATUS.md](docs/CURRENT-STATUS.md)

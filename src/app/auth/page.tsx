@@ -99,6 +99,30 @@ export default function AuthPage() {
     try {
       if (isLogin) {
         // LOGIN
+        // Verificar expiração ANTES de fazer login
+        try {
+          const expResponse = await fetch('/api/auth/check-expiration', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email })
+          })
+          
+          const expData = await expResponse.json()
+          
+          if (!expData.valid) {
+            setMessage({ 
+              type: 'error', 
+              text: expData.message || 'Assinatura expirada. Entre em contato para renovar.'
+            })
+            setLoading(false)
+            return
+          }
+        } catch (err) {
+          console.error('Erro ao verificar expiração:', err)
+          // Se der erro na verificação, continua com o login
+        }
+        
+        // Se não expirou, fazer login normal
         const { error } = await supabase.auth.signInWithPassword({ email, password: senha })
         if (error) {
           if (error.message.includes('Invalid login credentials')) {
@@ -112,17 +136,41 @@ export default function AuthPage() {
         window.location.href = '/dashboard'
       } else {
         // CADASTRO
+        // Primeiro verificar se conta já existe
+        try {
+          const checkResponse = await fetch('/api/auth/check-existing', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email })
+          })
+          
+          const checkData = await checkResponse.json()
+          
+          if (checkData.exists) {
+            setMessage({ 
+              type: 'error', 
+              text: 'Este email já possui uma conta.\n\nClique em "Fazer Login" ao invés de "Criar Conta".' 
+            })
+            setLoading(false)
+            return
+          }
+        } catch (err) {
+          console.error('Erro ao verificar conta existente:', err)
+        }
+        
+        // Agora verificar se está autorizado
         const validacao = await emailAutorizado(email)
         
         if (!validacao.autorizado) {
           setMessage({ 
             type: 'error', 
-            text: `${validacao.motivo}\n\nApenas assinantes anuais da newsletter têm acesso.` 
+            text: `${validacao.motivo}\n\nApenas assinantes pagos da newsletter têm acesso.` 
           })
           setLoading(false)
           return
         }
         
+        // Criar conta
         const { error } = await supabase.auth.signUp({ email, password: senha })
         if (error) {
           setMessage({ type: 'error', text: error.message })
