@@ -23,7 +23,7 @@ cp .env.example .env.local
 # Executar em desenvolvimento
 npm run dev
 ```
-
+---
 **Acesso:** http://localhost:3000
 
 ## 📊 Sistema Completo
