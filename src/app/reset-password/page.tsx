@@ -34,90 +34,108 @@ export default function ResetPasswordPage() {
   const router = useRouter()
 
   // Verificar token ao carregar página
+  // Verificar token ao carregar página
   useEffect(() => {
     const checkTokenAndSetSession = async () => {
       try {
-        // Obter parâmetros da URL
-        const accessToken = searchParams?.get('access_token')
-        const refreshToken = searchParams?.get('refresh_token')
-        const type = searchParams?.get('type')
+        // PRIMEIRO: Verificar se o usuário já está logado (recovery token fez login automático)
+        const { data: { session } } = await supabase.auth.getSession();
+        
+        if (session && session.user) {
+          console.log('Usuário já logado via recovery token:', session.user.email);
+          
+          // Usuário está logado - pode trocar senha
+          setIsValidToken(true);
+          setMessage({
+            type: 'success',
+            text: '✅ Autenticação confirmada! Digite sua nova senha abaixo.'
+          });
+          setIsChecking(false);
+          return;
+        }
+        
+        // SE NÃO ESTÁ LOGADO, verificar parâmetros da URL
+        const accessToken = searchParams?.get('access_token');
+        const refreshToken = searchParams?.get('refresh_token');
+        const type = searchParams?.get('type');
         
         // Verificar fragment também (caso venha no #)
-        const hash = window.location.hash
-        const hashParams = new URLSearchParams(hash.substring(1))
-        const hashAccessToken = hashParams.get('access_token')
-        const hashRefreshToken = hashParams.get('refresh_token')
-        const errorCode = hashParams.get('error_code')
-        const error = hashParams.get('error')
+        const hash = window.location.hash;
+        const hashParams = new URLSearchParams(hash.substring(1));
+        const hashAccessToken = hashParams.get('access_token');
+        const hashRefreshToken = hashParams.get('refresh_token');
+        const errorCode = hashParams.get('error_code');
+        const error = hashParams.get('error');
 
         console.log('Reset Page - Params:', { 
           accessToken, refreshToken, type, 
-          hashAccessToken, errorCode, error 
-        })
+          hashAccessToken, errorCode, error,
+          sessionExists: !!session
+        });
 
-        // Usar token do hash se disponível, senão da query
-        const finalAccessToken = hashAccessToken || accessToken
-        const finalRefreshToken = hashRefreshToken || refreshToken
-
-        // Verificar se há erro
-        if (errorCode === 'otp_expired' || error === 'access_denied') {
+        // Se tem erro ou não tem token E não tem sessão
+        if ((errorCode === 'otp_expired' || error === 'access_denied') && !session) {
           setMessage({
             type: 'error',
             text: '🔗 Link expirado ou inválido!\n\nSolicite um novo link de recuperação.'
-          })
-          setIsChecking(false)
-          return
+          });
+          setIsChecking(false);
+          return;
         }
 
-        // Verificar se tem token
-        if (!finalAccessToken) {
+        // Se não tem token E não tem sessão
+        const finalAccessToken = hashAccessToken || accessToken;
+        if (!finalAccessToken && !session) {
           setMessage({
             type: 'error', 
             text: 'Link de recuperação inválido. Solicite um novo link.'
-          })
-          setIsChecking(false)
-          return
+          });
+          setIsChecking(false);
+          return;
         }
 
-        // Definir sessão no Supabase
-        const { data, error: sessionError } = await supabase.auth.setSession({
-          access_token: finalAccessToken,
-          refresh_token: finalRefreshToken || ''
-        })
+        // Se tem token, tentar criar sessão
+        if (finalAccessToken) {
+          const finalRefreshToken = hashRefreshToken || refreshToken;
+          const { data, error: sessionError } = await supabase.auth.setSession({
+            access_token: finalAccessToken,
+            refresh_token: finalRefreshToken || ''
+          });
 
-        if (sessionError || !data.session) {
-          console.error('Erro ao definir sessão:', sessionError)
+          if (sessionError || !data.session) {
+            console.error('Erro ao definir sessão:', sessionError);
+            setMessage({
+              type: 'error',
+              text: 'Token expirado ou inválido. Solicite um novo link de recuperação.'
+            });
+            setIsChecking(false);
+            return;
+          }
+
+          // Sucesso - token válido
+          setIsValidToken(true);
           setMessage({
-            type: 'error',
-            text: 'Token expirado ou inválido. Solicite um novo link de recuperação.'
-          })
-          setIsChecking(false)
-          return
+            type: 'success',
+            text: 'Link válido! ✅ Digite sua nova senha abaixo.'
+          });
+          setIsChecking(false);
+          
+          // Limpar URL
+          router.replace('/reset-password');
         }
-
-        // Sucesso - token válido
-        setIsValidToken(true)
-        setMessage({
-          type: 'success',
-          text: 'Link válido! ✅ Digite sua nova senha abaixo.'
-        })
-        setIsChecking(false)
-
-        // Limpar URL
-        router.replace('/reset-password')
 
       } catch (error) {
-        console.error('Erro ao processar token:', error)
+        console.error('Erro ao processar:', error);
         setMessage({
           type: 'error',
-          text: 'Erro ao processar link. Solicite um novo.'
-        })
-        setIsChecking(false)
+          text: 'Erro ao processar. Tente novamente.'
+        });
+        setIsChecking(false);
       }
-    }
+    };
 
-    checkTokenAndSetSession()
-  }, [searchParams, router])
+    checkTokenAndSetSession();
+  }, [searchParams, router]);
 
   // Função para definir nova senha
   const handleResetPassword = async () => {
