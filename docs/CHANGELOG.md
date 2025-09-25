@@ -14,6 +14,57 @@ Todas as mudanças notáveis neste projeto serão documentadas aqui.
 O formato é baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.0/),
 e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
+
+## [v3.3.0] - 2025-09-24 - 🎥 Otimização de Vídeos + Reset de Senha Corrigido
+
+### ✅ Adicionado
+- **Sistema de Reset de Senha via SMTP:** Configuração do Resend como SMTP provider no Supabase
+  - SMTP customizado substituindo sistema padrão do Supabase
+  - Templates de email personalizados mantidos
+  - Melhor entregabilidade e controle sobre envios
+- **Detecção de Sessão Ativa:** Página de reset detecta quando usuário já está autenticado
+  - Verificação de sessão antes de procurar tokens na URL
+  - Suporte ao fluxo de recovery que faz login automático
+- **Documentação de Bugs:** Registro de limitações conhecidas do Supabase gratuito
+
+### 🔧 Corrigido
+- **Reset de Senha Não Funcionava:** Supabase não passava tokens corretamente para aplicação
+  - **Causa:** Limitação do plano gratuito com redirect_to customizado
+  - **Solução:** Detectar sessão ativa ao invés de depender de tokens na URL
+- **Erro 500 com Emails Hotmail:** Reset múltiplos falhavam para domínios Hotmail/Outlook
+  - **Workaround:** Documentado uso da página de perfil como alternativa
+
+### 🎨 Melhorado
+- **Performance da Landing Page:** Vídeos reduzidos de 200MB para 8MB (redução de 96%)
+  - Compressão com FFmpeg (CRF 32, resolução 960x540, áudio mono)
+  - Economia drástica na cota de bandwidth do Vercel
+  - Melhoria significativa no LCP e Web Vitals
+- **Processo de Compressão Documentado:** Template Obsidian com comandos reutilizáveis
+  - 3 níveis de compressão configurados (Mobile/Desktop/Ultra)
+  - Comandos em lote para múltiplos vídeos
+  - Estrutura organizada em C:\Users\adils\Videos\CompressaoVideos
+
+### 📊 Técnico
+- **Configuração SMTP Resend:**
+  - Host: smtp.resend.com
+  - Port: 465
+  - Username: resend (fixo)
+  - Password: API Key do Resend
+- **Arquivos Modificados:**
+  - `src/app/reset-password/page.tsx` - Adicionada verificação de sessão ativa
+  - Vídeos em `/public/videos/` - Recomprimidos com FFmpeg
+- **Economia de Recursos:**
+  - Bandwidth: ~576GB/mês economizados (para 3000 visitantes)
+  - Tamanho por vídeo: ~50MB → ~2MB
+
+### 🐛 Bugs Conhecidos
+- **Hotmail/Outlook:** Erro 500 em resets múltiplos (limitação Supabase + SMTP)
+  - **Workaround:** Usar página /perfil para trocar senha
+- **Plano Gratuito Supabase:** Redirect customizado não passa tokens corretamente
+  - **Resolvido:** Sistema detecta sessão ao invés de depender de tokens
+
+---
+
 ---
 
 ## [v3.2.0] - 2025-09-24 - 🔒 Sistema de Segurança e Admin Dashboard

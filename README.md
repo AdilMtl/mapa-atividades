@@ -3,7 +3,7 @@
 **Sistema Enterprise para Diagnóstico e Otimização do Foco Profissional**
 
 [![Deploy](https://img.shields.io/badge/deploy-vercel-black?logo=vercel)](https://conversas-no-corredor.vercel.app)
-[![Versão](https://img.shields.io/badge/versão-v3.2.0-blue)](docs/CURRENT-STATUS.md)
+[![Versão](https://img.shields.io/badge/versão-v3.3.0-blue)](docs/CURRENT-STATUS.md)
 [![Status](https://img.shields.io/badge/status-✅%20operacional-green)](docs/CURRENT-STATUS.md)
 
 ## 🚀 Quick Start
@@ -42,6 +42,8 @@ npm run dev
 - **👤 Perfil Completo** - Configurações pessoais + compliance LGPD
 - **🔐 Autenticação Segura** - RLS (Row Level Security) + emails autorizados
 - **🔒 Sistema de Segurança** - Autorização server-side + admin dashboard (**v3.2.0**)
+- **🎥 Vídeos Otimizados** - Redução de 96% no tamanho (200MB → 8MB) (**v3.3.0**)
+- **🔐 Reset de Senha Funcional** - SMTP Resend + detecção de sessão ativa (**v3.3.0**)
 
 ### **Páginas Funcionais:**
 ✅ Landing Page Principal (/)           # Apresentação + 2 CTAs pré-diagnóstico
@@ -53,16 +55,18 @@ npm run dev
 ✅ Perfil (/perfil)                     # Configurações + LGPD
 ✅ Admin Assinantes (/admin/assinantes) # Dashboard gestão completo 🆕 v3.2.0
 ✅ Painel Semanal (/painel-semanal)     # Kanban visual drag & drop v2.0.0
+✅ Reset de Senha (/reset-password)     # SMTP Resend + detecção sessão v3.3.0
 
 ### 🛠️ Stack Tecnológica
 - **Frontend:** Next.js 15.5.3 + TypeScript + Tailwind CSS
 - **Backend:** Supabase (PostgreSQL + Auth + RLS)
-- **Email:** Resend API com templates HTML
+- **Email:** Resend API com templates HTML + SMTP customizado (**v3.3.0**)
 - **Segurança:** Service Role Key + Validação Server-Side (**v3.2.0**)
 - **Deploy:** Vercel (automático via Git)
 - **Metodologia:** ROI do Foco + Framework DAR CERTO
 - **Drag & Drop:** @hello-pangea/dnd para Kanban visual
 - **Admin:** Dashboard com filtros e métricas (**v3.2.0**)
+- **Otimização:** FFmpeg para compressão de vídeos (**v3.3.0**)
 
 ## 🌊 Fluxo do Usuário
 
@@ -221,7 +225,24 @@ Atualizar documentação com comandos Windows.
 
 > 💡 **Dica:** Mantenha um documento no Obsidian com estes templates para agilizar o processo!
 
-## 🎯 Versão Atual: v3.2.0 - Sistema de Segurança e Admin Dashboard
+## 🎯 Versão Atual: v3.3.0 - Otimização de Performance e Correções Críticas
+
+**Foco da Sessão (24/09/2025):** Otimização massiva de vídeos + correção do reset de senha
+**Sessão Anterior (19/09/2025):** Sistema de Segurança e Admin Dashboard
+
+### ✅ Principais Melhorias de Performance:
+- **🎥 Vídeos 96% menores** - De 200MB para 8MB total com FFmpeg
+- **🚀 Web Vitals melhorados** - LCP drasticamente reduzido
+- **💰 Economia Vercel** - ~576GB/mês de bandwidth economizados
+- **📝 Processo documentado** - Template Obsidian para futuras compressões
+
+### ✅ Correções do Sistema:
+- **🔐 Reset de Senha** - Detecta sessão ativa quando Supabase faz login automático
+- **📧 SMTP Resend** - Configurado como provider customizado no Supabase
+- **🐛 Bug Hotmail** - Erro 500 documentado com workaround via /perfil
+- **⚡ Performance** - Load time < 1s com vídeos otimizados
+
+## 🎯 Versão Anterior: v3.2.0 - Sistema de Segurança e Admin Dashboard
 
 **Foco da Sessão (19/01/2025 - Tarde):** Sistema completo de autorização seguro + dashboard admin
 **Sessão Anterior (19/01/2025 - Manhã):** Mobile-First Redesign do Mapa de Atividades
@@ -263,65 +284,7 @@ Atualizar documentação com comandos Windows.
 - **🔍 Filtros Avançados** - Status, período, ordenação, busca combinados
 - **⚡ Gestão Instantânea** - CRUD visual sem necessidade de Git
 
----
 
-
-## 🎯 Versão Anterior: v3.1.0 - Mobile-First Redesign do Mapa
-
-**Foco da Sessão (19/09/2025):** Redesign completo do Mapa de Atividades com abordagem mobile-first
-**Sessão Anterior (17/09/2025):** Landing Page Premium com Vídeos Interativos
-
-### ✅ Principais Melhorias do Mapa:
-- **📱 Visualização Mobile Nativa** - Cards por zona com mini-matriz visual e swipe gestures
-- **🎯 Seletor de Números** - Botões 1-6 substituindo sliders problemáticos  
-- **📊 Gráfico Interativo** - Clique nas bolhas para editar + jitter para evitar sobreposição
-- **🔢 Correção de Cálculos** - 22 dias úteis e 4.33 semanas/mês (mais precisos)
-- **📇 Cards Unificados** - Mesma visualização por zonas no desktop e mobile
-- **↕️ Auto-Scroll** - Scroll suave ao editar atividade
-
-### 🚀 UX Mobile Implementada:
-- **Swipe Actions:** Deslize → para editar, ← para excluir
-- **Touch Targets:** Mínimo 44px em todos os controles
-- **Zero Scroll Horizontal:** Layout 100% responsivo
-- **Feedback Visual:** Indicadores coloridos durante swipe
-
----
-
-## 🎯 Versão Anterior: v3.0.0 - Landing Page Premium com Vídeos Interativos
-
-## 🎯 Versão Anterior: v3.0.0 - Landing Page Premium com Vídeos Interativos
-
-**Foco da Sessão (17/01/2024):** Redesign completo da landing page com demonstrações em vídeo
-**Sessão Anterior (13/12/2025):** Kanban Visual - Fluxo Semanal
-
-
-### ✅ Nova Funcionalidade Major: Fluxo Semanal
-- **🎯 Kanban Visual** - Sistema drag & drop com 4 colunas (Backlog → Para Fazer → Fazendo → Feito)
-- **📊 Integração Total** - Utiliza táticas criadas no Plano de Ação automaticamente
-- **🎨 Design Consistente** - Glass effects + animações + tema unificado com projeto
-- **📱 Responsivo** - Layout otimizado para desktop com scroll horizontal funcional
-
-### 🗄️ Extensão do Banco Supabase
-- **📋 Tabela Estendida** - 3 novos campos na tabela 'taticas' existente
-- **🔧 Campos Adicionados** - status_kanban, ordem_coluna, semana_referencia  
-- **⚡ Performance** - Novo índice idx_taticas_kanban para queries otimizadas
-- **🔒 Compatibilidade** - Zero breaking changes, funcionalidades v1.9.8 preservadas
-
-### 🚀 Arquitetura v2.0.0 Implementada
-ATIVIDADES (dashboard/mapa)
-└── TÁTICAS (plano-acao)
-└── STATUS KANBAN (painel-semanal) ← NOVO v2.0.0
-
-### 🔧 Tecnologias Adicionadas
-- **Biblioteca:** @hello-pangea/dnd para drag & drop performático
-- **Next.js:** Atualizado v15.0.0-canary → v15.5.3 (vulnerabilidade SSRF resolvida)
-- **SQL:** Constraint + índice para validação e performance do Kanban
-
-### 📱 UX/UI Implementada
-- **Drag & Drop:** Cards com cursor grab/grabbing + animações suaves
-- **Feedback Visual:** Colunas destacam ao receber drag + contadores automáticos
-- **Hierarquia:** Cards mostram atividade mãe + zona ROI + categoria automaticamente
-- **Navegação:** Botão "Fluxo Semanal" adicionado na sidebar lateral
 
 ---
 
@@ -578,7 +541,7 @@ Baseado na metodologia **ROI do Foco** da newsletter [Conversas no Corredor](htt
 
 ---
 
-📋 **Status:** Sistema completo com landing page premium e vídeos interativos
+📋 **Status:** Sistema completo com otimizações de performance e reset funcional
 📅 **Última atualização:** 24 de Setembro de 2025
-📄 **Próxima versão:** Pequenos deploys e correção e bugs, criação de view free
+🔄 **Versão:** 3.3.0 - Performance otimizada + reset de senha corrigido
 📊 **Métricas:** [Veja status detalhado no CURRENT-STATUS.md](docs/CURRENT-STATUS.md)
