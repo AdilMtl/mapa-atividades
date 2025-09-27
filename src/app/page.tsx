@@ -232,7 +232,7 @@ export default function LandingPage() {
                 </p>
                 
                 <p className="text-base sm:text-lg text-white/80 leading-relaxed">
-                  <span className="accent font-semibold">Mais produtividade na TEORIA e na PRÁTICA</span>. Na <span className="accent font-semibold">Newsletter Semanal</span> eu compartilho semanalmente textos diretos, práticos e longe dos manuais corporativos de conselhos que eu gostaria de ter ouvido durante um café com meus gestores. Aqui no <span className="accent font-semibold">Ecossistema Virtual</span> você coloca em prática, aplica no seu contexto, ganha mais tempo e atinge seus objetivos.
+                  <span className="accent font-semibold">Mais produtividade na TEORIA e na PRÁTICA</span>. Na <span className="accent font-semibold">Newsletter Semanal</span> eu compartilho semanalmente textos diretos, práticos com  conselhos que eu gostaria de ter ouvido dos meus gestores. Aqui no <span className="accent font-semibold">Ecossistema Virtual</span> você coloca em prática, aplica no seu contexto, ganha mais tempo e atinge seus objetivos.
  
                 </p>
               </div>
