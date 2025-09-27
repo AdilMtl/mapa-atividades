@@ -232,8 +232,8 @@ export default function LandingPage() {
                 </p>
                 
                 <p className="text-base sm:text-lg text-white/80 leading-relaxed">
-                  Na <span className="accent font-semibold">Newsletter Semanal</span> eu compartilho os conselhos diretos, práticos e longe dos manuais corporativos e que eu gostaria de ter ouvido durante um café com meus gestores. Neste <span className="accent font-semibold">Ecossistema Virtual</span> você encontra as ferramentas práticas para decolar na sua carreira.
-Meu objetivo é ajudar profissionais que sentem falta de um líder para recorrer.   
+                  <span className="accent font-semibold">Mais produtividade na TEORIA e na PRÁTICA</span>. Na <span className="accent font-semibold">Newsletter Semanal</span> eu compartilho semanalmente textos diretos, práticos e longe dos manuais corporativos de conselhos que eu gostaria de ter ouvido durante um café com meus gestores. Aqui no <span className="accent font-semibold">Ecossistema Virtual</span> você coloca em prática, aplica no seu contexto, ganha mais tempo e atinge seus objetivos.
+ 
                 </p>
               </div>
 
@@ -286,7 +286,7 @@ Meu objetivo é ajudar profissionais que sentem falta de um líder para recorrer
                 </div>
                 <div className="flex items-start gap-3">
                   <CheckCircle2 className="w-5 h-5 mt-0.5 text-green-500 flex-shrink-0" />
-                  <span className="text-sm">Conteúdo prático, sem enrolação corporativa</span>
+                  <span className="text-sm">Quero ajudar profissionais que sentem falta de um líder para recorrer.  </span>
                 </div>
               </div>
 
