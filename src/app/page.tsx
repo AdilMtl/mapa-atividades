@@ -71,7 +71,7 @@ export default function LandingPage() {
       icon: Lightbulb,
       color: 'amber',
       title: '3. Táticas inteligentes',
-      subtitle: 'Um clique para táticas personalizadas',
+      subtitle: 'Recursos personalizados que parecem mágica',
       description: 'Não fique pensando muito em como investir melhor seu tempo! As sugestões inteligentes vão te ajudar a eliminar atividades de baixo impacto e te ajudar com táticas para focar no essencial.',
       highlight: '⚡ Sistema exclusivo de recomendação de Tarefas e Hábitos'
     },
@@ -308,7 +308,7 @@ Meu objetivo é ajudar profissionais que sentem falta de um líder para recorrer
           <section className="mb-12 lg:mb-16">
             <div className="max-w-4xl mx-auto text-center space-y-6">
               <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold font-mono">
-                🎯 O que é ROI do Foco?
+                🎯 Produtividade e o método ROI do Foco
               </h2>
               
               <div className="glass rounded-xl p-6 sm:p-8 text-left space-y-4">
@@ -339,12 +339,12 @@ Meu objetivo é ajudar profissionais que sentem falta de um líder para recorrer
   className="text-sm sm:text-base px-4 sm:px-6 py-3 sm:py-4 bg-gradient-to-r from-orange-600 to-orange-500 hover:from-orange-500 hover:to-orange-400 hover:shadow-xl hover:shadow-orange-500/60 transform hover:scale-105 transition-all duration-300"
 >
   <Brain className="w-5 h-5 mr-2" />
-  Descobrir onde perco tempo
+  Veja como está sua produtividade
   <ArrowRight className="w-4 h-4 ml-2" />
 </Button>
                 </Link>
                 <p className="text-sm text-white/60 mt-3">
-                  Diagnóstico gratuito • 3 dicas personalizadas em 2 min • Sem cadastro
+                  Diagnóstico Grátis • 3 dicas personalizadas em 2 min • Sem cadastro
                 </p>
               </div>
             </div>
@@ -354,7 +354,7 @@ Meu objetivo é ajudar profissionais que sentem falta de um líder para recorrer
           <section id="video-showcase" className="mb-12 lg:mb-16">
             <div className="text-center mb-8 lg:mb-12">
               <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold font-mono mb-4">
-                Veja na prática como funciona
+                Aprenda na prática a ser mais produtivo
               </h2>
               <p className="text-base sm:text-lg text-white/70 max-w-2xl mx-auto px-4">
                 4 passos para transformar sua produtividade em algo profissional
@@ -567,7 +567,7 @@ Meu objetivo é ajudar profissionais que sentem falta de um líder para recorrer
     <div className="glass rounded-2xl p-8 lg:p-12 border border-accent/20">
       <div className="text-center space-y-6">
         <h2 className="text-2xl lg:text-3xl font-bold font-mono">
-          💎 Acesso Completo ao Ecossistema
+          💎 Acesso Completo ao Ecossistema Virtual 💎
         </h2>
         
         <div className="py-6">
@@ -590,11 +590,11 @@ Meu objetivo é ajudar profissionais que sentem falta de um líder para recorrer
           </div>
           <div className="flex items-start gap-3">
             <CheckCircle2 className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
-            <span className="text-sm">Sugestões inteligentes ilimitadas</span>
+            <span className="text-sm">Conteúdo semanal e exclusivo para assinantes</span>
           </div>
           <div className="flex items-start gap-3">
             <CheckCircle2 className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
-            <span className="text-sm">Atualizações e novos recursos</span>
+            <span className="text-sm">Aprenda com a newsletter e melhore na plataforma</span>
           </div>
           <div className="flex items-start gap-3">
             <CheckCircle2 className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
@@ -648,7 +648,7 @@ Meu objetivo é ajudar profissionais que sentem falta de um líder para recorrer
         📊 A Metodologia Completa
       </h2>
       <p className="text-lg text-white/70 max-w-2xl mx-auto">
-        Mais que um framework - um ecossistema de produtividade prático e eficiente
+        A combinação perfeita: Receba semanalmente conteúdos exclusivos para assinantes e coloque em prática no ecossistema virtual
       </p>
     </div>
 
@@ -712,7 +712,7 @@ Meu objetivo é ajudar profissionais que sentem falta de um líder para recorrer
     <div className="glass rounded-2xl p-8 lg:p-12">
       <div className="text-center mb-8">
         <h2 className="text-2xl lg:text-3xl font-bold font-mono mb-4">
-          🚀 Gestão Profissional para Projetos Pessoais
+          🚀 Gestão Profissional para seus Objetivos Pessoais
         </h2>
         <p className="text-lg text-white/70">
           Transformar suas metas pessoais em projetos nunca foi tão fácil

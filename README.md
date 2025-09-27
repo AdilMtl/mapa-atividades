@@ -174,31 +174,31 @@ docs/
 
 ### 📖 **Versões Detalhadas**
 docs/versions/
-├── v3.2.0-seguranca-admin.md          # Sistema seguro + admin dashboard - 19/01/2025 🆕
-├── v3.1.0-mobile-first-redesign.md    # Redesign mobile do mapa - 19/01/2025 🆕
-├── v3.0.0-landing-videos.md           # Landing page com vídeos - 17/01/2025 🆕
-├── v2.0.0-kanban-visual.md            # Kanban visual completo - 13/12/2024
-├── v1.9.8-sincronizacao-supabase.md   # Sincronização + notificações - 09/12/2024
-├── v1.9.7-google-ads-tracking.md      # Conversion tracking - 09/09/2024
-├── v1.9.6-plano-acao-redesign.md      # UX redesign plano - 08/09/2024
-├── v1.9.5-ux-prediagnostico.md        # Melhorias pré-diagnóstico - 07/09/2024
-├── v1.9.4-google-ads-setup.md         # Setup inicial Google Ads - 01/09/2024
-├── v1.9.3-correcoes-android.md        # Correções Android + RLS - 27/08/2024
-├── v1.9.2-landing-integrada.md        # Landing page integrada - 27/08/2024
-├── v1.9.1-campo-nome.md               # Campo nome + personalização - 27/08/2024
-├── v1.9.0-prediagnostico-completo.md  # Sistema pré-diagnóstico - 27/08/2024
-├── v1.8.3-diagnostico-premium.md      # Export otimizado - 22/08/2024
-├── v1.8.2-fluxo-padronizado.md        # ROI do Foco + nome real - 20/08/2024
-├── v1.8.1-heuristica-refinada.md      # IA V2.1 + Framework - 18/08/2024
-├── v1.8.0-framework-dar-certo.md      # Framework DAR CERTO - 15/08/2024
-├── v1.7.0-diagnostico-automatico.md   # Motor de análise - 12/08/2024
-├── v1.6.0-layout-otimizado.md         # Layout + UX consistente - 10/08/2024
-├── v1.5.0-perfil-lgpd.md              # Perfil completo + LGPD - 08/08/2024
-├── v1.4.0-wave1-modular.md            # Design system modular - 05/08/2024
-├── v1.3.0-sistema-diagnostico.md      # Sistema diagnóstico - 02/08/2024
-├── v1.2.0-mapa-atividades.md          # Mapa core - 30/07/2024
-├── v1.1.0-autenticacao.md             # Auth + banco - 25/07/2024
-└── v1.0.0-mvp-inicial.md              # MVP inicial - 20/07/2024
+├── v3.2.0-seguranca-admin.md          # Sistema seguro + admin dashboard - 19/09/2025 🆕
+├── v3.1.0-mobile-first-redesign.md    # Redesign mobile do mapa - 19/09/2025 🆕
+├── v3.0.0-landing-videos.md           # Landing page com vídeos - 17/09/2025 🆕
+├── v2.0.0-kanban-visual.md            # Kanban visual completo - 13/09/2025
+├── v1.9.8-sincronizacao-supabase.md   # Sincronização + notificações - 12/09/2025
+├── v1.9.7-google-ads-tracking.md      # Conversion tracking - 09/09/2025
+├── v1.9.6-plano-acao-redesign.md      # UX redesign plano - 08/09/2025
+├── v1.9.5-ux-prediagnostico.md        # Melhorias pré-diagnóstico - 07/09/2025
+├── v1.9.4-google-ads-setup.md         # Setup inicial Google Ads - 01/09/2025
+├── v1.9.3-correcoes-android.md        # Correções Android + RLS - 27/08/2025
+├── v1.9.2-landing-integrada.md        # Landing page integrada - 27/08/2025
+├── v1.9.1-campo-nome.md               # Campo nome + personalização - 27/08/2025
+├── v1.9.0-prediagnostico-completo.md  # Sistema pré-diagnóstico - 27/08/2025
+├── v1.8.3-diagnostico-premium.md      # Export otimizado - 22/08/2025
+├── v1.8.2-fluxo-padronizado.md        # ROI do Foco + nome real - 20/08/2025
+├── v1.8.1-heuristica-refinada.md      # IA V2.1 + Framework - 18/08/2025
+├── v1.8.0-framework-dar-certo.md      # Framework DAR CERTO - 15/08/2025
+├── v1.7.0-diagnostico-automatico.md   # Motor de análise - 12/08/2025
+├── v1.6.0-layout-otimizado.md         # Layout + UX consistente - 10/08/2025
+├── v1.5.0-perfil-lgpd.md              # Perfil completo + LGPD - 08/08/2025
+├── v1.4.0-wave1-modular.md            # Design system modular - 05/08/2025
+├── v1.3.0-sistema-diagnostico.md      # Sistema diagnóstico - 02/08/2025
+├── v1.2.0-mapa-atividades.md          # Mapa core - 30/07/2025
+├── v1.1.0-autenticacao.md             # Auth + banco - 25/07/2025
+└── v1.0.0-mvp-inicial.md              # MVP inicial - 20/07/2025
 ```
 
 ### 🔄 **Workflow de Desenvolvimento**
