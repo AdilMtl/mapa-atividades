@@ -171,13 +171,7 @@ export default function AuthPage() {
         }
         
         // Criar conta
-        const { error } = await supabase.auth.signUp({ 
-          email, 
-          password: senha,
-          options: {
-            emailRedirectTo: `${window.location.origin}/auth`
-          }
-        })
+        const { error } = await supabase.auth.signUp({ email, password: senha })
         if (error) {
           setMessage({ type: 'error', text: error.message })
           setLoading(false)
