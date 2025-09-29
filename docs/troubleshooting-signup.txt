@@ -1,0 +1,187 @@
+# 🔧 Troubleshooting: Erro 500 no Signup
+
+## 📋 Histórico do Problema
+
+**Data:** 29 de Setembro de 2025
+**Sintoma:** Erro 500 ao tentar criar conta via `supabase.auth.signUp()`
+**Status:** ✅ RESOLVIDO
+
+---
+
+## 🔍 Investigação Realizada
+
+### 1. Verificações no Banco de Dados
+
+#### Tabelas de Usuários
+```sql
+-- Sistema usa 3 tabelas relacionadas:
+- auth.users        (Supabase Auth - automático)
+- public.usuarios   (dados principais - ID, email, nome)
+- public.profiles   (perfil completo - full_name, emoji, etc)
+Trigger Automático
+O sistema possui um trigger que popula automaticamente usuarios e profiles quando um usuário é criado em auth.users:
+sql-- Função
+CREATE FUNCTION public.handle_new_user()
+-- Trigger
+CREATE TRIGGER on_auth_user_created
+  AFTER INSERT ON auth.users
+  FOR EACH ROW EXECUTE FUNCTION handle_new_user();
+Status do Trigger: ✅ Funcionando corretamente (testado manualmente)
+Foreign Keys
+sql-- profiles tem FK para auth.users
+profiles.id → auth.users.id (ON DELETE CASCADE)
+2. Políticas RLS
+Todas as tabelas têm RLS ativo:
+
+usuarios: políticas permitem INSERT com WITH CHECK (true)
+profiles: políticas permitem INSERT com WITH CHECK (true)
+
+Status das Políticas: ✅ Configuradas corretamente
+
+🎯 Causa Raiz Identificada
+O erro 500 tinha duas causas combinadas:
+Causa 1: Falta de emailRedirectTo no código
+O Supabase exige emailRedirectTo quando "Confirm email" está ativo.
+Código original (errado):
+typescriptawait supabase.auth.signUp({ email, password: senha })
+Código corrigido:
+typescriptawait supabase.auth.signUp({ 
+  email, 
+  password: senha,
+  options: {
+    emailRedirectTo: `${window.location.origin}/auth`
+  }
+})
+Causa 2: Resend em modo Sandbox
+O SMTP customizado (Resend) estava em modo gratuito/sandbox, que só permite enviar emails para o email verificado do proprietário.
+Erro do Resend:
+450 You can only send testing emails to your own email address (adilson.matioli@gmail.com)
+
+✅ Solução Aplicada
+Correção no Código
+Arquivo: src/app/auth/page.tsx
+Linha: ~170
+Mudança: Adicionado emailRedirectTo no signUp()
+Configuração de Email
+Decisão: Desabilitar SMTP customizado e usar email service padrão do Supabase
+Motivo:
+
+Resend gratuito tem limitações de sandbox
+Domínio .vercel.app não pode ser verificado no Resend
+Email service do Supabase é gratuito e sem limitações
+
+Como configurar:
+
+Dashboard Supabase > Project Settings > Auth
+SMTP Settings > Disable Custom SMTP
+Emails virão de: noreply@mail.app.supabase.co
+
+
+🧪 Testes de Verificação
+Teste 1: Trigger funciona?
+sql-- Inserir usuário em auth.users
+INSERT INTO auth.users (id, instance_id, email, encrypted_password, email_confirmed_at, aud, role)
+VALUES (gen_random_uuid(), '00000000-0000-0000-0000-000000000000', 'teste@exemplo.com', 
+        crypt('senha123', gen_salt('bf')), NOW(), 'authenticated', 'authenticated');
+
+-- Verificar se criou em todas as tabelas
+SELECT 
+  au.email,
+  u.nome as usuarios_nome,
+  p.full_name as profiles_nome
+FROM auth.users au
+LEFT JOIN usuarios u ON au.id = u.id
+LEFT JOIN profiles p ON au.id = p.id
+WHERE au.email = 'teste@exemplo.com';
+Resultado esperado: Todos os campos preenchidos
+Teste 2: Signup funciona na interface?
+
+Acesse /auth
+Clique em "Criar Conta"
+Digite email e senha
+Verifique se:
+
+Não dá erro 500
+Mensagem de sucesso aparece
+Email de confirmação chega
+
+
+
+
+📊 Configuração Atual
+Email Provider
+
+Modo: Supabase Email Service (padrão)
+SMTP Customizado: Desabilitado
+Sender: noreply@mail.app.supabase.co
+Confirmação de email: Habilitada
+
+Templates de Email
+
+Confirmação: Customizado (HTML com branding)
+Reset de Senha: Customizado (HTML com branding)
+Localização: Dashboard Supabase > Authentication > Email Templates
+
+
+🔮 Melhorias Futuras
+Opção 1: Comprar Domínio Próprio
+
+Comprar domínio .com (~$10/ano)
+Verificar no Resend gratuitamente
+Emails viriam de noreply@seudominio.com
+Prós: Mais profissional, menos spam
+Contras: Custo adicional, configuração DNS
+
+Opção 2: Manter Supabase Email Service
+
+Continuar usando serviço padrão
+Prós: Gratuito, zero manutenção
+Contras: Email genérico, pode cair em spam
+
+
+📝 Lições Aprendidas
+
+Sempre configurar emailRedirectTo em ambientes com confirmação de email obrigatória
+Testar SMTP em modo sandbox só funciona com emails autorizados
+Triggers funcionam perfeitamente para sincronizar tabelas automaticamente
+RLS não bloqueia triggers quando configurado com SECURITY DEFINER
+Logs do Supabase são essenciais para debug (Auth Logs mostram erros reais)
+
+
+🆘 Suporte
+Se o problema retornar, verificar nesta ordem:
+
+Email chegando?
+
+Verificar Auth Logs no Supabase
+Verificar configuração SMTP/Email Service
+
+
+Usuário sendo criado?
+
+sql   SELECT * FROM auth.users ORDER BY created_at DESC LIMIT 5;
+
+Trigger populando tabelas?
+
+sql   SELECT 
+     au.email,
+     u.nome,
+     p.full_name
+   FROM auth.users au
+   LEFT JOIN usuarios u ON au.id = u.id
+   LEFT JOIN profiles p ON au.id = p.id
+   ORDER BY au.created_at DESC
+   LIMIT 5;
+
+Código tem emailRedirectTo?
+
+Verificar src/app/auth/page.tsx linha ~170
+
+
+
+
+Documentado por: Claude AI
+Data: 29/09/2025
+Versão: v3.3.1
+
+---

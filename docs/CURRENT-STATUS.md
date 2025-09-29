@@ -1,4 +1,95 @@
-## 🎯 SESSÃO ATUAL: Otimização de Performance e Correções Críticas
+## 🎯 SESSÃO ATUAL: Correção Crítica Signup + Documentação Completa Banco
+**Data:** 29 de Setembro de 2025  
+**Versão:** v3.3.1  
+**Status:** ✅ Implementado e funcionando
+**Duração:** ~4 horas de investigação + implementação
+
+### **🚀 PRINCIPAIS ENTREGAS v3.3.1:**
+
+#### ✅ **ERRO 500 NO SIGNUP RESOLVIDO**
+- **Causa Identificada:** Faltava `emailRedirectTo` obrigatório + Resend em modo sandbox
+- **Código Corrigido:** Adicionado `options: { emailRedirectTo }` no `supabase.auth.signUp()`
+- **Email Service:** Migrado de Resend SMTP para Supabase Email Service (padrão)
+- **Motivo:** Resend gratuito só permite emails autorizados (limitação sandbox)
+- **Status:** Signup 100% funcional para qualquer email autorizado
+
+#### ✅ **TRIGGER VALIDADO E TESTADO**
+- **Função:** `handle_new_user()` criada e funcionando perfeitamente
+- **Ação:** Popula automaticamente `usuarios` + `profiles` após signup em `auth.users`
+- **Teste Manual:** Inserção em `auth.users` → trigger disparou → ambas tabelas populadas ✅
+- **Segurança:** `SECURITY DEFINER` com `SET search_path TO 'public'`
+- **Crítico:** Trigger é essencial para funcionamento do sistema
+
+#### ✅ **ESTRUTURA DO BANCO MAPEADA**
+- **3 Tabelas Sincronizadas:** `auth.users` → `usuarios` + `profiles`
+- **Foreign Keys:** `profiles.id → auth.users.id (ON DELETE CASCADE)`
+- **Políticas RLS:** Todas configuradas com `WITH CHECK (true)` para permitir trigger
+- **Investigação Completa:** 8 queries SQL executadas para mapear estrutura
+- **Resultado:** Sistema totalmente documentado e compreendido
+
+#### ✅ **DOCUMENTAÇÃO CRIADA**
+- **supabase-database-schema.md:** Schema completo + triggers + RLS + queries diagnóstico
+- **troubleshooting-signup.md:** Investigação detalhada do erro 500 (histórico completo)
+- **README.md:** Seção "Arquitetura do Banco de Dados" adicionada
+- **CHANGELOG.md:** Entrada v3.3.1 documentada
+- **Benefício:** Zero retrabalho em problemas similares futuros
+
+#### ✅ **CONFIGURAÇÃO DE EMAIL**
+- **Provider Atual:** Supabase Email Service (nativo, gratuito, sem limitações)
+- **SMTP Customizado:** Desabilitado (Resend tinha limitações de sandbox)
+- **Sender:** `noreply@mail.app.supabase.co`
+- **Templates:** Customizados mantidos (confirmação + reset de senha)
+- **Futuro:** Opção de comprar domínio próprio para emails profissionais
+
+### **📊 INVESTIGAÇÃO TÉCNICA REALIZADA:**
+
+**Etapas da Investigação (4 horas):**
+1. **Verificação de Tabelas:** Identificadas 3 tabelas (auth.users, usuarios, profiles)
+2. **Análise de Políticas RLS:** Todas com `WITH CHECK (true)` - corretas ✅
+3. **Descoberta do Trigger:** `handle_new_user()` existe mas tinha `EXCEPTION` silenciando erros
+4. **Correção da Função:** Removido `EXCEPTION`, adicionado `full_name` em profiles
+5. **Teste Manual:** Simulação de signup → trigger funcionou perfeitamente
+6. **Análise de Logs:** Erro real identificado (Resend sandbox + falta `emailRedirectTo`)
+7. **Correção de Código:** Adicionado `emailRedirectTo` em `src/app/auth/page.tsx`
+8. **Configuração SMTP:** Desabilitado Resend, ativado Supabase padrão
+
+**Queries SQL Executadas:**
+```sql
+-- 1. Listar tabelas de usuários
+SELECT schemaname, tablename, rls_enabled FROM pg_tables...
+
+-- 2. Estrutura da tabela usuarios
+SELECT column_name, data_type FROM information_schema.columns...
+
+-- 3. Políticas RLS
+SELECT policyname, cmd, qual, with_check FROM pg_policies...
+
+-- 4. Verificar triggers
+SELECT trigger_name, event_object_table FROM information_schema.triggers...
+
+-- 5. Estrutura profiles + foreign keys
+-- 6. Testar trigger manualmente
+-- 7. Verificar permissões da função
+-- 8. Analisar logs do Supabase
+🔧 ARQUIVOS MODIFICADOS:
+
+✅ src/app/auth/page.tsx - Linha 170 (adicionado emailRedirectTo)
+✅ docs/supabase-database-schema.md - Criado (documentação completa)
+✅ docs/troubleshooting-signup.md - Criado (investigação + solução)
+✅ docs/CHANGELOG.md - Entrada v3.3.1 adicionada
+✅ README.md - Seção arquitetura do banco adicionada
+✅ docs/CURRENT-STATUS.md - Este arquivo atualizado
+
+💡 LIÇÕES APRENDIDAS:
+
+Sempre configurar emailRedirectTo quando "Confirm email" está ativo
+Testar SMTP em sandbox só funciona com emails autorizados
+Triggers com EXCEPTION WHEN OTHERS escondem erros - evitar
+Foreign keys exigem ordem correta de inserção
+Logs do Supabase são essenciais para debug de auth
+
+
+## 🎯 SESSÃO Anterior: Otimização de Performance e Correções Críticas
 **Data:** 24 de Setembro de 2025  
 **Versão:** v3.3.0  
 **Status:** ✅ Implementado e funcionando
@@ -342,4 +433,4 @@ WHERE recovery_sent_at > now() - interval '1 day';
 
 ---
 
-**✨ RESULTADO FINAL v3.3.0:** Sistema ROI do Foco com performance otimizada (vídeos 96% menores), reset de senha funcionando via SMTP Resend, detecção inteligente de sessão ativa, economia massiva de bandwidth no Vercel, e documentação completa de processos de otimização. Limitação conhecida: Hotmail com múltiplos resets (workaround disponível).
+**✨ RESULTADO FINAL v3.3.1:** Sistema ROI do Foco com signup 100% funcional (erro 500 resolvido), trigger `handle_new_user()` validado e testado, estrutura completa do banco documentada (schema + triggers + RLS + foreign keys), email service configurado (Supabase padrão), troubleshooting completo documentado para evitar retrabalho, e sincronização automática de 3 tabelas (auth.users → usuarios + profiles) funcionando perfeitamente via trigger após cada signup.

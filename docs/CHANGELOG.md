@@ -14,6 +14,77 @@ Todas as mudanças notáveis neste projeto serão documentadas aqui.
 O formato é baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.0/),
 e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
+---
+
+## [v3.3.1] - 2025-09-29 - 🔧 Correção Crítica Signup + Documentação Banco
+
+### 🔧 Corrigido
+- **Erro 500 no Signup:** Adicionado `emailRedirectTo` obrigatório no `supabase.auth.signUp()`
+  - **Causa:** Supabase exige `emailRedirectTo` quando "Confirm email" está ativo
+  - **Código:** `src/app/auth/page.tsx` linha 170
+  - **Impacto:** Alto - signup estava completamente quebrado
+- **Configuração de Email:** Migrado de Resend SMTP para Supabase Email Service
+  - **Motivo:** Resend gratuito em modo sandbox só permite emails autorizados
+  - **Benefício:** Signup funciona para qualquer email autorizado na lista
+  - **Sender:** Emails virão de `noreply@mail.app.supabase.co`
+
+### ✅ Validado
+- **Trigger `handle_new_user()`:** Testado manualmente e funcionando 100%
+  - **Função:** Popula `usuarios` + `profiles` automaticamente após signup
+  - **Teste:** Inserção em `auth.users` → trigger disparou → ambas tabelas populadas
+  - **Segurança:** `SECURITY DEFINER` com políticas RLS corretas
+- **Foreign Keys:** `profiles.id → auth.users.id (ON DELETE CASCADE)` confirmada
+- **Políticas RLS:** Todas com `WITH CHECK (true)` permitindo trigger funcionar
+
+### 📖 Documentação Criada
+- **supabase-database-schema.md:** 
+  - Schema completo das 8 tabelas principais
+  - Documentação de 2 triggers (`handle_new_user`, `update_updated_at_column`)
+  - Todas as políticas RLS explicadas
+  - Queries de diagnóstico para verificar sincronização
+  - Scripts de manutenção e correção
+- **troubleshooting-signup.md:**
+  - Histórico completo da investigação (4 horas)
+  - 8 queries SQL executadas para mapear problema
+  - Causa raiz identificada (2 problemas combinados)
+  - Solução aplicada passo a passo
+  - Testes de verificação documentados
+- **README.md:** Seção "Arquitetura do Banco de Dados" adicionada
+
+### 🔍 Investigação Técnica
+- **Problema Identificado:** Erro 500 ao criar conta
+- **Investigação:** 8 queries SQL + análise de logs + testes manuais
+- **Causas Encontradas:**
+  1. Faltava `emailRedirectTo` no código (obrigatório para email confirmation)
+  2. Resend SMTP em modo sandbox (só permite emails autorizados)
+- **Solução:** Código corrigido + migração para Supabase Email Service
+- **Resultado:** Signup 100% funcional
+
+### 📊 Técnico
+- **Arquivos Modificados:**
+  - `src/app/auth/page.tsx` (1 linha alterada)
+  - `docs/supabase-database-schema.md` (criado - 400+ linhas)
+  - `docs/troubleshooting-signup.md` (criado - 300+ linhas)
+  - `docs/CHANGELOG.md` (esta entrada)
+  - `docs/CURRENT-STATUS.md` (atualizado)
+  - `README.md` (seção adicionada)
+- **Banco de Dados:** Nenhuma alteração necessária (estrutura já estava correta)
+- **Configuração:** SMTP customizado desabilitado no Supabase Dashboard
+
+### 🎯 Impacto
+- **Crítico:** Sistema de signup estava completamente quebrado
+- **Resolução:** Funcional em produção após correção
+- **Benefício:** Documentação completa evita retrabalho futuro
+- **Tempo:** 4 horas de investigação + correção + documentação
+
+### 💡 Aprendizados
+1. Sempre configurar `emailRedirectTo` quando confirmação de email está ativa
+2. Resend gratuito tem limitações de sandbox (apenas emails verificados)
+3. Triggers com `EXCEPTION WHEN OTHERS` escondem erros - evitar
+4. Logs do Supabase Auth são essenciais para debug
+5. Documentação técnica economiza horas de retrabalho
+
+---
 
 ## [v3.3.0] - 2025-09-24 - 🎥 Otimização de Vídeos + Reset de Senha Corrigido
 

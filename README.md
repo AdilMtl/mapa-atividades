@@ -3,7 +3,7 @@
 **Sistema Enterprise para Diagnóstico e Otimização do Foco Profissional**
 
 [![Deploy](https://img.shields.io/badge/deploy-vercel-black?logo=vercel)](https://conversas-no-corredor.vercel.app)
-[![Versão](https://img.shields.io/badge/versão-v3.3.0-blue)](docs/CURRENT-STATUS.md)
+[![Versão](https://img.shields.io/badge/versão-v3.3.1-blue)](docs/CURRENT-STATUS.md)
 [![Status](https://img.shields.io/badge/status-✅%20operacional-green)](docs/CURRENT-STATUS.md)
 
 ## 🚀 Quick Start
@@ -60,7 +60,7 @@ npm run dev
 ### 🛠️ Stack Tecnológica
 - **Frontend:** Next.js 15.5.3 + TypeScript + Tailwind CSS
 - **Backend:** Supabase (PostgreSQL + Auth + RLS)
-- **Email:** Resend API com templates HTML + SMTP customizado (**v3.3.0**)
+- **Email:** Supabase Email Service com templates HTML customizados (**v3.3.1**)
 - **Segurança:** Service Role Key + Validação Server-Side (**v3.2.0**)
 - **Deploy:** Vercel (automático via Git)
 - **Metodologia:** ROI do Foco + Framework DAR CERTO
@@ -225,7 +225,25 @@ Atualizar documentação com comandos Windows.
 
 > 💡 **Dica:** Mantenha um documento no Obsidian com estes templates para agilizar o processo!
 
-## 🎯 Versão Atual: v3.3.0 - Otimização de Performance e Correções Críticas
+## 🎯 Versão Atual: v3.3.1 - Correção Signup + Documentação Banco
+
+**Foco da Sessão (29/09/2025):** Correção erro 500 signup + documentação completa banco
+**Sessão Anterior (24/09/2025):** Otimização de vídeos + reset de senha
+
+### ✅ Correções Críticas:
+- **🔧 Signup Funcionando** - Adicionado `emailRedirectTo` obrigatório
+- **📧 Email Service** - Migrado para Supabase padrão (sem limitações sandbox)
+- **🔍 Trigger Validado** - `handle_new_user()` testado e funcionando 100%
+- **📊 Schema Documentado** - Estrutura completa do banco mapeada
+
+### ✅ Documentação Criada:
+- **📖 supabase-database-schema.md** - Schema completo + triggers + RLS
+- **🔧 troubleshooting-signup.md** - Investigação e solução do erro 500
+- **📋 Queries de diagnóstico** - Verificação de sincronização e triggers
+
+---
+
+## 🎯 Versão Anterior: v3.3.0 - Otimização de Performance e Correções Críticas
 
 **Foco da Sessão (24/09/2025):** Otimização massiva de vídeos + correção do reset de senha
 **Sessão Anterior (19/09/2025):** Sistema de Segurança e Admin Dashboard
@@ -254,36 +272,6 @@ Atualizar documentação com comandos Windows.
 - **📊 Métricas de Acesso** - Último login, atividades, status da conta
 - **🔍 Filtros Avançados** - Status, período, ordenação, busca combinados
 - **⚡ Gestão Instantânea** - CRUD visual sem necessidade de Git
-
-### 🛡️ Segurança Implementada:
-- **Server-Side:** Validação impossível de burlar com service role key
-- **Banco de Dados:** Tabela `authorized_emails` com RLS ativo
-- **APIs Protegidas:** 4 novas rotas seguras para verificações
-- **LGPD Compliance:** Dados sensíveis protegidos no Supabase
-- **Zero Exposição:** Arquivo público removido do repositório
-
-### 📊 Dashboard Admin Features:
-- **Visualização Completa:** Email, expiração, último acesso, status, atividades
-- **Filtros Inteligentes:** Por status (ativos/expirados/sem conta) + período de acesso
-- **Ordenação Flexível:** Por nome, data, acesso, atividades
-- **Busca em Tempo Real:** Localização instantânea de assinantes
-- **Edição Inline:** Modificar email e data sem recarregar
-- **Ações Rápidas:** Adicionar, editar, remover com feedback visual
-
-
-## 🎯 Versão Anterior: v3.2.0 - Sistema de Segurança e Admin Dashboard
-
-**Foco da Sessão (19/09/2025 - Tarde):** Sistema completo de autorização seguro + dashboard admin
-**Sessão Anterior (19/09/2025 - Manhã):** Mobile-First Redesign do Mapa de Atividades
-
-### ✅ Principais Melhorias de Segurança:
-- **🔒 Autorização Segura** - Migração de arquivo público para banco de dados
-- **👨‍💼 Admin Dashboard** - Interface completa para gestão de assinantes
-- **🚫 Verificação Dupla** - Check no cadastro + check no login
-- **📊 Métricas de Acesso** - Último login, atividades, status da conta
-- **🔍 Filtros Avançados** - Status, período, ordenação, busca combinados
-- **⚡ Gestão Instantânea** - CRUD visual sem necessidade de Git
-
 
 
 ---
@@ -532,6 +520,32 @@ ALTER TABLE roi_leads ADD COLUMN name VARCHAR(100);
 
 **Componentes modulares:** 19+ componentes totalmente reutilizáveis com design tokens centralizados.
 
+## 🗄️ Arquitetura do Banco de Dados
+
+### Estrutura
+O sistema utiliza **3 tabelas sincronizadas automaticamente**:
+- `auth.users` - Gerenciada pelo Supabase Auth
+- `usuarios` - Dados principais (id, email, nome)
+- `profiles` - Perfil completo (full_name, emoji, preferências)
+
+### Sincronização Automática
+**Trigger `handle_new_user()`** popula automaticamente `usuarios` e `profiles` quando um usuário é criado em `auth.users`:
+```sql
+-- Disparado automaticamente após signup
+CREATE TRIGGER on_auth_user_created
+  AFTER INSERT ON auth.users
+  FOR EACH ROW EXECUTE FUNCTION handle_new_user();
+Row Level Security (RLS)
+Todas as tabelas protegidas com políticas que garantem:
+
+✅ Usuários só acessam seus próprios dados
+✅ Triggers funcionam com SECURITY DEFINER
+✅ Admin acessa apenas via service role key
+
+Documentação Completa
+📖 Schema Completo do Banco
+📖 Troubleshooting Signup
+
 ## 🤝 Sobre o Projeto
 
 Baseado na metodologia **ROI do Foco** da newsletter [Conversas no Corredor](https://conversasnocorredor.substack.com), este sistema oferece uma abordagem prática para mapear, diagnosticar e otimizar o foco profissional.
@@ -541,7 +555,7 @@ Baseado na metodologia **ROI do Foco** da newsletter [Conversas no Corredor](htt
 
 ---
 
-📋 **Status:** Sistema completo com otimizações de performance e reset funcional
-📅 **Última atualização:** 24 de Setembro de 2025
-🔄 **Versão:** 3.3.0 - Performance otimizada + reset de senha corrigido
+📋 **Status:** Sistema completo com signup funcional + banco documentado
+📅 **Última atualização:** 29 de Setembro de 2025
+🔄 **Versão:** 3.3.1 - Signup corrigido + schema completo do banco
 📊 **Métricas:** [Veja status detalhado no CURRENT-STATUS.md](docs/CURRENT-STATUS.md)
