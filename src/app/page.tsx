@@ -228,11 +228,11 @@ export default function LandingPage() {
                 </h1>
                 
                 <p className="text-lg sm:text-xl text-white/90 font-medium">
-                  O ecossistema virtual da newsletter Conversas no Corredor
+                  O ecossistema virtual para quem quer crescer com método, não só esforço.
                 </p>
                 
                 <p className="text-base sm:text-lg text-white/80 leading-relaxed">
-                  <span className="accent font-semibold">Mais produtividade na TEORIA e na PRÁTICA</span>. Na <span className="accent font-semibold">Newsletter Semanal</span> eu compartilho semanalmente textos diretos, práticos com  conselhos que eu gostaria de ter ouvido dos meus gestores. Aqui no <span className="accent font-semibold">Ecossistema Virtual</span> você coloca em prática, aplica no seu contexto, ganha mais tempo e atinge seus objetivos.
+                  <span className="accent font-semibold">Mais produtividade com MÉTODO e  PRÁTICA</span>. Ao assinar a <span className="accent font-semibold">Newsletter</span> você recebe textos semanais direto no e-mail. Aqui no <span className="accent font-semibold">Ecossistema Virtual</span> você coloca em prática, aplica no seu contexto, ganha mais tempo e atinge seus objetivos.
  
                 </p>
               </div>
