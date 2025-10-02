@@ -16,6 +16,100 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [v3.4.1] - 2025-10-02 - 📊 Views Analytics - Série Histórica Completa
+
+### ✅ Adicionado
+- **Painéis Temporais Grafana:** 2 novos gráficos time series para análise temporal
+  - Painel 13: Performance Temporal - Volume (Sessões + Leads)
+  - Painel 14: Taxa de Conversão ao Longo do Tempo
+- **Documentação Completa:** Guias atualizados com todas as mudanças
+
+### 🔧 Corrigido
+- **Filtros Temporais Views:** Removido `WHERE created_at >= NOW() - INTERVAL '30 days'` de todas as 7 views
+  - `vw_conversao_diaria` - agora mostra série completa
+  - `vw_perfil_performance` - agora mostra série completa
+  - `vw_pain_analysis` - agora mostra série completa
+  - `vw_events_funnel` - agora mostra série completa
+  - `vw_activity_heatmap` - removido filtro de 14 dias
+  - `vw_kpis_executivos` - período alterado para "Série Histórica Completa"
+  - `vw_mix_atividades` - agora mostra série completa
+
+### 🎨 Melhorado
+- **Análise de Longo Prazo:** Views agora permitem análise desde 28/08/2025 (primeira sessão)
+- **Flexibilidade Grafana:** Time Range do dashboard controla período visualizado
+- **Performance Otimizada:** Índices ajustados para queries sem filtros temporais
+- **Queries Grafana:** 2 novas queries para gráficos de linha temporal
+
+### 📊 Técnico
+- **Arquivos Atualizados:**
+  - `docs/views-analytics-supabase.md` - Documentação completa das views atualizada
+  - `docs/dashboard-grafana-supabase.md` - Guia Grafana com novos painéis
+  - `docs/CHANGELOG.md` - Esta entrada
+- **SQL Executado:** Script de atualização das 7 views no Supabase
+- **Grafana:** Time Range padrão atualizado de "Last 6 hours" → "Last 90 days"
+- **Índices:** Removido filtro `WHERE created_at >= NOW() - INTERVAL '90 days'` do índice parcial
+
+### 🎯 Impacto
+- **Análise Completa:** 32 dias de dados históricos disponíveis (vs. 30 dias limitados)
+- **Dashboards Flexíveis:** Usuários podem visualizar qualquer período desejado
+- **Comparação Temporal:** Análise de tendências entre diferentes períodos
+- **Zero Breaking Changes:** Sistema continua funcionando, apenas amplia capacidades
+
+### 💡 Mudanças de Uso
+**ANTES:**
+```sql
+-- Views retornavam apenas últimos 30 dias
+SELECT * FROM vw_conversao_diaria; -- máx 30 registros
+```
+
+**AGORA:**
+```sql
+-- Views retornam série completa
+SELECT * FROM vw_conversao_diaria; -- todos os registros desde 28/08/2025
+
+-- Filtro manual opcional quando necessário
+SELECT * FROM vw_conversao_diaria 
+WHERE data >= '2025-09-01';
+```
+
+### 📈 Grafana
+- **Painel 13 Query:**
+```sql
+SELECT 
+  data as time,
+  total_sessoes as "Sessões",
+  total_leads as "Leads Capturados"
+FROM vw_conversao_diaria
+ORDER BY data ASC;
+```
+
+- **Painel 14 Query:**
+```sql
+SELECT 
+  data as time,
+  taxa_conversao_pct as "Taxa de Conversão (%)"
+FROM vw_conversao_diaria
+ORDER BY data ASC;
+```
+
+### 🔍 Verificação
+Execute no Supabase para confirmar mudanças:
+```sql
+-- Ver range completo de dados
+SELECT 
+  MIN(data) as primeira_sessao,
+  MAX(data) as ultima_sessao,
+  MAX(data)::date - MIN(data)::date as dias_totais,
+  COUNT(*) as dias_com_atividade
+FROM vw_conversao_diaria;
+
+-- Resultado esperado:
+-- primeira_sessao: 2025-08-28
+-- ultima_sessao: [data atual]
+-- dias_totais: 32+ dias
+```
+
+
 ## [v3.4.0] - 2025-10-01 - 📱 Landing Page Mobile-First Optimization
 
 ### ✅ Adicionado

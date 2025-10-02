@@ -1,3 +1,46 @@
+
+## 🎯 SESSÃO ATUAL: Views Analytics - Série Histórica Completa
+**Data:** 02 de Outubro de 2025  
+**Versão:** v3.4.1  
+**Status:** ✅ Implementado e funcionando
+**Duração:** ~2 horas de análise + implementação + documentação
+
+### **🚀 PRINCIPAIS ENTREGAS v3.4.1:**
+
+#### ✅ **SÉRIE HISTÓRICA COMPLETA HABILITADA**
+- **Filtros Removidos:** Todas as 7 views agora mostram dados desde 28/08/2025
+- **Views Atualizadas:** `vw_conversao_diaria`, `vw_perfil_performance`, `vw_pain_analysis`, `vw_events_funnel`, `vw_activity_heatmap`, `vw_kpis_executivos`, `vw_mix_atividades`
+- **Período Ajustado:** `vw_kpis_executivos` agora mostra "Série Histórica Completa" ao invés de "Últimos 30 dias"
+- **SQL Executado:** Script de atualização aplicado no Supabase com sucesso
+
+#### ✅ **PAINÉIS GRAFANA ADICIONADOS**
+- **Painel 13:** Performance Temporal - Volume (Sessões + Leads ao longo do tempo)
+- **Painel 14:** Taxa de Conversão Temporal (evolução % de conversão)
+- **Time Range Padrão:** Alterado de "Last 6 hours" → "Last 90 days"
+- **Total Painéis:** 14 ativos (antes 12)
+
+#### ✅ **DOCUMENTAÇÃO COMPLETA ATUALIZADA**
+- **views-analytics-supabase.md:** Todas as 7 views SQL atualizadas + nova seção explicativa
+- **dashboard-grafana-supabase.md:** 2 novos painéis documentados + guias de uso
+- **CHANGELOG.md:** Entrada v3.4.1 adicionada com detalhes técnicos
+- **Benefício:** Guias completos para análise temporal de longo prazo
+
+#### ✅ **CAPACIDADES DE ANÁLISE EXPANDIDAS**
+- **Range Disponível:** 32+ dias de dados históricos (28/08 até hoje)
+- **Flexibilidade Total:** Time Range do Grafana controla período sem alterar queries
+- **Comparação Temporal:** Possível comparar diferentes períodos facilmente
+- **Performance:** Índices otimizados para queries sem filtros temporais
+
+### **📊 IMPACTO DA MUDANÇA:**
+
+**ANTES:**
+```sql
+-- Views limitadas a 30 dias
+SELECT * FROM vw_conversao_diaria; 
+-- Retornava no máximo 30 registros
+
+
+
 ## [v3.4.0] - 2025-10-01 - 📱 Landing Page Mobile-First Optimization
 
 ### ✅ Adicionado

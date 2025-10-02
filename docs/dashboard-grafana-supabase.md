@@ -13,8 +13,30 @@ Guia completo para configuração e uso do dashboard Grafana conectado às views
 - Volume de Sessões por Perfil
 - Distribuição de Dores por Perfil (7 painéis)
 - Lista de Leads Capturados
+- **Performance Temporal** (Sessões e Leads ao longo do tempo) - NOVO
+- **Taxa de Conversão Temporal** (Evolução % de conversão) - NOVO
 
 **Dados em tempo real:** Refresh automático a cada 30 segundos
+
+---
+
+## 🔄 Atualização: Série Histórica Completa (Outubro 2025)
+
+### **⚡ Mudança Importante**
+**ANTES:** Views limitadas aos últimos 30 dias  
+**AGORA:** Views mostram **série histórica completa** desde 28/08/2025
+
+### **🎯 Impacto no Grafana**
+- ✅ Todos os painéis agora mostram dados históricos completos
+- ✅ **Time Range recomendado:** "Last 90 days" (ajuste conforme necessário)
+- ✅ Use o seletor de tempo do Grafana para controlar período visualizado
+- ✅ Painéis se ajustam automaticamente ao range selecionado
+
+### **💡 Como Usar**
+1. **No dashboard**, clique no seletor de tempo (canto superior direito)
+2. Escolha: "Last 90 days" para visão trimestral
+3. Ou use "Custom range" para período específico (ex: desde 28/08/2025)
+4. Todos os painéis se atualizam automaticamente
 
 ---
 
@@ -56,10 +78,10 @@ Use o JSON exportado abaixo para recriar o dashboard exato:
       }
     ]
   },
-  "description": "Registro de sessões, Capturas de Lead e Perfis",
+  "description": "Registro de sessões, Capturas de Lead e Perfis - Série Histórica Completa",
   "title": "Principais KPIs do Site",
   "uid": "roi_analytics_dashboard",
-  "version": 1,
+  "version": 2,
   "panels": []
 }
 ```
@@ -69,7 +91,7 @@ Use o JSON exportado abaixo para recriar o dashboard exato:
 **Dashboard Settings > Time options:**
 - Refresh: 30s, 1m, 5m, 15m, 30m, 1h
 - Auto refresh: 30s (recomendado)
-- Time range: Last 6 hours (ajustável)
+- **Time range: Last 90 days (ATUALIZADO)** - ajustável conforme necessidade
 
 ---
 
@@ -92,6 +114,8 @@ FROM vw_kpis_executivos;
 - Color mode: Value
 - Show percent change: false
 - Orientation: Horizontal
+
+**Nota:** Esta view agora retorna métricas da série histórica completa, não apenas 30 dias.
 
 ---
 
@@ -122,6 +146,8 @@ ORDER BY ap.ordem;
 - Show values: Auto
 - Y-axis unit: Percent (0-100)
 
+**Nota:** Dados consideram toda a série histórica, não apenas 30 dias.
+
 ---
 
 ### **Painel 3: Volume do Funil**
@@ -140,6 +166,8 @@ ORDER BY sessoes_unicas DESC;
 ```
 
 **Insights:** Mostra o funil de conversão visual - quantos completaram diagnóstico vs quantos converteram em leads.
+
+**Nota:** Volume total desde o início do projeto.
 
 ---
 
@@ -161,6 +189,8 @@ ORDER BY total_sessoes DESC;
 ### **Painéis 5-11: Distribuição de Dores por Perfil**
 
 **Formato:** 7 painéis tipo "Bar gauge" (um para cada perfil)
+
+**IMPORTANTE:** Estas queries **não usam as views** e buscam diretamente da tabela `roi_prediag_sessions`, portanto já mostram série histórica completa automaticamente.
 
 #### **Estudante:**
 ```sql
@@ -318,19 +348,84 @@ ORDER BY l.created_at DESC;
 - Show header: true
 - Order: Descending by created_at
 
+**Nota:** Query direta na tabela, mostra todos os leads desde o início.
+
+---
+
+### **🆕 Painel 13: Performance Temporal - Volume**
+**Tipo:** Time series  
+**Query:**
+```sql
+SELECT 
+  data as time,
+  total_sessoes as "Sessões",
+  total_leads as "Leads Capturados"
+FROM vw_conversao_diaria
+ORDER BY data ASC;
+```
+
+**Configuração Visual:**
+- Time column: time
+- Format: Time series
+- Eixo Y (único):
+  - Title: "Quantidade"
+  - Unit: None
+  - Min: 0
+- Séries:
+  - Sessões: Azul (#5794F2), Fill 10%, Line 2px
+  - Leads: Verde (#73BF69), Fill 10%, Line 2px
+- Legend: Bottom, com Last/Min/Max/Mean
+- Tooltip: All series
+
+**Uso:** Visualizar evolução de volume de sessões e leads ao longo do tempo, identificar tendências semanais/mensais.
+
+---
+
+### **🆕 Painel 14: Performance Temporal - Taxa de Conversão**
+**Tipo:** Time series  
+**Query:**
+```sql
+SELECT 
+  data as time,
+  taxa_conversao_pct as "Taxa de Conversão (%)"
+FROM vw_conversao_diaria
+ORDER BY data ASC;
+```
+
+**Configuração Visual:**
+- Time column: time
+- Format: Time series
+- Eixo Y:
+  - Title: "Conversão %"
+  - Unit: Percent (0-100)
+  - Min: 0
+  - Max: 100 (ou Auto)
+- Série:
+  - Taxa Conversão: Laranja (#FF9830), Fill 20%, Line 3px
+  - Line interpolation: Smooth
+  - Show points: Always
+- Thresholds (opcional):
+  - Verde: > 15% (meta atingida)
+  - Amarelo: 10-15% (atenção)
+  - Vermelho: < 10% (crítico)
+- Legend: Bottom, com Last/Min/Max/Mean
+
+**Uso:** Monitorar efetividade do pré-diagnóstico ao longo do tempo, identificar períodos de melhor/pior performance.
+
 ---
 
 ## 🎨 Layout e Design
 
-### **Grid Organization:**
+### **Grid Organization (Atualizado):**
 ```
 Row 1: [KPIs Principais - 12 cols] [Taxa Conversão - 12 cols]
 Row 2: [Volume Funil - 12 cols] [Volume Sessões - 12 cols]
-Row 3: [Estudante - 6 cols] [Líder - 6 cols]
-Row 4: [Estagiário - 6 cols] [Gestor - 6 cols]
-Row 5: [Analista - 6 cols] [Empreendedor - 6 cols]
-Row 6: [Especialista - 6 cols] [Espaço vazio - 6 cols]
-Row 7: [Lista de Leads - 16 cols]
+Row 3: [Performance Temporal - Volume - 12 cols] [Taxa Conversão Temporal - 12 cols] 🆕
+Row 4: [Estudante - 6 cols] [Líder - 6 cols]
+Row 5: [Estagiário - 6 cols] [Gestor - 6 cols]
+Row 6: [Analista - 6 cols] [Empreendedor - 6 cols]
+Row 7: [Especialista - 6 cols] [Espaço vazio - 6 cols]
+Row 8: [Lista de Leads - 16 cols]
 ```
 
 ### **Color Scheme:**
@@ -365,6 +460,16 @@ SELECT COUNT(*) as leads_hoje
 FROM roi_leads 
 WHERE DATE(created_at) = CURRENT_DATE
 HAVING COUNT(*) = 0
+```
+
+**Alert 3: Queda abrupta de sessões** (NOVO)
+```sql
+SELECT 
+  data,
+  total_sessoes
+FROM vw_conversao_diaria
+WHERE data = CURRENT_DATE
+  AND total_sessoes < 5
 ```
 
 ---
@@ -403,6 +508,9 @@ Comando: Test connection no data source
 -- Adicionar índices no Supabase:
 CREATE INDEX CONCURRENTLY idx_sessions_profile_created 
 ON roi_prediag_sessions (profile, created_at);
+
+CREATE INDEX CONCURRENTLY idx_sessions_created_date 
+ON roi_prediag_sessions (DATE(created_at));
 ```
 
 **3. Dados não atualizando:**
@@ -416,6 +524,17 @@ Verificar: Auto-refresh está habilitado
 -- Verificar no Supabase:
 GRANT SELECT ON vw_kpis_executivos TO anon;
 GRANT SELECT ON vw_perfil_performance TO anon;
+GRANT SELECT ON vw_conversao_diaria TO anon;
+```
+
+**5. Gráficos temporais vazios:** (NOVO)
+```
+Problema: Painéis de time series não mostram dados
+Solução: 
+1. Verificar se "Time column" está configurado como "time"
+2. Confirmar que "Format" está em "Time series"
+3. Ajustar Time Range do dashboard (canto superior direito)
+4. Verificar query no Query Inspector (ícone de lupa)
 ```
 
 ---
@@ -455,6 +574,18 @@ SELECT
 FROM vw_mix_atividades;
 ```
 
+**Performance Semanal:** (NOVO)
+```sql
+SELECT 
+  DATE_TRUNC('week', data) as time,
+  SUM(total_sessoes) as "Sessões (Semana)",
+  SUM(total_leads) as "Leads (Semana)",
+  ROUND(SUM(total_leads) * 100.0 / NULLIF(SUM(total_sessoes), 0), 2) as "Taxa Conversão Semanal (%)"
+FROM vw_conversao_diaria
+GROUP BY DATE_TRUNC('week', data)
+ORDER BY time ASC;
+```
+
 ---
 
 ## 💾 Backup e Migração
@@ -475,6 +606,10 @@ FROM vw_mix_atividades;
 - Tag releases importantes
 - Documentar mudanças significativas
 
+**Histórico de Versões:**
+- v1.0 (Agosto 2025): Dashboard inicial com 12 painéis, filtro 30 dias
+- v2.0 (Outubro 2025): Série histórica completa, 2 painéis temporais adicionados
+
 ---
 
 ## 📈 Métricas de Performance
@@ -483,8 +618,9 @@ FROM vw_mix_atividades;
 - Load time: < 2s
 - Query response: < 500ms por painel  
 - Refresh cycle: 30s
-- Data retention: 30 dias (views)
+- **Data retention: Série histórica completa (desde 28/08/2025)** - ATUALIZADO
 - Concurrent users: Até 10 (Grafana free)
+- Total de painéis: 14 painéis ativos
 
 ---
 
@@ -496,9 +632,13 @@ FROM vw_mix_atividades;
 GET /api/dashboard/kpis
 GET /api/dashboard/perfil-performance  
 GET /api/dashboard/leads
+GET /api/dashboard/conversao-diaria?start_date=2025-09-01 // NOVO - com filtro opcional
 
 // Usar para dashboards React externos
 const { data } = await fetch('/api/dashboard/kpis');
+
+// Com filtro de período
+const { data } = await fetch('/api/dashboard/conversao-diaria?start_date=2025-09-01');
 ```
 
 ### **Webhook para alertas:**
@@ -513,8 +653,25 @@ const { data } = await fetch('/api/dashboard/kpis');
 
 ---
 
+## 📚 Recursos Adicionais
+
+### **Tutoriais Grafana:**
+- [Time Series Visualization](https://grafana.com/docs/grafana/latest/panels-visualizations/visualizations/time-series/)
+- [Configure Time Range](https://grafana.com/docs/grafana/latest/dashboards/use-dashboards/#set-dashboard-time-range)
+- [PostgreSQL Data Source](https://grafana.com/docs/grafana/latest/datasources/postgres/)
+
+### **Documentação Relacionada:**
+```
+docs/
+├── views-analytics-supabase.md        # Views SQL detalhadas
+├── dashboard-grafana-supabase.md      # Este documento
+└── tabelas-supabase.md                # Schema das tabelas base
+```
+
+---
+
 **📊 Sistema Dashboard Grafana - ROI do Foco**  
-**🔄 Última atualização:** Agosto 2025  
+**🔄 Última atualização:** Outubro 2025 (Série Histórica Completa + Painéis Temporais)  
 **👥 Responsável:** Equipe de Desenvolvimento  
 **🔗 Dashboard URL:** https://[workspace].grafana.net/d/add4mzt/principais-kpis-do-site  
 **📧 Contato:** Para dúvidas sobre dashboards ou expansões

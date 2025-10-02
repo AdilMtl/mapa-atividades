@@ -3,7 +3,7 @@
 **Sistema Enterprise para Diagnóstico e Otimização do Foco Profissional**
 
 [![Deploy](https://img.shields.io/badge/deploy-vercel-black?logo=vercel)](https://conversas-no-corredor.vercel.app)
-[![Versão](https://img.shields.io/badge/versão-v3.4.0-blue)](docs/CURRENT-STATUS.md)
+[![Versão](https://img.shields.io/badge/versão-v3.4.1-blue)](docs/CURRENT-STATUS.md)
 [![Status](https://img.shields.io/badge/status-✅%20operacional-green)](docs/CURRENT-STATUS.md)
 
 ## 🚀 Quick Start
@@ -231,8 +231,37 @@ Atualizar documentação com comandos Windows.
 
 > 💡 **Dica:** Mantenha um documento no Obsidian com estes templates para agilizar o processo!
 
+## 🎯 Versão Atual: v3.4.1 - Views Analytics Série Histórica
 
-## 🎯 Versão Atual: v3.4.0 - Landing Page Mobile-First Optimization
+**Foco da Sessão (02/10/2025):** Remoção de filtros temporais nas views + painéis Grafana
+**Sessão Anterior (01/10/2025):** Landing page mobile-first optimization
+
+### ✅ Views Analytics Atualizadas:
+- **📊 Série Histórica Completa** - 7 views sem filtro de 30 dias
+- **📈 Grafana Expandido** - 2 painéis time series adicionados (total 14)
+- **🔍 Análise Temporal** - Dados desde 28/08/2025 disponíveis
+- **⚡ Flexibilidade Total** - Time Range do Grafana controla período
+
+### ✅ Novos Painéis Grafana:
+- **Painel 13:** Performance Temporal - Volume (Sessões + Leads)
+- **Painel 14:** Taxa de Conversão ao Longo do Tempo
+- **Time Range:** Padrão alterado de "Last 6 hours" → "Last 90 days"
+
+### ✅ Documentação Atualizada:
+- **📖 views-analytics-supabase.md** - Views SQL + exemplos completos
+- **📈 dashboard-grafana-supabase.md** - Guias time series + 2 painéis novos
+- **📋 CHANGELOG.md** - Entrada v3.4.1 detalhada
+
+### 📊 Impacto:
+- **32+ dias** de dados históricos disponíveis
+- **Análise de tendências** entre períodos diferentes
+- **Zero breaking changes** - sistema funciona normalmente
+
+---
+
+## 🎯 Versão Anterior: v3.4.0 - Landing Page Mobile-First Optimization
+
+## 🎯 Versão Anterior: v3.4.0 - Landing Page Mobile-First Optimization
 
 **Foco da Sessão (01/10/2025):** Otimização mobile-first da landing page
 **Sessão Anterior (29/09/2025):** Correção erro 500 signup + documentação banco
@@ -562,7 +591,7 @@ Baseado na metodologia **ROI do Foco** da newsletter [Conversas no Corredor](htt
 **Newsletter:** https://conversasnocorredor.substack.com  
 
 ---
-📋 **Status:** Landing page mobile-first + sistema completo funcional 
-📅 **Última atualização:** 01 de Outubro de 2025 
-🔄 **Versão:** 3.4.0 - Mobile-first optimization 
+📋 **Status:** Views analytics série histórica + landing mobile-first funcional 
+📅 **Última atualização:** 02 de Outubro de 2025 
+🔄 **Versão:** 3.4.1 - Analytics série histórica completa
 📊 **Métricas:** [Veja status detalhado no CURRENT-STATUS.md](docs/CURRENT-STATUS.md)
