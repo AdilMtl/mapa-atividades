@@ -3,7 +3,7 @@
 **Sistema Enterprise para Diagnóstico e Otimização do Foco Profissional**
 
 [![Deploy](https://img.shields.io/badge/deploy-vercel-black?logo=vercel)](https://conversas-no-corredor.vercel.app)
-[![Versão](https://img.shields.io/badge/versão-v3.3.1-blue)](docs/CURRENT-STATUS.md)
+[![Versão](https://img.shields.io/badge/versão-v3.4.0-blue)](docs/CURRENT-STATUS.md)
 [![Status](https://img.shields.io/badge/status-✅%20operacional-green)](docs/CURRENT-STATUS.md)
 
 ## 🚀 Quick Start
@@ -29,6 +29,7 @@ npm run dev
 ## 📊 Sistema Completo
 
 ### ✅ Funcionalidades Principais
+- **📱 Landing Page Mobile-First** - Copy persuasivo + hero otimizado + progressive loading (**v3.4.0**) 
 - **🎬 Landing Page Interativa** - 4 vídeos com scroll-trigger automático (**v3.0.0**)
 - **💼 Ecossistema Completo** - Newsletter + Plataforma integradas (**v3.0.0**)
 - **🎯 Pré-Diagnóstico Educativo** - Interface progressiva com contexto sobre metodologia (**v1.9.5**)
@@ -61,6 +62,7 @@ npm run dev
 - **Frontend:** Next.js 15.5.3 + TypeScript + Tailwind CSS
 - **Backend:** Supabase (PostgreSQL + Auth + RLS)
 - **Email:** Supabase Email Service com templates HTML customizados (**v3.3.1**)
+- **Mobile-First:** Copy otimizado + progressive loading vídeos (**v3.4.0**) 
 - **Segurança:** Service Role Key + Validação Server-Side (**v3.2.0**)
 - **Deploy:** Vercel (automático via Git)
 - **Metodologia:** ROI do Foco + Framework DAR CERTO
@@ -72,8 +74,8 @@ npm run dev
 
 ### 🎯 Fluxo Completo v3.2.0
 
-1. **Landing Page Premium** → 4 vídeos demonstrativos com auto-play
-2. **Ecossistema Virtual** → Apresentação completa Conversas no Corredor +
+1. **Landing Page Mobile-First** → Hero otimizado + copy persuasivo + sticky CTA 
+2. **Ecossistema Virtual** → Apresentação completa +Conversas no Corredor
 3. **Pré-Diagnóstico** → Sistema de leads com nome + 5 etapas + email
 4. **Autorização Segura** → Verificação server-side no cadastro (**v3.2.0**)
 5. **Verificação Login** → Check de expiração antes de permitir acesso (**v3.2.0**)
@@ -102,7 +104,7 @@ npm run dev
 ```
 src/
 ├── app/
-│   ├── page.tsx                             # Landing page com vídeos interativos (v3.0.0)
+│   ├── page.tsx                             # Landing mobile-first otimizada (v3.4.0)
 │   ├── pre-diagnostico/page.tsx             # Pré-diagnóstico conversacional
 │   ├── api/
 │   │   ├── prediag/                          # APIs do pré-diagnóstico
@@ -154,26 +156,30 @@ src/
 
 ### 📋 **Documentação Principal**
 
-- **📊 [CURRENT-STATUS.md](docs/CURRENT-STATUS.md)** - Status v3.2.0 com sistema de segurança
-- **📅 [CHANGELOG.md](docs/CHANGELOG.md)** - Histórico completo até v3.2.0
+- **📊 [CURRENT-STATUS.md](docs/CURRENT-STATUS.md)** - Status v3.4.0 com landing mobile-first 🆕
+- **📅 [CHANGELOG.md](docs/CHANGELOG.md)** - Histórico completo até v3.4.0 🆕
 - **🔒 [admin-dashboard.md](docs/admin-dashboard.md)** - Guia completo do admin 🆕
 - **🛡️ [seguranca-lgpd.md](docs/seguranca-lgpd.md)** - Proteção de dados 🆕
 - **🔧 [troubleshooting-acesso.md](docs/troubleshooting-acesso.md)** - Debug e soluções
 
 ### 📖 **Documentação Técnica v3.2.0**
 docs/
+├── landing-page-mobile.md           # Guia mobile-first optimization
 ├── api-prediagnostico.md            # Especificação completa das 3 APIs
-├── api-seguranca.md                 # 🆕 APIs de autorização e verificação
-├── admin-dashboard.md               # 🆕 Guia do sistema administrativo
+├── api-seguranca.md                 # APIs de autorização e verificação
+├── admin-dashboard.md               # Guia do sistema administrativo
 ├── pagina-prediagnostico.md         # Interface conversacional + UX
 ├── tabelas-supabase.md              # Schema das tabelas + RLS atualizado
-├── seguranca-lgpd.md                # 🆕 Compliance e proteção de dados
+├── seguranca-lgpd.md                # Compliance e proteção de dados
 ├── deploy-configuracao.md           # Guia Vercel + Supabase + Resend
 └── troubleshooting-acesso.md        # Soluções para problemas comuns```
 ```
 
 ### 📖 **Versões Detalhadas**
 docs/versions/
+├── v3.4.0-landing-mobile-first.md         # Landing mobile optimization - 01/10/2025
+├── v3.3.1-signup-correcao-critica.md      # Correção signup + doc banco - 29/09/2025
+├── v3.3.0-videos-reset-senha.md           # Otimização vídeos + reset - 24/09/2025
 ├── v3.2.0-seguranca-admin.md          # Sistema seguro + admin dashboard - 19/09/2025 🆕
 ├── v3.1.0-mobile-first-redesign.md    # Redesign mobile do mapa - 19/09/2025 🆕
 ├── v3.0.0-landing-videos.md           # Landing page com vídeos - 17/09/2025 🆕
@@ -225,7 +231,39 @@ Atualizar documentação com comandos Windows.
 
 > 💡 **Dica:** Mantenha um documento no Obsidian com estes templates para agilizar o processo!
 
-## 🎯 Versão Atual: v3.3.1 - Correção Signup + Documentação Banco
+
+## 🎯 Versão Atual: v3.4.0 - Landing Page Mobile-First Optimization
+
+**Foco da Sessão (01/10/2025):** Otimização mobile-first da landing page
+**Sessão Anterior (29/09/2025):** Correção erro 500 signup + documentação banco
+
+### ✅ Hero Mobile Otimizado:
+- **📱 Copy Persuasivo** - "Trabalhe menos, Conquiste mais" (inspirado Todoist/TickTick)
+- **🎨 Logo Newsletter** - Imagem oficial integrada na navegação
+- **📊 Hierarquia Clara** - Proposta → Dor → Benefício → CTAs
+- **🎯 Tipografia Responsiva** - Sistema mobile-first (text-sm → text-lg)
+
+### ✅ Seções Mobile-Only Adicionadas:
+- **✨ Social Proof Card** - "Sou o gestor que você gostaria de ter tido"
+- **🎯 3 Cards Benefício** - Riscar tarefas, Negociar urgências, Sair sem ansiedade
+- **❓ FAQ Accordion** - 4 perguntas essenciais com respostas customizadas
+- **📌 Sticky Bottom Bar** - CTA fixo após 800px scroll
+- **🎬 Progressive Loading** - Primeiro vídeo autoplay, demais click-to-play (75% economia)
+
+### ✅ Pricing Mobile Redesign:
+- **📱 Cards Verticais** - Layout mobile-friendly vs tabela horizontal
+- **🏆 Badge "Mais Popular"** - Destaque visual no plano Mensal
+- **🎨 Cores Adequadas** - Gratuito (branco), Mensal (laranja), Anual (verde)
+
+### 📊 Impacto Esperado:
+- **-30% Bounce Rate Mobile**
+- **+50% Conversão Mobile**
+- **-80% Time to First CTA** (15s → 3s)
+- **75% Economia Dados** (progressive loading)
+
+---
+
+## 🎯 Versão Anterior: v3.3.1 - Correção Signup + Documentação Banco
 
 **Foco da Sessão (29/09/2025):** Correção erro 500 signup + documentação completa banco
 **Sessão Anterior (24/09/2025):** Otimização de vídeos + reset de senha
@@ -242,36 +280,6 @@ Atualizar documentação com comandos Windows.
 - **📋 Queries de diagnóstico** - Verificação de sincronização e triggers
 
 ---
-
-## 🎯 Versão Anterior: v3.3.0 - Otimização de Performance e Correções Críticas
-
-**Foco da Sessão (24/09/2025):** Otimização massiva de vídeos + correção do reset de senha
-**Sessão Anterior (19/09/2025):** Sistema de Segurança e Admin Dashboard
-
-### ✅ Principais Melhorias de Performance:
-- **🎥 Vídeos 96% menores** - De 200MB para 8MB total com FFmpeg
-- **🚀 Web Vitals melhorados** - LCP drasticamente reduzido
-- **💰 Economia Vercel** - ~576GB/mês de bandwidth economizados
-- **📝 Processo documentado** - Template Obsidian para futuras compressões
-
-### ✅ Correções do Sistema:
-- **🔐 Reset de Senha** - Detecta sessão ativa quando Supabase faz login automático
-- **📧 SMTP Resend** - Configurado como provider customizado no Supabase
-- **🐛 Bug Hotmail** - Erro 500 documentado com workaround via /perfil
-- **⚡ Performance** - Load time < 1s com vídeos otimizados
-
-## 🎯 Versão Anterior: v3.2.0 - Sistema de Segurança e Admin Dashboard
-
-**Foco da Sessão (19/01/2025 - Tarde):** Sistema completo de autorização seguro + dashboard admin
-**Sessão Anterior (19/01/2025 - Manhã):** Mobile-First Redesign do Mapa de Atividades
-
-### ✅ Principais Melhorias de Segurança:
-- **🔒 Autorização Segura** - Migração de arquivo público para banco de dados
-- **👨‍💼 Admin Dashboard** - Interface completa para gestão de assinantes em `/admin/assinantes`
-- **🚫 Verificação Dupla** - Check no cadastro + check no login
-- **📊 Métricas de Acesso** - Último login, atividades, status da conta
-- **🔍 Filtros Avançados** - Status, período, ordenação, busca combinados
-- **⚡ Gestão Instantânea** - CRUD visual sem necessidade de Git
 
 
 ---
@@ -554,8 +562,7 @@ Baseado na metodologia **ROI do Foco** da newsletter [Conversas no Corredor](htt
 **Newsletter:** https://conversasnocorredor.substack.com  
 
 ---
-
-📋 **Status:** Sistema completo com signup funcional + banco documentado
-📅 **Última atualização:** 29 de Setembro de 2025
-🔄 **Versão:** 3.3.1 - Signup corrigido + schema completo do banco
+📋 **Status:** Landing page mobile-first + sistema completo funcional 
+📅 **Última atualização:** 01 de Outubro de 2025 
+🔄 **Versão:** 3.4.0 - Mobile-first optimization 
 📊 **Métricas:** [Veja status detalhado no CURRENT-STATUS.md](docs/CURRENT-STATUS.md)
