@@ -31,12 +31,19 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ assinantes: [] })
     }
 
-    // Para cada assinante, buscar dados do auth.users
+    // ✅ CORREÇÃO: Buscar TODOS os usuários UMA VEZ (fora do loop)
+ const { data: authUsers, error: authError } = await supabaseAdmin.rpc('admin_list_users')
+
+if (authError) {
+  console.error('Erro ao buscar usuários:', authError)
+  return NextResponse.json({ error: authError.message }, { status: 500 })
+}
+
+    // Para cada assinante, buscar dados correspondentes
     const assinantesComDados = await Promise.all(
       (assinantes || []).map(async (assinante) => {
-        // Buscar usuário no auth
-        const { data: authUsers } = await supabaseAdmin.auth.admin.listUsers()
-        const authUser = authUsers.users?.find(
+        // ✅ Usar o array já carregado (não fazer nova requisição)
+        const authUser = authUsers.find(
           u => u.email?.toLowerCase() === assinante.email.toLowerCase()
         )
 

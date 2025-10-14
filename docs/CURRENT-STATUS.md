@@ -1,5 +1,150 @@
+## 🎯 SESSÃO ATUAL: Correção Admin Assinantes - Bug Supabase listUsers()
+**Data:** 14 de Outubro de 2025  
+**Versão:** v3.4.3  
+**Status:** ✅ Resolvido
+**Duração:** ~4 horas de investigação + múltiplas tentativas + solução
 
-## 🎯 SESSÃO ATUAL: Views Analytics - Série Histórica Completa
+### **🚀 PRINCIPAIS ENTREGAS v3.4.3:**
+
+#### ✅ **ADMIN ASSINANTES FUNCIONANDO**
+- **Problema:** Todos assinantes apareciam como "⏸️ Sem conta" mesmo tendo cadastro confirmado
+- **Causa Raiz:** Bug do Supabase na API `auth.admin.listUsers()` - erro SQL ao scanear coluna `confirmation_token` com valores NULL
+- **Erro Original:** `"sql: Scan error on column index 3, name \"confirmation_token\": converting NULL to string is unsupported"`
+- **Investigação:** Auth Logs do Supabase revelaram erro 500 em `/admin/users`
+- **Solução:** Criada função SQL `public.admin_list_users()` com SECURITY DEFINER que acessa `auth.users` diretamente via SQL
+- **Status:** ✅ CRUD 100% funcional, todos os dados aparecem corretamente
+
+#### ✅ **FUNÇÃO SQL CRIADA**
+```sql
+CREATE OR REPLACE FUNCTION public.admin_list_users()
+RETURNS TABLE (
+  id uuid,
+  email varchar(255),  -- ← Tipo correto (não text)
+  created_at timestamptz,
+  last_sign_in_at timestamptz,
+  email_confirmed_at timestamptz
+) 
+SECURITY DEFINER
+SET search_path = auth, public
+AS $$
+BEGIN
+  RETURN QUERY
+  SELECT u.id, u.email, u.created_at, u.last_sign_in_at, u.email_confirmed_at
+  FROM auth.users u;
+END;
+$$ LANGUAGE plpgsql;
+
+GRANT EXECUTE ON FUNCTION public.admin_list_users() TO service_role;
+```
+
+#### ✅ **API CORRIGIDA**
+- **Arquivo:** `src/app/api/admin/assinantes/route.ts` (linha ~33-38)
+- **Mudança:** `auth.admin.listUsers()` → `supabaseAdmin.rpc('admin_list_users')`
+- **Benefício:** Acesso direto via SQL é mais rápido e confiável que API HTTP
+- **Impacto:** Zero breaking changes, CRUD mantém todas funcionalidades
+
+#### ✅ **DOCUMENTAÇÃO CRIADA**
+- **troubleshooting-admin-assinantes.md:** Processo completo de debug documentado
+- **supabase-database-schema.md:** Função SQL adicionada à documentação
+- **CHANGELOG.md:** Entrada v3.4.3 com causa raiz e solução
+- **Benefício:** Evita retrabalho em problemas similares
+
+### **📊 PROCESSO DE INVESTIGAÇÃO:**
+
+13/10/2025 - Início da investigação
+├── Hipótese 1: Race condition no frontend → ❌ Descartada
+├── Hipótese 2: Problema de permissões → ❌ Permissões corretas
+├── Hipótese 3: Paginação de listUsers() → ❌ Apenas 10 usuários
+├── Descoberta: Auth Logs mostram erro 500 → ✅ CAUSA RAIZ!
+├── Erro: confirmation_token NULL causa crash → ✅ Confirmado
+├── Tentativa: Corrigir tipos da função → ❌ varchar vs text
+└── Solução: Função SQL com tipos corretos → ✅ SUCESSO
+
+### **💡 LIÇÃO APRENDIDA:**
+
+**Bug do Supabase:**
+- Método oficial `auth.admin.listUsers()` tem bug não resolvido
+- Coluna `confirmation_token` com NULL causa erro de scan SQL
+- Bug existe no lado do servidor (código Go do Supabase)
+
+**Solução Definitiva:**
+- Acesso direto a `auth.users` via função SQL com SECURITY DEFINER
+- Mais confiável e performático que API HTTP
+- Workaround necessário até Supabase corrigir o bug
+
+**Debugging:**
+- Auth Logs do Supabase foram essenciais para identificar causa raiz
+- Investigação metódica descartou hipóteses uma por uma
+- SQL direto revelou que banco está OK, API que está quebrada
+
+### **🔗 Referências:**
+- [Auth Logs Supabase](https://supabase.com/dashboard/project/_/logs/auth-logs)
+- Erro: `Database error finding users` em `/admin/users`
+- Issue: `confirmation_token` NULL scan não suportado
+
+--
+## 🎯 SESSÃO Anterior: Correção Security Definer Views
+**Data:** 13 de Outubro de 2025  
+**Versão:** v3.4.2  
+**Status:** ✅ Resolvido
+**Duração:** ~3 horas de investigação + múltiplas tentativas + solução
+
+### **🚀 PRINCIPAIS ENTREGAS v3.4.2:**
+
+#### ✅ **SECURITY DEFINER VIEWS CORRIGIDAS**
+- **Problema:** 7 views com warnings persistentes no Security Advisor do Supabase
+- **Causa Raiz:** Views criadas com owner 'postgres' executavam automaticamente como SECURITY DEFINER
+- **Tentativas Falhadas:**
+  - `CREATE OR REPLACE VIEW` → Manteve SECURITY DEFINER da view original
+  - `ALTER VIEW ... OWNER TO authenticator` → Bloqueado por permissões
+  - DROP + CREATE simples → Herdou configuração do owner postgres
+- **Solução Definitiva:** Recriar views com `WITH (security_invoker = true)`
+- **Resultado:** 0 warnings no Security Advisor ✅
+
+#### ✅ **VIEWS CORRIGIDAS (7 total)**
+1. `vw_activity_heatmap` - ✅ security_invoker = true
+2. `vw_conversao_diaria` - ✅ security_invoker = true
+3. `vw_events_funnel` - ✅ security_invoker = true
+4. `vw_kpis_executivos` - ✅ security_invoker = true
+5. `vw_mix_atividades` - ✅ security_invoker = true
+6. `vw_pain_analysis` - ✅ security_invoker = true
+7. `vw_perfil_performance` - ✅ security_invoker = true
+
+#### ✅ **DOCUMENTAÇÃO ATUALIZADA**
+- **views-analytics-supabase.md:** Seção de segurança reescrita com best practices
+- **CHANGELOG.md:** Entrada v3.4.2 com processo completo de troubleshooting
+- **Lições Aprendidas:** Documentado comportamento do PostgreSQL com owner postgres
+
+#### ✅ **IMPACTO ZERO**
+- **Grafana:** Continua funcionando normalmente, sem alterações
+- **Série Histórica:** Dados desde 28/08/2025 preservados
+- **Performance:** Sem mudanças mensuráveis
+- **Breaking Changes:** Nenhum
+
+### **📊 PROCESSO DE INVESTIGAÇÃO:**
+13/10/2025 - Início da investigação
+├── Hipótese 1: CREATE OR REPLACE manteve atributos → ❌ Confirmado
+├── Hipótese 2: Owner postgres causa SECURITY DEFINER → ✅ Confirmado
+├── Tentativa: ALTER OWNER TO authenticator → ❌ Sem permissão
+├── Tentativa: DROP + CREATE simples → ❌ Manteve problema
+└── Solução: DROP + CREATE WITH (security_invoker = true) → ✅ SUCESSO
+
+### **💡 LIÇÃO APRENDIDA:**
+
+**PostgreSQL Behavior:**
+- Views com owner 'postgres' (superuser) → SECURITY DEFINER automático
+- `CREATE OR REPLACE VIEW` → Preserva atributos de segurança existentes
+- **Solução:** Sempre usar `WITH (security_invoker = true)` explicitamente
+
+**Best Practice para o Projeto:**
+```sql
+-- Template correto para criar views
+CREATE VIEW public.vw_nome_da_view 
+WITH (security_invoker = true) AS  -- ← Flag obrigatória!
+SELECT ...
+
+
+## 🎯 SESSÃO Anterior: Views Analytics - Série Histórica Completa
 **Data:** 02 de Outubro de 2025  
 **Versão:** v3.4.1  
 **Status:** ✅ Implementado e funcionando
@@ -40,7 +185,7 @@ SELECT * FROM vw_conversao_diaria;
 -- Retornava no máximo 30 registros
 
 
-
+Sessõe Anteriores
 ## [v3.4.0] - 2025-10-01 - 📱 Landing Page Mobile-First Optimization
 
 ### ✅ Adicionado

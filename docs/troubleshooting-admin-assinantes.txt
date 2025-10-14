@@ -1,0 +1,28 @@
+# 🔧 Troubleshooting: Admin Assinantes
+
+## 🚨 Problema: Todos aparecem "Sem conta"
+
+### Sintomas
+- Dashboard `/admin/assinantes` carrega mas todos mostram "⏸️ Sem conta"
+- Usuários confirmados não aparecem com dados
+- SQL direto em `auth.users` mostra usuários existem
+
+### Causa Raiz
+Bug do Supabase: `auth.admin.listUsers()` falha ao scanear `confirmation_token` NULL
+
+### Solução Aplicada (v3.4.3)
+```sql
+-- Função SQL criada no Supabase
+CREATE OR REPLACE FUNCTION public.admin_list_users()
+RETURNS TABLE (id uuid, email varchar(255), ...) 
+SECURITY DEFINER
+...
+```
+
+### Verificação
+```sql
+-- Testar função diretamente
+SELECT * FROM public.admin_list_users() LIMIT 5;
+```
+
+Se retornar dados = ✅ Funcionando

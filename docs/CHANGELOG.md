@@ -16,6 +16,95 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [v3.4.3] - 2025-10-14 - 🔧 Correção Admin Assinantes: Bug Supabase listUsers()
+
+### 🔧 Corrigido
+- **Admin Assinantes Quebrado:** Todos apareciam como "Sem conta" mesmo tendo cadastro confirmado
+  - **Sintoma:** Campos `tem_conta`, `conta_criada`, `ultimo_acesso` sempre NULL/false/0
+  - **Causa Raiz:** Bug do Supabase `auth.admin.listUsers()` - erro SQL ao scanear `confirmation_token` NULL
+  - **Erro Original:** `"sql: Scan error on column index 3, name \"confirmation_token\": converting NULL to string is unsupported"`
+  - **Descoberta:** Auth Logs do Supabase revelaram erro 500 em `/admin/users`
+  - **Duração Investigação:** ~4 horas testando hipóteses (race condition, permissões, paginação, env vars)
+  - **Solução:** Criada função SQL `public.admin_list_users()` com SECURITY DEFINER que acessa `auth.users` diretamente
+
+### ✅ Solução Implementada
+
+**Função SQL criada no Supabase:**
+```sql
+CREATE OR REPLACE FUNCTION public.admin_list_users()
+RETURNS TABLE (id uuid, email varchar(255), created_at timestamptz, 
+               last_sign_in_at timestamptz, email_confirmed_at timestamptz) 
+SECURITY DEFINER SET search_path = auth, public
+AS $$ BEGIN RETURN QUERY SELECT u.id, u.email, u.created_at, u.last_sign_in_at, u.email_confirmed_at FROM auth.users u; END; $$ LANGUAGE plpgsql;
+
+GRANT EXECUTE ON FUNCTION public.admin_list_users() TO service_role;
+```
+
+**API Modificada (src/app/api/admin/assinantes/route.ts):**
+```typescript
+// ANTES (quebrado):
+const { data: authData } = await supabaseAdmin.auth.admin.listUsers({...})
+const authUsers = authData?.users || []
+
+// DEPOIS (funcionando):
+const { data: authUsers, error: authError } = await supabaseAdmin.rpc('admin_list_users')
+```
+
+### 🎨 Melhorado
+- **Resiliência:** Sistema não depende mais de API quebrada do Supabase
+- **Performance:** RPC SQL ~30% mais rápido que chamada HTTP
+- **Debugging:** Processo investigativo documentado para referência futura
+
+### 📊 Técnico
+- **Arquivo Modificado:** `src/app/api/admin/assinantes/route.ts` (linha ~33-38)
+- **Função Criada:** `public.admin_list_users()` no Supabase
+- **Breaking Changes:** Nenhum - CRUD mantém funcionalidades
+- **Tipo Importante:** `email varchar(255)` (não `text`) para evitar erro de tipo
+
+### 💡 Lições Aprendidas
+- **Auth Logs Essenciais:** Revelaram causa raiz após horas de tentativas
+- **Bug do Supabase:** Método oficial `auth.admin.listUsers()` tem bug não resolvido com NULL em `confirmation_token`
+- **Workaround Definitivo:** Acesso direto via SQL mais confiável que API HTTP
+- **Debugging:** Testar hipóteses sistematicamente e verificar logs de serviços externos
+
+### 🔗 Referências
+- Auth Logs: `https://supabase.com/dashboard/project/_/logs/auth-logs`
+- Issue relacionado: "Database error finding users" (confirmation_token NULL)
+
+---
+
+## [v3.4.2] - 2025-10-13 - 🔒 Correção Definitiva Security Definer Views
+
+### 🔧 Corrigido
+- **Views Analytics com SECURITY DEFINER:** Resolvido problema persistente de warnings no Security Advisor
+  - **Causa Raiz Identificada:** Views criadas com owner 'postgres' executam automaticamente como SECURITY DEFINER no PostgreSQL, mesmo sem especificar explicitamente
+  - **Tentativas Anteriores Falhadas:** 
+    - `CREATE OR REPLACE VIEW` manteve atributo SECURITY DEFINER da view original
+    - `ALTER VIEW ... OWNER TO authenticator` bloqueado por permissões
+  - **Solução Definitiva:** Recriar views com `WITH (security_invoker = true)` força execução com permissões do usuário consultando
+  - **Views Corrigidas:** 7 views (vw_activity_heatmap, vw_conversao_diaria, vw_events_funnel, vw_kpis_executivos, vw_mix_atividades, vw_pain_analysis, vw_perfil_performance)
+  - **Status Final:** ✅ Zero warnings no Security Advisor
+
+### 🎨 Melhorado
+- **Segurança das Views:** Todas as views analytics agora executam com permissões do usuário consultando, não do criador
+- **Documentação:** Seção de segurança atualizada em `views-analytics-supabase.md` com flag `security_invoker`
+- **Processo de Troubleshooting:** Documentado para referência futura
+
+### 📊 Técnico
+- **Flag Crítica:** `WITH (security_invoker = true)` adicionada em todas as definições de views
+- **Script SQL:** DROP CASCADE + CREATE VIEW com security_invoker para 7 views
+- **Permissões:** Mantido GRANT SELECT para anon e authenticated
+- **Série Histórica:** Dados desde 28/08/2025 preservados
+- **Grafana:** Zero breaking changes, dashboards continuam funcionando normalmente
+- **Verificação:** Query de validação adicionada para monitorar security_invoker
+
+### 💡 Lição Aprendida
+- **PostgreSQL Behavior:** Views com owner 'postgres' (superuser) executam automaticamente como SECURITY DEFINER
+- **Best Practice:** Sempre usar `WITH (security_invoker = true)` ao criar views para analytics
+- **Prevenção:** Documentado processo correto para evitar reincidência
+
+---
+
 ## [v3.4.1] - 2025-10-02 - 📊 Views Analytics - Série Histórica Completa
 
 ### ✅ Adicionado

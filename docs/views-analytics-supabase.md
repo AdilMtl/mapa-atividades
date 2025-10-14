@@ -19,31 +19,109 @@ Transformar os dados brutos das tabelas (`roi_prediag_sessions`, `roi_leads`, `r
 
 ## 🔒 Segurança das Views
 
-### **⚠️ Correção Crítica Aplicada**
-As views foram inicialmente criadas com **SECURITY DEFINER** (detectado pelo Security Advisor do Supabase), o que representava um risco de segurança. Correção aplicada:
+### **✅ Configuração Atual (v3.4.2 - Outubro 2025)**
 
+Todas as views estão configuradas com `security_invoker = true`, o que significa que executam com as **permissões do usuário que consulta**, não do criador da view.
 ```sql
--- ❌ PROBLEMA: Views com SECURITY DEFINER
--- Executavam com permissões do criador, não do usuário
+-- Exemplo de criação correta de view
+CREATE VIEW public.vw_conversao_diaria 
+WITH (security_invoker = true) AS  -- ← Flag crítica!
+SELECT ...
+Status de Segurança:
 
--- ✅ SOLUÇÃO: Views recriadas SEM security definer
-CREATE VIEW vw_kpis_executivos AS  -- sem SECURITY DEFINER
+✅ vw_conversao_diaria - SEGURO (security_invoker = true)
+✅ vw_perfil_performance - SEGURO (security_invoker = true)
+✅ vw_pain_analysis - SEGURO (security_invoker = true)
+✅ vw_events_funnel - SEGURO (security_invoker = true)
+✅ vw_activity_heatmap - SEGURO (security_invoker = true)
+✅ vw_kpis_executivos - SEGURO (security_invoker = true)
+✅ vw_mix_atividades - SEGURO (security_invoker = true)
+
+
+📚 Histórico de Correções de Segurança
+v3.4.2 (13/10/2025) - Correção Definitiva
+Problema: Views persistindo com SECURITY DEFINER mesmo após múltiplas correções
+Causa Raiz: Views criadas com owner 'postgres' (superuser) executam automaticamente como SECURITY DEFINER no PostgreSQL, independente de como são declaradas.
+Solução Final:
+sql-- Recriar views com flag explícita
+DROP VIEW IF EXISTS public.vw_conversao_diaria CASCADE;
+CREATE VIEW public.vw_conversao_diaria 
+WITH (security_invoker = true) AS  -- ← Força execução como usuário consultando
+SELECT ...
+v3.4.1 (02/10/2025) - Tentativa com CREATE OR REPLACE
+
+❌ Falhou: CREATE OR REPLACE VIEW manteve atributo SECURITY DEFINER da view original
+Lição: REPLACE preserva atributos de segurança existentes
+
+Setembro 2025 - Primeira Correção
+
+❌ Falhou: Tentativa de ALTER VIEW ... OWNER TO authenticator bloqueada por permissões
+❌ Falhou: DROP + CREATE simples sem security_invoker
+
+Agosto 2025 - Criação Original
+
+Views criadas sem especificar security, herdaram SECURITY DEFINER do owner postgres
+Security Advisor detectou vulnerabilidade
+
+
+🛡️ Best Practices para Views
+1. Sempre usar security_invoker = true
+sql-- ✅ CORRETO - Para views de analytics/dashboards
+CREATE VIEW public.vw_sua_view 
+WITH (security_invoker = true) AS
 SELECT ...
 
--- Permissões configuradas adequadamente
-GRANT SELECT ON vw_kpis_executivos TO anon;
-GRANT SELECT ON vw_kpis_executivos TO authenticated;
-```
+-- ❌ EVITAR - Executa como criador da view
+CREATE VIEW public.vw_sua_view AS
+SELECT ...
+2. Verificar configuração após criar
+sql-- Query para verificar security_invoker
+SELECT 
+    c.relname AS view_name,
+    CASE 
+        WHEN 'security_invoker=true' = ANY(c.reloptions) 
+        THEN '✅ SECURITY INVOKER'
+        ELSE '⚠️ SECURITY DEFINER ou não configurado'
+    END as security_status
+FROM pg_class c
+JOIN pg_namespace n ON n.oid = c.relnamespace
+WHERE c.relkind = 'v'
+AND n.nspname = 'public'
+AND c.relname = 'vw_sua_view';
+3. Conceder permissões adequadas
+sql-- Após criar a view, conceder acesso
+GRANT SELECT ON public.vw_sua_view TO anon, authenticated;
+-- Ou apenas para service_role (admin only)
+GRANT SELECT ON public.vw_sua_view TO service_role;
 
-### **✅ Status de Segurança Atual**
-Todas as 7 views passaram na validação do Security Advisor:
-- ✅ `vw_conversao_diaria` - SEGURO (SEM SECURITY DEFINER)
-- ✅ `vw_perfil_performance` - SEGURO (SEM SECURITY DEFINER)  
-- ✅ `vw_pain_analysis` - SEGURO (SEM SECURITY DEFINER)
-- ✅ `vw_events_funnel` - SEGURO (SEM SECURITY DEFINER)
-- ✅ `vw_activity_heatmap` - SEGURO (SEM SECURITY DEFINER)
-- ✅ `vw_kpis_executivos` - SEGURO (SEM SECURITY DEFINER)
-- ✅ `vw_mix_atividades` - SEGURO (SEM SECURITY DEFINER)
+🔍 Quando Usar SECURITY DEFINER vs SECURITY INVOKER
+CenárioUsarMotivoAnalytics/Dashboards públicossecurity_invoker = trueUsuários devem ver apenas seus dados via RLSViews administrativassecurity_invoker = true + permissão apenas para service_roleAdmin acessa via API protegidaAgregações complexassecurity_invoker = trueMantém RLS das tabelas baseViews com lógica sensívelRaramente SECURITY DEFINERApenas se absolutamente necessário
+Regra geral: Para este projeto, SEMPRE use security_invoker = true.
+
+⚠️ Troubleshooting
+Problema: Security Advisor ainda mostra warnings
+sql-- 1. Verificar owner da view
+SELECT viewname, viewowner 
+FROM pg_views 
+WHERE schemaname = 'public' 
+AND viewname = 'vw_sua_view';
+
+-- Se owner = 'postgres', a view terá SECURITY DEFINER implícito
+-- Solução: Recriar com security_invoker = true
+
+-- 2. Verificar flag security_invoker
+SELECT c.relname, c.reloptions
+FROM pg_class c
+WHERE c.relname = 'vw_sua_view';
+
+-- Se reloptions não contém 'security_invoker=true', recriar
+Problema: CREATE OR REPLACE não remove SECURITY DEFINER
+Solução: Usar DROP + CREATE ao invés de REPLACE:
+sqlDROP VIEW IF EXISTS public.vw_sua_view CASCADE;
+CREATE VIEW public.vw_sua_view 
+WITH (security_invoker = true) AS
+SELECT ...
+
 
 ---
 
