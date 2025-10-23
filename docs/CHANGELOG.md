@@ -16,6 +16,141 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [v3.5.0] - 2025-10-23 - 📱 PWA Completo + Rebranding
+
+### ✅ Adicionado
+- **PWA (Progressive Web App)**: Aplicativo instalável em desktop e mobile
+  - Service Worker ativo com estratégias de cache otimizadas
+  - Manifest.json configurado para instalação nativa
+  - Suporte offline básico para assets estáticos
+  - Cache inteligente: NetworkFirst para Supabase, CacheFirst para imagens/vídeos
+- **Ícones Personalizados**: 6 tamanhos otimizados
+  - icon-192.png e icon-512.png (padrão Android/Desktop)
+  - icon-192-maskable.png e icon-512-maskable.png (adaptive icons Android)
+  - apple-touch-icon.png (180x180 para iOS)
+  - favicon.ico (32x32 para browsers)
+- **Rebranding Completo**: Nome atualizado em toda aplicação
+  - Título: "+Conversas no Corredor"
+  - App mobile: "+ConverSaaS"
+  - Sidebar e navegação atualizadas
+  - Favicon substituído (ícone dos copos de café)
+
+### 🔧 Modificado
+- **next.config.js**: Integração com next-pwa
+  - Service Worker gerado automaticamente em `/sw.js`
+  - Cache de 24h para Supabase, 30 dias para assets
+  - PWA desabilitado em desenvolvimento (NODE_ENV=development)
+- **layout.tsx**: Meta tags PWA completas
+  - apple-mobile-web-app-capable
+  - apple-mobile-web-app-status-bar-style: black-translucent
+  - theme-color: #d97706 (laranja)
+  - Referências aos novos ícones PWA
+- **package.json**: Dependência next-pwa@4.0.2 adicionada
+
+### 📊 Técnico
+**Arquivos Criados:**
+```
+/public/pwa/
+  ├── manifest.json              # Configuração PWA
+  └── icons/
+      ├── icon-192.png           # 29KB
+      ├── icon-512.png           # 121KB
+      ├── icon-192-maskable.png  # 21KB (adaptive)
+      ├── icon-512-maskable.png  # 89KB (adaptive)
+      └── apple-touch-icon.png   # 26KB (iOS)
+/public/
+  ├── sw.js                      # Service Worker (auto-gerado)
+  └── workbox-*.js               # Runtime caching (auto-gerado)
+/src/app/
+  └── favicon.ico                # Substituído (2.4KB)
+```
+
+**Arquivos Modificados:**
+```
+next.config.js        # +32 linhas (withPWA wrapper)
+layout.tsx            # +12 linhas (meta tags PWA)
+package.json          # +1 dependência (next-pwa)
+package-lock.json     # +304 pacotes (workbox + deps)
+```
+
+### 🎨 Design & UX
+- **Ícone Profissional**: Copos de café + balões de conversa (laranja #d97706)
+- **Cores do PWA**: 
+  - Background: #042f2e (verde escuro)
+  - Theme: #d97706 (laranja)
+- **Experiência Nativa**:
+  - Splash screen automática (iOS/Android)
+  - Fullscreen mode (sem barra do navegador)
+  - Orientação portrait-primary
+  - Instalação com um clique
+
+### 📱 Compatibilidade
+**Desktop:**
+- ✅ Chrome/Edge: Instalação via ícone na barra de endereços
+- ✅ Windows/Mac/Linux: App standalone na área de trabalho
+- ⚠️ Firefox: Suporte limitado (sem instalação nativa)
+
+**Mobile:**
+- ✅ Android (Chrome): "Adicionar à tela inicial"
+- ✅ iOS (Safari): "Adicionar à Tela de Início"
+- ✅ Ícones adaptive (Android 8+)
+- ✅ Splash screen nativa
+
+### 🚀 Performance
+- **Service Worker**: Cache estratégico reduz latência
+- **Assets otimizados**: Ícones comprimidos (total 290KB)
+- **Build time**: Mantido (~30s)
+- **Bundle size**: +2KB (next-pwa minificado)
+
+### 🔒 Segurança
+- Service Worker com scope limitado (`/`)
+- Cache apenas para domínio próprio + Supabase
+- Estratégia NetworkFirst para dados sensíveis
+- Sem cache de rotas de autenticação
+
+### 📖 Documentação
+**Como instalar o PWA:**
+
+**Desktop (Chrome/Edge):**
+1. Acesse o site
+2. Clique no ícone ⊕ na barra de endereços
+3. Clique em "Instalar"
+
+**Android (Chrome):**
+1. Acesse o site
+2. Menu (⋮) > "Adicionar à tela inicial"
+3. Confirmar instalação
+
+**iOS (Safari):**
+1. Acesse o site
+2. Botão compartilhar (□↑)
+3. "Adicionar à Tela de Início"
+
+### 💡 Notas Técnicas
+- PWA funciona apenas em HTTPS (produção)
+- Service Worker não ativo em `npm run dev` (por design)
+- Testar localmente: `npm run build && npm run start`
+- Manifest acessível em `/pwa/manifest.json`
+- Service Worker em `/sw.js`
+
+### ⚠️ Breaking Changes
+- **Nenhum**: Funcionalidades existentes 100% preservadas
+- PWA é uma camada adicional, não substitui nada
+- Usuários existentes não são afetados
+
+### 🐛 Bugs Conhecidos
+- ✅ Conflito favicon.ico (resolvido: movido para src/app)
+- ✅ Build warnings do next-pwa (normais, sem impacto)
+
+---
+
+**📝 Commit:** `0194cd6`  
+**🚀 Deploy:** Vercel automático  
+**👤 Autor:** Sessão de implementação PWA  
+**⏱️ Tempo:** ~2 horas (instalação + configuração + testes + deploy)
+
+---
+
 ## [v3.4.3] - 2025-10-14 - 🔧 Correção Admin Assinantes: Bug Supabase listUsers()
 
 ### 🔧 Corrigido

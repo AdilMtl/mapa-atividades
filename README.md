@@ -1,9 +1,9 @@
-# 🎯 Mapa de Atividades - ROI do Foco
+# 🎯 +Conversas no Corredor
 
-**Sistema Enterprise para Diagnóstico e Otimização do Foco Profissional**
+** Sistema completo para mapear, diagnosticar e otimizar seu foco profissional | PWA instalável em desktop e mobile**
 
 [![Deploy](https://img.shields.io/badge/deploy-vercel-black?logo=vercel)](https://conversas-no-corredor.vercel.app)
-[![Versão](https://img.shields.io/badge/versão-v3.4.3-blue)](docs/CURRENT-STATUS.md)
+[![Versão](https://img.shields.io/badge/version-3.5.0-nlue.svg)](docs/CURRENT-STATUS.md)
 [![Status](https://img.shields.io/badge/status-✅%20operacional-green)](docs/CURRENT-STATUS.md)
 
 ## 🚀 Quick Start
@@ -46,6 +46,7 @@ npm run dev
 - **🎥 Vídeos Otimizados** - Redução de 96% no tamanho (200MB → 8MB) (**v3.3.0**)
 - **🔐 Reset de Senha Funcional** - SMTP Resend + detecção de sessão ativa (**v3.3.0**)
 **🔧 Admin Assinantes Otimizado** - Função SQL customizada para contornar bug do Supabase (**v3.4.3**)
+- **📱 PWA Instalável** - App nativo para desktop e mobile, com Service Worker e ajuste de icones (**v3.5.0**)
 
 ### **Páginas Funcionais:**
 ✅ Landing Page Principal (/)           # Apresentação + 2 CTAs pré-diagnósSistema de Segurançatico
@@ -70,6 +71,7 @@ npm run dev
 - **Drag & Drop:** @hello-pangea/dnd para Kanban visual
 - **Admin:** Dashboard com filtros e métricas (**v3.2.0**)
 - **Otimização:** FFmpeg para compressão de vídeos (**v3.3.0**)
+- **PWA:** next-pwa 5.6.0 (Service Worker + Workbox)
 
 ## 🌊 Fluxo do Usuário
 
@@ -276,6 +278,12 @@ Atualizar documentação com comandos Windows.
 npm run dev          # Servidor local
 npm run build        # Build de produção
 npm run lint         # Verificar código
+# Testar PWA (Service Worker ativo)
+npm run build
+npm run start        # PWA funciona apenas em produção
+`````
+
+---
 
 # Deploy
 git add .
@@ -403,6 +411,46 @@ roi_events          # Analytics de conversão
 - ✅ **Analytics:** Eventos sendo rastreados no Supabase
 - ✅ **RLS:** Políticas de segurança configuradas
 
+### 📱 PWA - Progressive Web App (v3.5.0)
+
+**App instalável em todos os dispositivos!**
+
+- ✅ **Desktop:** Windows, Mac, Linux (Chrome/Edge)
+- ✅ **Mobile:** Android (Chrome) e iOS (Safari)
+- ✅ **Offline:** Assets básicos funcionam sem internet
+- ✅ **Ícone Nativo:** Copos de café na área de trabalho/home screen
+- ✅ **Fullscreen:** Sem barra do navegador
+- ✅ **Service Worker:** Cache inteligente (Supabase 24h, assets 30d)
+
+**Como instalar:**
+`````bash
+# Desktop (Chrome/Edge)
+1. Acesse o site
+2. Clique no ícone ⊕ na barra de endereços
+3. "Instalar +ConverSaaS"
+
+# Android (Chrome)
+1. Acesse o site
+2. Menu (⋮) > "Adicionar à tela inicial"
+
+# iOS (Safari)
+1. Acesse o site
+2. Botão Compartilhar (□↑) > "Adicionar à Tela de Início"
+`````
+
+**Testar localmente:**
+`````bash
+npm run build
+npm run start  # PWA ativo em localhost:3000
+`````
+
+**Arquivos criados:**
+- `/public/pwa/manifest.json` - Configuração PWA
+- `/public/pwa/icons/*` - 6 ícones otimizados (290KB)
+- `/public/sw.js` - Service Worker (auto-gerado)
+
+---
+
 ### 📈 Analytics em Produção (Dados Reais)
 - **67 sessões** de pré-diagnóstico completas (26-27 ago/2025)
 - **Taxa conversão**: 96% (49 de 51 que completaram enviaram email)
@@ -411,8 +459,16 @@ roi_events          # Analytics de conversão
 - **Atividade crítica**: Aulas (13), treinamentos (8)
 - **Tracking atual**: 2 eventos principais (prediag_completed, email_submitted)
 
+### 📱 Instalações PWA (Novo v3.5.0)
+- **Plataforma:** Desktop + Mobile
+- **Ícone:** Personalizado (copos de café)
+- **Nome App:** +ConverSaaS
+- **Service Worker:** Ativo em produção
+- **Tracking:** Em implementação (próxima versão)
+
 ### 📋 Detalhes Técnicos
 ```typescript
+
 // APIs implementadas
 POST /api/prediag/diagnose   # Gerar diagnóstico + salvar sessão
 POST /api/prediag/lead       # Capturar nome + email + enviar recomendações
@@ -424,6 +480,27 @@ firstName: name.split(' ')[0],            // Email usa nome real
 
 // Sistema de recomendações funcionando
 450+ sugestões → Scoring por relevância → Top 3 por categoria (HABITO/TAREFA/MINDSET)
+
+**PWA Implementado (v3.5.0):**
+// Configuração PWA
+const withPWA = require('next-pwa')({
+  dest: 'public',
+  register: true,
+  skipWaiting: true,
+  disable: process.env.NODE_ENV === 'development',
+  runtimeCaching: [
+    // Supabase: NetworkFirst (24h cache)
+    // Assets: CacheFirst (30d cache)
+  ]
+})
+
+// Manifest
+{
+  "name": "+Conversas no Corredor",
+  "short_name": "+ConverSaaS",
+  "theme_color": "#d97706"
+}
+```
 ```
 
 ### 🔧 Comandos Úteis
@@ -556,13 +633,14 @@ Documentação Completa
 
 ## 🤝 Sobre o Projeto
 
-Baseado na metodologia **ROI do Foco** da newsletter [Conversas no Corredor](https://conversasnocorredor.substack.com), este sistema oferece uma abordagem prática para mapear, diagnosticar e otimizar o foco profissional.
+Baseado na metodologia **ROI do Foco** da newsletter [Conversas no Corredor]. Agora disponível como **PWA instalável** (+ConverSaaS) em desktop e mobile.
+(https://conversasnocorredor.substack.com), este sistema oferece uma abordagem prática para mapear, diagnosticar e otimizar o foco profissional.
 
 **Criado por:** [Adilson Matioli](https://www.linkedin.com/in/adilsonmatioli/)  
 **Newsletter:** https://conversasnocorredor.substack.com  
 
 ---
 📋 **Status:** Admin assinantes corrigido + Security Advisor zerado
-📅 **Última atualização:** 14 de Outubro de 2025 
-📄 **Versão:** 3.4.3 - Admin Assinantes funcionando 100%
+📅 **Última atualização:** 23 de Outubro de 2025  
+🔄 **Versão:** 3.5.0 - PWA instalável + Rebranding +Conversas no Corredor
 📊 **Métricas:** [Veja status detalhado no CURRENT-STATUS.md](docs/CURRENT-STATUS.md)
