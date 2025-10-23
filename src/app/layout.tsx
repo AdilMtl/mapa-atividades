@@ -30,11 +30,10 @@ export default function RootLayout({ children }: LayoutProps) {
       setUser(session?.user || null)
       setLoading(false)
 
-      // Redirecionar não autenticados (exceto página auth)
       // Redirecionar não autenticados (exceto landing e auth)
-if (!session?.user && pathname !== '/auth' && pathname !== '/' && pathname !== '/pre-diagnostico') {
-  router.push('/')
-}
+      if (!session?.user && pathname !== '/auth' && pathname !== '/' && pathname !== '/pre-diagnostico') {
+        router.push('/')
+      }
     }
     checkAuth()
 
@@ -43,8 +42,8 @@ if (!session?.user && pathname !== '/auth' && pathname !== '/' && pathname !== '
       (event, session) => {
         setUser(session?.user || null)
         if (!session?.user && pathname !== '/auth' && pathname !== '/' && pathname !== '/pre-diagnostico') {
-  router.push('/')
-}
+          router.push('/')
+        }
       }
     )
 
@@ -52,9 +51,9 @@ if (!session?.user && pathname !== '/auth' && pathname !== '/' && pathname !== '
   }, [pathname, router])
 
   const logout = async () => {
-  await supabase.auth.signOut()
-  router.push('/')  // ← VAI PARA LANDING
-}
+    await supabase.auth.signOut()
+    router.push('/')
+  }
 
   // Páginas que não mostram o menu
   const authPages = ['/auth', '/', '/pre-diagnostico']
@@ -90,8 +89,26 @@ if (!session?.user && pathname !== '/auth' && pathname !== '/' && pathname !== '
   return (
     <html lang="pt-BR">
       <head>
-        <title>Mapa de Atividades</title>
-        <meta name="description" content="Sistema de gestão de atividades pessoais" />
+        <title>+Conversas no Corredor</title>
+        <meta name="description" content="Mapeie, diagnostique e otimize seu foco profissional" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+        
+        {/* PWA Meta Tags */}
+        <meta name="application-name" content="+Conversas no Corredor" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+        <meta name="apple-mobile-web-app-title" content="+ConverSaaS" />
+        <meta name="format-detection" content="telephone=no" />
+        <meta name="mobile-web-app-capable" content="yes" />
+        <meta name="theme-color" content="#d97706" />
+        
+        {/* Favicon e Ícones */}
+        {/* PWA Manifest e Ícones */}
+<link rel="manifest" href="/pwa/manifest.json" />
+<link rel="apple-touch-icon" href="/pwa/icons/apple-touch-icon.png" />
+<link rel="icon" type="image/png" sizes="192x192" href="/pwa/icons/icon-192.png" />
+<link rel="icon" type="image/png" sizes="512x512" href="/pwa/icons/icon-512.png" />
+        
         <style>{`
           :root { 
             --bg: ${BG}; 
@@ -112,7 +129,7 @@ if (!session?.user && pathname !== '/auth' && pathname !== '/' && pathname !== '
         `}</style>
       </head>
       <body>
-{/* Google Analytics */}
+        {/* Google Analytics */}
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=G-0HX5BX2XL7"
           strategy="afterInteractive"
@@ -136,7 +153,7 @@ if (!session?.user && pathname !== '/auth' && pathname !== '/' && pathname !== '
                   {/* Logo/Header */}
                   <div className="p-6 border-b border-white/10">
                     <h1 className="text-xl font-bold font-mono accent">
-                      Mapa de Atividades
+                      +Conversas no Corredor
                     </h1>
                     <p className="text-xs opacity-70 mt-1">
                       {user?.email}
@@ -188,7 +205,7 @@ if (!session?.user && pathname !== '/auth' && pathname !== '/' && pathname !== '
                       {/* Header with close */}
                       <div className="p-4 border-b border-white/10 flex items-center justify-between">
                         <h1 className="text-lg font-bold font-mono accent">
-                          Mapa de Atividades
+                          +Conversas no Corredor
                         </h1>
                         <Button 
                           variant="ghost" 
@@ -250,7 +267,7 @@ if (!session?.user && pathname !== '/auth' && pathname !== '/' && pathname !== '
                   >
                     <Menu className="h-5 w-5" />
                   </Button>
-                  <h1 className="font-bold accent">Mapa de Atividades</h1>
+                  <h1 className="font-bold accent">+Conversas no Corredor</h1>
                   <div className="w-10" /> {/* Spacer */}
                 </header>
 
