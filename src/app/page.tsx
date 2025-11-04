@@ -184,41 +184,45 @@ export default function LandingPage() {
 {(() => {
   const [deferredPrompt, setDeferredPrompt] = React.useState<any>(null);
   const [showPWABanner, setShowPWABanner] = React.useState(false);
+  const [showPWAByScroll, setShowPWAByScroll] = React.useState(false); 
+
+  // ✅ NOVO: Controle de scroll independente para PWA
+  React.useEffect(() => {
+    const handlePWAScroll = () => setShowPWAByScroll(window.scrollY > 200); 
+    window.addEventListener('scroll', handlePWAScroll);
+    return () => window.removeEventListener('scroll', handlePWAScroll);
+  }, []);
 
   React.useEffect(() => {
-    // Verifica se já está instalado
     if (typeof window !== 'undefined' && window.matchMedia('(display-mode: standalone)').matches) {
       return;
     }
 
-    // Verifica localStorage
-/*
     const dismissed = localStorage.getItem('pwa-install-dismissed');
     if (dismissed) {
       const dismissedDate = new Date(dismissed);
-      const daysSince = (Date.now() - dismissedDate.getTime()) / (1000 * 60 * 60 * 24);
-      if (daysSince < 7) return;
+      const hoursSince = (Date.now() - dismissedDate.getTime()) / (1000 * 60 * 60);
+    if (hoursSince < 1) return;
     }
-*/
-    // Captura evento beforeinstallprompt
+
     const handler = (e: any) => {
       e.preventDefault();
       setDeferredPrompt(e);
-      setShowPWABanner(true); // ✅ CORRIGIDO: sempre true quando captura
+      setShowPWABanner(true);
     };
 
     window.addEventListener('beforeinstallprompt', handler);
     return () => window.removeEventListener('beforeinstallprompt', handler);
-  }, []); // ✅ CORRIGIDO: sem dependências
+  }, []);
 
-  // ✅ NOVO: Sincroniza visibilidade com sticky bar
+  // ✅ MODIFICADO: Sincroniza com showPWAByScroll ao invés de showStickyBar
   React.useEffect(() => {
-    if (deferredPrompt && showStickyBar) {
+    if (deferredPrompt && showPWAByScroll) {
       setShowPWABanner(true);
-    } else if (!showStickyBar) {
+    } else if (!showPWAByScroll) {
       setShowPWABanner(false);
     }
-  }, [showStickyBar, deferredPrompt]);
+  }, [showPWAByScroll, deferredPrompt]); // ✅ Mudou de showStickyBar para showPWAByScroll
 
   const handleInstall = async () => {
     if (!deferredPrompt) return;
@@ -233,7 +237,8 @@ export default function LandingPage() {
     setShowPWABanner(false);
   };
 
-  return showPWABanner && deferredPrompt && showStickyBar ? ( // ✅ CORRIGIDO: 3 condições
+  // ✅ MODIFICADO: Renderiza quando showPWAByScroll (não depende de showStickyBar)
+  return showPWABanner && deferredPrompt && showPWAByScroll ? (
     <div className="lg:hidden fixed bottom-20 left-0 right-0 z-40 p-4">
       <div className="glass rounded-xl p-4 border border-accent/30 backdrop-blur-md">
         <div className="flex items-start justify-between gap-3">
