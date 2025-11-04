@@ -8,7 +8,7 @@ import {
   Coffee, Map, MessageCircle, ArrowRight, Mail, ExternalLink, BookOpen, Users,
   Compass, Target, CheckCircle2, ChevronDown, BarChart3, Clock, Brain, TrendingUp,
   Zap, Eye, Settings, Play, Sparkles, Lightbulb, ChartBar, Layout, Phone,
-  DollarSign, Award, Star, User, X
+  DollarSign, Award, Star, User, X, Download
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { DESIGN_TOKENS, cn } from '@/lib/design-system';
@@ -179,6 +179,96 @@ export default function LandingPage() {
     </div>
   </div>
 </nav>
+
+{/* PWA Install Banner - Aparece acima do sticky newsletter */}
+{(() => {
+  const [deferredPrompt, setDeferredPrompt] = React.useState<any>(null);
+  const [showPWABanner, setShowPWABanner] = React.useState(false);
+
+  React.useEffect(() => {
+    // Verifica se já está instalado
+    if (typeof window !== 'undefined' && window.matchMedia('(display-mode: standalone)').matches) {
+      return;
+    }
+
+    // Verifica localStorage
+    const dismissed = localStorage.getItem('pwa-install-dismissed');
+    if (dismissed) {
+      const dismissedDate = new Date(dismissed);
+      const daysSince = (Date.now() - dismissedDate.getTime()) / (1000 * 60 * 60 * 24);
+      if (daysSince < 7) return;
+    }
+
+    // Captura evento
+    const handler = (e: any) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+      setShowPWABanner(showStickyBar); // Sincroniza com o sticky bar
+    };
+
+    window.addEventListener('beforeinstallprompt', handler);
+    return () => window.removeEventListener('beforeinstallprompt', handler);
+  }, [showStickyBar]);
+
+  const handleInstall = async () => {
+    if (!deferredPrompt) return;
+    deferredPrompt.prompt();
+    const { outcome } = await deferredPrompt.userChoice;
+    setDeferredPrompt(null);
+    setShowPWABanner(false);
+  };
+
+  const handleDismiss = () => {
+    localStorage.setItem('pwa-install-dismissed', new Date().toISOString());
+    setShowPWABanner(false);
+  };
+
+  return showPWABanner && deferredPrompt ? (
+    <div className="lg:hidden fixed bottom-20 left-0 right-0 z-40 p-4">
+      <div className="glass rounded-xl p-4 border border-accent/30 backdrop-blur-md">
+        <div className="flex items-start justify-between gap-3">
+          <div className="flex items-center gap-3 flex-1">
+            <div className="w-10 h-10 bg-accent/20 rounded-lg flex items-center justify-center flex-shrink-0">
+              <Download className="w-5 h-5 text-accent" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-semibold text-white leading-tight mb-1">
+                📱 Instalar +ConverSaaS
+              </p>
+              <p className="text-xs text-white/70 leading-tight">
+                Instalar cria um atalho na sua tela inicial.
+              </p>
+            </div>
+          </div>
+          <button
+            onClick={handleDismiss}
+            className="text-white/60 hover:text-white/90 transition-colors flex-shrink-0"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+        <div className="mt-3 flex gap-2">
+          <Button
+            onClick={handleInstall}
+            size="sm"
+            className="flex-1 bg-gradient-to-r from-accent to-orange-500 hover:from-orange-500 hover:to-accent"
+          >
+            Instalar Agora
+          </Button>
+          <Button
+            onClick={handleDismiss}
+            size="sm"
+            variant="ghost"
+            className="text-white/70 hover:text-white hover:bg-white/10"
+          >
+            Agora não
+          </Button>
+        </div>
+      </div>
+    </div>
+  ) : null;
+})()}
+
 
       {/* Sticky Bottom Bar - Mobile Only */}
 {showStickyBar && (
