@@ -39,7 +39,7 @@ export default function LandingPage() {
       title: '2. Diagnóstico automático',
       subtitle: 'Descubra onde precisa investir seu tempo',
       description: 'Análise inteligente do seu padrão de foco com insights personalizados. Entenda onde você perde tempo e receba um relatório detalhado sobre seu perfil de produtividade atual.',
-      highlight: '🔍 Análise instantânea com recomendações específicas para cada perfil',
+      highlight: '🔍 Descubra em 2min por que você vive apagando incêndio',
       hasButton: true
     },
     {
@@ -54,7 +54,7 @@ export default function LandingPage() {
       title: '4. Conquiste seus objetivos!',
       subtitle: 'Transforme atividades em projetos organizados',
       description: 'Gerencie seus projetos pessoais como um expert! Crie táticas para melhorar o tempo investido, a clareza e o impacto de suas atividades. Combinado com o sistema Kanban de drag & drop para acompanhar progresso semanalmente. Separe tarefas pontuais de hábitos recorrentes.',
-      highlight: '📋 Inspirado em metodologias ágeis e gestão de OKRs '
+      highlight: '📋 Um Verdadeiro Software Profissional para gestão pessoal inspirado em metodologias ágeis e gestão de OKRs '
     }
   ];
 
@@ -189,7 +189,7 @@ export default function LandingPage() {
         className="w-full bg-gradient-to-r from-orange-600 to-orange-500 hover:from-orange-500 hover:to-orange-400 hover:shadow-lg hover:shadow-orange-500/40 transition-all duration-300"
       >
         <Mail className="w-5 h-5 mr-2" />
-        Participar do Ecossistema
+        Comece Agora!
         <ArrowRight className="w-4 h-4 ml-2" />
       </Button>
     </a>
@@ -210,7 +210,7 @@ export default function LandingPage() {
 <div className="lg:hidden mb-12 space-y-6">
   {/* Branding */}
   <div className="text-center">
-    <h1 className="text-3xl font-bold font-mono mb-2">
+    <h1 className="text-4xl font-bold font-mono mb-2">
       <span className="accent"> Trabalhe menos, Conquiste mais </span>
     </h1>
   </div>
@@ -218,17 +218,16 @@ export default function LandingPage() {
   <div className="glass rounded-xl p-6 space-y-5 text-center">
     {/* Proposta */}
     <div className="space-y-3">
-      <p className="text-lg sm:text-xl font-semibold text-white leading-snug">
-        O ecossistema virtual para quem precisa de foco e método
+      <p className="text-2xl sm:text-xl font-semibold text-white leading-snug">
+        O ecossistema virtual que combina ação e reflexão
       </p>
-      <p className="text-sm sm:text-base text-white/70 italic leading-relaxed">
-        "Eu não tenho tempo nem pra me organizar!"
-      </p>
+      <p className="text-2x1 sm:text-base text-white/70 italic leading-relaxed">
+        Aplicativo + Newsletter       </p>
     </div>
 
     {/* Benefício */}
     <p className="text-md text-white/80 leading-relaxed border-t border-white/20 pt-4">
-      Aprenda a pensar estrategicamente enquanto organiza sua rotina
+      Seja mais produtivo hoje, amanhã e sempre! Ser mais estratégico com seu tempo nunca foi tão fácil.
     </p>
 
     {/* CTA Principal */}
@@ -245,7 +244,7 @@ export default function LandingPage() {
     
 
     <p className="text-xs text-white/60 leading-relaxed">
-      Newsletter Semanal + Plataforma Virtual
+      Assine gratis ou conheça os planos pelo computador
     </p>
 
 {/* 🆕 BOTÃO JÁ SOU ASSINANTE - ESTILO DESKTOP */}
@@ -285,7 +284,7 @@ export default function LandingPage() {
           <ArrowRight className="w-5 h-5 text-blue-400 flex-shrink-0" />
         </div>
         <p className="text-xs text-white/70 leading-relaxed">
-          Descubra onde você perde tempo e receba ações personalizadas na hora
+          Descubra por que você vive apagando incêndio e não tem tempo para nada!
         </p>
       </div>
     </Link>
@@ -360,9 +359,9 @@ export default function LandingPage() {
               <div className="flex flex-col items-center text-center">
                 <img src="https://substackcdn.com/image/fetch/w_64,h_64,c_fill,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2Ff89e806a-e40a-4b77-baf9-969b8575ead1_2160x2160.jpeg" 
                      alt="Adilson Matioli" className="w-20 h-20 rounded-full mb-3" />
-                <p className="text-lg font-semibold text-accent mb-1">"Sou o gestor que você gostaria de ter tido"</p>
+                <p className="text-lg font-semibold text-accent mb-1">"Vou te ajudar como o gestor que você queria ter"</p>
                 <h3 className="text-base font-semibold text-white">Adilson Matioli</h3>
-                <p className="text-sm text-white/70">Estratégia • Vendas • Marketing • CX</p>
+                <p className="text-xs text-white/70">Estratégia • Vendas • Marketing • CX</p>
               </div>
 
               <div className="space-y-2 text-sm">
@@ -372,7 +371,11 @@ export default function LandingPage() {
                 </div>
                 <div className="flex items-center gap-2">
                   <CheckCircle2 className="w-4 h-4 text-green-500 flex-shrink-0" />
-                  <span className="text-white/80">Transformei método em um ecossistema prático para quem quer crescer</span>
+                  <span className="text-white/80">Transformei método em um aplicativo prático para quem quer ganhar tempo com estratégia</span>
+                </div>
+<div className="flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-green-500 flex-shrink-0" />
+                  <span className="text-white/80">Quer mais detalhes? Veja os videos a seguir e desbloqueie seu potencial!</span>
                 </div>
               </div>
 
@@ -383,44 +386,7 @@ export default function LandingPage() {
             </div>
           </section>
 
-          {/* 3 CARDS DE BENEFÍCIO - MOBILE ONLY */}
-          <section className="lg:hidden mb-12 space-y-4">
-            <div className="glass rounded-lg p-5 space-y-3">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-green-500/20 rounded-lg flex items-center justify-center">
-                  <Target className="w-5 h-5 text-green-400" />
-                </div>
-                <h3 className="text-base font-semibold">Elimine distrações</h3>
-              </div>
-              <p className="text-sm text-white/80 leading-relaxed">
-                Identifique tarefas de baixo impacto e elimine sem culpa. Foque no que importa!
-              </p>
-            </div>
-
-            <div className="glass rounded-lg p-5 space-y-3">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-blue-500/20 rounded-lg flex items-center justify-center">
-                  <Zap className="w-5 h-5 text-blue-400" />
-                </div>
-                <h3 className="text-base font-semibold">Priorização estratégica</h3>
-              </div>
-              <p className="text-sm text-white/80 leading-relaxed">
-                Defina suas prioridades antes que alguém defina por você. Pare de apagar incêndios.
-              </p>
-            </div>
-
-            <div className="glass rounded-lg p-5 space-y-3">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-amber-500/20 rounded-lg flex items-center justify-center">
-                  <Clock className="w-5 h-5 text-amber-400" />
-                </div>
-                <h3 className="text-base font-semibold">Menos ansiedade</h3>
-              </div>
-              <p className="text-sm text-white/80 leading-relaxed">
-                Quem está sempre ocupado provavelmente está desorganizado. Ganhe equilíbrio real.
-              </p>
-            </div>
-          </section>
+          
 
           {/* Seção ROI do Foco - Desktop */}
           <section className="hidden lg:block mb-12 lg:mb-16">
@@ -627,17 +593,23 @@ export default function LandingPage() {
     </div>
     
     <div className="space-y-3 mb-6">
+
+
       <div className="flex items-start gap-2">
         <CheckCircle2 className="w-5 h-5 text-green-400 mt-0.5 flex-shrink-0" />
-        <span className="text-sm text-white/90">Newsletter gratuita + exclusiva</span>
+        <span className="text-sm text-white/90">Artigos e Cursos Exclusivos</span>
       </div>
       <div className="flex items-start gap-2">
         <CheckCircle2 className="w-5 h-5 text-green-400 mt-0.5 flex-shrink-0" />
-        <span className="text-sm text-white/90">Acesso completo à plataforma</span>
+        <span className="text-sm text-white/90">Acesso completo ao Aplicativo</span>
       </div>
       <div className="flex items-start gap-2">
         <CheckCircle2 className="w-5 h-5 text-green-400 mt-0.5 flex-shrink-0" />
-        <span className="text-sm text-white/90">Todas funcionalidades atuais + futuras</span>
+        <span className="text-sm text-white/90">Todo conteúdo pago publicado</span>
+      </div>
+<div className="flex items-start gap-2">
+        <CheckCircle2 className="w-5 h-5 text-green-400 mt-0.5 flex-shrink-0" />
+        <span className="text-sm text-white/90">PARA ASSINAR: acesse via computador ou pela visão desktop no navegador do celular</span>
       </div>
     </div>
     
@@ -730,7 +702,7 @@ export default function LandingPage() {
     size="lg" 
     className="w-full bg-gradient-to-r from-orange-600 to-orange-500 hover:from-orange-500 hover:to-orange-400 text-white font-semibold text-base py-4 hover:shadow-lg hover:shadow-orange-500/40 hover:scale-105 transition-all duration-300"
   >
-    Participar do Ecossistema
+    Acesse o Ecossistema
     <ArrowRight className="w-4 h-4 ml-2" />
   </Button>
 </a>
@@ -744,6 +716,45 @@ export default function LandingPage() {
                   </div>
                 </div>
               </div>
+            </div>
+          </section>
+
+{/* 3 CARDS DE BENEFÍCIO - MOBILE ONLY */}
+          <section className="lg:hidden mb-12 space-y-4">
+            <div className="glass rounded-lg p-5 space-y-3">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-green-500/20 rounded-lg flex items-center justify-center">
+                  <Target className="w-5 h-5 text-green-400" />
+                </div>
+                <h3 className="text-base font-semibold">Elimine distrações</h3>
+              </div>
+              <p className="text-sm text-white/80 leading-relaxed">
+                Identifique tarefas de baixo impacto e elimine sem culpa. Foque no que importa!
+              </p>
+            </div>
+
+            <div className="glass rounded-lg p-5 space-y-3">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-blue-500/20 rounded-lg flex items-center justify-center">
+                  <Zap className="w-5 h-5 text-blue-400" />
+                </div>
+                <h3 className="text-base font-semibold">Priorização estratégica</h3>
+              </div>
+              <p className="text-sm text-white/80 leading-relaxed">
+                Defina suas prioridades antes que alguém defina por você. Pare de apagar incêndios.
+              </p>
+            </div>
+
+            <div className="glass rounded-lg p-5 space-y-3">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-amber-500/20 rounded-lg flex items-center justify-center">
+                  <Clock className="w-5 h-5 text-amber-400" />
+                </div>
+                <h3 className="text-base font-semibold">Menos ansiedade</h3>
+              </div>
+              <p className="text-sm text-white/80 leading-relaxed">
+                Quem está sempre ocupado provavelmente está desorganizado. Ganhe equilíbrio real.
+              </p>
             </div>
           </section>
 
