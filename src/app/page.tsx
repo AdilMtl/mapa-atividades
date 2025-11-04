@@ -199,16 +199,25 @@ export default function LandingPage() {
       if (daysSince < 7) return;
     }
 
-    // Captura evento
+    // Captura evento beforeinstallprompt
     const handler = (e: any) => {
       e.preventDefault();
       setDeferredPrompt(e);
-      setShowPWABanner(showStickyBar); // Sincroniza com o sticky bar
+      setShowPWABanner(true); // ✅ CORRIGIDO: sempre true quando captura
     };
 
     window.addEventListener('beforeinstallprompt', handler);
     return () => window.removeEventListener('beforeinstallprompt', handler);
-  }, [showStickyBar]);
+  }, []); // ✅ CORRIGIDO: sem dependências
+
+  // ✅ NOVO: Sincroniza visibilidade com sticky bar
+  React.useEffect(() => {
+    if (deferredPrompt && showStickyBar) {
+      setShowPWABanner(true);
+    } else if (!showStickyBar) {
+      setShowPWABanner(false);
+    }
+  }, [showStickyBar, deferredPrompt]);
 
   const handleInstall = async () => {
     if (!deferredPrompt) return;
@@ -223,7 +232,7 @@ export default function LandingPage() {
     setShowPWABanner(false);
   };
 
-  return showPWABanner && deferredPrompt ? (
+  return showPWABanner && deferredPrompt && showStickyBar ? ( // ✅ CORRIGIDO: 3 condições
     <div className="lg:hidden fixed bottom-20 left-0 right-0 z-40 p-4">
       <div className="glass rounded-xl p-4 border border-accent/30 backdrop-blur-md">
         <div className="flex items-start justify-between gap-3">
@@ -268,7 +277,6 @@ export default function LandingPage() {
     </div>
   ) : null;
 })()}
-
 
       {/* Sticky Bottom Bar - Mobile Only */}
 {showStickyBar && (
