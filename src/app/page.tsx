@@ -192,13 +192,14 @@ export default function LandingPage() {
     }
 
     // Verifica localStorage
+/*
     const dismissed = localStorage.getItem('pwa-install-dismissed');
     if (dismissed) {
       const dismissedDate = new Date(dismissed);
       const daysSince = (Date.now() - dismissedDate.getTime()) / (1000 * 60 * 60 * 24);
       if (daysSince < 7) return;
     }
-
+*/
     // Captura evento beforeinstallprompt
     const handler = (e: any) => {
       e.preventDefault();
