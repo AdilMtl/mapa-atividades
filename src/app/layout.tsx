@@ -89,6 +89,10 @@ export default function RootLayout({ children }: LayoutProps) {
   return (
     <html lang="pt-BR">
       <head>
+
+
+
+
         <title>+Conversas no Corredor</title>
         <meta name="description" content="Mapeie, diagnostique e otimize seu foco profissional" />
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
@@ -129,20 +133,21 @@ export default function RootLayout({ children }: LayoutProps) {
         `}</style>
       </head>
       <body>
-        {/* Google Analytics */}
+
+        {/* Google Analytics + Google Ads*/}
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=G-0HX5BX2XL7"
           strategy="afterInteractive"
         />
         <Script id="google-analytics" strategy="afterInteractive">
-          {`
-            window.dataLayer = window.dataLayer || [];
-            function gtag(){dataLayer.push(arguments);}
-            gtag('js', new Date());
-            gtag('config', 'G-0HX5BX2XL7');
-            gtag('config', 'AW-16601345592');
-          `}
-        </Script>
+  {`
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-0HX5BX2XL7');
+    gtag('config', 'AW-16601345592');
+  `}
+</Script>
 
         <div className="min-h-screen">
           {showNavigation ? (
