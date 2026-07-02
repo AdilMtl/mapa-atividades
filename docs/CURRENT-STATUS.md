@@ -1,4 +1,35 @@
-## 🎯 SESSÃO ATUAL: PWA Implementado - App Instalável
+## 🎯 SESSÃO ATUAL: Modernização Fase 1+2 — Diagnóstico + Faxina do Cemitério
+**Data:** 02 de julho de 2026
+**Versão:** v3.5.1
+**Status:** ✅ Commitado localmente (aguardando push)
+**Duração:** ~1 hora
+
+### **🚀 ENTREGAS:**
+
+#### ✅ **FASE 1 — DIAGNÓSTICO (medir, não mexer)**
+- Relatório completo em `docs/diagnostico-fase1-debito-tecnico.md`
+- `npm run lint`: 204 erros + 223 warnings em 46 arquivos
+- `npx tsc --noEmit`: 57 erros de tipo em 23 arquivos
+- `npm run build`: compila limpo (confirma que o build esconde os erros acima)
+- `npm audit`: 23 vulnerabilidades (1 crítica — `jspdf`, direta)
+- 2 achados de risco investigados a fundo: hooks chamados dentro de callback em
+  `src/app/page.tsx` (não quebra hoje, mas é frágil) e exposição real baixa do `jspdf`
+  crítico (a API vulnerável não é usada no código atual)
+
+#### ✅ **FASE 2 — FAXINA DO CEMITÉRIO (cirúrgica)**
+- 25 arquivos legados removidos (backups/versões antigas + `mapa-atividades-modular.tsx`
+  da raiz + `next.config.ts` morto) — todos confirmados sem import antes de apagar
+- Build validado idêntico antes/depois — zero mudança de comportamento
+- Débito técnico medido caiu: tsc 57→37 erros, lint 204→92 erros / 223→123 warnings
+- Detalhes completos: `docs/CHANGELOG.md` v3.5.1
+
+### **🎯 PRÓXIMOS PASSOS:**
+- Fase 3 do roadmap: correções por severidade (ver punch list no relatório da Fase 1)
+- Push do commit local para `origin/main` (pendente confirmação do usuário)
+
+---
+
+## 🎯 SESSÃO Anterior: PWA Implementado - App Instalável
 **Data:** 23 de Outubro de 2025  
 **Versão:** v3.5.0  
 **Status:** ✅ Em produção  

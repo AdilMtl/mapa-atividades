@@ -16,6 +16,40 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [v3.5.1] - 2026-07-02 - 🧹 Faxina Fase 2 — Remoção do Cemitério de Backups
+
+### 🗑️ Removido
+- **25 arquivos legados** sem nenhuma referência/import ativo no código, confirmados um a um
+  antes da remoção (busca de imports em todo `src/` e na raiz):
+  - 22 arquivos de backup/versão antiga em `src/` (`*-backup*`, `*-original*`,
+    `page - backup*`, `globals-backup.css`, `heuristica-engine.*.backup.ts`, etc.)
+  - `src/components/mapa-atividades.tsx` e `src/components/mapa-atividades-original.tsx`
+    (achados extras na mesma varredura, confirmados sem uso)
+  - `mapa-atividades-modular.tsx` (raiz do projeto — cópia órfã fora de `src/app`, nunca
+    importada; **não confundir** com `src/components/mapa-atividades-modular.tsx`, que é o
+    componente ativo renderizado por `/dashboard` e foi mantido)
+  - `next.config.ts` (config morto e vazio — `next.config.js` é o único usado, com PWA)
+
+### ✅ Validado
+- `npm run build` — build idêntico antes/depois (mesmas 24 rotas, mesmo tamanho de bundle,
+  zero mudança de comportamento)
+- `npx tsc --noEmit` — erros de tipo caíram de 57 para 37 (todos os 20 que sumiram eram só
+  nos arquivos removidos)
+- `npm run lint` — erros caíram de 204 para 92 (−55%), warnings de 223 para 123 (−45%),
+  arquivos afetados de 46 para 25
+
+### 📖 Documentação
+- `docs/diagnostico-fase1-debito-tecnico.md` — relatório completo da Fase 1 (medição prévia
+  a esta limpeza), incluindo achados de risco investigados (hooks em callback no `page.tsx`,
+  exposição real do `jspdf` crítico, alerta sobre `npm audit fix` querer rebaixar o `next-pwa`)
+- `docs/ROADMAP-MODERNIZACAO.md` — Fase 1 marcada concluída, Fase 2 concluída
+
+### 🔒 Reversibilidade
+- Toda a remoção está isolada neste único commit — reverter com
+  `git revert <hash-deste-commit>` caso algo inesperado apareça em produção
+
+---
+
 ## [v3.5.0] - 2025-10-23 - 📱 PWA Completo + Rebranding
 
 ### ✅ Adicionado
