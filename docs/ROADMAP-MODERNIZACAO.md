@@ -40,10 +40,19 @@ em 2026-07-01. Objetivos gerais do dono: (1) otimizar, (2) skills + CLAUDE.md �
 
 ## ⬜ Fase 3 — Correções por severidade
 **Status:** pendente
+
+> ⚠️ **Interrupção registrada:** entre a Fase 2 e o início da Fase 3, um incidente de produção
+> (Supabase pausado por >90 dias) exigiu migração completa de banco de dados. Resolvido e
+> documentado em `docs/CHANGELOG.md` v3.5.2. Não muda o escopo desta fase, só o timing.
+
 - Priorizar: **segurança/RLS** → erros que quebram comportamento → erros de tipo → lint cosmético
 - **Decisão do dono:** reativar validação no build (remover `ignoreBuildErrors`/`ignoreDuringBuilds`
   do `next.config.js`) de uma vez, OU corrigir incrementalmente mantendo o flag por ora
 - Revisar RLS/views (`security_invoker`) e bugs conhecidos do Supabase
+- Corrigir o anti-padrão de hooks dentro de callback em `src/app/page.tsx` (achado na Fase 1,
+  risco de crash futuro caso o trecho seja movido/condicionado)
+- Avaliar upgrade do `jspdf` (3.0.4 → 4.2.1, direto, CVE crítica — exposição real hoje é baixa,
+  ver relatório) e do `next` (15.5.12 → 15.5.13+, patch simples)
 
 ## ⬜ Fase 4 — Otimização + features + Claude/Codex
 **Status:** pendente

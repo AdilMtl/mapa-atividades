@@ -16,6 +16,70 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [v3.5.2] - 2026-07-04 - 🚨 Incidente: Banco de Produção Pausado + Migração de Projeto Supabase
+
+### 🔥 Incidente
+- **Sintoma:** ao testar o app localmente (`npm run start`) após a faxina da Fase 2, `/dashboard`
+  falhou com "Failed to fetch". Investigação revelou que o projeto Supabase de produção
+  (`ghscflemhgrbfflmxqbk`, ref confirmado batendo com `.env.local`) estava **pausado há mais de
+  90 dias** pela política de inatividade do plano Free — passado esse prazo, o Supabase não
+  permite mais reativação com um clique, só restauração de backup para um projeto novo.
+- **Impacto real:** login, `/dashboard`, `/diagnostico`, `/plano-acao`, `/painel-semanal`,
+  `/admin/assinantes` fora do ar. Mais crítico: `/api/prediag/lead` (captura de lead do
+  `/pre-diagnostico`) retornava 500 e nunca disparava a conversão do Google Ads — com campanhas
+  ativas, todo clique pago no funil estava sendo perdido sem conversão.
+- **Causa raiz:** projeto Free tier sem atividade suficiente pra evitar a pausa automática;
+  janela de restauração de 1 clique (90 dias) já havia expirado.
+
+### ✅ Resolvido — Migração completa para novo projeto Supabase
+- Criada nova conta + organização Supabase (limite de 2 projetos grátis é por usuário, não por
+  organização) e novo projeto **"+ConverSaaS 2.0"** (ref `cuojmyqkezmpryeuyvqd`, região
+  `sa-east-1`)
+- Backup completo (`pg_dumpall`) baixado do projeto pausado e restaurado via `psql` (Session
+  pooler) no projeto novo
+- **Validação pós-restore** (não apenas "rodou sem erro fatal" — checado item a item):
+  - 9 tabelas `public.*` + dados presentes (leads, sessões, usuários, táticas)
+  - RLS ativo **com políticas reais** conferidas (não só a flag `relrowsecurity`)
+  - Trigger `on_auth_user_created` → `handle_new_user()` intacta e ativa (`tgenabled = 'O'`)
+  - Função `admin_list_users()` presente
+  - 8 views `vw_*` com `security_invoker = true` — **encontrada e corrigida uma view extra**
+    (`vw_emails_autorizados_status`, não documentada no CLAUDE.md) que não tinha essa proteção
+    aplicada desde sua criação
+  - `auth.users` com as 11 contas restauradas
+  - ~489 linhas de erro no log do restore, todas em schemas internos `auth`/`storage` já geridos
+    pelo próprio Supabase — inofensivas e esperadas nesse tipo de restore manual
+- `.env.local` atualizado + as 3 variáveis correspondentes trocadas em **Vercel → Production**
+  (`NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`) e
+  redeploy manual disparado
+- Testado em produção: site voltou ao ar, fluxo de `/pre-diagnostico` funcionando
+
+### ⚠️ Pendências conhecidas (não bloqueiam, mas ficaram registradas)
+- **Email do pré-diagnóstico não chegou no teste em produção** — `EMAIL_FROM_ADDRESS` ainda
+  aponta pro sandbox padrão do Resend (`onboarding@resend.dev`), mesma limitação já documentada
+  em v3.3.1 (só envia pra emails autorizados manualmente). Não é regressão deste incidente — é
+  configuração pendente de antes. A captura do lead e a conversão do Google Ads **não dependem**
+  do envio de email (código já isola essa falha em try/catch separado), então o funil crítico
+  está protegido independente desse ponto.
+- **Projeto Supabase antigo (pausado) mantido intencionalmente** — não foi apagado, serve de
+  rede de segurança até confirmarmos alguns dias de estabilidade no projeto novo.
+- **Considerar plano pago no projeto novo** — a causa raiz foi justamente ficar no Free tier;
+  sem upgrade, o mesmo tipo de pausa pode se repetir enquanto há investimento ativo em Ads.
+- Arquivos de backup (`.gz`/`.backup`, com dados reais de usuário) ficaram salvos em
+  `C:\Users\adils\Downloads\` — fora do repositório git, mas vale lembrar que existem.
+
+### 💡 Lição aprendida
+- Backups de "cluster completo" via download manual do dashboard **não capturam objetos
+  customizados em schemas gerenciados** de forma consistente (a trigger `handle_new_user`
+  sobreviveu, mas a suposição inicial de que teria sumido quase levou a uma recriação manual
+  desnecessária — o diagnóstico correto exigiu checar o nome real da trigger, não o nome da
+  função). Sempre validar por objeto (tabelas, RLS, triggers, views, funções) após um restore,
+  nunca assumir com base só no código de saída do `psql`.
+- Limite de projetos gratuitos do Supabase é por conta/usuário, não por organização —
+  informação que só a documentação oficial ou a tentativa real confirmam, não deduções por
+  analogia com outras plataformas.
+
+---
+
 ## [v3.5.1] - 2026-07-02 - 🧹 Faxina Fase 2 — Remoção do Cemitério de Backups
 
 ### 🗑️ Removido

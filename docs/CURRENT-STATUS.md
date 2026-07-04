@@ -1,4 +1,40 @@
-## 🎯 SESSÃO ATUAL: Modernização Fase 1+2 — Diagnóstico + Faxina do Cemitério
+## 🎯 SESSÃO ATUAL: Incidente Crítico — Migração de Banco de Dados Supabase
+**Data:** 04 de julho de 2026
+**Versão:** v3.5.2
+**Status:** ✅ Produção restaurada e validada
+**Duração:** ~3 horas
+
+### **🚨 O QUE ACONTECEU:**
+Ao testar localmente após a faxina da Fase 2, descobrimos que o **banco de produção real**
+(Supabase `ghscflemhgrbfflmxqbk`) estava pausado há mais de 90 dias (limite do plano Free para
+reativação com 1 clique já havia expirado). Com campanhas de Google Ads ativas apontando pro
+`/pre-diagnostico`, isso significava **captura de lead e conversão quebradas silenciosamente**
+para todo tráfego pago durante o período pausado.
+
+### **✅ RESOLVIDO:**
+- Novo projeto Supabase criado ("+ConverSaaS 2.0", ref `cuojmyqkezmpryeuyvqd`) em conta/org nova
+  (limite de 2 projetos grátis é por usuário, não por organização)
+- Backup completo restaurado via `psql` — 9 tabelas, RLS+políticas, trigger `handle_new_user()`,
+  função `admin_list_users()`, e as 8 views `vw_*` (uma delas, não documentada, recebeu o fix de
+  `security_invoker=true` que estava faltando) — tudo validado item a item, não só "rodou sem erro"
+- `.env.local` + variáveis de ambiente do Vercel (Production) atualizadas, redeploy feito
+- Testado e confirmado funcionando em produção
+
+### **⚠️ PENDENTE (não bloqueia, registrado para acompanhamento):**
+- Email do pré-diagnóstico não chegou no teste — suspeita de config antiga do Resend em modo
+  sandbox (`onboarding@resend.dev`), não afeta captura de lead nem conversão do Ads
+- Projeto Supabase antigo (pausado) mantido como rede de segurança, não apagado ainda
+- Considerar migrar o projeto novo pra um plano pago (evita repetir a causa raiz)
+- Arquivos de backup com dados reais salvos em `C:\Users\adils\Downloads\` (fora do git)
+- Detalhes completos: `docs/CHANGELOG.md` v3.5.2
+
+### **🎯 PRÓXIMOS PASSOS:**
+- Fase 3 do roadmap de modernização (correções por severidade — ver `docs/diagnostico-fase1-debito-tecnico.md`)
+- Push dos commits locais pendentes para `origin/main`
+
+---
+
+## 🎯 SESSÃO Anterior: Modernização Fase 1+2 — Diagnóstico + Faxina do Cemitério
 **Data:** 02 de julho de 2026
 **Versão:** v3.5.1
 **Status:** ✅ Commitado localmente (aguardando push)
