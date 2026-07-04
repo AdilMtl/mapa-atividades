@@ -47,7 +47,7 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
 ### 🔒 Segurança — Auditoria de RLS (Supabase)
 Auditoria manual via SQL Editor (RLS ativo, políticas reais, `security_invoker` das views,
-funções `SECURITY DEFINER`) encontrou 2 problemas reais, não só teóricos:
+funções `SECURITY DEFINER`) encontrou 3 problemas reais, não só teóricos:
 
 - **`roi_leads` com política `ALL`/`public`/irrestrita** (`using: true`, `with_check: true`).
   Qualquer request com a chave anon (pública, embutida no bundle do navegador) conseguia
@@ -64,17 +64,29 @@ funções `SECURITY DEFINER`) encontrou 2 problemas reais, não só teóricos:
   padrão já usado em `admin/assinantes/route.ts`. Isso é pré-requisito pro SQL de trava (abaixo)
   não quebrar a captura de lead.
 - **SQL de correção entregue ao dono para execução manual** (sem acesso direto ao Postgres
-  nesta sessão — nem Docker local, nem senha do banco). Duas partes:
-  - Parte A (sem dependência, roda a qualquer momento): remove os INSERTs irrestritos de
-    `usuarios`/`profiles` e consolida políticas duplicadas em `atividades` (3→1) e
-    `taticas` (2→1).
-  - Parte B (**só depois do deploy do código acima estar em produção**): trava `roi_leads` e
+  nesta sessão — nem Docker local, nem senha do banco), em duas partes, **ambas executadas e
+  validadas pelo dono em 2026-07-04**:
+  - Parte A: removeu os INSERTs irrestritos de `usuarios`/`profiles` e consolidou políticas
+    duplicadas em `atividades` (3→1) e `taticas` (2→1). Verificado: 1 política única por tabela.
+  - Parte B (rodada só depois do deploy em produção): travou `roi_leads` e
     `roi_prediag_sessions` (que também tinha SELECT público expondo `ip_address` de todo
-    visitante) para `service_role` only.
-  - **Pendente:** confirmação de que o dono executou o SQL, e definição de duas funções
-    `SECURITY DEFINER` não documentadas (`get_auth_user_by_email`, `rls_auto_enable`) — não
-    usadas por nenhum código do app, ainda não avaliadas.
+    visitante) para `service_role` only. Verificado: ambas as tabelas só com a policy
+    `*_service_role_only`, roles `{service_role}`.
+- **`get_auth_user_by_email()` executável por `PUBLIC`/`anon`/`authenticated`** — função
+  `SECURITY DEFINER` (resquício de uma tentativa antiga de painel admin) que consulta
+  `auth.users` por email e retorna criação/último login/confirmação de email. Sem restrição de
+  quem podia chamar, era um oráculo de enumeração de contas via chave anon. `REVOKE EXECUTE`
+  aplicado para `PUBLIC`/`anon`/`authenticated`, restando só `postgres`/`service_role`. Função
+  mantida (não usada pelo código hoje, mas preservada para uso administrativo futuro).
+- `rls_auto_enable()` (a outra função `SECURITY DEFINER` não documentada) avaliada e confirmada
+  **benigna** — é um *event trigger* que liga RLS automaticamente em toda tabela nova criada em
+  `public`. Explica por que as 9 tabelas já apareciam com RLS ativo na auditoria. Mantida como
+  está, sem necessidade de correção.
 - Views `vw_*` seguem com `security_invoker=true` nas 8 (fix do incidente v3.5.2 se manteve).
+- Commit `f2841e2` e push pra `origin/main`; deploy automático da Vercel confirmado `Ready`, sem
+  erros.
+- **Fluxo `/pre-diagnostico` testado ponta a ponta em produção após a trava de RLS** — captura
+  de lead funcionando normalmente.
 
 ### 🔧 Alterado
 - `next`: 15.5.12 → 15.5.20 (patch, sem breaking change).
@@ -83,8 +95,10 @@ funções `SECURITY DEFINER`) encontrou 2 problemas reais, não só teóricos:
   fica para uma faxina futura, por decisão do dono).
 
 ### ⚠️ Pendências conhecidas
-- Execução do SQL de RLS (Parte A + B) e verificação das 2 funções `SECURITY DEFINER`
-  desconhecidas — ver acima.
+- **Email do pré-diagnóstico só entrega pro email verificado da conta Resend** (sandbox mode,
+  `onboarding@resend.dev`) — o teste desta sessão funcionou por ter sido feito com o próprio
+  email do dono; usuários reais ainda não recebem. Pendência já registrada desde o v3.5.2, não é
+  regressão desta entrega.
 - Upgrade major do `jspdf` (3.0.4 → 4.2.1), decisão sobre `next-pwa`/workbox, e lint cosmético
   ficaram fora de escopo desta entrega, por decisão do dono (Fase 4 ou faxina futura).
 

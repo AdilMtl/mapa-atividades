@@ -1,7 +1,7 @@
 ## 🎯 SESSÃO ATUAL: Fase 3 da Modernização — Correções por Severidade + Auditoria de RLS
 **Data:** 04 de julho de 2026
 **Versão:** v3.5.3
-**Status:** 🟡 Código corrigido e validado — SQL de RLS pendente de execução (ver pendências)
+**Status:** ✅ Concluída — código, deploy, SQL de RLS e permissões de função, todos validados
 **Duração:** ~3 horas
 
 ### **🚀 ENTREGAS (código, já validado com build + tsc limpos):**
@@ -36,19 +36,31 @@
   - Corrigido no código: `src/app/api/prediag/lead/route.ts` e `.../diagnose/route.ts` migrados
     do client anon para um client `service_role` local (mesmo padrão de `admin/assinantes/route.ts`).
   - As 8 views `vw_*` seguem com `security_invoker=true` (fix do incidente v3.5.2 se manteve).
-  - Políticas duplicadas/redundantes em `atividades` (3x) e `taticas` (2x) mapeadas para
-    consolidação.
+  - Políticas duplicadas/redundantes em `atividades` (3x) e `taticas` (2x) consolidadas em 1 cada.
+  - **SQL executado e validado pelo dono** (2026-07-04): Parte A (`usuarios`/`profiles`/
+    `atividades`/`taticas` — verificado 1 política única por tabela) e Parte B, após confirmar o
+    deploy em produção (`roi_leads`/`roi_prediag_sessions` — verificado `{service_role}` only).
+- Commit `f2841e2` e push pra `origin/main` feitos; deploy na Vercel confirmado `Ready`, sem erros.
+- **As 2 funções `SECURITY DEFINER` não documentadas, avaliadas e resolvidas:**
+  - `rls_auto_enable` — confirmado **benigno**: é um *event trigger* que liga RLS automaticamente
+    em qualquer tabela nova criada em `public` (explica por que todas as 9 tabelas já apareciam
+    com RLS ativo). Boa prática, mantido como está.
+  - `get_auth_user_by_email` — resquício de uma tentativa antiga de painel admin (visão de
+    login de usuários) que esbarrou em problemas de RLS na época. Tinha `EXECUTE` liberado pra
+    `PUBLIC`/`anon`/`authenticated` — qualquer request com a chave anon conseguia descobrir se
+    um email estava cadastrado + data de criação/último login (oráculo de enumeração de contas).
+    `REVOKE` aplicado, restando só `postgres`/`service_role`. Função mantida (não usada pelo
+    código hoje, mas pode servir de base pra um painel admin futuro, agora só via service role).
+- **Fluxo `/pre-diagnostico` testado ponta a ponta em produção, depois da trava de RLS** —
+  captura de lead funcionando normalmente, email de recomendações recebido no teste.
 
-### **⚠️ PENDENTE (bloqueia fechar a Fase 3):**
-- **SQL de correção de RLS ainda não executado no banco** (script entregue ao dono, dividido em
-  Parte A — sem dependência, pode rodar a qualquer momento — e Parte B — só depois do deploy do
-  código novo em produção, senão quebra a captura de lead). Ver `docs/CHANGELOG.md` v3.5.3 pro
-  SQL completo.
-- **Duas funções `SECURITY DEFINER` não documentadas** encontradas no banco
-  (`get_auth_user_by_email`, `rls_auto_enable`) — não usadas por nenhum código do app, definição
-  ainda não obtida. Precisa `pg_get_functiondef` pra avaliar se são inofensivas ou risco.
-- Commit/push pendente de confirmação do dono (deploy dispara automático na `main`).
-- Lint cosmético (Fase 3, item de menor prioridade) segue para depois, por decisão do dono.
+### **⚠️ PENDENTE (fora do escopo desta sessão, por decisão do dono):**
+- **Email do pré-diagnóstico só chega pro email verificado da conta Resend** (sandbox mode,
+  `onboarding@resend.dev`) — o teste desta sessão funcionou porque foi feito com o próprio email
+  do dono. Pra outros usuários reais, ainda não entrega. Pendência de configuração já registrada
+  desde o v3.5.2, não é regressão desta sessão.
+- Lint cosmético (menor prioridade).
+- Upgrade major do `jspdf` e decisão sobre `next-pwa`/workbox — Fase 4.
 
 ---
 
