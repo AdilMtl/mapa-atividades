@@ -682,7 +682,7 @@ export function MatrizMobile({ atividades, onEdit, onDelete }: MatrizMobileProps
 
 interface MapaChartProps {
   atividades: Atividade[];
-  exportRef: React.RefObject<HTMLDivElement>;
+  exportRef: React.RefObject<HTMLDivElement | null>;
   onEdit?: (atividade: Atividade) => void; // ✅ NOVO: Callback para edição
 }
 

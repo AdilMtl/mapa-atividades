@@ -133,31 +133,31 @@ export function getZonaInfo(impacto: number, clareza: number) {
   const clarezaAlta = clareza >= THRESHOLD_HIGH;
   
   if (impactoAlto && clarezaAlta) {
-    return { 
-      zona: 'essencial', 
+    return {
+      zona: 'essencial' as ZonaType,
       cor: DESIGN_TOKENS.colors.essencial,
       label: 'Essencial',
       description: 'Alto impacto + Alta clareza'
     };
   }
   if (!impactoAlto && !clarezaAlta) {
-    return { 
-      zona: 'distracao', 
+    return {
+      zona: 'distracao' as ZonaType,
       cor: DESIGN_TOKENS.colors.distracao,
       label: 'Distração',
       description: 'Baixo impacto + Baixa clareza'
     };
   }
   if (!impactoAlto && clarezaAlta) {
-    return { 
-      zona: 'tatica', 
+    return {
+      zona: 'tatica' as ZonaType,
       cor: DESIGN_TOKENS.colors.tatica,
       label: 'Tática',
       description: 'Baixo impacto + Alta clareza'
     };
   }
-  return { 
-    zona: 'estrategica', 
+  return {
+    zona: 'estrategica' as ZonaType,
     cor: DESIGN_TOKENS.colors.estrategica,
     label: 'Estratégica',
     description: 'Alto impacto + Baixa clareza'

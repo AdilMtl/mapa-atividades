@@ -5,9 +5,16 @@
 // POST /api/prediag/lead
 
 import { NextRequest, NextResponse } from 'next/server';
-import { supabase } from '@/lib/supabase';
+import { createClient } from '@supabase/supabase-js';
 import { Resend } from 'resend';
-import { gerarRecomendacoes } from '../recommendations';
+import { gerarRecomendacoes, RecomendacaoEmail } from '../recommendations';
+
+// Client de service_role: esta rota grava em roi_leads/roi_prediag_sessions,
+// que só concedem acesso a service_role (RLS travada para public/anon).
+const supabaseAdmin = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+);
 
 // 🔧 FIX: Remover inicialização global do Resend
 // ❌ ANTES: const resend = new Resend(process.env.RESEND_API_KEY);
@@ -71,7 +78,7 @@ async function salvarLead(
     let painSegment = null;
     
     if (sessionId) {
-      const { data: sessao } = await supabase
+      const { data: sessao } = await supabaseAdmin
         .from('roi_prediag_sessions')
         .select('profile, pain')
         .eq('id', sessionId)
@@ -84,7 +91,7 @@ async function salvarLead(
     }
     
     // 2️⃣ Inserir ou atualizar lead
-    const { data, error } = await supabase
+    const { data, error } = await supabaseAdmin
   .from('roi_leads')
   .upsert({
     name: name.trim(),
@@ -127,7 +134,7 @@ async function registrarEventoLead(sessionId: string, email: string) {
   try {
     if (!sessionId) return;
     
-    await supabase
+    await supabaseAdmin
       .from('roi_events')
       .insert({
         session_id: sessionId,
@@ -163,8 +170,7 @@ export async function POST(request: NextRequest) {
     }
     
     // 3️⃣ Obter metadados
-    const ip = request.ip || 
-               request.headers.get('x-forwarded-for') || 
+    const ip = request.headers.get('x-forwarded-for') ||
                'unknown';
     const userAgent = request.headers.get('user-agent') || 'unknown';
     
@@ -199,11 +205,18 @@ const shouldTriggerConversion = true;
         
         const { gerarTemplateEmail, gerarAssuntoEmail } = await import('../email-template');
         
-        let recomendacoes = [];
-        let sessionData = null;
+        let recomendacoes: RecomendacaoEmail[] = [];
+        let sessionData: {
+          diagnostico?: {
+            essencial: number;
+            estrategica: number;
+            tatica: number;
+            distracao: number;
+          } | null;
+        } | undefined = undefined;
         
         if (sessionId) {
-          const { data: sessao } = await supabase
+          const { data: sessao } = await supabaseAdmin
             .from('roi_prediag_sessions')
             .select('*') //.select('profile, agenda, pain, top_activity, goal, results')
             .eq('id', sessionId)
@@ -276,7 +289,7 @@ const shouldTriggerConversion = true;
 export async function GET(request: NextRequest) {
   try {
     // Estatísticas básicas (sem dados sensíveis)
-    const { data: stats } = await supabase
+    const { data: stats } = await supabaseAdmin
       .from('roi_leads')
       .select('profile_segment, pain_segment, created_at')
       .gte('created_at', new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString()); // Últimos 30 dias

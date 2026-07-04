@@ -5,8 +5,15 @@
 // POST /api/prediag/diagnose
 
 import { NextRequest, NextResponse } from 'next/server';
-import { supabase } from '@/lib/supabase';
+import { createClient } from '@supabase/supabase-js';
 import { processarPreDiagnostico, type PreDiagRespostas } from '@/lib/prediag-heuristics';
+
+// Client de service_role: esta rota grava em roi_prediag_sessions,
+// que só concede acesso a service_role (RLS travada para public/anon).
+const supabaseAdmin = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+);
 
 // ═══════════════════════════════════════════════════════════════════
 // 🛡️ VALIDAÇÃO DE ENTRADA
@@ -53,7 +60,7 @@ async function salvarSessao(
   }
 ) {
   try {
-    const { data, error } = await supabase
+    const { data, error } = await supabaseAdmin
       .from('roi_prediag_sessions')
       .insert({
         profile: respostas.profile,
@@ -96,7 +103,7 @@ async function registrarEvento(
   payload: any = {}
 ) {
   try {
-    await supabase
+    await supabaseAdmin
       .from('roi_events')
       .insert({
         session_id: sessionId,
@@ -135,9 +142,8 @@ export async function POST(request: NextRequest) {
     const resultado = processarPreDiagnostico(respostas);
     
     // 4️⃣ Obter metadados da requisição
-    const ip = request.ip || 
-               request.headers.get('x-forwarded-for') || 
-               request.headers.get('x-real-ip') || 
+    const ip = request.headers.get('x-forwarded-for') ||
+               request.headers.get('x-real-ip') ||
                'unknown';
     
     const userAgent = request.headers.get('user-agent') || 'unknown';

@@ -37,6 +37,7 @@ import {
 // Importar Design System da Wave 1
 import { DESIGN_TOKENS, cn } from '@/lib/design-system';
 import { sugerirTaticasAvancadas } from '@/lib/heuristica-engine';
+import type { TipoFoco } from '@/lib/diagnostico-engine';
 
 // ═══════════════════════════════════════════════════════════════════
 // 🎯 TIPOS E INTERFACES (MANTIDAS IGUAIS)
@@ -1420,12 +1421,21 @@ export function PlanoFooter({ onSalvar, onVoltarMapa }: PlanoFooterProps) {
 // 🆕 COMPONENTE 7: ORIENTAÇÃO DO DIAGNÓSTICO
 // ═══════════════════════════════════════════════════════════════════
 
+interface OrientacaoDiagnosticoProps {
+  dadosDiagnostico: {
+    focoPrimario: TipoFoco;
+    focoSecundario?: TipoFoco;
+    metaTexto: string;
+  } | null;
+  onAplicarTaticasAutomaticas: () => void;
+}
+
 function OrientacaoDiagnostico({ dadosDiagnostico, onAplicarTaticasAutomaticas }: OrientacaoDiagnosticoProps) {
   const [showDiagnostico, setShowDiagnostico] = React.useState(false);
-  
+
   if (!dadosDiagnostico) return null;
-  
-  const focoLabels = {
+
+  const focoLabels: Record<TipoFoco, string> = {
     'REDUZIR_DISTRACAO': 'Reduzir Distração',
     'COMPRIMIR_TATICO': 'Comprimir Tático',
     'FORTALECER_ESSENCIAL': 'Fortalecer Essencial',

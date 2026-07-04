@@ -270,7 +270,8 @@ setDadosUsuario({
     
   } catch (error) {
     console.error('Erro ao gerar PDF:', error);
-    alert('Erro ao gerar PDF: ' + error.message);
+    const mensagem = error instanceof Error ? error.message : String(error);
+    alert('Erro ao gerar PDF: ' + mensagem);
   } finally {
     setGenerating(false);
   }

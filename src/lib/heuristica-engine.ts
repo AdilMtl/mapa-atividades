@@ -369,8 +369,8 @@ function analisarPadroes(atividade: any, zona: Zona): Array<{pattern: any, score
     });
     
     return score > 0 ? { pattern, score } : null;
-  }).filter(Boolean);
-  
+  }).filter((m): m is { pattern: any; score: number } => m !== null);
+
   return matches.sort((a, b) => b.score - a.score);
 }
 

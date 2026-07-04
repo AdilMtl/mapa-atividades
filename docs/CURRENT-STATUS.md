@@ -1,4 +1,58 @@
-## 🎯 SESSÃO ATUAL: Incidente Crítico — Migração de Banco de Dados Supabase
+## 🎯 SESSÃO ATUAL: Fase 3 da Modernização — Correções por Severidade + Auditoria de RLS
+**Data:** 04 de julho de 2026
+**Versão:** v3.5.3
+**Status:** 🟡 Código corrigido e validado — SQL de RLS pendente de execução (ver pendências)
+**Duração:** ~3 horas
+
+### **🚀 ENTREGAS (código, já validado com build + tsc limpos):**
+
+- **Hooks fora das regras corrigidos:** o "PWA Install Banner" em `src/app/page.tsx` era uma IIFE
+  chamando hooks dentro do JSX (risco real de crash se um dia virasse condicional). Extraído
+  para o componente nomeado `PWAInstallBanner`. Eliminou os 6 erros de `react-hooks/rules-of-hooks`
+  que o diagnóstico da Fase 1 tinha apontado.
+- **Next.js atualizado:** 15.5.12 → 15.5.20 (patch), build validado idêntico (mesmas 24 rotas).
+- **36 erros de `tsc --noEmit` corrigidos, um por um** (não supressão em massa) — destaque para
+  dois que eram bugs reais, não só cosméticos:
+  - `KanbanPage.tsx` usava `tatica.estimativa_horas` (snake_case) mas o tipo `TaticaKanban` só
+    tem `estimativaHoras` — o badge de horas estimadas no Kanban nunca aparecia de verdade.
+  - `NextRequest.ip` foi removido da API do Next; as rotas de pré-diagnóstico dependiam dele
+    pra registrar IP (agora só via headers `x-forwarded-for`/`x-real-ip`).
+  - `EmailGate.tsx` (arquivo do tracking de conversão) só precisou de uma declaração de tipo
+    ambiente pro `gtag` — zero mudança de runtime, confirmado comparando o bundle compilado
+    antes/depois (chamada do `gtag` byte-idêntica).
+- **`typescript.ignoreBuildErrors` removido do `next.config.js`** — o build agora falha de
+  verdade se alguém reintroduzir um erro de tipo. `eslint.ignoreDuringBuilds` continua ativo de
+  propósito (lint cosmético foi deixado para depois, a pedido do dono).
+- **Auditoria de RLS/views (Supabase) feita via SQL Editor** — achou 2 problemas reais de
+  segurança, não só teóricos:
+  - `roi_leads` tinha uma política `ALL`/`public`/irrestrita — qualquer request com a chave anon
+    (pública, embutida no navegador) conseguia ler/alterar/apagar nome+email de todos os leads
+    capturados. Contradizia o próprio `docs/supabase-database-schema.txt`, que já documentava
+    a intenção de ser "apenas service_role".
+  - `usuarios` e `profiles` tinham políticas de INSERT extras com `with_check: true` (sem
+    checar dono), empilhadas via OR sobre as políticas corretas — permitiam inserir linha com
+    qualquer `id`. Confirmado que nenhum código do app depende disso (o trigger
+    `handle_new_user()` já ignora RLS por ser `SECURITY DEFINER`).
+  - Corrigido no código: `src/app/api/prediag/lead/route.ts` e `.../diagnose/route.ts` migrados
+    do client anon para um client `service_role` local (mesmo padrão de `admin/assinantes/route.ts`).
+  - As 8 views `vw_*` seguem com `security_invoker=true` (fix do incidente v3.5.2 se manteve).
+  - Políticas duplicadas/redundantes em `atividades` (3x) e `taticas` (2x) mapeadas para
+    consolidação.
+
+### **⚠️ PENDENTE (bloqueia fechar a Fase 3):**
+- **SQL de correção de RLS ainda não executado no banco** (script entregue ao dono, dividido em
+  Parte A — sem dependência, pode rodar a qualquer momento — e Parte B — só depois do deploy do
+  código novo em produção, senão quebra a captura de lead). Ver `docs/CHANGELOG.md` v3.5.3 pro
+  SQL completo.
+- **Duas funções `SECURITY DEFINER` não documentadas** encontradas no banco
+  (`get_auth_user_by_email`, `rls_auto_enable`) — não usadas por nenhum código do app, definição
+  ainda não obtida. Precisa `pg_get_functiondef` pra avaliar se são inofensivas ou risco.
+- Commit/push pendente de confirmação do dono (deploy dispara automático na `main`).
+- Lint cosmético (Fase 3, item de menor prioridade) segue para depois, por decisão do dono.
+
+---
+
+## 🎯 SESSÃO Anterior: Incidente Crítico — Migração de Banco de Dados Supabase
 **Data:** 04 de julho de 2026
 **Versão:** v3.5.2
 **Status:** ✅ Produção restaurada e validada

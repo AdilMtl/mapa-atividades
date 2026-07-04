@@ -6,18 +6,19 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import { 
-  FileText, 
-  Download, 
-  CheckCircle2, 
-  AlertTriangle, 
+import {
+  FileText,
+  Download,
+  CheckCircle2,
+  AlertTriangle,
   ArrowLeft,
   BarChart3,
   ChevronDown,
   HelpCircle,
   Share2,
   TrendingUp,
-  Target
+  Target,
+  type LucideIcon
 } from 'lucide-react';
 import { getCenarioColor, getCenarioIcon } from '@/lib/diagnostico-engine';
 import jsPDF from 'jspdf';
@@ -238,7 +239,7 @@ export function RelatorioView({
   onExportPdf: () => void;
   onExportJson: () => void;
   isGenerating?: boolean;
-  dadosUsuario?: { nome?: string; email?: string };
+  dadosUsuario?: { nome?: string; email?: string; emoji?: string } | null;
   resultado?: any;
 }) {
   // ✅ ESTADOS E FUNÇÕES DENTRO DA FUNÇÃO:
@@ -609,7 +610,23 @@ Baseado na análise, concentre-se em [AÇÃO PRINCIPAL].
   });
 };
   
- const acoes = [
+interface AcaoDiagnostico {
+  id: string;
+  titulo: string;
+  descricao: string;
+  icone: LucideIcon;
+  cor: string;
+  corHover: string;
+  temDropdown?: boolean;
+  dropdownOpcoes?: { texto: string; icone: LucideIcon; acao: () => void }[];
+  semBotao?: boolean;
+  destaque?: boolean;
+  acao?: () => void;
+  botaoIcone?: LucideIcon;
+  botaoTexto?: string;
+}
+
+ const acoes: AcaoDiagnostico[] = [
   {
     id: 'compartilhar',
     titulo: 'Compartilhar',
@@ -739,12 +756,12 @@ Baseado na análise, concentre-se em [AÇÃO PRINCIPAL].
                     <Button
                       onClick={(e) => {
                         e.stopPropagation();
-                        acao.acao();
+                        acao.acao?.();
                       }}
                       disabled={isGenerating}
                       className="w-full bg-white/20 hover:bg-white/30 text-white border-0 transition-all duration-200 group-hover:bg-white/30"
                     >
-                      <IconeBotao className="w-4 h-4 mr-2" />
+                      {IconeBotao && <IconeBotao className="w-4 h-4 mr-2" />}
                       {acao.botaoTexto}
                     </Button>
                   )}

@@ -38,21 +38,28 @@ em 2026-07-01. Objetivos gerais do dono: (1) otimizar, (2) skills + CLAUDE.md �
   no CHANGELOG, revertível com `git revert <hash>` caso algo quebre
 - Detalhes: `docs/CHANGELOG.md` v3.5.1
 
-## ⬜ Fase 3 — Correções por severidade
-**Status:** pendente
+## 🟡 Fase 3 — Correções por severidade
+**Status:** código concluído e validado (v3.5.3) — SQL de RLS pendente de execução manual
 
 > ⚠️ **Interrupção registrada:** entre a Fase 2 e o início da Fase 3, um incidente de produção
 > (Supabase pausado por >90 dias) exigiu migração completa de banco de dados. Resolvido e
 > documentado em `docs/CHANGELOG.md` v3.5.2. Não muda o escopo desta fase, só o timing.
 
-- Priorizar: **segurança/RLS** → erros que quebram comportamento → erros de tipo → lint cosmético
-- **Decisão do dono:** reativar validação no build (remover `ignoreBuildErrors`/`ignoreDuringBuilds`
-  do `next.config.js`) de uma vez, OU corrigir incrementalmente mantendo o flag por ora
-- Revisar RLS/views (`security_invoker`) e bugs conhecidos do Supabase
-- Corrigir o anti-padrão de hooks dentro de callback em `src/app/page.tsx` (achado na Fase 1,
-  risco de crash futuro caso o trecho seja movido/condicionado)
-- Avaliar upgrade do `jspdf` (3.0.4 → 4.2.1, direto, CVE crítica — exposição real hoje é baixa,
-  ver relatório) e do `next` (15.5.12 → 15.5.13+, patch simples)
+- ✅ Hooks fora das regras em `src/app/page.tsx` corrigidos (extraído `PWAInstallBanner`)
+- ✅ `next` atualizado 15.5.12 → 15.5.20 (patch)
+- ✅ 36 erros de `tsc --noEmit` em arquivos ativos corrigidos um a um (achado 1 bug real de
+  quebra: `estimativa_horas` vs `estimativaHoras` no Kanban)
+- ✅ **Decisão do dono aplicada:** `typescript.ignoreBuildErrors` removido do `next.config.js`
+  (build falha de verdade em erro de tipo); `eslint.ignoreDuringBuilds` mantido — lint cosmético
+  fica para depois, por decisão explícita do dono
+- ✅ Auditoria de RLS/views feita via SQL Editor — achou 2 problemas reais (`roi_leads` aberta
+  pra `public`, INSERT irrestrito em `usuarios`/`profiles`) e corrigiu o código das rotas que
+  dependiam da chave anon. Detalhes completos: `docs/CHANGELOG.md` v3.5.3
+- ⬜ **Pendente:** dono executar o SQL de correção de RLS (Parte A agora, Parte B só após
+  deploy) e confirmar as 2 funções `SECURITY DEFINER` não documentadas
+  (`get_auth_user_by_email`, `rls_auto_enable`)
+- ⬜ Adiado para depois (fora do núcleo da Fase 3, por decisão do dono): upgrade major do
+  `jspdf` (3.0.4 → 4.2.1), decisão sobre `next-pwa`/workbox, lint cosmético
 
 ## ⬜ Fase 4 — Otimização + features + Claude/Codex
 **Status:** pendente

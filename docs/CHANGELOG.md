@@ -16,6 +16,80 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [v3.5.3] - 2026-07-04 - 🩹 Fase 3 da Modernização — Correções por Severidade + Auditoria de RLS
+
+> Entrega da **Fase 3** do `docs/ROADMAP-MODERNIZACAO.md`. Escopo: os itens núcleo priorizados
+> no relatório da Fase 1 (`docs/diagnostico-fase1-debito-tecnico.md`). Upgrade major do `jspdf`,
+> decisão sobre `next-pwa`/workbox e lint cosmético ficaram para depois, por decisão do dono.
+
+### 🐛 Corrigido
+- **Hooks fora das regras (`react-hooks/rules-of-hooks`)** — o "PWA Install Banner" em
+  `src/app/page.tsx:184-241` era uma IIFE chamando `useState`/`useEffect` dentro do JSX. Extraído
+  para o componente nomeado `PWAInstallBanner`. Eliminou os 6 erros da regra apontados na Fase 1.
+- **Bug real no Kanban:** `src/app/painel-semanal/components/KanbanPage.tsx` lia
+  `tatica.estimativa_horas` (snake_case), mas o tipo `TaticaKanban` só expõe `estimativaHoras`
+  — o badge de horas estimadas no card nunca renderizava de verdade. Corrigido para o nome certo.
+- **36 erros de `tsc --noEmit` em arquivos ativos**, corrigidos individualmente (sem supressão
+  em massa com `any`):
+  - `NextRequest.ip` (removido da API do Next) nas rotas `api/prediag/diagnose` e `.../lead` —
+    agora só via headers `x-forwarded-for`/`x-real-ip`.
+  - Tipos de união incompletos em `components/diagnostico/index.tsx` (`botaoIcone`, `destaque`,
+    `acao`, `botaoTexto`) e `components/plano/index.tsx` (`OrientacaoDiagnosticoProps` nunca
+    declarada, index signatures de `focoLabels`).
+  - `RefObject<HTMLDivElement>` vs `RefObject<HTMLDivElement | null>` em `components/mapa/index.tsx`
+    (mudança de tipagem do React 19 pro `useRef`).
+  - Objetos com shape inconsistente em `lib/prediag-heuristics.ts` (`ACTIVITY_ADJUSTS`,
+    `PROFILE_BIAS`) e `null` não tratado em `lib/heuristica-engine.ts` (`.filter(Boolean)` não
+    estreita o tipo — trocado por type guard explícito).
+  - `EmailGate.tsx` (arquivo do tracking de conversão): só faltava uma declaração de tipo
+    ambiente pro `gtag` global injetado pelo GTM. **Validado que é mudança de tipo pura** —
+    comparei o bundle compilado antes/depois e a chamada de conversão ficou byte-idêntica.
+
+### 🔒 Segurança — Auditoria de RLS (Supabase)
+Auditoria manual via SQL Editor (RLS ativo, políticas reais, `security_invoker` das views,
+funções `SECURITY DEFINER`) encontrou 2 problemas reais, não só teóricos:
+
+- **`roi_leads` com política `ALL`/`public`/irrestrita** (`using: true`, `with_check: true`).
+  Qualquer request com a chave anon (pública, embutida no bundle do navegador) conseguia
+  ler/alterar/apagar nome+email de **todos os leads capturados** no funil de pré-diagnóstico.
+  Contradizia o que o próprio `docs/supabase-database-schema.txt` já documentava como intenção
+  original ("RLS: Apenas service_role").
+- **`usuarios` e `profiles` com INSERT irrestrito** — políticas extras (`usuarios_insert`,
+  `profiles_insert`) com `with_check: true` sem checar dono, empilhadas via OR sobre as
+  políticas corretas (`auth.uid() = id`). Permitiam inserir linha com **qualquer `id`**.
+  Confirmado por busca no código que nada depende disso — `handle_new_user()` já ignora RLS
+  por ser `SECURITY DEFINER`.
+- **Corrigido no código:** `src/app/api/prediag/lead/route.ts` e `.../diagnose/route.ts`
+  migrados do client anon (`@/lib/supabase`) para um client `service_role` local, no mesmo
+  padrão já usado em `admin/assinantes/route.ts`. Isso é pré-requisito pro SQL de trava (abaixo)
+  não quebrar a captura de lead.
+- **SQL de correção entregue ao dono para execução manual** (sem acesso direto ao Postgres
+  nesta sessão — nem Docker local, nem senha do banco). Duas partes:
+  - Parte A (sem dependência, roda a qualquer momento): remove os INSERTs irrestritos de
+    `usuarios`/`profiles` e consolida políticas duplicadas em `atividades` (3→1) e
+    `taticas` (2→1).
+  - Parte B (**só depois do deploy do código acima estar em produção**): trava `roi_leads` e
+    `roi_prediag_sessions` (que também tinha SELECT público expondo `ip_address` de todo
+    visitante) para `service_role` only.
+  - **Pendente:** confirmação de que o dono executou o SQL, e definição de duas funções
+    `SECURITY DEFINER` não documentadas (`get_auth_user_by_email`, `rls_auto_enable`) — não
+    usadas por nenhum código do app, ainda não avaliadas.
+- Views `vw_*` seguem com `security_invoker=true` nas 8 (fix do incidente v3.5.2 se manteve).
+
+### 🔧 Alterado
+- `next`: 15.5.12 → 15.5.20 (patch, sem breaking change).
+- `next.config.js`: removido `typescript.ignoreBuildErrors` — build agora falha de verdade se
+  reintroduzir erro de tipo. `eslint.ignoreDuringBuilds` mantido de propósito (lint cosmético
+  fica para uma faxina futura, por decisão do dono).
+
+### ⚠️ Pendências conhecidas
+- Execução do SQL de RLS (Parte A + B) e verificação das 2 funções `SECURITY DEFINER`
+  desconhecidas — ver acima.
+- Upgrade major do `jspdf` (3.0.4 → 4.2.1), decisão sobre `next-pwa`/workbox, e lint cosmético
+  ficaram fora de escopo desta entrega, por decisão do dono (Fase 4 ou faxina futura).
+
+---
+
 ## [v3.5.2] - 2026-07-04 - 🚨 Incidente: Banco de Produção Pausado + Migração de Projeto Supabase
 
 ### 🔥 Incidente

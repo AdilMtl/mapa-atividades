@@ -57,7 +57,7 @@ const PAIN_ADJUSTS = {
 } as const;
 
 // Ajustes por atividade que mais consome tempo
-const ACTIVITY_ADJUSTS = {
+const ACTIVITY_ADJUSTS: Record<string, { tatico?: number; estrategico?: number; essencial?: number }> = {
   'emails': { tatico: 8, essencial: -5 },
   'reunioes_status': { tatico: 12, essencial: -8 },
   'relatorios': { tatico: 10, estrategico: -5 },
@@ -66,10 +66,10 @@ const ACTIVITY_ADJUSTS = {
   'urgencias_demandas': { tatico: 15, estrategico: -10 },
   'redes_sociais': { tatico: 8, essencial: -12 },
   'estudos': { essencial: 12, tatico: -5 }
-} as const;
+};
 
-// Viés leve por perfil profissional  
-const PROFILE_BIAS = {
+// Viés leve por perfil profissional
+const PROFILE_BIAS: Record<string, { tatico?: number; estrategico?: number; essencial?: number }> = {
   'estudante': { essencial: 5, tatico: -3 },
   'estagiario': { tatico: 3, essencial: 2 },
   'analista': { tatico: 5, estrategico: -3 },
@@ -77,7 +77,7 @@ const PROFILE_BIAS = {
   'lider': { estrategico: 5, tatico: 3 },
   'gestor': { estrategico: 8, tatico: 5 },
   'empreendedor': { tatico: 5, estrategico: 5 }
-} as const;
+};
 
 // ═══════════════════════════════════════════════════════════════════
 // 🧮 FUNÇÃO PRINCIPAL DE CÁLCULO DO MIX
@@ -109,7 +109,7 @@ export function calcularMixPreDiagnostico(respostas: PreDiagRespostas): MixResul
   // 3️⃣ Aplicar ajuste da atividade dominante
   const activityAdjust = ACTIVITY_ADJUSTS[respostas.topActivity as keyof typeof ACTIVITY_ADJUSTS];
   if (activityAdjust) {
-    tatico += activityAdjust.tatico;
+    tatico += activityAdjust.tatico || 0;
     estrategico += activityAdjust.estrategico || 0;
     essencial += activityAdjust.essencial || 0;
   }

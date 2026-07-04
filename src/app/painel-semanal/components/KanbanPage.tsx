@@ -423,14 +423,14 @@ const CardContent = ({
             </div>
           </div>
 
-          {tatica.estimativa_horas && (
+          {tatica.estimativaHoras && (
             <div 
               className="flex items-center gap-1 text-xs flex-shrink-0" 
               style={{ color: TEMA.subtext }}
-              title={`${tatica.estimativa_horas} horas estimadas`}
+              title={`${tatica.estimativaHoras} horas estimadas`}
             >
               <Clock size={12} />
-              <span>{tatica.estimativa_horas}h</span>
+              <span>{tatica.estimativaHoras}h</span>
             </div>
           )}
         </div>
@@ -830,7 +830,7 @@ export default function KanbanPage() {
 
   function findColumnByTaticaId(taticaId: string): KanbanStatus | null {
     for (const [columnId, items] of Object.entries(board)) {
-      if (items.find(item => item.id === taticaId)) {
+      if (items.find((item: TaticaKanban) => item.id === taticaId)) {
         return columnId as KanbanStatus;
       }
     }
@@ -839,7 +839,7 @@ export default function KanbanPage() {
 
   function findTaticaById(taticaId: string): TaticaKanban | null {
     for (const items of Object.values(board)) {
-      const tatica = items.find(item => item.id === taticaId);
+      const tatica = items.find((item: TaticaKanban) => item.id === taticaId);
       if (tatica) return tatica;
     }
     return null;

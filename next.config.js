@@ -45,11 +45,10 @@ const withPWA = require('next-pwa')({
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // Lint cosmético (any, unused vars, aspas não escapadas) ainda pendente —
+  // desativar isso quebraria o build. Ver Fase 3 do ROADMAP-MODERNIZACAO.md.
   eslint: {
     ignoreDuringBuilds: true,
-  },
-  typescript: {
-    ignoreBuildErrors: true,
   },
 };
 

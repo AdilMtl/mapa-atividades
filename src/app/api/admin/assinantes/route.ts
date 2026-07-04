@@ -44,7 +44,7 @@ if (authError) {
       (assinantes || []).map(async (assinante) => {
         // ✅ Usar o array já carregado (não fazer nova requisição)
         const authUser = authUsers.find(
-          u => u.email?.toLowerCase() === assinante.email.toLowerCase()
+          (u: { email?: string | null }) => u.email?.toLowerCase() === assinante.email.toLowerCase()
         )
 
         // Contar atividades se o usuário existir

@@ -7,6 +7,9 @@ import React, { useState } from 'react';
 import { Mail, Loader2, CheckCircle2, ArrowRight, Shield, Users } from 'lucide-react';
 import { DESIGN_TOKENS } from '@/lib/design-system';
 
+// Injetado em runtime pelo script do GTM (src/app/layout.tsx) — declaração de tipo apenas.
+declare function gtag(...args: unknown[]): void;
+
 interface EmailGateProps {
   sessionId?: string;
   profile: string;

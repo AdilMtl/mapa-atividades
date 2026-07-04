@@ -13,6 +13,109 @@ import {
 import { Button } from '@/components/ui/button';
 import { DESIGN_TOKENS, cn } from '@/lib/design-system';
 
+function PWAInstallBanner() {
+  const [deferredPrompt, setDeferredPrompt] = React.useState<any>(null);
+  const [showPWABanner, setShowPWABanner] = React.useState(false);
+  const [showPWAByScroll, setShowPWAByScroll] = React.useState(false);
+
+  // ✅ NOVO: Controle de scroll independente para PWA
+  React.useEffect(() => {
+    const handlePWAScroll = () => setShowPWAByScroll(window.scrollY > 200);
+    window.addEventListener('scroll', handlePWAScroll);
+    return () => window.removeEventListener('scroll', handlePWAScroll);
+  }, []);
+
+  React.useEffect(() => {
+    if (typeof window !== 'undefined' && window.matchMedia('(display-mode: standalone)').matches) {
+      return;
+    }
+
+    const dismissed = localStorage.getItem('pwa-install-dismissed');
+    if (dismissed) {
+      const dismissedDate = new Date(dismissed);
+      const hoursSince = (Date.now() - dismissedDate.getTime()) / (1000 * 60 * 60);
+      if (hoursSince < 1) return;
+    }
+
+    const handler = (e: any) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+      setShowPWABanner(true);
+    };
+
+    window.addEventListener('beforeinstallprompt', handler);
+    return () => window.removeEventListener('beforeinstallprompt', handler);
+  }, []);
+
+  // ✅ MODIFICADO: Sincroniza com showPWAByScroll ao invés de showStickyBar
+  React.useEffect(() => {
+    if (deferredPrompt && showPWAByScroll) {
+      setShowPWABanner(true);
+    } else if (!showPWAByScroll) {
+      setShowPWABanner(false);
+    }
+  }, [showPWAByScroll, deferredPrompt]); // ✅ Mudou de showStickyBar para showPWAByScroll
+
+  const handleInstall = async () => {
+    if (!deferredPrompt) return;
+    deferredPrompt.prompt();
+    await deferredPrompt.userChoice;
+    setDeferredPrompt(null);
+    setShowPWABanner(false);
+  };
+
+  const handleDismiss = () => {
+    localStorage.setItem('pwa-install-dismissed', new Date().toISOString());
+    setShowPWABanner(false);
+  };
+
+  // ✅ MODIFICADO: Renderiza quando showPWAByScroll (não depende de showStickyBar)
+  return showPWABanner && deferredPrompt && showPWAByScroll ? (
+    <div className="lg:hidden fixed bottom-20 left-0 right-0 z-40 p-4">
+      <div className="glass rounded-xl p-4 border border-accent/30 backdrop-blur-md">
+        <div className="flex items-start justify-between gap-3">
+          <div className="flex items-center gap-3 flex-1">
+            <div className="w-10 h-10 bg-accent/20 rounded-lg flex items-center justify-center flex-shrink-0">
+              <Download className="w-5 h-5 text-accent" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-semibold text-white leading-tight mb-1">
+                📱 Instalar +ConverSaaS
+              </p>
+              <p className="text-xs text-white/70 leading-tight">
+                Instalar cria um atalho na sua tela inicial.
+              </p>
+            </div>
+          </div>
+          <button
+            onClick={handleDismiss}
+            className="text-white/60 hover:text-white/90 transition-colors flex-shrink-0"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+        <div className="mt-3 flex gap-2">
+          <Button
+            onClick={handleInstall}
+            size="sm"
+            className="flex-1 bg-gradient-to-r from-accent to-orange-500 hover:from-orange-500 hover:to-accent"
+          >
+            Instalar Agora
+          </Button>
+          <Button
+            onClick={handleDismiss}
+            size="sm"
+            variant="ghost"
+            className="text-white/70 hover:text-white hover:bg-white/10"
+          >
+            Agora não
+          </Button>
+        </div>
+      </div>
+    </div>
+  ) : null;
+}
+
 export default function LandingPage() {
   const [expandedSection, setExpandedSection] = useState<string | null>(null);
   const [currentVideo, setCurrentVideo] = useState(0);
@@ -181,108 +284,7 @@ export default function LandingPage() {
 </nav>
 
 {/* PWA Install Banner - Aparece acima do sticky newsletter */}
-{(() => {
-  const [deferredPrompt, setDeferredPrompt] = React.useState<any>(null);
-  const [showPWABanner, setShowPWABanner] = React.useState(false);
-  const [showPWAByScroll, setShowPWAByScroll] = React.useState(false); 
-
-  // ✅ NOVO: Controle de scroll independente para PWA
-  React.useEffect(() => {
-    const handlePWAScroll = () => setShowPWAByScroll(window.scrollY > 200); 
-    window.addEventListener('scroll', handlePWAScroll);
-    return () => window.removeEventListener('scroll', handlePWAScroll);
-  }, []);
-
-  React.useEffect(() => {
-    if (typeof window !== 'undefined' && window.matchMedia('(display-mode: standalone)').matches) {
-      return;
-    }
-
-    const dismissed = localStorage.getItem('pwa-install-dismissed');
-    if (dismissed) {
-      const dismissedDate = new Date(dismissed);
-      const hoursSince = (Date.now() - dismissedDate.getTime()) / (1000 * 60 * 60);
-    if (hoursSince < 1) return;
-    }
-
-    const handler = (e: any) => {
-      e.preventDefault();
-      setDeferredPrompt(e);
-      setShowPWABanner(true);
-    };
-
-    window.addEventListener('beforeinstallprompt', handler);
-    return () => window.removeEventListener('beforeinstallprompt', handler);
-  }, []);
-
-  // ✅ MODIFICADO: Sincroniza com showPWAByScroll ao invés de showStickyBar
-  React.useEffect(() => {
-    if (deferredPrompt && showPWAByScroll) {
-      setShowPWABanner(true);
-    } else if (!showPWAByScroll) {
-      setShowPWABanner(false);
-    }
-  }, [showPWAByScroll, deferredPrompt]); // ✅ Mudou de showStickyBar para showPWAByScroll
-
-  const handleInstall = async () => {
-    if (!deferredPrompt) return;
-    deferredPrompt.prompt();
-    const { outcome } = await deferredPrompt.userChoice;
-    setDeferredPrompt(null);
-    setShowPWABanner(false);
-  };
-
-  const handleDismiss = () => {
-    localStorage.setItem('pwa-install-dismissed', new Date().toISOString());
-    setShowPWABanner(false);
-  };
-
-  // ✅ MODIFICADO: Renderiza quando showPWAByScroll (não depende de showStickyBar)
-  return showPWABanner && deferredPrompt && showPWAByScroll ? (
-    <div className="lg:hidden fixed bottom-20 left-0 right-0 z-40 p-4">
-      <div className="glass rounded-xl p-4 border border-accent/30 backdrop-blur-md">
-        <div className="flex items-start justify-between gap-3">
-          <div className="flex items-center gap-3 flex-1">
-            <div className="w-10 h-10 bg-accent/20 rounded-lg flex items-center justify-center flex-shrink-0">
-              <Download className="w-5 h-5 text-accent" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-semibold text-white leading-tight mb-1">
-                📱 Instalar +ConverSaaS
-              </p>
-              <p className="text-xs text-white/70 leading-tight">
-                Instalar cria um atalho na sua tela inicial.
-              </p>
-            </div>
-          </div>
-          <button
-            onClick={handleDismiss}
-            className="text-white/60 hover:text-white/90 transition-colors flex-shrink-0"
-          >
-            <X className="w-5 h-5" />
-          </button>
-        </div>
-        <div className="mt-3 flex gap-2">
-          <Button
-            onClick={handleInstall}
-            size="sm"
-            className="flex-1 bg-gradient-to-r from-accent to-orange-500 hover:from-orange-500 hover:to-accent"
-          >
-            Instalar Agora
-          </Button>
-          <Button
-            onClick={handleDismiss}
-            size="sm"
-            variant="ghost"
-            className="text-white/70 hover:text-white hover:bg-white/10"
-          >
-            Agora não
-          </Button>
-        </div>
-      </div>
-    </div>
-  ) : null;
-})()}
+<PWAInstallBanner />
 
       {/* Sticky Bottom Bar - Mobile Only */}
 {showStickyBar && (
@@ -518,7 +520,7 @@ export default function LandingPage() {
 
               <div className="mt-8">
                 <Link href="/pre-diagnostico">
-                  <Button size="md" className="text-sm sm:text-base px-4 sm:px-6 py-3 sm:py-4 bg-gradient-to-r from-orange-600 to-orange-500 hover:from-orange-500 hover:to-orange-400 hover:shadow-xl hover:shadow-orange-500/60 transform hover:scale-105 transition-all duration-300">
+                  <Button size="default" className="text-sm sm:text-base px-4 sm:px-6 py-3 sm:py-4 bg-gradient-to-r from-orange-600 to-orange-500 hover:from-orange-500 hover:to-orange-400 hover:shadow-xl hover:shadow-orange-500/60 transform hover:scale-105 transition-all duration-300">
                     <Brain className="w-5 h-5 mr-2" />Veja como está sua produtividade<ArrowRight className="w-4 h-4 ml-2" />
                   </Button>
                 </Link>
