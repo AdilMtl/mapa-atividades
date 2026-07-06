@@ -1,7 +1,7 @@
-## 🎯 SESSÃO ATUAL: Planejamento do Revamp +ConverSaaS (Fase 1 de Reposicionamento)
-**Data:** 05 de julho de 2026
-**Versão:** v3.6.0
-**Status:** ✅ Planejamento completo — pronto para iniciar execução (ISSUE-101)
+## 🎯 SESSÃO ATUAL: ISSUE-101 — Layout server-first + route groups (fundação do revamp)
+**Data:** 05 de julho de 2026 (segunda sessão)
+**Versão:** v3.6.1
+**Status:** ⚠️ Código completo, tsc/lint/build verdes, GTM byte-idêntico validado. Aguarda Tag Assistant + PWA em preview pelo dono para marcar ✅ concluída.
 **Duração:** ~1 sessão longa (planejamento estratégico, sem código de produto)
 
 ### **🚀 O QUE FOI FEITO:**

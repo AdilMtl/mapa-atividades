@@ -12,6 +12,15 @@
 
 ## ISSUE-101 — Layout server-first + route groups (fundação)
 
+**Status:** ⚠️ parcial em 2026-07-05 — código completo e validado localmente (tsc/lint/build
+verdes, GTM byte-idêntico confirmado por diff, 15 rotas respondendo 200 em `build && start`,
+meta PWA equivalente 1:1 no HTML renderizado); falta a validação do dono em preview: conversão
+do funil legado no Tag Assistant + instalação/navegação do PWA em navegador real.
+**Nota de implementação:** `/privacidade` foi para o grupo `(app)` (não `(publico)` como o
+rascunho da árvore em `02_technical_spec.md` §3.1 sugeria) — hoje ela está fora da allowlist
+(anônimo é redirecionado) e na sidebar de logado; o critério "matriz rota×estado idêntica"
+prevalece. Tornar a política de privacidade pública fica como decisão futura (nova issue).
+
 **Fase:** 1
 **Tipo:** Frontend / Arquitetura
 **Prioridade:** Alta

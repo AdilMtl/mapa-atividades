@@ -16,6 +16,26 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [v3.6.1] - 2026-07-05 - 🏗️ ISSUE-101 — Layout server-first + route groups (fundação)
+
+### ✅ Adicionado
+- `src/app/(app)/layout.tsx` — client component com gate de auth + sidebar/drawer, extraído do layout raiz.
+- Route groups `(publico)` e `(app)` sem mudar URLs (14 renames via `git mv`).
+- Metadata API via `export const metadata` + `export const viewport` no layout raiz (destrava SEO por página).
+- CSS tema (`--bg`, `--accent`, `.glass`) migrado para `src/app/globals.css` (fim do arquivo, preserva cascata).
+
+### 🔧 Corrigido
+- Layout raiz agora é **Server Component** (antes `'use client'`): GTM e base HTML renderizados server-side, eliminando latência de auth em visitante frio.
+- PWA meta tags equivalentes 1:1 (adicionada `apple-mobile-web-app-capable` para iOS legado).
+
+### 📊 Técnico
+- **Arquitetura:** route groups destravaram Metadata API; gate de auth move para (app)/layout (aplica só às rotas privadas); layout raiz limpo para o essencial (html/body/GTM/metadata).
+- **Validação:** `npx tsc --noEmit` limpo, `npm run build` verde (24 rotas), 15 rotas respondendo 200 em `build && start`, GTM byte-idêntico por diff.
+- **Status da ISSUE-101:** ⚠️ **parcial** até validação do dono em preview (Tag Assistant na conversão do `/pre-diagnostico` + PWA instalação/navegação em navegador real).
+- **Docs revamp atualizadas:** `04_issue_backlog.md` + `02_technical_spec.md` registram a decisão sobre `/privacidade` em (app) (hoje gated, torná-la pública é issue futura).
+
+---
+
 ## [v3.6.0] - 2026-07-05 - 🗺️ Planejamento do Revamp +ConverSaaS (Fase 1)
 
 > Sessão de planejamento estratégico a pedido do dono, com base nos documentos de

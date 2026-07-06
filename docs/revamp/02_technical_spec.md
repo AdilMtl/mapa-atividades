@@ -58,12 +58,15 @@ src/app/
 │   ├── lab/page.tsx
 │   ├── obrigado/page.tsx
 │   ├── pre-diagnostico/page.tsx   ← movida sem alteração de conteúdo (rota final idêntica)
-│   ├── auth/page.tsx              ← idem
-│   └── privacidade/page.tsx       ← idem
+│   └── auth/page.tsx              ← idem
 └── (app)/                      ← rotas privadas, envolvidas pelo AppShell (client)
     ├── layout.tsx              ← client: gate de auth + sidebar (código atual extraído)
     ├── dashboard/ · diagnostico/ · plano-acao/ · painel-semanal/ · relatorios/
     ├── perfil/ · configuracoes/ · reset-password/ · admin/
+    └── privacidade/            ← ATENÇÃO (corrigido na ISSUE-101): hoje é gated (fora da
+                                   allowlist + na sidebar de logado); ficou em (app) para
+                                   manter a matriz rota×estado idêntica. Torná-la pública
+                                   é decisão futura, não parte do refactor.
 ```
 
 Regras do refactor:

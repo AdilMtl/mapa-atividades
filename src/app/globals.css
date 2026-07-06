@@ -209,3 +209,27 @@ select,
 textarea {
   cursor: text !important;
 }
+
+/* =========================================================
+   🎨 Tema global da casa (antes no <style> inline do layout raiz — ISSUE-101)
+   Precisa ficar no FIM do arquivo: o :root abaixo sobrepõe o --accent do
+   shadcn declarado acima, e o body (fora de @layer) vence o do @layer base.
+   ========================================================= */
+:root {
+  --bg: #042f2e;
+  --accent: #d97706;
+}
+
+body {
+  background-color: var(--bg);
+  color: #fff;
+  margin: 0;
+  font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+}
+
+.accent { color: var(--accent); }
+.accent-bg { background-color: var(--accent); color: #000; }
+.glass {
+  backdrop-filter: blur(8px);
+  background-color: rgba(255,255,255,0.06);
+}
