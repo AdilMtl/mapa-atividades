@@ -1,4 +1,61 @@
-## 🎯 SESSÃO ATUAL: ISSUE-102 — Design System v2 no código (Dark Editorial Atelier)
+## 🎯 SESSÃO ATUAL: Revisão de Spec — Escada de Captura dos Radares (Fase 1 do revamp)
+**Data:** 06 de julho de 2026
+**Versão:** v3.6.3
+**Status:** ✅ Concluída — spec revisada, **nenhum código de produto alterado**
+**Duração:** ~1 sessão
+
+### **🚀 O QUE FOI FEITO:**
+
+Sessão de planejamento puro (sem código), motivada por um furo real identificado na spec dos
+radares: as ISSUE-103–106 tratavam "resultado + captura opcional" igual nos dois radares — sem
+captura garantida, o radar de oportunidades não fecha como canal de conversão (diferente do
+`/pre-diagnostico`, que converte via e-mail).
+
+- **Novo doc `docs/revamp/10_jornada_captura_radares.md`** — define a **escada de captura em
+  dois degraus**: **Radar de Maturidade** (degrau 1, grátis, resultado completo na tela, o
+  gancho) → **Radar de Oportunidades** (degrau 2, framing de teste/exploração — não "playbook",
+  preferência explícita do dono —, teaser real na tela + diagnóstico completo atrás do e-mail =
+  o evento de conversão do Google Ads). **Não mexe na metodologia de IA já mapeada** (5 níveis de
+  maturidade, 9 tipos de solução de oportunidades) — é estritamente a camada de captura/jornada.
+- **Framework "AI Fluency" da Anthropic** (4 Ds — Delegation/Description/Discernment/Diligence)
+  verificado na fonte (não de memória, por regra da casa) como referência de contexto — decisão
+  do dono foi **não** incorporá-lo como estrutura nova, manter a metodologia já mapeada.
+- **Edições cirúrgicas** (complementam, não substituem): `01_product_spec_faseada.md` (§3
+  jornada vira a escada; §6 maturidade = resultado completo grátis + ponte; §7 oportunidades =
+  framing de teste + gate de e-mail no diagnóstico completo; critérios #3/#4 afinados);
+  `02_technical_spec.md` (`RadarResult` ganha `teaser`/`gated`; `radar_leads.kind`;
+  `triggerConversion` condicional ao radar); `04_issue_backlog.md` (bloco "Camada de captura"
+  adicionado em ISSUE-103/104/105/106, sem tocar no resto).
+- **Sequenciamento revertido de novo:** o dono decidiu construir os **radares (103–106) ANTES
+  da home (107)** — reverte a antecipação de 2026-07-05 que colocava a home no Sprint 0.
+  Consequência: **ISSUE-107B fica obsoleta** (a home nasce com CTAs diretos pros radares, sem
+  destino temporário nem swap depois). `03_implementation_plan.md` atualizado (Sprint 0 = só
+  fundação 101+102; Sprint 1 = radares; Sprint 2 = home + periferia).
+- **Achado registrado na ISSUE-107**: a escada muda como os CTAs do hero/duas-portas devem ser
+  direcionados (Maturidade = "comece grátis"; Oportunidades = o teste que capta e-mail) — o mock
+  aprovado já tem essa ordem de CTA (oportunidades primário, maturidade secundário), mas a issue
+  precisa direcionar cada CTA ao radar certo, não a um fallback único.
+- Commit desta sessão também inclui uma edição pendente de sessão anterior
+  (`05_model_execution_strategy.md` — ISSUE-107 rebaixada de Fable 5 para Sonnet, decisão de
+  2026-07-06 já tomada, agora commitada junto).
+
+### **✅ VALIDAÇÃO:**
+Sessão 100% documental — nenhum arquivo em `src/` tocado, então `lint`/`tsc`/`build` não se
+aplicam. Revisão feita por leitura cruzada dos 5 docs afetados + grep de consistência.
+
+### **🎯 PRÓXIMOS PASSOS:**
+Seguir para o bloco de radares do Sprint 1, na ordem de dependência:
+1. **ISSUE-104** (motor) e **ISSUE-105** (conteúdo) — podem rodar em sessões paralelas.
+   - 104 precisa de validação do dono na tabela de pesos (5 personas de exemplo).
+   - 105 precisa dos 6 tipos de oportunidade que faltam (só 3 de 9 estão prontos no doc
+     operacional) + os novos teasers de direção (por causa da escada).
+2. **ISSUE-103** (páginas /radar/\*) — só depois de 104+105 prontos.
+3. **ISSUE-106** (backend) — pode rodar em paralelo com 103.
+4. Só depois do bloco de radares completo: **ISSUE-107** (home), já com CTAs diretos.
+
+---
+
+## 🎯 SESSÃO Anterior: ISSUE-102 — Design System v2 no código (Dark Editorial Atelier)
 **Data:** 06 de julho de 2026
 **Versão:** v3.6.2
 **Status:** ✅ Concluída

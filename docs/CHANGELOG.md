@@ -16,6 +16,47 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [v3.6.3] - 2026-07-06 - 🗺️ Revisão de Spec — Escada de Captura dos Radares (Fase 1)
+
+> Sessão de revisão de spec, sem alteração de código de produto. Motivada por um furo real: os
+> radares tratavam captura como opcional nos dois lados, o que não fecha como canal de conversão
+> (diferente do `/pre-diagnostico`, que converte via e-mail).
+
+### ✅ Adicionado
+- `docs/revamp/10_jornada_captura_radares.md` — spec da **escada de captura em dois degraus**:
+  Radar de Maturidade (grátis, resultado completo na tela, o gancho) → Radar de Oportunidades
+  (framing de teste/exploração, teaser real na tela + diagnóstico completo atrás do e-mail = o
+  evento de conversão Google Ads). Complementa, **não substitui**, a metodologia de IA já
+  mapeada (5 níveis de maturidade / 9 tipos de solução de oportunidades).
+- Framework "AI Fluency" da Anthropic (4 Ds — Delegation/Description/Discernment/Diligence)
+  verificado na fonte como referência de contexto para o radar de Maturidade — não incorporado
+  como estrutura nova (decisão do dono: manter a metodologia de IA já mapeada, sem trocar por
+  outro framework).
+
+### 🔧 Corrigido
+- **Sequenciamento revertido:** radares (ISSUE-103–106) voltam a rodar **ANTES** da home
+  (ISSUE-107) — reverte a antecipação de 2026-07-05 que colocava a home no Sprint 0 com CTA
+  temporário. Consequência: **ISSUE-107B fica obsoleta** — a home já nasce com CTAs diretos para
+  `/radar/maturidade` e `/radar/oportunidades`, sem destino temporário nem swap depois.
+  `docs/revamp/03_implementation_plan.md` atualizado (Sprint 0 = só fundação 101+102; Sprint 1 =
+  radares; Sprint 2 = home + periferia).
+- ISSUE-107 ganhou um achado registrado no backlog: a nova arquitetura de escada muda como os
+  CTAs do hero/duas-portas devem ser direcionados (Maturidade = "comece grátis"; Oportunidades =
+  o teste que capta e-mail) — sinalizado como ponto a resolver na própria execução da issue.
+
+### 📊 Técnico
+- Edições cirúrgicas em `docs/revamp/01_product_spec_faseada.md` (§3 jornada, §6/§7 radares,
+  critérios #3/#4), `02_technical_spec.md` (`RadarResult.teaser`/`gated`, `radar_leads.kind`,
+  `triggerConversion` condicional ao radar de origem), `04_issue_backlog.md` (bloco "Camada de
+  captura" adicionado em ISSUE-103/104/105/106, estrutura original preservada).
+- Commit inclui também uma edição pendente de sessão anterior em
+  `05_model_execution_strategy.md` (ISSUE-107 rebaixada de Fable 5 para Sonnet, decisão de
+  2026-07-06 já tomada, agora commitada).
+- Nenhum arquivo em `src/` alterado — sessão 100% de planejamento; `lint`/`tsc`/`build` não se
+  aplicam.
+
+---
+
 ## [v3.6.2] - 2026-07-06 - 🎨 ISSUE-102 — Design System v2 no código (Dark Editorial Atelier)
 
 ### ✅ Adicionado

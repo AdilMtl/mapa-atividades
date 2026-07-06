@@ -14,7 +14,6 @@
 Usar quando o custo do erro é alto ou o critério é subjetivo e central à marca:
 
 - decisões de arquitetura e refactors de risco (**ISSUE-101** — layout/GTM);
-- homepage (**ISSUE-107**) — é posicionamento, não só UI;
 - a voz da marca nos momentos de pico de atenção (**ISSUE-105** resultados, **ISSUE-111**
   revisão de copy);
 - revisão da tabela de pesos do radar de oportunidades (o "cérebro" — dentro da 104);
@@ -28,6 +27,13 @@ Usar quando a spec já decidiu o quê e o como está documentado:
 
 - DS2 em código (**ISSUE-102**), páginas de radar (**103**), motor (**104**), backend de
   captura (**106**), analytics (**109**), SEO (**110**), e-mail (**113**);
+- **homepage (ISSUE-107)** — rebaixada de Fable 5 (decisão do dono, 2026-07-06): o mock
+  `mockups/landing-preview-final.html` já é a spec de conteúdo aprovada (não um rascunho a
+  preencher), então o trabalho que resta é engenharia (converter HTML/CSS em componentes DS2,
+  plugar vídeos reais, preservar CTAs/tracking) — o caso ideal de "spec já decidiu o quê". A
+  **ISSUE-111** (Fable 5) continua sendo a rede de segurança para qualquer copy nova que a
+  implementação precisar escrever fora do que já está literal no mock (alt text, meta
+  description, microcopy de estado vazio);
 - **Fase 1B inteira (114–120)** — os restyles são o caso ideal de execução por modelo mais
   simples: a regra de ouro (visual-only), o mapa de conversão de tokens (`08` §5) e as receitas
   (`08` §3) eliminam as decisões. A **114 define o padrão** e recebe review do Fable 5; da 115
@@ -90,7 +96,8 @@ Sprints e seus gates:
 
 ## 5. Nota sobre custo
 
-O desenho acima concentra Fable 5 em ~5 issues (101, 105, 107, 111, 112) + revisões pontuais.
-O grosso do volume de código (102–104, 106, 108–110, 113) roda em Sonnet com specs fechadas —
+O desenho acima concentra Fable 5 em ~4 issues (101, 105, 111, 112) + revisões pontuais.
+O grosso do volume de código (102–104, 106–110, 113) roda em Sonnet com specs fechadas —
 é onde este pacote de documentos paga o próprio custo: quanto melhor a spec, mais barato o
-modelo que executa.
+modelo que executa. **ISSUE-107** entrou nesse grupo em 2026-07-06 assim que o mock virou a
+spec literal de conteúdo (ver §1).

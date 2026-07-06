@@ -109,23 +109,32 @@ interface RadarResult {
   solutionType?: SolutionType    // oportunidades
   headline: string; body: string; complexity?: string; risk?: string
   nextStep: string; readings: Reading[]; crossCta: Cta; labCta: Cta
+  // escada de captura (ver doc 10): oportunidades separa o que é grátis do que é gated
+  teaser?: ResultTeaser          // oportunidades: direção/forma, mostrada SEM e-mail
+  gated?: boolean                // true = há um "completo" atrás do e-mail (oportunidades)
 }
-// maturidade.ts  → perguntas + score 7..35 → 5 níveis (faixas do doc operacional §10.6)
-// oportunidades.ts → perguntas + decide(answers): SolutionType (ver §6 abaixo)
+// maturidade.ts  → perguntas + score 7..35 → 5 níveis (faixas do doc operacional §10.6).
+//                  Resultado COMPLETO é grátis (sem gate) — é o degrau 1 da escada.
+// oportunidades.ts → perguntas + decide(answers): SolutionType (ver §6 abaixo).
+//                    Expõe teaser (grátis) + completo (gated) — degrau 2, dispara conversão.
 // content.ts     → resultados pré-escritos (14 blocos: 5 níveis + 9 tipos)
 ```
 
 Componente de UI compartilhado `src/components/radar/RadarFlow.tsx`: uma pergunta por tela,
 progresso, voltar, resultado, captura embutida. Estado local (useState) — sem URL state, sem
-persistência (decisão consciente: recomeçar é barato, privacidade melhor).
+persistência (decisão consciente: recomeçar é barato, privacidade melhor). **Dois estados finais
+parametrizáveis por radar** (escada de captura, ver [10_jornada_captura_radares.md](10_jornada_captura_radares.md)):
+maturidade → resultado completo aberto + ponte; oportunidades → teaser aberto + gate de e-mail →
+completo. O gate nunca esconde o teaser.
 
 ### 3.4 Captura e dados (ISSUE-106)
 
 - **Tabelas novas** (SQL entregue ao dono para execução no SQL Editor, padrão da Fase 3):
   - `radar_sessions` (id, kind, answers jsonb, result_key, utm_* , created_at) — INSERT via
     service_role only;
-  - `radar_leads` (id, session_id FK, name, email, newsletter_optin bool, lab_interest bool,
-    created_at) — service_role only;
+  - `radar_leads` (id, session_id FK, **kind** ('maturidade'|'oportunidades'), name, email,
+    newsletter_optin bool, lab_interest bool, created_at) — service_role only; `kind` guarda qual
+    radar originou o lead (governa conversão e conteúdo do e-mail, ver escada em doc 10);
   - decisão de reusar `roi_events` OU criar `radar_events`: confirmar schema de `roi_events`
     no início da issue; se colunas servirem (event_name, session_id, properties jsonb),
     reusar com `properties.funnel = 'radar'`.
@@ -134,9 +143,10 @@ persistência (decisão consciente: recomeçar é barato, privacidade melhor).
   `src/lib/email-validator.ts` (reuso), rate limiting simples por IP via headers
   `x-forwarded-for` (mesmo approach pós-Fase 3).
 - A rota de lead retorna `triggerConversion` (mesmo contrato do funil atual) para o front
-  disparar a MESMA conversão Google Ads — decisão explícita: lead é lead, independente do funil.
-  (Se o dono preferir conversão separada por funil, criar novo label no Google Ads — pergunta
-  operacional para a issue de analytics.)
+  disparar a MESMA conversão Google Ads. **Escada de captura (doc 10):** `triggerConversion: true`
+  no lead de **oportunidades** (é o evento de conversão do funil novo); o lead de **maturidade**
+  é captura suave e **não** dispara a conversão principal (`triggerConversion: false`). Mesmo
+  label do funil atual por ora (separação por label é ISSUE-208, Fase 1.5).
 
 ### 3.5 E-mail de trilha (ISSUE-113)
 

@@ -95,12 +95,20 @@ por tela, progresso, voltar.
 **Escopo incluído:** `RadarFlow.tsx` compartilhado; páginas nos dois slugs com metadata própria;
 integração com `lib/radar` (motor) e com as rotas de API (session no início, lead na captura);
 CTA cruzado entre radares; estado de "resultado sem e-mail" digno.
+**Jornada de captura (escada, ver [10_jornada_captura_radares.md](10_jornada_captura_radares.md)):**
+o `RadarFlow` tem **dois estados finais parametrizáveis por radar** — **maturidade** termina em
+resultado **completo aberto** (sem gate) + CTA-ponte obrigatório para o oportunidades;
+**oportunidades** termina em **teaser aberto** (direção da oportunidade) + **gate de e-mail** →
+diagnóstico completo na tela. O gate **não** bloqueia ver o teaser. Maturidade tem captura de
+e-mail apenas suave/opcional.
 **Escopo excluído:** lógica de scoring (ISSUE-104); textos de resultado (ISSUE-105); backend
 (ISSUE-106); linkar na home (ISSUE-107).
 **Arquivos prováveis:** `src/app/(publico)/radar/*/page.tsx`, `src/components/radar/*`.
 **Dependências:** 102, 104, 105; integração final com 106.
 **Critérios de aceite:** fluxo completo em <3min no mobile; touch ≥44px; voltar funciona;
-progresso correto; captura opcional não bloqueia ver resultado; Lighthouse a11y ≥90.
+progresso correto; **maturidade mostra resultado completo sem e-mail; oportunidades mostra a
+direção sem e-mail e destrava o diagnóstico completo com o e-mail** (nunca resultado vazio atrás
+do gate); Lighthouse a11y ≥90.
 **Riscos:** virar "quiz raso" visualmente — usar Module/Card do DS2 com densidade de produto.
 **Notas para implementação:** perguntas renderizadas a partir dos dados do motor (nada
 hardcoded em JSX).
@@ -119,6 +127,11 @@ decisão propostos em `02_technical_spec.md` §6.
 **Escopo incluído:** `src/lib/radar/{types,maturidade,oportunidades}.ts`; tabela de pesos
 documentada em comentário; casos-limite mapeados (tabela resposta→resultado esperado);
 (opcional, decidir aqui) vitest APENAS para estas funções.
+**Camada de captura (ver [10](10_jornada_captura_radares.md)):** o resultado de **oportunidades**
+expõe **dois recortes** — `teaser` (direção/forma da oportunidade, mostrado grátis na tela) e
+`completo` (o diagnóstico dos 8 blocos, atrás do e-mail). Definir no tipo de retorno o que é
+teaser vs completo; **decisão de produto** sobre onde cortar (mostrar o suficiente para provar
+valor, reter o suficiente para dar vontade) — revisar com o modelo forte.
 **Escopo excluído:** UI; textos longos de resultado (105).
 **Arquivos prováveis:** `src/lib/radar/*` (novos); `package.json` se vitest entrar.
 **Dependências:** nenhuma dura (types combinados com 103/105).
@@ -142,6 +155,10 @@ complexidade, risco, primeiro passo, leituras, CTAs), na voz editorial.
 faltam 6 tipos; mapa de leituras em `01` §8; tom no doc de contexto editorial §7/§12.
 **Escopo incluído:** `src/lib/radar/content.ts` com os 14 blocos; leituras com URLs reais do
 Substack; microestimativa de maturidade cruzada nos resultados de oportunidade.
+**Camada de captura (ver [10](10_jornada_captura_radares.md)):** os 5 textos de **maturidade** são
+**conteúdo grátis** (mostrados inteiros na tela); os 9 de **oportunidade** compõem o **diagnóstico
+completo** (atrás do e-mail + no e-mail). Escrever também os **teasers de direção** do oportunidades
+no tom de **exploração/descoberta** ("seu trabalho aponta para...", não "aqui está seu plano").
 **Escopo excluído:** e-mail (113); UI.
 **Arquivos prováveis:** `src/lib/radar/content.ts` (novo).
 **Dependências:** types da 104.
@@ -164,6 +181,10 @@ mesma estrutura.
 `radar_events` após conferir schema) com RLS service_role-only e seção de rollback, entregue ao
 dono; rotas `api/radar/session` e `api/radar/lead` (validação, rate limit por IP, honeypot);
 contrato `triggerConversion` na resposta do lead.
+**Camada de captura (ver [10](10_jornada_captura_radares.md)):** distinguir o `kind` do lead —
+**oportunidades** dispara a conversão Google Ads (`triggerConversion: true`) e o e-mail entrega o
+diagnóstico completo; **maturidade** é captura suave/opcional (registra lead, sem conversão
+principal). Guardar qual radar originou o lead em `radar_leads.kind`.
 **Escopo excluído:** envio de e-mail (113); views de analytics (109/fim da fase).
 **Arquivos prováveis:** `src/app/api/radar/*/route.ts` (novos), SQL em doc para o dono.
 **Dependências:** 101 (grupos de rota não afetam API, mas padrão de projeto).
@@ -179,7 +200,10 @@ verifica); e-mail inválido rejeitado; rate limit ativo; fluxo público não que
 **Tipo:** Frontend / UX / Copy
 **Prioridade:** Alta
 **Complexidade:** Alta
-**Modelo recomendado:** Fable 5
+**Modelo recomendado:** Sonnet (rebaixado de Fable 5 em 2026-07-06 — decisão do dono: o mock
+`mockups/landing-preview-final.html` já é a spec de conteúdo aprovada, então o trabalho que
+resta é engenharia de conversão HTML/CSS→componentes DS2, não copywriting novo; a ISSUE-111
+[Fable 5] continua sendo a rede de segurança para qualquer texto que não esteja literal no mock)
 **Objetivo:** substituir a landing de produtividade pela home da nova tese, preservando o
 showcase da plataforma (vídeos) e a conversão que já funciona hoje — é o go-live visual do
 reposicionamento, **desacoplado** da entrega dos radares (que ainda não existem). **Guarda-
@@ -197,15 +221,40 @@ janela de app animada do radar no hero; marca **"+ConverSaaS"** com o tagline "o
 virtual da newsletter Conversas no Corredor". Implementar em React/Next convertendo o mock em
 componentes DS2 (mesmos tokens), com os vídeos reais no lugar dos placeholders.
 
-**⚠️ DECISÃO DE SEQUENCIAMENTO (dono, 2026-07-05) — CTAs temporários:** os radares
-(`/radar/maturidade`, `/radar/oportunidades`) ainda não existem (dependem das ISSUES 103–106).
-Em vez de esperar, a home nova é lançada AGORA com os CTAs de diagnóstico apontando
-**temporariamente** para `/pre-diagnostico` (funil legado, já funcionando e convertendo hoje).
-Ou seja: visual 100% novo, mecanismo por trás ainda é o antigo. Quando os radares ficarem
-prontos, a **ISSUE-107B** troca esses `href` para os radares — é um swap pequeno, não um
-redesign. Isso é intencional e temporário: não é uma reversão da decisão de "backstage" do
-`/pre-diagnostico` (ele continua sem link nomeado/próprio na navegação), é só o destino
-funcional por trás dos botões de diagnóstico enquanto os radares não existem.
+**⚠️ SEQUENCIAMENTO REVISADO (dono, 2026-07-06) — radares ANTES da home, CTAs diretos:**
+decisão de sequenciamento anterior (2026-07-05, abaixo, tachada) previa lançar a home antes dos
+radares existirem, com CTA temporário para `/pre-diagnostico`. **Revertida em 2026-07-06:** o
+dono optou por construir os radares primeiro (103–106) e só depois "plugar tudo junto" na home.
+Consequência prática: quando a ISSUE-107 for executada, `/radar/maturidade` e
+`/radar/oportunidades` **já existem** — os CTAs do hero e das duas portas apontam **direto**
+para os radares desde o primeiro commit, sem `href` temporário e sem constante de fallback. A
+**ISSUE-107B fica OBSOLETA** nesse cenário (nada para "trocar depois" — nasce já certo); manter
+o registro dela só como plano B, caso a ordem mude de novo antes da execução.
+
+**🆕 ACHADO — nova arquitetura de captura em escada (dono, 2026-07-06):** os radares deixaram de
+ser "resultado + captura opcional" idênticos entre si. Ver
+[10_jornada_captura_radares.md](10_jornada_captura_radares.md) para a spec completa. Resumo que
+a ISSUE-107 precisa refletir nos CTAs:
+- **Maturidade = degrau 1, o gancho grátis** — resultado completo na tela, sem gate. É o "comece
+  por aqui" da jornada.
+- **Oportunidades = degrau 2, o teste que captura** — teaser grátis na tela, diagnóstico
+  completo atrás do e-mail; é o evento de conversão do Ads.
+- **Ponto em aberto para a execução desta issue:** o mock aprovado
+  (`mockups/landing-preview-final.html`) tem o CTA primário do hero como *"Quero ver minhas
+  oportunidades"* (direto ao degrau 2) e o secundário como *"Descobrir meu nível"* (degrau 1).
+  Isso ainda funciona bem como copy (a promessa mais forte primeiro), mas a ISSUE-107 deve
+  **direcionar cada CTA ao radar certo** (não a um fallback único) e garantir que a seção
+  "Duas portas" comunique a escada (ex.: badge "comece grátis" no card Maturidade, "teste
+  completo" no card Oportunidades) em vez de tratá-las como alternativas equivalentes.
+
+<details><summary>Decisão de sequenciamento original (2026-07-05) — superada, mantida como histórico</summary>
+
+~~os radares ainda não existem (dependem das ISSUES 103–106). Em vez de esperar, a home nova é
+lançada AGORA com os CTAs de diagnóstico apontando temporariamente para `/pre-diagnostico`
+(funil legado). Quando os radares ficarem prontos, a ISSUE-107B troca esses `href` para os
+radares.~~
+
+</details>
 
 **Escopo incluído:**
 - `(publico)/page.tsx` novo com CADA seção como componente nomeado em `components/home/*`
@@ -219,10 +268,11 @@ funcional por trás dos botões de diagnóstico enquanto os radares não existem
   Manter o padrão de progressive loading da home atual (primeiro vídeo autoplay muted +
   playsInline, demais click-to-play) — economiza dados móveis. Narrativa da seção: "isso é o
   que assinantes já usam hoje — e é só o começo do ecossistema";
-- **CTAs do hero e das duas portas (Maturidade/Oportunidades) apontam para `/pre-diagnostico`**
-  (destino temporário — ver decisão de sequenciamento acima; centralizar o `href` numa
-  constante única, tipo `RADAR_FALLBACK_HREF` em `components/home/`, para a ISSUE-107B trocar
-  num só lugar em vez de caçar ocorrências espalhadas);
+- **CTAs do hero e das duas portas apontam DIRETO para os radares** (`/radar/oportunidades` no
+  CTA primário do hero e no card "Oportunidades"; `/radar/maturidade` no CTA secundário do hero
+  e no card "Maturidade") — sem `href` de fallback, já que os radares existem quando esta issue
+  roda (ver achado de sequenciamento acima). Card "Maturidade" sinaliza "comece grátis"; card
+  "Oportunidades" sinaliza que o diagnóstico completo chega por e-mail;
 - **header/footer preservam "Já sou assinante" → `/auth`** (login direto na plataforma —
   mesmo comportamento do site atual, ver `src/app/page.tsx` linhas ~357–364 e ~420–422 como
   referência do padrão existente a replicar visualmente no DS2);
@@ -232,14 +282,15 @@ funcional por trás dos botões de diagnóstico enquanto os radares não existem
 legado de auth; alterar a página `/pre-diagnostico` em si; construir os radares (103–106).
 **Arquivos prováveis:** `src/app/(publico)/page.tsx`, `src/components/home/*`,
 `src/components/shared/PublicHeader.tsx`/`PublicFooter.tsx`.
-**Dependências:** 102 (DS2) apenas — **não depende mais de 103/104/105/106**, por isso pode
-rodar logo após a fundação (ver `03_implementation_plan.md` atualizado).
+**Dependências:** ⚠️ atualizado 2026-07-06 — **102 (DS2) + 103/104/105/106 (radares)**, nessa
+ordem: a home agora roda DEPOIS dos radares (sequenciamento revisado acima), não mais logo após
+a fundação. `03_implementation_plan.md` precisa refletir essa troca de ordem.
 **Critérios de aceite:** teste dos 5 segundos com pessoa real; todos os CTAs navegam de fato
-(CTAs de diagnóstico → `/pre-diagnostico`, login → `/auth`, newsletter → Substack); os 4
-vídeos carregam com progressive loading; zero hex fora do DS2 (grep `#[0-9a-fA-F]{6}` limpo no
-diff); pricing presente e legível; Lighthouse mobile ≥85/90/95 (perf/a11y/SEO); home antiga
-recuperável por revert único; conversão do `/pre-diagnostico` (Google Ads) continua disparando
-normalmente ao chegar por esses CTAs (não deve haver NENHUMA mudança no funil em si).
+(hero/portas → `/radar/oportunidades` e `/radar/maturidade` conforme o achado de escada acima;
+login → `/auth`; newsletter → Substack); os 4 vídeos carregam com progressive loading; zero hex
+fora do DS2 (grep `#[0-9a-fA-F]{6}` limpo no diff); pricing presente e legível; Lighthouse
+mobile ≥85/90/95 (perf/a11y/SEO); home antiga recuperável por revert único; conversão do lead de
+oportunidades (Google Ads) dispara normalmente ao chegar pelos CTAs da home.
 **Riscos:** derrubar conversão do tráfego de produtividade — seção de reframe obrigatória e
 proeminente + demo da plataforma dá prova concreta; monitorar CPL na primeira quinzena.
 Confusão futura se o `href` temporário ficar espalhado pelo código — por isso a constante
@@ -249,6 +300,12 @@ centralizada acima.
 no navegador (não com o `.html` do design system genérico — este já é a versão de conteúdo real).
 
 ## ISSUE-107B — Retargeting dos CTAs da home para os radares
+
+> ⚠️ **OBSOLETA sob o sequenciamento atual (dono, 2026-07-06):** com radares (103–106) construídos
+> ANTES da home (107), os CTAs já nascem apontando direto para `/radar/*` — não há destino
+> temporário para trocar depois. Mantida no backlog só como plano B (caso a ordem de execução
+> mude de novo antes de 107 rodar); se 107 for concluída com CTAs diretos, **fechar esta issue
+> sem executar**, registrando o motivo no CHANGELOG.
 
 **Fase:** 1
 **Tipo:** Frontend

@@ -38,27 +38,40 @@ verdade."* — Não dimensionar a Fase 1 por ele.
 
 ## 3. Jornada do usuário (Fase 1, fluxo principal)
 
+> **A jornada é uma escada de captura, não só informativa** — ver [10_jornada_captura_radares.md](10_jornada_captura_radares.md)
+> (decisão do dono, 2026-07-06). Dá primeiro (maturidade grátis), pede depois (e-mail no
+> oportunidades). O diagrama abaixo já reflete essa escada.
+
 ```text
 Anúncio/busca (cluster: produtividade | IA no trabalho | automação | criar app | carreira)
    ↓  message match por cluster (§17 do doc operacional)
 Homepage — entende a tese em ~5s
-   ↓  escolhe porta
-/radar/maturidade  (7 perguntas, ~2min)     /radar/oportunidades  (8 perguntas, ~3min)
-   ↓                                            ↓
-Resultado resumido NA TELA (nível + interpretação + próximo passo + 2-3 leituras)
-   ↓  "Quer receber sua trilha completa?"
-Captura de e-mail (opcional — resultado já foi entregue)
-   ↓
+   │
+   ▼  DEGRAU 1 — grátis, o gancho
+/radar/maturidade  (7 perguntas, ~2min)
+   ↓  Resultado COMPLETO NA TELA (nível + interpretação + risco + próximo salto + 2-3 leituras)
+   ↓  captura de e-mail = opção suave/secundária (rede para quem não segue)
+   ↓  ponte: "você já sabe ONDE está — descubra O QUE fazer no seu trabalho"
+   │
+   ▼  DEGRAU 2 — o teste que captura (= evento de conversão do Ads)
+/radar/oportunidades  (8 perguntas, ~3min — framing de teste/exploração)
+   ↓  Direção/forma da oportunidade NA TELA (teaser real e específico, grátis)
+   ↓  gate de e-mail → DIAGNÓSTICO COMPLETO (8 blocos + cruzamento) na tela + no e-mail
+   │
+   ▼
 /obrigado — links imediatos + embed/CTA Substack + lista do Lab
    ↓
-E-mail 1 (resultado/trilha) → sequência de 4 e-mails (§15 do doc operacional) → newsletter
+E-mail (diagnóstico/trilha) → sequência de 4 e-mails (§15 do doc operacional) → newsletter
 ```
 
 Regras de ouro do fluxo:
-1. **Valor antes do e-mail** — o resultado resumido nunca fica atrás do gate.
-2. **Radares se cruzam** — resultado da maturidade sugere o radar de oportunidades e vice-versa
-   (evita parecer duas ferramentas soltas).
-3. **Sem conta, sem login** — visitante completa tudo anonimamente.
+1. **Valor antes do gate** — sempre há um resultado real e específico na tela; o e-mail destrava
+   o **aprofundamento** (diagnóstico completo do oportunidades), nunca um resultado vazio.
+   Maturidade não fica atrás de gate nenhum.
+2. **Escada, não duas ferramentas soltas** — a maturidade abre a lacuna que o oportunidades
+   fecha; a ponte maturidade→oportunidades é o caminho recomendado (cruzamento também no sentido
+   inverso, ver §6–§7).
+3. **Sem conta, sem login** — visitante completa tudo anonimamente. E-mail ≠ conta.
 
 ## 4. Arquitetura de informação (Fase 1)
 
@@ -131,14 +144,25 @@ radares (ver `04_issue_backlog.md`).
 - **Perguntas:** 7 (doc operacional §10.5, usar literalmente).
 - **Escala:** cada resposta vale 1–5; total 7–35.
 - **Níveis:** Curioso (7–11), Usuário (12–17), Operador (18–24), Builder (25–31), Referência (32–35).
-- **Resultado (tela):** nível + o que significa + risco de ficar nele + próximo salto + CTA
-  cruzado para o radar de oportunidades + 2–3 leituras da newsletter (mapeadas por nível, ver
-  §8) + captura.
+- **Resultado (tela) — COMPLETO e GRÁTIS, sem gate** (degrau 1 da escada, ver [10](10_jornada_captura_radares.md)):
+  nível + o que significa + risco de ficar nele + próximo salto + 2–3 leituras da newsletter
+  (mapeadas por nível, ver §8).
+- **CTA primário = ponte para o oportunidades** ("descubra as oportunidades de IA no seu
+  trabalho"); é o que empurra a pessoa para o degrau 2, não um formulário de e-mail.
+- **Captura de e-mail = secundária/suave e opcional** ("receba sua interpretação + trilha por
+  e-mail") — rede para quem não vai fazer o segundo radar; **não** é o evento de conversão do Ads
+  e **não** bloqueia o resultado.
 - **Textos de resultado:** doc operacional §10.7 (pré-escritos, um por nível).
 - **UX:** uma pergunta por tela, barra de progresso, voltar permitido, ~2 minutos, mobile-first.
   Sem persistência entre sessões (recomeçar é barato).
 
 ## 7. Radar de Oportunidades — especificação funcional
+
+> **Framing: teste/exploração, não playbook** (decisão do dono, 2026-07-06). A pessoa **mapeia
+> as oportunidades de IA no próprio trabalho** através do teste — a sensação é de explorar e
+> descobrir, não de receber uma receita de cima. Copy/UX usam "mapeie", "explore", "descubra".
+> É o degrau 2 da escada de captura (ver [10](10_jornada_captura_radares.md)) — **o teste que
+> captura o e-mail**.
 
 - **Perguntas:** 8 (doc operacional §11.4: área, tipo de entrega, perda de tempo, frequência,
   público, tipo de dado, resultado desejado, conforto digital).
@@ -147,12 +171,19 @@ radares (ver `04_issue_backlog.md`).
 - **Lógica:** árvore de decisão/pontuação determinística (ver `02_technical_spec.md` §6 —
   frequência × estrutura do dado × público × desejo de reuso são os eixos dominantes; dados
   sensíveis rebaixam recomendação para opções de menor risco com aviso).
-- **Resultado (tela), 8 blocos obrigatórios (doc §11.6):** tipo recomendado, porquê,
-  complexidade, risco principal, primeiro passo, leitura recomendada, CTA newsletter, CTA Lab.
+- **Revelação em camadas:**
+  - **Grátis, na tela:** a **direção/forma** da oportunidade — teaser real e específico (eixos
+    dominantes que o teste mapeou + a "família" de solução para onde o trabalho aponta). Prova
+    que o diagnóstico é de verdade **antes** do e-mail; nunca uma caixa preta.
+  - **Atrás do e-mail (diagnóstico completo):** os **8 blocos obrigatórios (doc §11.6)** — tipo
+    recomendado, porquê, complexidade, risco principal, primeiro passo, leitura recomendada, CTA
+    newsletter, CTA Lab — entregues **na tela logo após o e-mail** e **no e-mail**.
+- **Este é o evento de conversão** — o lead de oportunidades dispara a mesma conversão Google Ads
+  do funil atual (`02_technical_spec.md` §3.4).
 - **Exemplos pré-escritos:** doc §11.7–11.9 (app+tabela, prompt, agêntico) — completar os 6
   restantes na mesma estrutura durante a implementação de conteúdo.
-- **Cruzamento:** resultado inclui estimativa leve de maturidade ("pelo tipo de desafio, você
-  parece estar entre Usuário e Operador...").
+- **Cruzamento:** o diagnóstico completo inclui estimativa leve de maturidade ("pelo tipo de
+  desafio, você parece estar entre Usuário e Operador...").
 
 ## 8. Conteúdo editorial mapeado (leituras recomendadas)
 
@@ -201,8 +232,12 @@ Consolidados dos dois documentos-fonte (estratégico §16, operacional §23):
 1. Homepage comunica a nova proposta em ≤5s (teste: mostrar a um desconhecido por 5s e pedir
    para dizer do que se trata).
 2. O site não parece landing de produtividade genérica nem curso de IA.
-3. Duas portas claras; usuário completa qualquer radar sem conta, em mobile, em <3 min.
-4. Resultado entrega valor ANTES da captura; captura parece continuação natural.
+3. Duas portas claras; usuário completa qualquer radar **sem conta** (e-mail ≠ conta), em
+   mobile, em <3 min.
+4. **Valor antes do gate, em camadas** (ver [10](10_jornada_captura_radares.md)): maturidade
+   entrega resultado completo grátis na tela; oportunidades mostra a direção real na tela e pede
+   o e-mail só para o diagnóstico completo — a captura parece continuação natural da curiosidade,
+   nunca paywall sobre resultado vazio.
 5. CTAs humanos e orientados a intenção (zero "Saiba mais"/"Cadastre-se").
 6. Newsletter integrada na jornada (resultado, obrigado, home, e-mail).
 7. Lab sinalizado como futuro, sem promessa de escopo indevida (§13.3 do doc estratégico).

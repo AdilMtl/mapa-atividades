@@ -19,27 +19,35 @@
 ## 2. Sequência e dependências
 
 ```text
-Sprint 0 — Fundação + go-live visual da home (⚠️ sequenciamento revisado, dono, 2026-07-05)
+Sprint 0 — Fundação (⚠️ sequenciamento revisado de novo, dono, 2026-07-06 — ver nota abaixo)
   ISSUE-101 layout server-first + route groups      ← desbloqueia SEO e páginas públicas
   ISSUE-102 Design System v2 (tokens+fontes+ds2/)   ← desbloqueia toda UI nova
-  ISSUE-107 homepage nova                            ← depende SÓ de 102 agora; CTAs de
-                                                        diagnóstico apontam TEMPORARIAMENTE
-                                                        para /pre-diagnostico (funil legado);
-                                                        preserva "Já sou assinante" → /auth
-                                                        (é o "fase zero" pedido pelo dono:
-                                                        reskin visual já com o funil que hoje
-                                                        converte, sem esperar os radares)
 
-Sprint 1 — Experiência interativa (rotas novas, ainda não linkadas na home)
-  ISSUE-104 motor de assessment (lib/radar)          ← depende de 102
-  ISSUE-105 conteúdo dos resultados (14 blocos)      ← paralelo a 104
-  ISSUE-103 páginas /radar/* com RadarFlow           ← depende de 104+105
-  ISSUE-106 backend captura (SQL→dono, rotas API)    ← paralelo, depende só de 101
+Sprint 1 — Radares (experiência interativa, rotas novas ainda não linkadas em lugar nenhum)
+  ISSUE-104 motor de assessment (lib/radar)          ← depende de 102; expõe teaser+completo
+                                                        no resultado de oportunidades (escada
+                                                        de captura, ver 10_jornada_captura_
+                                                        radares.md)
+  ISSUE-105 conteúdo dos resultados (14 blocos)      ← paralelo a 104; textos de maturidade são
+                                                        grátis, os de oportunidade são o
+                                                        diagnóstico completo (pós-e-mail)
+  ISSUE-103 páginas /radar/* com RadarFlow           ← depende de 104+105; dois estados finais
+                                                        (maturidade aberto; oportunidades
+                                                        teaser+gate)
+  ISSUE-106 backend captura (SQL→dono, rotas API)    ← paralelo, depende só de 101; conversão
+                                                        Ads dispara só no lead de oportunidades
   ISSUE-109 analytics (helper + eventos)             ← depende de 103
-  ISSUE-107B retargeting dos CTAs p/ os radares      ← depende de 103+104+105+107; troca o
-                                                        destino temporário pelo definitivo
 
-Sprint 2 — Periferia e mensagem
+Sprint 2 — Go-live visual da home + periferia e mensagem
+  ISSUE-107 homepage nova                            ← depende de 102 E de 103/104/105/106
+                                                        (radares já existem); CTAs apontam
+                                                        DIRETO para /radar/maturidade e
+                                                        /radar/oportunidades desde o primeiro
+                                                        commit — sem destino temporário
+  ISSUE-107B retargeting dos CTAs p/ os radares      ← ⚠️ OBSOLETA nesse sequenciamento (107
+                                                        já nasce com CTAs diretos); manter só
+                                                        como plano B, fechar sem executar se
+                                                        107 concluir com CTAs diretos
   ISSUE-108 páginas /newsletter, /lab, /obrigado     ← depende de 102
   ISSUE-110 SEO (metadata, sitemap, robots, OG)      ← depende de 101, fecha com 107
   ISSUE-113 e-mail de trilha                         ← infra Resend já funciona (00b, resp. 1)
@@ -76,14 +84,16 @@ layout server.
 (b) sem ela não há Metadata API e o SEO da Fase 1 morre; (c) é a mudança mais arriscada
 (layout + GTM) — melhor fazê-la isolada, com QA dedicado, do que embutida numa issue de página.
 
-**A homepage foi ANTECIPADA para o Sprint 0** (decisão do dono, 2026-07-05 — revisão da
-sequência original, que a colocava por último). Antes: "a homepage é a peça mais visível, então
-espera os radares ficarem prontos para linkar tudo de uma vez". Agora: o dono prefere ver o
-reposicionamento visual no ar o quanto antes, mesmo que por baixo dos panos o botão de
-diagnóstico ainda leve ao `/pre-diagnostico` de sempre. Isso é seguro porque o funil por trás
-não muda nada (mesmo `EmailGate`, mesma conversão) — só a casca visual troca. Quando os radares
-ficarem prontos (fim do Sprint 1), a **ISSUE-107B** faz o swap dos `href` — pequeno, mecânico,
-sem tocar em visual.
+**A homepage voltou para DEPOIS dos radares** (decisão do dono, 2026-07-06 — segunda reversão da
+sequência). Histórico: a spec original (2026-07-05) tinha a home por último ("espera os radares
+para linkar tudo de uma vez"); depois foi antecipada para o Sprint 0 ("lança o visual logo, CTA
+temporário pro `/pre-diagnostico`"); agora, com a **arquitetura de captura em escada** definida
+(ver [10_jornada_captura_radares.md](10_jornada_captura_radares.md) — maturidade grátis abre a
+jornada, oportunidades captura o e-mail e dispara a conversão), o dono preferiu construir os
+radares primeiro e "plugar tudo junto" na home depois. Ganho concreto: a **ISSUE-107B some do
+plano** — a home nasce com os CTAs já apontando direto para `/radar/maturidade` e
+`/radar/oportunidades`, sem destino temporário nem swap mecânico depois. Custo: o reposicionamento
+visual só vai ao ar depois do Sprint 1 completo (104+105+103+106), não antes.
 
 ## 4. O que deixar para depois (Fase 1.5+), explicitamente
 
@@ -112,8 +122,8 @@ para a Fase 1B por decisão do dono em 2026-07-05 — ver Sprint 4.)
 | Radares (103) | Fluxo completo mobile real (iPhone + Android), voltar/refazer, resultado correto |
 | Captura (106) | Lead aparece em `radar_leads` (dono confere no Supabase); RLS verificada com anon key (deve falhar); rate limit |
 | Analytics (109) | Cada evento visível no GTM preview E na tabela do Supabase; UTMs propagadas |
-| Home (107) | Teste dos 5 segundos com pessoa real; message match com anúncios rascunhados; CTAs de diagnóstico levam ao `/pre-diagnostico` e disparam a conversão de sempre |
-| Home — retarget (107B) | Clicar nos CTAs de diagnóstico leva aos radares; grep por `/pre-diagnostico` em `components/home/` retorna zero |
+| Home (107) | Teste dos 5 segundos com pessoa real; message match com anúncios rascunhados; CTAs de diagnóstico levam DIRETO aos radares (`/radar/maturidade`, `/radar/oportunidades`); lead de oportunidades dispara a conversão |
+| Home — retarget (107B) | Só aplicável se a issue for reaberta (ver nota de obsolescência); senão, confirmar que grep por `/pre-diagnostico` em `components/home/` retorna zero desde a 107 |
 | SEO (110) | Rich Results Test, sitemap acessível, robots correto, titles únicos |
 | QA final (112) | Roteiro integral + conversão do funil atual re-validada + Lighthouse ≥ alvos |
 
