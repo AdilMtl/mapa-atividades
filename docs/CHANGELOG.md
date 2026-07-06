@@ -16,6 +16,59 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [v3.6.0] - 2026-07-05 - 🗺️ Planejamento do Revamp +ConverSaaS (Fase 1)
+
+> Sessão de planejamento estratégico a pedido do dono, com base nos documentos de
+> `docs/GPT Project Revamp/`. **Sem alteração de código de produto** — entregas são documentos
+> de planejamento em `docs/revamp/` e atualizações de skills.
+
+### ✅ Adicionado
+- **`docs/revamp/` (11 documentos):** README central, definição do problema, 11 perguntas
+  abertas (todas resolvidas com o dono), product spec faseada, technical spec, implementation
+  plan, backlog com **22 issues** executáveis (Fase 1 + Fase 1B + resumos 1.5/2/3/4), estratégia
+  de execução por modelo, definition of done, mapa completo de tracking Google Ads/GTM,
+  diretrizes visuais do Design System v2 e comparação de 3 direções de landing.
+- **`docs/revamp/mockups/` (4 protótipos HTML navegáveis):** três direções visuais da nova
+  landing (A — fiel ao design system; B — publicação premium; C — workbench do builder) e o
+  híbrido final aprovado pelo dono (estrutura de A + copy/animação de C), publicados como
+  Artifacts para revisão mobile.
+- **Skill nova `executar-issue-revamp`:** carrega o contexto certo por issue do backlog
+  (README + issue + diretrizes visuais/tracking quando aplicável), trava escopo, roda os
+  critérios de aceite da issue e marca conclusão — feita para minimizar re-steering ao
+  delegar issues para modelos mais simples.
+
+### 🎨 Melhorado
+- **Skill `iniciar-sessao`:** novo Passo 0 detecta trabalho do revamp e direciona para a
+  `executar-issue-revamp` em vez do fluxo genérico de persona.
+- **Skill `finalizar-sessao`:** novo item confirma o status da issue do revamp no backlog e
+  pede para citar o número dela na entrada de CURRENT-STATUS/CHANGELOG.
+
+### 📊 Decisões estratégicas registradas
+- Marca da plataforma: **"+ConverSaaS"**, sempre como "o ecossistema virtual da newsletter
+  Conversas no Corredor".
+- Visual: Design System "Dark Editorial Atelier" confirmado (fundo verde-escuro profundo,
+  laranja `#D97706` + magenta `#D34C75`, Fraunces + IBM Plex).
+- Landing nova: direção híbrida (estrutura/grid do protótipo A + headline em gradiente e
+  radar animado do protótipo C); pricing da newsletter **mantido** na home; os 4 vídeos de
+  demo da plataforma **preservados** numa seção dedicada.
+- **Sequenciamento revisado:** a homepage (ISSUE-107) foi antecipada para rodar logo após a
+  fundação técnica (ISSUE-101+102), com os CTAs de diagnóstico apontando **temporariamente**
+  para `/pre-diagnostico` (funil legado, já convertendo) até os radares existirem — troca
+  posterior isolada na nova **ISSUE-107B**.
+- **Fase 1B criada:** redesign visual (DS2) de toda a plataforma logada — dashboard,
+  diagnóstico, plano de ação, kanban, relatórios/perfil/configurações/admin (ISSUES 114–120),
+  100% visual, zero mudança de lógica/dados.
+- Fluxo direto de assinatura via Stripe mapeado para o futuro (ISSUE-305, Fase 2); hoje a
+  assinatura segue intermediada pela newsletter com autorização manual do dono.
+- Confirmado que o e-mail do pré-diagnóstico entrega normalmente via Resend; identificado bug
+  **separado** (e-mail de reset de senha não chega) para correção futura via `/corrigir-bug`.
+
+### 🎯 Próximos passos
+Executar o Sprint 0 do `docs/revamp/03_implementation_plan.md`: ISSUE-101 (layout
+server-first) → ISSUE-102 (Design System v2) → ISSUE-107 (homepage reposicionada).
+
+---
+
 ## [v3.5.3] - 2026-07-04 - 🩹 Fase 3 da Modernização — Correções por Severidade + Auditoria de RLS
 
 > Entrega da **Fase 3** do `docs/ROADMAP-MODERNIZACAO.md`. Escopo: os itens núcleo priorizados

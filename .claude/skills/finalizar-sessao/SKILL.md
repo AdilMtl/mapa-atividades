@@ -38,6 +38,12 @@ Siga o fluxo do `CLAUDE.md`:
 3. Decida o bump de versão (SemVer): patch (correção), minor (feature), major (breaking).
    Se for versão nova relevante, crie `docs/versions/vX.Y.Z-descricao.md`.
 4. Atualize o número de versão no `README.md`/badges se aplicável.
+5. **Se a sessão executou uma issue do revamp:** confirme que
+   `docs/revamp/04_issue_backlog.md` tem a linha `**Status:** ✅ concluída em AAAA-MM-DD` (ou
+   `⚠️ parcial`) logo abaixo do cabeçalho da issue — a `/executar-issue-revamp` deveria ter
+   marcado isso, mas confira. Cite o número da issue na entrada do CURRENT-STATUS/CHANGELOG
+   (ex.: "ISSUE-107 — homepage reposicionada"). Se alguma premissa mudou durante a sessão,
+   confirme que `docs/revamp/00b_open_questions.md` já reflete isso.
 
 Confirme a versão e o título com o usuário se houver dúvida.
 

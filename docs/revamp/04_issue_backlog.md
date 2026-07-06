@@ -1,0 +1,623 @@
+# 04 — Issue Backlog
+
+> **Revamp Conversas no Corredor / +ConverSaaS** · criado em 2026-07-05
+> Numeração: 1xx = Fase 1 · 2xx = Fase 1.5 · 3xx = Fase 2 · 4xx = Fase 3 · 5xx = Fase 4.
+> Regra: uma issue por sessão; escopo excluído é tão vinculante quanto o incluído.
+> Antes de executar qualquer issue: ler `README.md` do revamp + a issue inteira + checar
+> `00b_open_questions.md`.
+
+---
+
+## FASE 1 — Essencial para o revamp
+
+## ISSUE-101 — Layout server-first + route groups (fundação)
+
+**Fase:** 1
+**Tipo:** Frontend / Arquitetura
+**Prioridade:** Alta
+**Complexidade:** Alta
+**Modelo recomendado:** Fable 5
+**Objetivo:** destravar Metadata API e páginas públicas novas sem gate de auth, preservando
+tracking, PWA e plataforma logada byte a byte no comportamento.
+**Contexto:** `src/app/layout.tsx` é client component com gate de auth + allowlist hardcoded +
+GTM + meta manuais (ver `02_technical_spec.md` §2–3.1). **Ler `07_mapa_tracking_ads.md` antes
+de começar** — inventário dos marcadores e checklist de validação obrigatório.
+**Escopo incluído:** layout raiz vira Server Component (html, GTM idêntico, metadata base,
+next/font, globals); route groups `(publico)` e `(app)` sem mudar URLs; gate+sidebar atuais
+extraídos para `(app)/layout.tsx` client; PWA meta → metadata/viewport exports.
+**Escopo excluído:** qualquer mudança visual; qualquer página nova; mexer em EmailGate/prediag.
+**Arquivos prováveis:** `src/app/layout.tsx`, `src/app/(app)/layout.tsx` (novo), moves de
+`page.tsx` entre grupos, `src/app/globals.css` (só import de fonte se necessário).
+**Dependências:** nenhuma.
+**Critérios de aceite:** matriz rota×estado idêntica ao comportamento atual; conversão do funil
+legado dispara em preview (Tag Assistant); PWA instala e navega (`build && start`);
+`tsc`/`lint`/`build` verdes; nenhuma URL mudou.
+**Riscos:** quebrar conversão (mitigar com diff byte a byte do GTM); SW cacheado servindo shell
+antigo (testar hard refresh); fluxo reset-password.
+**Notas para implementação:** mover arquivos com `git mv` para preservar histórico; PR com
+screenshot do Tag Assistant.
+
+## ISSUE-102 — Design System v2 no código (Dark Editorial Atelier)
+
+**Fase:** 1
+**Tipo:** UI / Frontend
+**Prioridade:** Alta
+**Complexidade:** Média
+**Modelo recomendado:** Sonnet (revisão final: Fable 5)
+**Objetivo:** tokens, fontes e componentes base do DS v1 final disponíveis para as páginas novas.
+**Contexto:** `conversaas_design_system_v1_final.md` é a decisão oficial (paleta, tipografia,
+componentes); coexistência com DESIGN_TOKENS v1 do legado (ver `02` §3.2 e `03` §9).
+**Escopo incluído:** CSS vars + `@theme` Tailwind v4 em `globals.css` (valores literais do DS);
+next/font (Fraunces, IBM Plex Sans, IBM Plex Mono); `src/components/ds2/` (Button, Card,
+Badge, Module, Progress, GridBackground, SectionTitle); `DS2` em `design-system.ts` sem tocar
+no export antigo.
+**Escopo excluído:** migrar qualquer página legada; tocar `components/ui/*`.
+**Arquivos prováveis:** `src/app/globals.css`, `src/lib/design-system.ts`,
+`src/components/ds2/*` (novos), `src/app/layout.tsx` (classes de fonte).
+**Dependências:** ISSUE-101 (fontes no server layout).
+**Critérios de aceite:** componentes renderizam conforme specs CSS do DS doc; contraste AA nos
+pares texto/fundo usados; zero regressão visual nas páginas legadas (spot check dashboard e
+pre-diagnostico); build verde.
+**Riscos:** colisão de variáveis CSS com o tema legado (prefixar se preciso); fontes mudando
+layout legado (aplicar só via classes DS2).
+**Notas para implementação:** copiar valores hex/rgba literalmente do doc — não "melhorar".
+
+## ISSUE-103 — Páginas /radar/maturidade e /radar/oportunidades
+
+**Fase:** 1
+**Tipo:** Frontend / UX
+**Prioridade:** Alta
+**Complexidade:** Média
+**Modelo recomendado:** Sonnet
+**Objetivo:** as duas experiências interativas navegáveis ponta a ponta (pergunta → resultado →
+captura), mobile-first.
+**Contexto:** especificação funcional em `01_product_spec_faseada.md` §6–7; UX: uma pergunta
+por tela, progresso, voltar.
+**Escopo incluído:** `RadarFlow.tsx` compartilhado; páginas nos dois slugs com metadata própria;
+integração com `lib/radar` (motor) e com as rotas de API (session no início, lead na captura);
+CTA cruzado entre radares; estado de "resultado sem e-mail" digno.
+**Escopo excluído:** lógica de scoring (ISSUE-104); textos de resultado (ISSUE-105); backend
+(ISSUE-106); linkar na home (ISSUE-107).
+**Arquivos prováveis:** `src/app/(publico)/radar/*/page.tsx`, `src/components/radar/*`.
+**Dependências:** 102, 104, 105; integração final com 106.
+**Critérios de aceite:** fluxo completo em <3min no mobile; touch ≥44px; voltar funciona;
+progresso correto; captura opcional não bloqueia ver resultado; Lighthouse a11y ≥90.
+**Riscos:** virar "quiz raso" visualmente — usar Module/Card do DS2 com densidade de produto.
+**Notas para implementação:** perguntas renderizadas a partir dos dados do motor (nada
+hardcoded em JSX).
+
+## ISSUE-104 — Motor de assessment (lib/radar)
+
+**Fase:** 1
+**Tipo:** Frontend (lógica) / Dados
+**Prioridade:** Alta
+**Complexidade:** Média
+**Modelo recomendado:** Sonnet (tabela de pesos revisada por Fable 5)
+**Objetivo:** scoring da maturidade (7–35 → 5 níveis) e árvore de decisão de oportunidades
+(8 respostas → 1 de 9 tipos) como funções puras auditáveis.
+**Contexto:** faixas e perguntas literais no doc operacional §10.5–10.6 e §11.4; eixos de
+decisão propostos em `02_technical_spec.md` §6.
+**Escopo incluído:** `src/lib/radar/{types,maturidade,oportunidades}.ts`; tabela de pesos
+documentada em comentário; casos-limite mapeados (tabela resposta→resultado esperado);
+(opcional, decidir aqui) vitest APENAS para estas funções.
+**Escopo excluído:** UI; textos longos de resultado (105).
+**Arquivos prováveis:** `src/lib/radar/*` (novos); `package.json` se vitest entrar.
+**Dependências:** nenhuma dura (types combinados com 103/105).
+**Critérios de aceite:** todos os casos da tabela de validação passam; dados sensíveis SEMPRE
+rebaixam recomendação e marcam flag de diligência; agêntico nunca é recomendação de entrada;
+determinístico (mesmas respostas → mesmo resultado).
+**Riscos:** pesos mal calibrados recomendando app para tudo — validar com o dono usando 5
+personas de exemplo antes de fechar.
+**Notas para implementação:** manter os IDs de pergunta/opção estáveis (analytics dependerá deles).
+
+## ISSUE-105 — Conteúdo dos resultados (14 blocos pré-escritos)
+
+**Fase:** 1
+**Tipo:** Copy / Conteúdo
+**Prioridade:** Alta
+**Complexidade:** Média
+**Modelo recomendado:** Fable 5 (é a voz da marca no momento de maior atenção do usuário)
+**Objetivo:** 5 resultados de maturidade + 9 de oportunidade, completos (headline, corpo,
+complexidade, risco, primeiro passo, leituras, CTAs), na voz editorial.
+**Contexto:** modelos prontos no doc operacional §10.7 (5 níveis) e §11.7–11.9 (3 de 9 tipos);
+faltam 6 tipos; mapa de leituras em `01` §8; tom no doc de contexto editorial §7/§12.
+**Escopo incluído:** `src/lib/radar/content.ts` com os 14 blocos; leituras com URLs reais do
+Substack; microestimativa de maturidade cruzada nos resultados de oportunidade.
+**Escopo excluído:** e-mail (113); UI.
+**Arquivos prováveis:** `src/lib/radar/content.ts` (novo).
+**Dependências:** types da 104.
+**Critérios de aceite:** dono lê os 14 e aprova o tom; zero frase da lista proibida; cada
+resultado tem os 8 blocos do doc §11.6; URLs verificadas.
+**Riscos:** soar GPT — escrever a partir dos textos da newsletter, não do zero.
+**Notas para implementação:** os 3 exemplos do doc entram quase literais; os 6 novos seguem a
+mesma estrutura.
+
+## ISSUE-106 — Backend de captura (tabelas, RLS, rotas API)
+
+**Fase:** 1
+**Tipo:** Backend / Dados / Segurança
+**Prioridade:** Alta
+**Complexidade:** Média
+**Modelo recomendado:** Sonnet (SQL revisado por Fable 5; execução pelo dono)
+**Objetivo:** persistir sessões de radar e leads com segurança padrão v3.5.3.
+**Contexto:** `02_technical_spec.md` §3.4; padrão service_role de `api/prediag/lead`.
+**Escopo incluído:** SQL de `radar_sessions` + `radar_leads` (+ decisão reuso `roi_events` vs
+`radar_events` após conferir schema) com RLS service_role-only e seção de rollback, entregue ao
+dono; rotas `api/radar/session` e `api/radar/lead` (validação, rate limit por IP, honeypot);
+contrato `triggerConversion` na resposta do lead.
+**Escopo excluído:** envio de e-mail (113); views de analytics (109/fim da fase).
+**Arquivos prováveis:** `src/app/api/radar/*/route.ts` (novos), SQL em doc para o dono.
+**Dependências:** 101 (grupos de rota não afetam API, mas padrão de projeto).
+**Critérios de aceite:** lead de teste aparece no Supabase; SELECT com anon key FALHA (dono
+verifica); e-mail inválido rejeitado; rate limit ativo; fluxo público não quebrou.
+**Riscos:** RLS aberta (histórico do projeto!) — trava desde a criação, nunca "ajustar depois".
+**Notas para implementação:** service_role client local no route handler (nunca importar de
+`lib/supabase`); mudança em RLS = testar fluxo público ponta a ponta (regra da casa).
+
+## ISSUE-107 — Homepage reposicionada
+
+**Fase:** 1
+**Tipo:** Frontend / UX / Copy
+**Prioridade:** Alta
+**Complexidade:** Alta
+**Modelo recomendado:** Fable 5
+**Objetivo:** substituir a landing de produtividade pela home da nova tese, preservando o
+showcase da plataforma (vídeos) e a conversão que já funciona hoje — é o go-live visual do
+reposicionamento, **desacoplado** da entrega dos radares (que ainda não existem). **Guarda-
+corpo do dono:** NÃO é "apagar tudo e recomeçar" — é reposicionar a mensagem mantendo o que
+demonstra valor do produto (vídeos de demo, pricing, funil que converte).
+**Contexto:** copy base no doc operacional §8; estrutura em `01` §5 (12 seções); hero A
+definido; **pricing FICA** (decisão do dono, `00b` p.9) redesenhado no DS2; marca
+"+ConverSaaS" apresentada como "o ecossistema virtual da newsletter Conversas no Corredor"
+(`00b` p.4); receitas visuais em `08_diretrizes_visuais_ds2.md` (seguir literalmente).
+**DIREÇÃO VISUAL — ✅ DECIDIDA (2026-07-05):** híbrido A+C, consolidado em
+`docs/revamp/mockups/landing-preview-final.html` — **essa é a spec pixel-a-pixel desta
+issue** (detalhes da decisão em `09_direcoes_landing.md`). Pontos inegociáveis do dono:
+grid técnico do hero mantido; headline com "construir com IA" em gradiente laranja→magenta;
+janela de app animada do radar no hero; marca **"+ConverSaaS"** com o tagline "o ecossistema
+virtual da newsletter Conversas no Corredor". Implementar em React/Next convertendo o mock em
+componentes DS2 (mesmos tokens), com os vídeos reais no lugar dos placeholders.
+
+**⚠️ DECISÃO DE SEQUENCIAMENTO (dono, 2026-07-05) — CTAs temporários:** os radares
+(`/radar/maturidade`, `/radar/oportunidades`) ainda não existem (dependem das ISSUES 103–106).
+Em vez de esperar, a home nova é lançada AGORA com os CTAs de diagnóstico apontando
+**temporariamente** para `/pre-diagnostico` (funil legado, já funcionando e convertendo hoje).
+Ou seja: visual 100% novo, mecanismo por trás ainda é o antigo. Quando os radares ficarem
+prontos, a **ISSUE-107B** troca esses `href` para os radares — é um swap pequeno, não um
+redesign. Isso é intencional e temporário: não é uma reversão da decisão de "backstage" do
+`/pre-diagnostico` (ele continua sem link nomeado/próprio na navegação), é só o destino
+funcional por trás dos botões de diagnóstico enquanto os radares não existem.
+
+**Escopo incluído:**
+- `(publico)/page.tsx` novo com CADA seção como componente nomeado em `components/home/*`
+  (HeroSection, ProblemaSection, ReframeSection, PortasSection, ComoFuncionaSection,
+  **PlataformaDemoSection**, NewsletterSection, DiferenciacaoSection, PricingSection,
+  LabSection, AutorSection) + PublicHeader/PublicFooter;
+- **Seção "A plataforma em ação" (PlataformaDemoSection):** reutiliza os 4 vídeos existentes
+  (`/videos/mapeamento.mp4`, `/videos/diagnostico.mp4`, `/videos/taticas.mp4`,
+  `/videos/kanban.mp4` — já comprimidos, ~2,3MB total). Layout: 4 cards `Module` do DS2, cada
+  um com label mono (ex.: `01 / MAPA DE ATIVIDADES`), título, 1 frase de benefício e o vídeo.
+  Manter o padrão de progressive loading da home atual (primeiro vídeo autoplay muted +
+  playsInline, demais click-to-play) — economiza dados móveis. Narrativa da seção: "isso é o
+  que assinantes já usam hoje — e é só o começo do ecossistema";
+- **CTAs do hero e das duas portas (Maturidade/Oportunidades) apontam para `/pre-diagnostico`**
+  (destino temporário — ver decisão de sequenciamento acima; centralizar o `href` numa
+  constante única, tipo `RADAR_FALLBACK_HREF` em `components/home/`, para a ISSUE-107B trocar
+  num só lugar em vez de caçar ocorrências espalhadas);
+- **header/footer preservam "Já sou assinante" → `/auth`** (login direto na plataforma —
+  mesmo comportamento do site atual, ver `src/app/page.tsx` linhas ~357–364 e ~420–422 como
+  referência do padrão existente a replicar visualmente no DS2);
+- CTA "Assinar a newsletter" aponta para o Substack subscribe (como hoje);
+- metadata da home; responsivo 360→1440.
+**Escopo excluído:** A/B (Fase 1.5); gravar/editar vídeos novos; qualquer alteração no fluxo
+legado de auth; alterar a página `/pre-diagnostico` em si; construir os radares (103–106).
+**Arquivos prováveis:** `src/app/(publico)/page.tsx`, `src/components/home/*`,
+`src/components/shared/PublicHeader.tsx`/`PublicFooter.tsx`.
+**Dependências:** 102 (DS2) apenas — **não depende mais de 103/104/105/106**, por isso pode
+rodar logo após a fundação (ver `03_implementation_plan.md` atualizado).
+**Critérios de aceite:** teste dos 5 segundos com pessoa real; todos os CTAs navegam de fato
+(CTAs de diagnóstico → `/pre-diagnostico`, login → `/auth`, newsletter → Substack); os 4
+vídeos carregam com progressive loading; zero hex fora do DS2 (grep `#[0-9a-fA-F]{6}` limpo no
+diff); pricing presente e legível; Lighthouse mobile ≥85/90/95 (perf/a11y/SEO); home antiga
+recuperável por revert único; conversão do `/pre-diagnostico` (Google Ads) continua disparando
+normalmente ao chegar por esses CTAs (não deve haver NENHUMA mudança no funil em si).
+**Riscos:** derrubar conversão do tráfego de produtividade — seção de reframe obrigatória e
+proeminente + demo da plataforma dá prova concreta; monitorar CPL na primeira quinzena.
+Confusão futura se o `href` temporário ficar espalhado pelo código — por isso a constante
+centralizada acima.
+**Notas para implementação:** commit isolado; nada de `page-backup.tsx` no working tree (o git
+é o backup); comparar visualmente com `docs/revamp/mockups/landing-preview-final.html` aberto
+no navegador (não com o `.html` do design system genérico — este já é a versão de conteúdo real).
+
+## ISSUE-107B — Retargeting dos CTAs da home para os radares
+
+**Fase:** 1
+**Tipo:** Frontend
+**Prioridade:** Média (executar assim que 103 estiver pronta — não antes)
+**Complexidade:** Baixa
+**Modelo recomendado:** Sonnet (ou modelo leve — é um swap mecânico)
+**Objetivo:** trocar o destino temporário dos CTAs de diagnóstico da home (`/pre-diagnostico`)
+pelos radares de verdade, agora que existem.
+**Contexto:** ver a "Decisão de sequenciamento" registrada na ISSUE-107. Essa issue existe
+para não deixar esquecido o swap — sem ela, a home ficaria apontando para o funil legado para
+sempre.
+**Escopo incluído:** trocar `RADAR_FALLBACK_HREF` (ou os `href` equivalentes) do CTA principal
+do hero e dos dois cards de "porta" para `/radar/oportunidades` e `/radar/maturidade`
+respectivamente; revisar a microcopy da seção "Como funciona" (ISSUE-107) para garantir que
+descreve o comportamento real dos radares (progresso, resultado na hora, captura opcional) e
+não mais uma referência genérica; conferir se o CTA cruzado entre os dois radares (definido na
+ISSUE-103) está coerente com a jornada descrita na home.
+**Escopo excluído:** qualquer mudança visual (isso já foi decidido e implementado na 107);
+mudar o `/pre-diagnostico` em si (ele continua existindo e funcionando para quem tiver o link).
+**Arquivos prováveis:** os mesmos `components/home/*` da ISSUE-107.
+**Dependências:** 103 (radares navegáveis), 104, 105 (motor e conteúdo prontos), ISSUE-107 já
+mergeada.
+**Critérios de aceite:** clicar nos CTAs de diagnóstico da home leva aos radares (não mais ao
+`/pre-diagnostico`); jornada completa testada ponta a ponta (home → radar → resultado →
+captura → newsletter); `/pre-diagnostico` continua acessível por quem tiver o link direto
+(campanhas antigas), só não é mais o destino dos CTAs novos.
+**Riscos:** esquecer algum `href` hardcoded fora da constante centralizada — grep por
+`/pre-diagnostico` no diretório `components/home/` antes de fechar, deve retornar zero.
+
+## ISSUE-108 — Páginas /newsletter, /lab e /obrigado
+
+**Fase:** 1
+**Tipo:** Frontend / Copy
+**Prioridade:** Média
+**Complexidade:** Baixa
+**Modelo recomendado:** Sonnet (ou modelo leve com a spec em mãos)
+**Objetivo:** completar a periferia do funil: destino editorial, lista de interesse do Lab e
+pós-captura.
+**Contexto:** doc operacional §8.7/§8.9/§14; premissa 5 (embed/CTA Substack).
+**Escopo incluído:** 3 páginas com metadata própria; `/lab` grava interesse via
+`api/radar/lead` (flag `lab_interest`) ou rota própria mínima; `/obrigado` com leituras e CTA
+Lab.
+**Escopo excluído:** `/comece-aqui` e `/sobre` (Fase 1.5); sequência de e-mails.
+**Arquivos prováveis:** `src/app/(publico)/{newsletter,lab,obrigado}/page.tsx`.
+**Dependências:** 102; 106 (para a lista do Lab).
+**Critérios de aceite:** interesse no Lab persiste no banco; links de leitura corretos; mobile ok.
+**Riscos:** baixo.
+**Notas para implementação:** copy literal do doc operacional onde existir.
+
+## ISSUE-109 — Analytics do funil novo (GTM + Supabase)
+
+**Fase:** 1
+**Tipo:** Analytics
+**Prioridade:** Alta
+**Complexidade:** Média
+**Modelo recomendado:** Sonnet com persona Analytics & Ads (validação final Fable 5)
+**Objetivo:** os 15 eventos do doc operacional §21 fluindo em duplo trilho (dataLayer + tabela),
+com UTMs.
+**Contexto:** `02` §3.7; premissa 8; conversão legada INTOCÁVEL; label de conversão DECIDIDO:
+funil novo usa o mesmo label atual (`07_mapa_tracking_ads.md` §3.3).
+**Escopo incluído:** `src/lib/analytics.ts`; instrumentação de home/radares/captura/lab;
+captura e propagação de UTM; rota de evento (ou extensão da session); documentação dos eventos
+em `docs/`.
+**Escopo excluído:** dashboards Grafana/views (SQL entregue no fim da fase, com o dono);
+qualquer edição no container GTM (é feita pelo dono na UI do GTM — fornecer especificação de
+tags/triggers).
+**Arquivos prováveis:** `src/lib/analytics.ts` (novo), componentes de 103/107/108.
+**Dependências:** 103; 106.
+**Critérios de aceite:** cada evento aparece no GTM preview E no Supabase com propriedades;
+conversão legada re-validada; nomes de evento exatamente os do doc §21.
+**Riscos:** nomear eventos "quase igual" e quebrar análise futura — copiar strings literais.
+**Notas para implementação:** sendBeacon com fallback fetch; nunca bloquear navegação por
+analytics.
+
+## ISSUE-110 — SEO técnico
+
+**Fase:** 1
+**Tipo:** SEO
+**Prioridade:** Média
+**Complexidade:** Baixa
+**Modelo recomendado:** Sonnet
+**Objetivo:** estrutura mínima de SEO em todas as páginas públicas novas.
+**Contexto:** doc operacional §16 (titles, descriptions, H1/H2, clusters); `02` §3.6.
+**Escopo incluído:** metadata por página (strings do doc §16), metadataBase, OG/Twitter com
+imagem estática, `sitemap.ts`, `robots.ts`, JSON-LD WebSite, auditoria de H1 único.
+**Escopo excluído:** conteúdo/blog para clusters (Fase 1.5+); canonical de domínio próprio
+(pendência 1).
+**Arquivos prováveis:** `src/app/sitemap.ts`, `src/app/robots.ts`, metadata nas páginas de
+103/107/108, `public/og/*`.
+**Dependências:** 101; páginas existentes (fecha junto com 107).
+**Critérios de aceite:** titles/descriptions únicos; sitemap válido; robots bloqueia `(app)` e
+`/api`; Rich Results Test sem erro; Lighthouse SEO ≥95.
+**Riscos:** baixo.
+**Notas para implementação:** rotas privadas ganham `robots: { index: false }` na metadata.
+
+## ISSUE-111 — Revisão integral de copy (voz editorial)
+
+**Fase:** 1
+**Tipo:** Copy
+**Prioridade:** Alta
+**Complexidade:** Baixa (esforço), Alta (critério)
+**Modelo recomendado:** Fable 5 + veto final do dono
+**Objetivo:** passar toda superfície de texto nova pelo filtro da voz da newsletter.
+**Contexto:** doc de contexto editorial §7 (tom), §12 (fórmulas); lista proibida no README §7.
+**Escopo incluído:** varredura de home, radares, resultados, periferia, microcopy, mensagens de
+erro, metadata; ajustes in place; relatório curto do que mudou.
+**Escopo excluído:** mudanças de estrutura/UX.
+**Arquivos prováveis:** os das issues 103/105/107/108/110.
+**Dependências:** tudo visível pronto.
+**Critérios de aceite:** dono lê e não "sente cheiro de IA"; zero termo proibido (grep pela
+lista); CTAs todos no padrão de intenção.
+**Riscos:** homogeneizar demais e perder o punch — preservar frases de tensão.
+
+## ISSUE-112 — QA integral + validação de conversão (gate de launch)
+
+**Fase:** 1
+**Tipo:** Testes
+**Prioridade:** Alta
+**Complexidade:** Média
+**Modelo recomendado:** Fable 5 (postura de reviewer cético)
+**Objetivo:** executar o gate do `03_implementation_plan.md` §6 e autorizar o go-live.
+**Contexto:** roteiros em `03` §5–6; DoD em `06_definition_of_done.md`.
+**Escopo incluído:** roteiro completo; matriz rota×estado; tracking legado+novo; PWA; mobile
+real; Lighthouse; relatório de pendências com severidade.
+**Escopo excluído:** corrigir o que achar (abre issues/fixes separados, salvo trivial).
+**Dependências:** todas as anteriores.
+**Critérios de aceite:** checklist do DoD 100% respondido (ok ou exceção justificada pelo dono).
+**Riscos:** pressa de lançar por cima de item vermelho — o gate existe para isso.
+
+## ISSUE-113 — E-mail de trilha
+
+**Fase:** 1
+**Tipo:** Backend / Copy
+**Prioridade:** Alta
+**Complexidade:** Média
+**Modelo recomendado:** Sonnet
+**Objetivo:** enviar o resultado completo + trilha por e-mail após captura no funil novo.
+**Contexto:** template atual em `api/prediag/email-template.ts` como base técnica; conteúdo =
+e-mail 1 do doc operacional §15.1. Infra Resend JÁ ENTREGA (confirmado pelo dono em
+2026-07-05, plano gratuito); política: só quem completa radar/pré-diagnóstico recebe e-mail.
+**Escopo incluído:** template novo (DS2, dark-safe para clients de e-mail); envio na rota de
+lead com flag `emailSent`; fallback silencioso se envio falhar (lead nunca se perde — resultado
+completo permanece na tela).
+**Escopo excluído:** sequência de nutrição (e-mails 2–4 → Fase 1.5); qualquer alteração no
+e-mail do funil legado; NÃO tocar no bug do reset de senha (bug separado, `/corrigir-bug`).
+**Arquivos prováveis:** `src/app/api/radar/email-template.ts` (novo), `api/radar/lead/route.ts`.
+**Dependências:** 106.
+**Critérios de aceite:** e-mail chega em Gmail/Outlook reais; links com UTM; render ok em
+mobile; falha de envio não impede salvar lead.
+**Riscos:** deliverability do plano gratuito quando escalar — monitorar; decisão de domínio
+próprio reabre quando o volume justificar (registrado no 00b).
+
+---
+
+## FASE 1B — Redesign da plataforma logada (DS2 nas ferramentas)
+
+> **Origem:** decisão do dono (2026-07-05) — o plano cobre também o redesign das
+> funcionalidades dentro do login, como segundo resultado visual crítico (o primeiro é a home).
+> **Regra de ouro de TODAS as issues 114–120 (colar no início de cada sessão):**
+> O restyle é 100% VISUAL. Proibido alterar lógica, estado, dados, rotas de API, props,
+> integrações Supabase/localStorage ou textos funcionais. Se estilizar "exigir" refatorar
+> lógica, PARE e registre no relatório da sessão. As cores das zonas ROI
+> (`#22c55e`/`#3b82f6`/`#eab308`/`#ef4444`) são semântica de dados — NÃO mudam.
+> Mapa de conversão de tokens: `08_diretrizes_visuais_ds2.md` §5. Proibições: §6.
+> Critério universal: screenshots antes/depois por tela + funcionalidade idêntica comprovada
+> pelo fluxo manual descrito em cada issue + `tsc`/`lint`/`build` verdes.
+
+## ISSUE-114 — AppShell DS2 (navegação do app logado)
+
+**Fase:** 1B
+**Tipo:** UI / Frontend
+**Prioridade:** Alta
+**Complexidade:** Média
+**Modelo recomendado:** Sonnet (review Fable 5 — esta issue define o padrão das demais)
+**Objetivo:** sidebar desktop + header/drawer mobile do app logado no DS2, mantendo navegação
+e auth idênticos.
+**Contexto:** o shell atual (sidebar `glass`, logo mono laranja, itens com `accent-bg`) vive no
+layout do grupo `(app)` após a ISSUE-101. Fundo vira `--ds2-bg-app`, superfícies viram
+`--ds2-surface-glass` com `--ds2-border-subtle`, item ativo vira pill com `--ds2-accent-orange`
+(texto `#1E1005`), logo "+Conversas" em Plex Mono 700, e-mail do usuário em `--ds2-text-muted`.
+**Escopo incluído:** só o shell — sidebar, header mobile, drawer, botão sair, estados
+ativo/hover, loading screen inicial (spinner na paleta nova).
+**Escopo excluído:** conteúdo de qualquer página; lógica de auth/redirect (intocada).
+**Arquivos prováveis:** `src/app/(app)/layout.tsx`.
+**Dependências:** 101, 102.
+**Critérios de aceite:** navegação completa pelas 8 rotas funciona; logout funciona; drawer
+mobile abre/fecha; item ativo visível; touch ≥44px; screenshots antes/depois.
+**Riscos:** quebrar o gate de auth ao mexer no arquivo — o `useEffect` de auth não é tocado.
+
+## ISSUE-115 — Restyle /auth (login/cadastro)
+
+**Fase:** 1B
+**Tipo:** UI
+**Prioridade:** Alta
+**Complexidade:** Baixa
+**Modelo recomendado:** Sonnet
+**Objetivo:** a porta de entrada do assinante no DS2 — primeira impressão pós-newsletter.
+**Contexto:** `src/app/auth/page.tsx` (457 linhas): tabs login/cadastro, validação de e-mail
+autorizado, links para o Substack. Container central vira `Panel` (radius 28px) sobre fundo
+`--ds2-bg-app` + gradiente de ambiente; título em Fraunces; inputs com `--ds2-border-medium`
+e focus laranja; botão primário pill; mensagens de erro/aviso mantêm semântica (vermelho) com
+superfícies DS2.
+**Escopo incluído:** estilo de todos os estados visuais (login, cadastro, erro de autorização,
+aviso "apenas assinantes", loading).
+**Escopo excluído:** QUALQUER mudança em `supabase.auth.*`, `emailRedirectTo`, validações,
+rotas de verificação — o fluxo de signup já quebrou em produção no passado (v3.3.1);
+só CSS/classes/estrutura JSX de apresentação.
+**Arquivos prováveis:** `src/app/(app... ou publico)/auth/page.tsx` (grupo conforme 101).
+**Dependências:** 102, 114.
+**Critérios de aceite:** login real do dono funciona; cadastro com e-mail NÃO autorizado mostra
+o aviso correto; reset link visível; screenshots antes/depois.
+**Riscos:** tocar sem querer na lógica de auth — diff deve mostrar só apresentação.
+
+## ISSUE-116 — Restyle /dashboard (Mapa de Atividades)
+
+**Fase:** 1B
+**Tipo:** UI
+**Prioridade:** Alta
+**Complexidade:** Alta
+**Modelo recomendado:** Sonnet (sessão dedicada; é a tela-coração do produto)
+**Objetivo:** o mapa Impacto × Clareza no DS2 — a tela que aparece no vídeo de demo da home.
+**Contexto:** `src/app/dashboard/page.tsx` + `src/components/mapa/index.tsx` (1075 linhas) +
+`src/components/mapa-atividades-modular.tsx` (688 linhas, ATIVO — importado pelo dashboard).
+Elementos: formulário de atividade (sliders 1–6), gráfico scatter (recharts), tabela/cards por
+zona, matriz mobile com swipe. Conversão: containers viram Card/Panel DS2; títulos de seção em
+Fraunces; labels de zona em mono; tooltips e eixos do recharts com `--ds2-text-muted`;
+**pontos/badges de zona MANTÊM os hex das zonas ROI**.
+**Escopo incluído:** todas as superfícies visuais das 3 visualizações (form, gráfico, lista) +
+estados vazios + notificações.
+**Escopo excluído:** cálculo de zonas, persistência Supabase/localStorage, jitter do gráfico,
+gestos de swipe (lógica), exports.
+**Arquivos prováveis:** os 3 acima.
+**Dependências:** 114 (padrão definido).
+**Critérios de aceite:** fluxo manual — criar, editar, mover e excluir atividade; gráfico
+clicável; swipe mobile; export PNG ainda gera imagem legível (fundo escuro novo);
+screenshots antes/depois de cada visualização.
+**Riscos:** export PNG/relatórios que capturam DOM podem ficar ilegíveis com fundo novo —
+testar export explicitamente.
+
+## ISSUE-117 — Restyle /diagnostico (análise de foco)
+
+**Fase:** 1B
+**Tipo:** UI
+**Prioridade:** Média
+**Complexidade:** Média
+**Modelo recomendado:** Sonnet
+**Objetivo:** página de diagnóstico do assinante no DS2 (a rota fica intocada em URL e lógica —
+decisão do dono: "funciona bem, vira referência").
+**Contexto:** `src/app/diagnostico/page.tsx` (754 linhas) + `src/components/diagnostico/index.tsx`
+(841 linhas): cards de resultado, gráficos de mix, CTA para plano de ação, export PDF (jsPDF).
+**Escopo incluído:** superfícies, tipografia, cards de insight (usar Card/card-featured),
+barras/medidores com `--ds2-gradient-primary` onde forem progresso (nunca onde forem zona ROI).
+**Escopo excluído:** `diagnostico-engine.ts` (motor), geração de PDF (conteúdo), fluxos.
+**Dependências:** 114.
+**Critérios de aceite:** diagnóstico gera com dados reais; PDF exporta legível; CTA para
+/plano-acao funciona; screenshots antes/depois.
+**Riscos:** PDF herda estilos da tela — validar contraste no arquivo gerado.
+
+## ISSUE-118 — Restyle /plano-acao (Framework DAR CERTO)
+
+**Fase:** 1B
+**Tipo:** UI
+**Prioridade:** Média
+**Complexidade:** Alta
+**Modelo recomendado:** Sonnet (sessão dedicada; arquivos grandes)
+**Contexto:** `src/app/plano-acao/page.tsx` (1622 linhas) + `src/components/plano/index.tsx`
+(1791 linhas — maior arquivo do projeto): táticas por categoria (8 categorias DAR CERTO),
+sugestões da heurística V2.1, edição inline. Categorias ganham badges mono; cards de tática
+viram Module; sugestões IA viram card-featured.
+**Escopo incluído:** superfícies e tipografia de toda a página + modais.
+**Escopo excluído:** `heuristica-engine.ts`, ordenação, persistência, sincronização com Kanban.
+**Dependências:** 114.
+**Critérios de aceite:** criar/editar/excluir tática; aceitar sugestão da heurística;
+sincronização aparece no Kanban; screenshots antes/depois.
+**Riscos:** tamanho do arquivo → fazer por regiões e commitar em passos pequenos na mesma issue.
+
+## ISSUE-119 — Restyle /painel-semanal (Kanban)
+
+**Fase:** 1B
+**Tipo:** UI
+**Prioridade:** Média
+**Complexidade:** Média
+**Modelo recomendado:** Sonnet
+**Contexto:** `src/app/painel-semanal/**` + `KanbanPage.tsx` (1200 linhas), drag & drop com
+@dnd-kit. Colunas viram Panel; cards de tática viram Card com badge mono de categoria e o
+badge de horas (`estimativaHoras` — corrigido na v3.5.3); estados de arrasto mantêm affordance
+(sombra/escala leve permitida aqui).
+**Escopo incluído:** colunas, cards, header da semana, estados vazios, indicadores de sync.
+**Escopo excluído:** lógica de DnD, `lib/kanban/database.ts`, sincronização
+localStorage↔Supabase.
+**Dependências:** 114.
+**Critérios de aceite:** arrastar entre colunas persiste após reload; badge de horas visível;
+mobile drag funciona; screenshots antes/depois.
+**Riscos:** CSS de drag do @dnd-kit sensível a transform/overflow — testar em touch real.
+
+## ISSUE-120 — Restyle /relatorios + /perfil + /configuracoes + /admin/assinantes
+
+**Fase:** 1B
+**Tipo:** UI
+**Prioridade:** Baixa
+**Complexidade:** Média (volume, não dificuldade)
+**Modelo recomendado:** Sonnet (ou leve, com o padrão das issues anteriores consolidado)
+**Contexto:** 4 páginas de suporte (259–710 linhas cada). Mesma conversão mecânica do §5 do
+doc 08. `/admin/assinantes` inclui tabela CRUD — usar Table existente com superfícies DS2;
+dropdowns/selects PRECISAM manter fundo escuro legível (bug histórico v3.2.0).
+**Escopo excluído:** APIs de admin, exports LGPD (lógica), CRUD.
+**Dependências:** 114.
+**Critérios de aceite:** CRUD de assinante funciona (dono testa); export LGPD gera; selects
+legíveis; screenshots antes/depois.
+
+---
+
+## FASE 1.5 — Otimização pós-lançamento
+
+## ISSUE-201 — Baseline + relatório de funil (2 semanas de dados)
+**Tipo:** Analytics · **Prioridade:** Alta · **Complexidade:** Baixa · **Modelo:** Sonnet + dono
+Consolidar CPL, conversão por etapa e por cluster (novo vs `/pre-diagnostico`); decidir
+migração de campanhas. Critério: decisão documentada com números.
+
+## ISSUE-202 — Testes A/B de hero e CTA
+**Tipo:** Frontend/Analytics · **Prioridade:** Alta · **Complexidade:** Média · **Modelo:** Sonnet
+Variantes B/C/D do doc §8.2 e testes 1–4 do §22; mecanismo simples (split por cookie +
+dimensão no evento). Sem lib paga.
+
+## ISSUE-203 — Sequência de e-mails 2–4 (nutrição)
+**Tipo:** Backend/Copy · **Prioridade:** Média · **Complexidade:** Média · **Modelo:** Sonnet
+Depende de 113. Conteúdo literal do doc §15.2–15.4. Agendamento: decidir entre cron Vercel e
+disparo manual documentado.
+
+## ISSUE-204 — /comece-aqui e /sobre
+**Tipo:** Frontend/Copy · **Prioridade:** Média · **Complexidade:** Baixa · **Modelo:** leve
+Trilha de entrada (doc estratégico §7; contexto editorial §10.1) + manifesto/credibilidade.
+
+## ISSUE-205 — Acessibilidade e performance
+**Tipo:** UI/Testes · **Prioridade:** Média · **Complexidade:** Média · **Modelo:** Sonnet
+WCAG AA nos fluxos novos; performance budget; imagens OG/hero otimizadas; revisar impacto das
+3 famílias de fonte.
+
+## ISSUE-206 — Landing âncoras por cluster de campanha
+**Tipo:** Frontend/SEO · **Prioridade:** Baixa · **Complexidade:** Média · **Modelo:** Sonnet
+Variações de entrada por intenção (doc §17); só depois da 201 provar onde vale.
+
+## ISSUE-207 — Aposentadoria do /pre-diagnostico (se e quando 201 mandar)
+**Tipo:** Frontend/Analytics · **Prioridade:** Baixa · **Complexidade:** Média · **Modelo:** Fable 5
+Redirect 308 + preservação de histórico de dados + comunicação. NUNCA antes da paridade de CPL.
+
+## ISSUE-208 — Plano de melhoria de Google Ads
+**Tipo:** Analytics/Estratégia · **Prioridade:** Média · **Complexidade:** Baixa · **Modelo:** Fable 5 + dono
+Consolidar o plano de evolução de mídia registrado na decisão de 2026-07-05: (a) avaliar
+separação de labels de conversão por funil (hoje unificado no
+`AW-16601345592/0K0dCMm6oo4bELjckew9` por decisão do dono); (b) campanhas por cluster de
+intenção (doc operacional §17); (c) valores de conversão diferenciados por qualidade de lead;
+(d) revisão de Quality Score/message match pós-reposicionamento. Entregável: documento de
+plano + especificação de mudanças para o dono aplicar no Google Ads/GTM.
+
+---
+
+## FASE 2 — Valor de produto (resumo; detalhar quando a Fase 1 provar)
+
+## ISSUE-301 — Wizard "Que solução devo construir?" (evolução do radar com detalhamento guiado)
+## ISSUE-302 — Classificação de solução em 4 níveis de app (offline / offline+tabela / orquestrado / agêntico) como página educativa + integração nos resultados
+## ISSUE-303 — Builder Canvas (canvas estruturado exportável)
+## ISSUE-304 — PRD Kit (templates de PRD orientados aos 4Ds — Descrição)
+## ISSUE-305 — Área premium inicial + fluxo direto Stripe
+Contexto registrado (dono, 2026-07-05): hoje a assinatura paga é intermediada pela newsletter
+(Substack) com autorização MANUAL — o dono adiciona o e-mail em `authorized_emails` e envia
+boas-vindas. Volume atual baixíssimo (meses sem assinante pago novo) → manual é suficiente por
+ora. Esta issue mapeia e implementa o fluxo direto quando fizer sentido:
+`página /lab ou /premium → Stripe Checkout (assinatura R$15–29/mês, preço a definir) →
+webhook `checkout.session.completed` (rota `api/stripe/webhook`, service_role) → INSERT em
+`authorized_emails` + e-mail de boas-vindas via Resend → login liberado`. Inclui: produto/preço
+no Stripe (dono cria no dashboard), tratamento de cancelamento (webhook
+`customer.subscription.deleted` → expirar autorização), página de gestão mínima. Decisão
+pendente na abertura: Stripe substitui ou convive com o plano pago do Substack (recomendação:
+convivem — Substack para quem já está lá, Stripe para conversão direta do site).
+## ISSUE-306 — Primeiros 10 ativos premium (checklists dos 4Ds, template narrar valor, guia IA-na-firma)
+
+## FASE 3 — Ecossistema / Lab (resumo)
+
+## ISSUE-401 — Trilha Artesanato Digital (curso autoguiado)
+## ISSUE-402 — Biblioteca de casos de uso corporativos
+## ISSUE-403 — Playbooks por área
+## ISSUE-404 — App Readiness Checklist
+## ISSUE-405 — Miniapps internos do Lab
+
+## FASE 4 — Evolução contínua
+
+## ISSUE-501 — Meta-issue: processo de abertura de issues por domínio
+Toda feature nova nasce como issue neste arquivo (ou no GitHub Issues se o projeto migrar),
+com o mesmo formato, marcada por tipo (produto/UI/UX/conteúdo/dados/integrações/premium/
+analytics/testes/documentação) e com recomendação de modelo. Usar `/nova-feature` na execução.

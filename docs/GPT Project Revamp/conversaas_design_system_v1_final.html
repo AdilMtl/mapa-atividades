@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>+ConverSaaS — Design System v1 Final</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap');
+:root {
+  --bg-deep: #0A1412;
+  --bg-app: #08110F;
+  --bg-panel: #1B3F39;
+  --bg-panel-soft: rgba(255,255,255,0.055);
+  --bg-panel-strong: rgba(255,255,255,0.075);
+  --text-primary: #F8F0E6;
+  --text-secondary: #D2DDD9;
+  --text-muted: #9EAEA8;
+  --text-subtle: #70817B;
+  --accent-orange: #D97706;
+  --accent-magenta: #D34C75;
+  --accent-amber-soft: #F0B674;
+  --border-subtle: rgba(255,255,255,0.09);
+  --border-medium: rgba(255,255,255,0.14);
+  --surface-glass: rgba(255,255,255,0.055);
+  --surface-glass-hover: rgba(255,255,255,0.075);
+  --gradient-primary: linear-gradient(90deg,#D97706,#D34C75);
+  --font-serif: "Fraunces", Georgia, serif;
+  --font-sans: "IBM Plex Sans", Inter, system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", Consolas, monospace;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  background:
+    radial-gradient(circle at 10% 0%, rgba(211,76,117,.12), transparent 25%),
+    radial-gradient(circle at 90% 8%, rgba(217,119,6,.12), transparent 24%),
+    linear-gradient(135deg,#08110F 0%,#132622 60%,#08110F 100%);
+}
+.page { width: min(1220px, calc(100% - 40px)); margin: 0 auto; padding: 54px 0 80px; }
+.nav { display:flex; justify-content:space-between; align-items:center; font-family:var(--font-mono); font-size:12px; margin-bottom:72px; color:var(--accent-amber-soft); }
+.navlinks { display:flex; gap:20px; color:var(--text-secondary); }
+.logo { font-weight:700; color:var(--text-primary); }
+.hero {
+  border: 1px solid var(--border-subtle);
+  border-radius: 34px;
+  overflow:hidden;
+  background:
+    linear-gradient(90deg, rgba(255,255,255,.028) 1px, transparent 1px),
+    linear-gradient(rgba(255,255,255,.028) 1px, transparent 1px),
+    linear-gradient(135deg,#091514 0%,#10211D 100%);
+  background-size:34px 34px,34px 34px,auto;
+  padding: 44px;
+}
+.eyebrow { font-family:var(--font-mono); text-transform:uppercase; letter-spacing:.13em; font-size:12px; color:var(--accent-amber-soft); margin-bottom:18px; }
+h1 {
+  font-family: var(--font-serif);
+  font-size: clamp(48px,7vw,94px);
+  line-height:.92;
+  letter-spacing:-.065em;
+  font-weight:500;
+  margin:0;
+  max-width:900px;
+}
+.lead { margin-top:22px; max-width:680px; font-size:19px; color:var(--text-secondary); line-height:1.5; }
+.actions { display:flex; gap:12px; margin-top:28px; flex-wrap:wrap; }
+.btn { border-radius:999px; padding:14px 19px; font-weight:700; font-size:14px; border:1px solid transparent; }
+.primary { background:var(--accent-orange); color:#1E1005; }
+.primary:hover { background:var(--gradient-primary); }
+.secondary { border-color:rgba(255,240,220,.18); color:var(--text-primary); background:transparent; }
+.grid { display:grid; grid-template-columns: repeat(3,1fr); gap:16px; margin-top:24px; }
+.card {
+  border-radius:24px;
+  border:1px solid var(--border-subtle);
+  background:var(--surface-glass);
+  padding:20px;
+  min-height:172px;
+}
+.card:nth-child(2) { background:rgba(46,104,96,.13); }
+.card:nth-child(3) { background:linear-gradient(145deg,rgba(211,76,117,.10),rgba(255,255,255,.04)); }
+.num { font-family:var(--font-mono); font-size:11px; letter-spacing:.08em; color:var(--text-muted); margin-bottom:32px; }
+.card h3 { font-size:19px; margin:0; letter-spacing:-.03em; }
+.card p { font-size:14px; color:var(--text-secondary); line-height:1.45; margin:8px 0 0; }
+.section { margin-top:48px; display:grid; grid-template-columns:.8fr 1.2fr; gap:24px; }
+.panel {
+  border-radius:28px;
+  border:1px solid var(--border-subtle);
+  background:var(--surface-glass);
+  padding:24px;
+}
+h2 {
+  font-family:var(--font-serif);
+  font-size:42px;
+  line-height:1;
+  letter-spacing:-.045em;
+  font-weight:500;
+  margin:0 0 12px;
+}
+.panel p { color:var(--text-secondary); margin:0; line-height:1.55; }
+.swatches { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; }
+.swatch { border:1px solid var(--border-subtle); border-radius:18px; overflow:hidden; background:var(--surface-glass); }
+.color { height:74px; }
+.swatch span { display:block; padding:10px; font-family:var(--font-mono); font-size:11px; color:var(--text-secondary); }
+.type-demo { display:grid; gap:12px; }
+.type-card { border:1px solid var(--border-subtle); border-radius:20px; padding:18px; background:var(--surface-glass); }
+.label { font-family:var(--font-mono); text-transform:uppercase; letter-spacing:.13em; font-size:11px; color:var(--accent-amber-soft); margin-bottom:10px; }
+.serif { font-family:var(--font-serif); font-size:34px; line-height:1; letter-spacing:-.045em; }
+.sans { font-family:var(--font-sans); font-size:21px; }
+.mono { font-family:var(--font-mono); font-size:14px; color:var(--text-secondary); }
+.module {
+  margin-top:24px;
+  border-radius:26px;
+  border:1px solid var(--border-subtle);
+  background:var(--surface-glass);
+  padding:20px;
+}
+.module-head { display:flex; justify-content:space-between; font-family:var(--font-mono); font-size:12px; color:var(--text-secondary); margin-bottom:14px; }
+.progress { height:10px; background:rgba(255,255,255,.11); border-radius:999px; overflow:hidden; }
+.progress span { display:block; height:100%; width:72%; background:var(--gradient-primary); }
+@media(max-width:900px){
+  .grid,.section,.swatches{grid-template-columns:1fr}
+  .hero{padding:28px}
+  .navlinks{display:none}
+}
+</style>
+</head>
+<body>
+<main class="page">
+  <nav class="nav">
+    <div class="logo">+ConverSaaS</div>
+    <div class="navlinks"><span>Design System v1</span><span>Dark Editorial Atelier</span><span>Orange / Magenta</span></div>
+  </nav>
+
+  <section class="hero">
+    <div class="eyebrow">Sistema editorial-prático</div>
+    <h1>Uma plataforma útil, energética e refinada para construir com IA.</h1>
+    <p class="lead">Design system v1 para o +ConverSaaS: fundo escuro em verde profundo, grid sutil, títulos em Fraunces, interface modular e acentos em laranja/magenta.</p>
+    <div class="actions">
+      <div class="btn primary">Explorar a plataforma</div>
+      <div class="btn secondary">Assinar newsletter</div>
+    </div>
+
+    <div class="grid">
+      <div class="card">
+        <div class="num">01 / EDITORIAL</div>
+        <h3>Profundidade com gosto</h3>
+        <p>Serifa elegante, leitura refinada e sensação de publicação premium.</p>
+      </div>
+      <div class="card">
+        <div class="num">02 / SISTEMA</div>
+        <h3>Interface de produto</h3>
+        <p>Cards, módulos, trilhas e ferramentas com cara de app vivo.</p>
+      </div>
+      <div class="card">
+        <div class="num">03 / ENERGIA</div>
+        <h3>Laranja + magenta</h3>
+        <p>Acentos contemporâneos para evitar um visual corporativo ou estático.</p>
+      </div>
+    </div>
+
+    <div class="module">
+      <div class="module-head"><span>Trilha Builder Corporativo</span><span>módulo 03 / ativo</span></div>
+      <div class="progress"><span></span></div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="panel">
+      <h2>Paleta oficial</h2>
+      <p>A paleta escolhida é a mais energética da fase 3: laranja vivo como ação, magenta como acento contemporâneo, verde profundo como campo principal e grid sutil para densidade.</p>
+    </div>
+    <div class="swatches">
+      <div class="swatch"><div class="color" style="background:#0A1412"></div><span>#0A1412 · bg-deep</span></div>
+      <div class="swatch"><div class="color" style="background:#1B3F39"></div><span>#1B3F39 · bg-panel</span></div>
+      <div class="swatch"><div class="color" style="background:#D97706"></div><span>#D97706 · orange</span></div>
+      <div class="swatch"><div class="color" style="background:#D34C75"></div><span>#D34C75 · magenta</span></div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="panel">
+      <h2>Tipografia</h2>
+      <p>Fraunces assume os títulos e chamadas editoriais. IBM Plex Sans organiza a interface. IBM Plex Mono traz a camada de sistema, trilha, código e metadados.</p>
+    </div>
+    <div class="type-demo">
+      <div class="type-card"><div class="label">Serif / títulos</div><div class="serif">Fraunces traz taste e curvas editoriais.</div></div>
+      <div class="type-card"><div class="label">Sans / interface</div><div class="sans">IBM Plex Sans mantém clareza, produto e seriedade.</div></div>
+      <div class="type-card"><div class="label">Mono / sistema</div><div class="mono">IBM Plex Mono · trail_builder_v1 · premium=true</div></div>
+    </div>
+  </section>
+</main>
+</body>
+</html>

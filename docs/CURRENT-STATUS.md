@@ -1,4 +1,85 @@
-## 🎯 SESSÃO ATUAL: Fase 3 da Modernização — Correções por Severidade + Auditoria de RLS
+## 🎯 SESSÃO ATUAL: Planejamento do Revamp +ConverSaaS (Fase 1 de Reposicionamento)
+**Data:** 05 de julho de 2026
+**Versão:** v3.6.0
+**Status:** ✅ Planejamento completo — pronto para iniciar execução (ISSUE-101)
+**Duração:** ~1 sessão longa (planejamento estratégico, sem código de produto)
+
+### **🚀 O QUE FOI FEITO:**
+
+Sessão 100% de planejamento, a pedido do dono, para estruturar o revamp do site/app com base
+nos documentos estratégicos de `docs/GPT Project Revamp/` (design system, benchmark, contexto
+editorial da newsletter, documentos de estratégia e execução da Fase 1). **Nenhum código de
+produto foi alterado** — só documentação e skills.
+
+**Documentos criados em `docs/revamp/` (11 arquivos):**
+- `README.md` — documento central do revamp (visão, fases, princípios de copy/design/técnicos).
+- `00_problem_definition.md` — problema, usuário-alvo, hipótese e critérios de sucesso da Fase 1.
+- `00b_open_questions.md` — 11 decisões/premissas, todas resolvidas com o dono.
+- `01_product_spec_faseada.md` — jornadas, arquitetura de informação, features por fase.
+- `02_technical_spec.md` — stack, arquitetura (route groups, motor de radar, backend), riscos.
+- `03_implementation_plan.md` — sequência de sprints, dependências, QA, rollback.
+- `04_issue_backlog.md` — **22 issues executáveis** da Fase 1 + Fase 1B + resumos de Fase 1.5/2/3/4.
+- `05_model_execution_strategy.md` — qual modelo (Fable 5/Sonnet/leve) executa cada issue.
+- `06_definition_of_done.md` — checklist de conclusão da Fase 1.
+- `07_mapa_tracking_ads.md` — inventário completo dos marcadores Google Ads/GTM no código
+  (`layout.tsx`, `EmailGate.tsx`, `lead/route.ts`) + regras de preservação.
+- `08_diretrizes_visuais_ds2.md` — caderno de receitas visuais do Design System v2 (tokens
+  literais, componentes, mapa de migração do tema legado, proibições).
+- `09_direcoes_landing.md` — comparação de 3 direções visuais da landing (mockups navegáveis)
+  e registro da decisão final.
+- `mockups/*.html` — 4 protótipos HTML navegáveis da nova landing (A, B, C e o híbrido final
+  aprovado), publicados como Artifacts para revisão no celular.
+
+**Skills atualizadas/criadas em `.claude/skills/`:**
+- **Nova: `executar-issue-revamp`** — carrega o contexto certo por issue (README + issue +
+  diretrizes visuais/tracking quando aplicável) antes de codar, trava o escopo, roda os
+  critérios de aceite específicos da issue e marca conclusão no backlog. Feita para minimizar
+  re-steering quando um modelo mais simples executa as issues.
+- **`iniciar-sessao`** — ganhou um Passo 0 que detecta trabalho do revamp e direciona para a
+  `executar-issue-revamp`.
+- **`finalizar-sessao`** — ganhou um item para confirmar status da issue no backlog e citar o
+  número dela na entrada de CURRENT-STATUS/CHANGELOG.
+
+### **🎯 PRINCIPAIS DECISÕES TOMADAS COM O DONO:**
+
+- **Marca:** a plataforma chama-se **"+ConverSaaS"**, sempre apresentada como "o ecossistema
+  virtual da newsletter Conversas no Corredor".
+- **Visual:** Design System "Dark Editorial Atelier" da pasta GPT Project Revamp confirmado
+  como oficial (fundo verde-escuro, laranja+magenta, Fraunces/IBM Plex).
+- **Landing nova:** direção final é um **híbrido** — estrutura/grid técnico do protótipo A +
+  headline builder com destaque em gradiente e janela de radar animada do protótipo C.
+- **Pricing:** a home nova **mantém** a tabela de preços da newsletter (decisão do dono, contra
+  a recomendação inicial).
+- **Vídeos de demo:** os 4 vídeos atuais da plataforma (`mapeamento`, `diagnostico`, `taticas`,
+  `kanban`) são preservados numa seção "A plataforma em ação" na home nova.
+- **`/pre-diagnostico`:** continua no ar, sem link nomeado na navegação nova, mas — decisão de
+  sequenciamento tomada nesta sessão — é o **destino temporário** dos CTAs de diagnóstico da
+  home nova (ISSUE-107) enquanto os radares (`/radar/maturidade`, `/radar/oportunidades`) não
+  existem. A **ISSUE-107B** troca esse destino assim que os radares ficarem prontos.
+- **Fase 1B (nova):** o dono pediu que o plano cubra também o redesign visual (DS2) de toda a
+  plataforma logada — dashboard, diagnóstico, plano de ação, kanban, relatórios/perfil/config/
+  admin (ISSUES 114–120), com regra de ouro: 100% visual, zero mudança de lógica/dados.
+  Promovida de "Fase 2+" para dentro da Fase 1 como segundo resultado visual crítico.
+- **Google Ads:** funil novo (radares) vai usar o **mesmo label de conversão** do funil atual;
+  separação futura de labels registrada como plano de melhoria (ISSUE-208, Fase 1.5).
+- **Stripe:** fluxo direto de assinatura mapeado (ISSUE-305, Fase 2) para quando o volume
+  escalar — hoje a assinatura é intermediada pela newsletter, com autorização manual do dono.
+- **E-mail:** confirmado que o e-mail do pré-diagnóstico entrega normalmente via Resend (plano
+  gratuito). Bug **separado** identificado: e-mail de reset de senha não chega — registrado
+  para correção via `/corrigir-bug` em sessão futura, fora do escopo do revamp.
+
+### **🎯 PRÓXIMOS PASSOS:**
+
+Iniciar a execução pelo Sprint 0 do `docs/revamp/03_implementation_plan.md`:
+1. **ISSUE-101** — layout server-first + route groups (fundação técnica).
+2. **ISSUE-102** — Design System v2 no código (tokens, fontes, componentes `ds2/*`).
+3. **ISSUE-107** — homepage reposicionada (reskin com CTAs temporários para `/pre-diagnostico`).
+
+Usar `/executar-issue-revamp` para cada issue (carrega o contexto certo automaticamente).
+
+---
+
+## 🎯 SESSÃO Anterior: Fase 3 da Modernização — Correções por Severidade + Auditoria de RLS
 **Data:** 04 de julho de 2026
 **Versão:** v3.5.3
 **Status:** ✅ Concluída — código, deploy, SQL de RLS e permissões de função, todos validados
