@@ -1,4 +1,49 @@
-## 🎯 SESSÃO ATUAL: ISSUE-101 — Layout server-first + route groups (fundação do revamp)
+## 🎯 SESSÃO ATUAL: ISSUE-102 — Design System v2 no código (Dark Editorial Atelier)
+**Data:** 06 de julho de 2026
+**Versão:** v3.6.2
+**Status:** ✅ Concluída
+**Duração:** ~1 sessão
+
+### **🚀 O QUE FOI FEITO:**
+
+Fundação visual do revamp: tokens, fontes e componentes base do Design System v2 ("Dark
+Editorial Atelier") disponíveis no código, sem tocar em nenhuma página legada.
+
+- **Tokens DS2** em `src/app/globals.css` — paleta completa (fundos, texto, acentos
+  laranja/magenta, bordas, glass, gradiente) como CSS vars `--ds2-*`, expostas ao Tailwind v4
+  via `@theme` (utilities `bg-ds2-orange`, `rounded-ds2-card`, `font-ds2-serif` etc.). Tema
+  legado (`--bg`/`--accent`) intocado — os dois conjuntos convivem sem colisão de nomes.
+- **Fontes** Fraunces (variable, eixo `opsz`), IBM Plex Sans e IBM Plex Mono via
+  `next/font/google`, carregadas no `src/app/layout.tsx` raiz e aplicadas só como CSS vars no
+  `<html>`. O `<body>` legado define `font-family` própria (`system-ui`), então nenhuma página
+  existente muda visualmente — confirmado depois do build.
+- **`DS2`** exportado em `src/lib/design-system.ts` (cores/gradiente/fontes/raios), com o
+  `DESIGN_TOKENS` antigo 100% intacto para a plataforma legada.
+- **10 componentes novos** em `src/components/ds2/`: `Button`, `Card`, `Badge`,
+  `Module`/`ModuleHead`, `Progress`, `Panel`, `GridSection`, `Eyebrow`, `SectionTitle`,
+  `PageContainer` — cada um implementando literalmente as receitas de
+  `docs/revamp/08_diretrizes_visuais_ds2.md` (nenhum hex/raio/fonte inventado).
+
+### **✅ VALIDAÇÃO:**
+- `npx tsc --noEmit` e `npm run build` limpos (24 rotas, mesma contagem de antes).
+- `npm run lint` sem nenhum erro/warning novo (só débito pré-existente já mapeado).
+- GTM confirmado byte-idêntico por diff (só `className` novo no `<html>`, snippet intocado).
+- Build rodado numa porta isolada (a 3000 tinha um processo Node antigo de sessão anterior —
+  não foi encerrado); `/`, `/dashboard` e `/pre-diagnostico` responderam 200 com as classes de
+  fonte do `next/font` aplicadas ao `<html>`.
+- Contraste AA verificado manualmente no par mais crítico do token set (`text-subtle` sobre
+  `bg-app`): ~4,66:1, acima do mínimo AA (4,5:1) para texto normal.
+- Nenhuma página consome os componentes DS2 ainda — isso nasce na ISSUE-103/107.
+
+### **🎯 PRÓXIMOS PASSOS:**
+Seguir o Sprint 0/1 do revamp: **ISSUE-107** (homepage reposicionada, depende só da 102) ou
+**ISSUE-103/104/105/106** (radares) — a definir na próxima sessão. ISSUE-101 segue
+`⚠️ parcial` no backlog (dono confirmou que o deploy está ok, mas a validação formal de Tag
+Assistant + instalação do PWA em produção fica para um horário futuro).
+
+---
+
+## 🎯 SESSÃO Anterior: ISSUE-101 — Layout server-first + route groups (fundação do revamp)
 **Data:** 05 de julho de 2026 (segunda sessão)
 **Versão:** v3.6.1
 **Status:** ⚠️ Código completo, tsc/lint/build verdes, GTM byte-idêntico validado. Aguarda Tag Assistant + PWA em preview pelo dono para marcar ✅ concluída.

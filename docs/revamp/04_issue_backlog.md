@@ -48,6 +48,16 @@ screenshot do Tag Assistant.
 
 ## ISSUE-102 — Design System v2 no código (Dark Editorial Atelier)
 
+**Status:** ✅ concluída em 2026-07-06 — tokens DS2 em `globals.css` (+ `@theme` Tailwind v4),
+fontes Fraunces/IBM Plex via `next/font/google` no layout raiz, export `DS2` em
+`design-system.ts` (sem tocar `DESIGN_TOKENS`), 10 componentes em `src/components/ds2/`
+(Button, Card, Badge, Module/ModuleHead, Progress, Panel, GridSection, Eyebrow, SectionTitle,
+PageContainer). `tsc`/`lint`/`build` verdes, 24 rotas, GTM byte-idêntico (diff), spot-check
+`/`, `/dashboard`, `/pre-diagnostico` em 200 com fontes DS2 aplicadas só ao `<html>` (body
+legado mantém `font-family` própria — zero regressão visual). Contraste AA verificado nos
+pares texto/fundo do token set contra `--ds2-bg-app` (pior caso, `text-subtle`, ~4,66:1).
+Ainda não há página consumidora (nasce na ISSUE-103/107).
+
 **Fase:** 1
 **Tipo:** UI / Frontend
 **Prioridade:** Alta

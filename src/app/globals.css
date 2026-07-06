@@ -233,3 +233,86 @@ body {
   backdrop-filter: blur(8px);
   background-color: rgba(255,255,255,0.06);
 }
+
+/* =========================================================
+   🎨 Design System v2 — Dark Editorial Atelier (ISSUE-102)
+   Receitas: docs/revamp/08_diretrizes_visuais_ds2.md
+   Só para páginas/componentes NOVOS (prefixo --ds2-*). O tema legado
+   acima (--bg/--accent) continua intocado para as páginas existentes.
+   ========================================================= */
+:root {
+  --ds2-bg-deep: #0A1412;
+  --ds2-bg-app: #08110F;
+  --ds2-bg-panel: #1B3F39;
+  --ds2-bg-panel-soft: rgba(255,255,255,0.055);
+  --ds2-bg-panel-strong: rgba(255,255,255,0.075);
+
+  --ds2-text-primary: #F8F0E6;
+  --ds2-text-secondary: #D2DDD9;
+  --ds2-text-muted: #9EAEA8;
+  --ds2-text-subtle: #70817B;
+
+  --ds2-accent-orange: #D97706;
+  --ds2-accent-magenta: #D34C75;
+  --ds2-accent-amber-soft: #F0B674;
+
+  --ds2-border-subtle: rgba(255,255,255,0.09);
+  --ds2-border-medium: rgba(255,255,255,0.14);
+  --ds2-surface-glass: rgba(255,255,255,0.055);
+  --ds2-surface-glass-hover: rgba(255,255,255,0.075);
+
+  --ds2-font-serif: var(--font-fraunces), Georgia, serif;
+  --ds2-font-sans: var(--font-plex-sans), Inter, system-ui, sans-serif;
+  --ds2-font-mono: var(--font-plex-mono), Consolas, monospace;
+}
+
+@theme inline {
+  --color-ds2-bg-deep: var(--ds2-bg-deep);
+  --color-ds2-bg-app: var(--ds2-bg-app);
+  --color-ds2-bg-panel: var(--ds2-bg-panel);
+  --color-ds2-bg-panel-soft: var(--ds2-bg-panel-soft);
+  --color-ds2-bg-panel-strong: var(--ds2-bg-panel-strong);
+
+  --color-ds2-text-primary: var(--ds2-text-primary);
+  --color-ds2-text-secondary: var(--ds2-text-secondary);
+  --color-ds2-text-muted: var(--ds2-text-muted);
+  --color-ds2-text-subtle: var(--ds2-text-subtle);
+
+  --color-ds2-orange: var(--ds2-accent-orange);
+  --color-ds2-magenta: var(--ds2-accent-magenta);
+  --color-ds2-amber-soft: var(--ds2-accent-amber-soft);
+
+  --color-ds2-border-subtle: var(--ds2-border-subtle);
+  --color-ds2-border-medium: var(--ds2-border-medium);
+  --color-ds2-surface-glass: var(--ds2-surface-glass);
+  --color-ds2-surface-glass-hover: var(--ds2-surface-glass-hover);
+
+  --background-image-ds2-gradient-primary: linear-gradient(90deg, var(--ds2-accent-orange), var(--ds2-accent-magenta));
+
+  --font-ds2-serif: var(--ds2-font-serif);
+  --font-ds2-sans: var(--ds2-font-sans);
+  --font-ds2-mono: var(--ds2-font-mono);
+
+  --radius-ds2-pill: 999px;
+  --radius-ds2-card: 24px;
+  --radius-ds2-module: 26px;
+  --radius-ds2-panel: 28px;
+  --radius-ds2-hero: 34px;
+}
+
+/* Fundo de ambiente (páginas públicas novas) — aplicar no wrapper da página, nunca no <body> global */
+.ds2-bg-ambient {
+  background:
+    radial-gradient(circle at 10% 0%, rgba(211,76,117,.12), transparent 25%),
+    radial-gradient(circle at 90% 8%, rgba(217,119,6,.12), transparent 24%),
+    linear-gradient(135deg,#08110F 0%,#132622 60%,#08110F 100%);
+}
+
+/* Grid técnico — só em hero/módulos de ferramenta/laboratório, nunca em página inteira */
+.ds2-bg-grid {
+  background:
+    linear-gradient(90deg, rgba(255,255,255,.028) 1px, transparent 1px),
+    linear-gradient(rgba(255,255,255,.028) 1px, transparent 1px),
+    linear-gradient(135deg,#091514 0%,#10211D 100%);
+  background-size: 34px 34px, 34px 34px, auto;
+}

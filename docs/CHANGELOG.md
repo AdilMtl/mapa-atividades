@@ -16,6 +16,33 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [v3.6.2] - 2026-07-06 - 🎨 ISSUE-102 — Design System v2 no código (Dark Editorial Atelier)
+
+### ✅ Adicionado
+- Tokens DS2 (Dark Editorial Atelier) em `src/app/globals.css`: paleta completa como CSS vars
+  `--ds2-*`, expostas ao Tailwind v4 via `@theme` (gera utilities `bg-ds2-orange`,
+  `rounded-ds2-card`, `font-ds2-serif` etc.). Convive com o tema legado (`--bg`/`--accent`)
+  sem colisão.
+- Fontes Fraunces (variable, eixo `opsz`), IBM Plex Sans e IBM Plex Mono via `next/font/google`
+  no `src/app/layout.tsx` raiz, aplicadas como CSS vars no `<html>`.
+- Export `DS2` em `src/lib/design-system.ts` (cores, gradiente, fontes, raios) — `DESIGN_TOKENS`
+  legado permanece intacto.
+- 10 componentes em `src/components/ds2/`: `Button`, `Card`, `Badge`, `Module`/`ModuleHead`,
+  `Progress`, `Panel`, `GridSection`, `Eyebrow`, `SectionTitle`, `PageContainer` — implementam
+  literalmente as receitas de `docs/revamp/08_diretrizes_visuais_ds2.md`.
+
+### 📊 Técnico
+- `tsc`/`lint`/`build` verdes; 24 rotas (mesma contagem da v3.6.1); GTM byte-idêntico (diff).
+- Zero regressão visual: `<body>` legado mantém `font-family` própria, então as fontes DS2 não
+  afetam páginas existentes; confirmado com `/`, `/dashboard` e `/pre-diagnostico` em 200.
+- Contraste AA conferido no par mais crítico do token set (`text-subtle` sobre `bg-app`):
+  ~4,66:1 (mínimo AA para texto normal é 4,5:1).
+- Nenhuma página consome os componentes ainda — ISSUE-103/107 são as primeiras consumidoras.
+- ISSUE-101 segue `⚠️ parcial` no backlog: dono confirmou deploy ok, mas validação formal de
+  Tag Assistant + PWA em produção fica para sessão futura.
+
+---
+
 ## [v3.6.1] - 2026-07-05 - 🏗️ ISSUE-101 — Layout server-first + route groups (fundação)
 
 ### ✅ Adicionado

@@ -257,6 +257,55 @@ export interface Atividade {
 }
 
 // ═══════════════════════════════════════════════════════════════════
+// 🌑 DESIGN SYSTEM V2 - DARK EDITORIAL ATELIER (ISSUE-102)
+// Tokens do revamp +ConverSaaS, só para páginas/componentes novos.
+// Fonte da verdade: docs/revamp/08_diretrizes_visuais_ds2.md — valores
+// literais, não "melhorar". Espelha os CSS vars --ds2-* em globals.css.
+// ═══════════════════════════════════════════════════════════════════
+
+export const DS2 = {
+  colors: {
+    bgDeep: '#0A1412',
+    bgApp: '#08110F',
+    bgPanel: '#1B3F39',
+    panelSoft: 'rgba(255,255,255,0.055)',
+    panelStrong: 'rgba(255,255,255,0.075)',
+
+    textPrimary: '#F8F0E6',
+    textSecondary: '#D2DDD9',
+    textMuted: '#9EAEA8',
+    textSubtle: '#70817B',
+
+    accentOrange: '#D97706',
+    accentMagenta: '#D34C75',
+    accentAmberSoft: '#F0B674',
+
+    borderSubtle: 'rgba(255,255,255,0.09)',
+    borderMedium: 'rgba(255,255,255,0.14)',
+    surfaceGlass: 'rgba(255,255,255,0.055)',
+    surfaceGlassHover: 'rgba(255,255,255,0.075)',
+  },
+
+  gradients: {
+    primary: 'linear-gradient(90deg,#D97706,#D34C75)',
+  },
+
+  fonts: {
+    serif: 'var(--font-fraunces), Georgia, serif',
+    sans: 'var(--font-plex-sans), Inter, system-ui, sans-serif',
+    mono: 'var(--font-plex-mono), Consolas, monospace',
+  },
+
+  radius: {
+    pill: '999px',
+    card: '24px',
+    module: '26px',
+    panel: '28px',
+    hero: '34px',
+  },
+} as const;
+
+// ═══════════════════════════════════════════════════════════════════
 // 📋 EXEMPLO DE USO
 // ═══════════════════════════════════════════════════════════════════
 

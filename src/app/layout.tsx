@@ -1,11 +1,36 @@
 import type { Metadata, Viewport } from 'next'
 import Script from 'next/script'
+import { Fraunces, IBM_Plex_Sans, IBM_Plex_Mono } from 'next/font/google'
 import './globals.css'
 
 // Layout raiz = Server Component (ISSUE-101): só html/body, GTM e metadata.
 // Gate de auth + sidebar da plataforma logada vivem em (app)/layout.tsx.
 // ⚠️ Os 2 blocos GTM abaixo são trava crítica (docs/revamp/07_mapa_tracking_ads.md):
 // devem permanecer byte-idênticos e ser o primeiro conteúdo do <body>.
+
+// Fontes do Design System v2 (ISSUE-102) — expostas como CSS vars no <html>.
+// O body legado define font-family própria (system-ui), então nada muda visualmente
+// nas páginas existentes; só páginas/componentes ds2/* referenciam estas vars.
+const fraunces = Fraunces({
+  subsets: ['latin'],
+  axes: ['opsz'],
+  variable: '--font-fraunces',
+  display: 'swap',
+})
+
+const ibmPlexSans = IBM_Plex_Sans({
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700'],
+  variable: '--font-plex-sans',
+  display: 'swap',
+})
+
+const ibmPlexMono = IBM_Plex_Mono({
+  subsets: ['latin'],
+  weight: ['400', '500', '600'],
+  variable: '--font-plex-mono',
+  display: 'swap',
+})
 
 export const metadata: Metadata = {
   title: '+Conversas no Corredor',
@@ -48,7 +73,7 @@ interface LayoutProps {
 
 export default function RootLayout({ children }: LayoutProps) {
   return (
-    <html lang="pt-BR">
+    <html lang="pt-BR" className={`${fraunces.variable} ${ibmPlexSans.variable} ${ibmPlexMono.variable}`}>
       <body>
 {/* Google Tag Manager */}
 <Script id="google-tag-manager" strategy="afterInteractive">
