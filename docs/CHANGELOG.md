@@ -16,6 +16,41 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [v3.6.4] - 2026-07-06 - 🧠 Cérebro dos Radares — motor, pesos, personas e decisões de UX
+
+> Sessão de visão pré-implementação das ISSUE-103–106, sem código de produto. O dono pediu
+> contexto consolidado + recomendações antes de executar; o resultado é a especificação
+> completa e APROVADA do motor dos radares — a ISSUE-104 vira transcrição fiel.
+
+### ✅ Adicionado
+- `docs/revamp/11_motor_radar_pesos_personas.md` (v2, ✅ aprovado pelo dono em 3 rodadas) —
+  o "cérebro" do motor: matriz de pesos declarativa do Radar de Oportunidades, guard-rails
+  (dado sensível rebaixa + diligência; conforto = teto de complexidade; agêntico nunca é
+  entrada — e quando vence, o conteúdo redireciona ensinando), desempate por menor
+  complexidade, corte teaser×completo, eixos dos gráficos radar, cruzamento de maturidade e
+  7 personas de validação com aritmética verificada (incl. os 2 públicos novos: Estudante e
+  Empreendedor).
+- Perguntas do Radar de Maturidade **reformuladas e aprovadas**: versões sutis/comportamentais
+  mapeadas à AI Fluency da Anthropic (4 Ds + Construção); Descrição e Diligência ganharam
+  perguntas (não existiam); escala 7–35 e faixas literais preservadas + 8ª pergunta não
+  pontuada de personalização.
+- Regra do "sabia que": 9º bloco "Na prática" em todo diagnóstico completo (gancho com
+  ferramenta real acessível no Brasil, calibrada por nível) + mini-guia de execução no e-mail.
+- Famílias de oportunidade em 2 níveis (entrada → evolução) como camada de apresentação;
+  referência verificada na fonte: *Building Effective Agents* (Anthropic).
+- `ISSUE-307` (Fase 2) registrada: mentoria e palestras sobre IA no portfólio (demanda de
+  empreendedores nas pesquisas do dono) — sem promessa na Fase 1.
+
+### 📊 Técnico
+- Decisões de UX travadas: wizard formato **card de produto** (janela de app do mock do hero,
+  não chat), gráfico radar nos resultados (recharts), `sessionStorage` para o cruzamento de
+  maturidade, vitest restrito a `lib/radar/*`.
+- Edições cirúrgicas: `01_product_spec_faseada.md` §6, `02_technical_spec.md` §3.3,
+  `04_issue_backlog.md` (103/104/105/113 + 307), `10_jornada_captura_radares.md` (adendo).
+- Nenhum arquivo em `src/` alterado — `lint`/`tsc`/`build` não se aplicam.
+
+---
+
 ## [v3.6.3] - 2026-07-06 - 🗺️ Revisão de Spec — Escada de Captura dos Radares (Fase 1)
 
 > Sessão de revisão de spec, sem alteração de código de produto. Motivada por um furo real: os

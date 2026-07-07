@@ -140,3 +140,22 @@ Invariantes que **continuam valendo** (não quebram com esta revisão):
 - **Escopo:** complementa 01 §3/§6/§7; mantém a metodologia de IA e a estrutura das issues
   103–106 intactas.
 - **Aberto:** reconciliar CTAs do hero (mock) com a escada — tratado na ISSUE-107.
+
+### Adendo — sessão de visão (2026-07-06, segunda sessão do dia)
+
+Decisões tomadas com o dono na sessão de preparação das ISSUE-103–106 (detalhes e
+especificação completa em [11_motor_radar_pesos_personas.md](11_motor_radar_pesos_personas.md)):
+
+- **Wizard = card de produto** (a "janela de app" do mock do hero), não o formato chat do
+  `/pre-diagnostico` — message match visual entre o hero animado e a ferramenta real.
+- **Resultados com gráfico radar** (recharts): maturidade = perfil em 7 eixos + nível;
+  oportunidades = eixos do trabalho + família de solução como teaser grátis.
+- **O corte teaser × completo foi definido** (doc 11 §7): grátis = radar + família + direção;
+  e-mail destrava tipo exato + 8 blocos + cruzamento.
+- **Cruzamento de maturidade vira mecânica real:** nível viaja da maturidade ao oportunidades
+  via `sessionStorage` (só navegador); sem ele, estimativa leve por faixa. O diagnóstico
+  completo inclui ferramentas tangíveis por nível (ChatGPT grátis, Gemini, NotebookLM, n8n…)
+  e a provocação "um nível acima, essa oportunidade vira X" — dá razão funcional à ponte do
+  degrau 1 para o degrau 2 e transforma a escada de captura também em escada de evolução.
+- **Método de validação do motor:** tabela de pesos + 5 personas aprovadas pelo dono ANTES do
+  código (doc 11); vitest só para `lib/radar/*`.

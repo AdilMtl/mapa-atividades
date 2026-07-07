@@ -127,6 +127,14 @@ parametrizáveis por radar** (escada de captura, ver [10_jornada_captura_radares
 maturidade → resultado completo aberto + ponte; oportunidades → teaser aberto + gate de e-mail →
 completo. O gate nunca esconde o teaser.
 
+**Decisões de 2026-07-06 (sessão de visão, ver doc 11):** UI do fluxo = card de produto (padrão
+"janela de app" do mock do hero), não chat; resultados renderizam **gráfico radar** (recharts,
+já em `package.json`) — o motor expõe os eixos normalizados no `RadarResult` (`eixos`);
+maturidade grava `sessionStorage['conversaas.radar.maturidade']` e o oportunidades lê para o
+cruzamento (client-side only, nada no servidor — e-mail ≠ conta); tabela de pesos/guard-rails
+especificada em `11_motor_radar_pesos_personas.md` (validação do dono antes do código); vitest
+aprovado apenas para `lib/radar/*`.
+
 ### 3.4 Captura e dados (ISSUE-106)
 
 - **Tabelas novas** (SQL entregue ao dono para execução no SQL Editor, padrão da Fase 3):

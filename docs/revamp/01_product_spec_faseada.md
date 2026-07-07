@@ -141,8 +141,12 @@ radares (ver `04_issue_backlog.md`).
 
 ## 6. Radar de Maturidade — especificação funcional
 
-- **Perguntas:** 7 (doc operacional §10.5, usar literalmente).
-- **Escala:** cada resposta vale 1–5; total 7–35.
+- **Perguntas:** 7 pontuadas + 1 final não pontuada. **Revisão de 2026-07-06 (dono):** as
+  versões literais do doc operacional §10.5 foram substituídas por **versões sutis/comportamentais
+  mapeadas à AI Fluency (4 Ds + Construção)** — ver `11_motor_radar_pesos_personas.md` §2.2
+  (✅ aprovadas pelo dono em 2026-07-06). Escala, faixas e níveis permanecem os literais.
+- **Escala:** cada resposta vale 1–5; total 7–35 (a 8ª pergunta, "maior dificuldade",
+  não pontua — personaliza o próximo passo).
 - **Níveis:** Curioso (7–11), Usuário (12–17), Operador (18–24), Builder (25–31), Referência (32–35).
 - **Resultado (tela) — COMPLETO e GRÁTIS, sem gate** (degrau 1 da escada, ver [10](10_jornada_captura_radares.md)):
   nível + o que significa + risco de ficar nele + próximo salto + 2–3 leituras da newsletter

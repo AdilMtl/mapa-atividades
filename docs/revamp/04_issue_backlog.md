@@ -101,6 +101,13 @@ resultado **completo aberto** (sem gate) + CTA-ponte obrigatório para o oportun
 **oportunidades** termina em **teaser aberto** (direção da oportunidade) + **gate de e-mail** →
 diagnóstico completo na tela. O gate **não** bloqueia ver o teaser. Maturidade tem captura de
 e-mail apenas suave/opcional.
+**Decisões de UX (dono, 2026-07-06 — ver [11_motor_radar_pesos_personas.md](11_motor_radar_pesos_personas.md) §1):**
+formato = **card de produto** ("janela de app" do mock do hero: pergunta em card DS2, opções
+grandes, contador N/8, progresso, auto-avanço, voltar, transições framer-motion) — **não** o
+formato chat do `/pre-diagnostico`; resultado com **gráfico radar** (recharts): maturidade =
+radar de 7 eixos + escada de 5 níveis; oportunidades = radar dos eixos do trabalho + família
+(teaser). Nível de maturidade viaja ao oportunidades via `sessionStorage` (só navegador,
+e-mail ≠ conta) para calibrar o cruzamento.
 **Escopo excluído:** lógica de scoring (ISSUE-104); textos de resultado (ISSUE-105); backend
 (ISSUE-106); linkar na home (ISSUE-107).
 **Arquivos prováveis:** `src/app/(publico)/radar/*/page.tsx`, `src/components/radar/*`.
@@ -132,6 +139,12 @@ expõe **dois recortes** — `teaser` (direção/forma da oportunidade, mostrado
 `completo` (o diagnóstico dos 8 blocos, atrás do e-mail). Definir no tipo de retorno o que é
 teaser vs completo; **decisão de produto** sobre onde cortar (mostrar o suficiente para provar
 valor, reter o suficiente para dar vontade) — revisar com o modelo forte.
+**Cérebro do motor (2026-07-06):** tabela de pesos, modificadores, guard-rails, corte
+teaser×completo, eixos dos gráficos radar, cruzamento de maturidade e perguntas revisadas da
+maturidade especificados em [11_motor_radar_pesos_personas.md](11_motor_radar_pesos_personas.md)
+— **✅ APROVADO pelo dono em 2026-07-06 (7 personas validadas)**; codificar a matriz exatamente
+como está lá (qualquer desvio volta ao doc primeiro). **vitest aprovado** (dono, 2026-07-06),
+escopo travado: só `lib/radar/*` (7 personas + casos-limite).
 **Escopo excluído:** UI; textos longos de resultado (105).
 **Arquivos prováveis:** `src/lib/radar/*` (novos); `package.json` se vitest entrar.
 **Dependências:** nenhuma dura (types combinados com 103/105).
@@ -159,6 +172,20 @@ Substack; microestimativa de maturidade cruzada nos resultados de oportunidade.
 **conteúdo grátis** (mostrados inteiros na tela); os 9 de **oportunidade** compõem o **diagnóstico
 completo** (atrás do e-mail + no e-mail). Escrever também os **teasers de direção** do oportunidades
 no tom de **exploração/descoberta** ("seu trabalho aponta para...", não "aqui está seu plano").
+**Ferramentas tangíveis + provocação de maturidade (dono, 2026-07-06):** cada resultado de
+oportunidade cita 1–2 ferramentas reais acessíveis no Brasil calibradas por nível (paleta em
+[11](11_motor_radar_pesos_personas.md) §8.2: ChatGPT grátis/Gemini → NotebookLM/Gems →
+Claude/Lovable/n8n/Looker Studio → Claude Code/Cursor/Antigravity/MCP) e inclui o bloco de
+provocação "no seu nível, comece assim / um nível acima, isso vira X" — a evolução de
+maturidade como argumento de ganho (alimenta CTA newsletter/trilha/Lab).
+**Regra do "sabia que" (dono, 2026-07-06, rodada 2 — ver [11](11_motor_radar_pesos_personas.md)
+§8.1):** todo diagnóstico completo termina com o **9º bloco "Na prática"** — gancho concreto
+("sabia que você consegue montar um dashboard no Gemini conectado às suas planilhas?") + "no
+seu nível, comece assim" + "um nível acima, isso vira" (nível 2 da família, doc 11 §3.1); o
+**mini-guia de execução** (passo a passo + prompts prontos) é entregue pelo e-mail (ISSUE-113).
+Resultados de maturidade seguem os textos do doc §10.7; as **perguntas** da maturidade usam as
+versões sutis do doc 11 §2.2 (mapeadas à AI Fluency — ✅ aprovadas pelo dono, 2026-07-06). Escrever
+exemplos por área incluindo os 2 públicos novos: **Estudante** e **Empreendedor** (doc 11 §9.6–9.7).
 **Escopo excluído:** e-mail (113); UI.
 **Arquivos prováveis:** `src/lib/radar/content.ts` (novo).
 **Dependências:** types da 104.
@@ -448,7 +475,10 @@ e-mail 1 do doc operacional §15.1. Infra Resend JÁ ENTREGA (confirmado pelo do
 2026-07-05, plano gratuito); política: só quem completa radar/pré-diagnóstico recebe e-mail.
 **Escopo incluído:** template novo (DS2, dark-safe para clients de e-mail); envio na rota de
 lead com flag `emailSent`; fallback silencioso se envio falhar (lead nunca se perde — resultado
-completo permanece na tela).
+completo permanece na tela). **+ Mini-guia de execução (dono, 2026-07-06):** o e-mail de
+oportunidades entrega, além do diagnóstico, o "manualzinho" do bloco Na prática (passo a passo
++ prompts prontos + como subir de nível na família) — conteúdo escrito na ISSUE-105
+(`lib/radar/content.ts`), o template só renderiza.
 **Escopo excluído:** sequência de nutrição (e-mails 2–4 → Fase 1.5); qualquer alteração no
 e-mail do funil legado; NÃO tocar no bug do reset de senha (bug separado, `/corrigir-bug`).
 **Arquivos prováveis:** `src/app/api/radar/email-template.ts` (novo), `api/radar/lead/route.ts`.
@@ -682,6 +712,14 @@ no Stripe (dono cria no dashboard), tratamento de cancelamento (webhook
 pendente na abertura: Stripe substitui ou convive com o plano pago do Substack (recomendação:
 convivem — Substack para quem já está lá, Stripe para conversão direta do site).
 ## ISSUE-306 — Primeiros 10 ativos premium (checklists dos 4Ds, template narrar valor, guia IA-na-firma)
+## ISSUE-307 — Mentoria e palestras sobre IA no portfólio de produtos
+Registrado em 2026-07-06 (dono): as pesquisas/formulários mostram demanda de **empreendedores**
+(problemas complexos, sem tempo, precisam de aprendizado estruturado) e o dono quer oferecer
+**mentoria e palestras sobre IA** como produtos do portfólio — fora da plataforma, mas presentes
+na página inicial. Escopo a detalhar quando a Fase 1 provar: seção/página de portfólio, captura
+de interesse (possível reuso de `lab_interest` ou flag própria), segmentação dos leads por área
+(`Empreendedor` já capturado no radar desde a Fase 1, ver doc 11 §9.6). **Na Fase 1 não se
+promete nada disso na home** (regra anti-promessa do §12 da product spec).
 
 ## FASE 3 — Ecossistema / Lab (resumo)
 

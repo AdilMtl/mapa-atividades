@@ -1,4 +1,61 @@
-## 🎯 SESSÃO ATUAL: Revisão de Spec — Escada de Captura dos Radares (Fase 1 do revamp)
+## 🎯 SESSÃO ATUAL: Cérebro dos Radares — motor, pesos, personas e decisões de UX (prep das ISSUE-103–106)
+**Data:** 06 de julho de 2026 (segunda sessão do dia)
+**Versão:** v3.6.4
+**Status:** ✅ Concluída — spec do motor APROVADA pelo dono, **nenhum código de produto alterado**
+**Duração:** ~1 sessão
+
+### **🚀 O QUE FOI FEITO:**
+
+Sessão de visão pedida pelo dono antes de executar o bloco de radares (ISSUE-103–106):
+consolidar contexto, apresentar recomendações com melhores práticas/benchmark e afunilar as
+decisões que faltavam. Resultado: o "cérebro" do motor está especificado e aprovado — a
+implementação vira transcrição.
+
+- **Novo doc `docs/revamp/11_motor_radar_pesos_personas.md` (v2, ✅ APROVADO)** — especificação
+  completa do motor: matriz de pesos declarativa das 8 perguntas do oportunidades (frequência/
+  dado/público/desejo dominantes; área com peso zero), guard-rails formalizados (dado sensível
+  sempre rebaixa + diligência; conforto = teto de complexidade; agêntico nunca é entrada, e
+  quando vence o conteúdo redireciona **ensinando**), desempate por menor complexidade, corte
+  teaser×completo, eixos dos 2 gráficos radar, cruzamento de maturidade e **7 personas de
+  validação com aritmética verificada** (Renata→dashboard, Marcos→prompt, Júlia→template+
+  diligência, Fernando→automação, Camila→agêntico-redirect, Eduardo→automação, Larissa→prompt).
+- **Decisões de UX travadas com o dono:** wizard em formato **card de produto** (a "janela de
+  app" do mock do hero, não o chat do pré-diag); resultados com **gráfico radar** (recharts) nos
+  dois radares; nível de maturidade viaja ao oportunidades via `sessionStorage` (cruzamento
+  real; e-mail ≠ conta); vitest aprovado só para `lib/radar/*`.
+- **Perguntas da maturidade reformuladas (✅ aprovadas):** versões sutis/comportamentais
+  mapeadas à **AI Fluency da Anthropic** (Delegação/Descrição/Discernimento/Diligência +
+  Construção) — o diagnóstico achou os furos reais (Descrição e Diligência não tinham pergunta;
+  a P1 era o "quantas vezes você usa IA" que o dono não queria). Escala 7–35 e faixas literais
+  preservadas + 8ª pergunta não pontuada que personaliza o resultado.
+- **Regra do "sabia que" (feedback do dono):** todo diagnóstico completo ganha o 9º bloco
+  "Na prática" — gancho concreto com ferramenta acessível no Brasil calibrada por nível
+  (ChatGPT grátis/Gemini → NotebookLM/Gems → Claude/Lovable/n8n → Claude Code/Cursor/
+  Antigravity/MCP) + mini-guia de execução entregue no e-mail (ISSUE-113 atualizada).
+- **Famílias de oportunidade em 2 níveis** (entrada → evolução), camada de apresentação sem
+  tocar no motor — referência técnica verificada na fonte: *Building Effective Agents*
+  (Anthropic) recomenda exatamente essa escada de complexidade mínima.
+- **Públicos novos das pesquisas do dono:** Estudante e Empreendedor viram opções da P1 (área),
+  ganham personas e exemplos próprios; **mentoria/palestras sobre IA registradas como
+  ISSUE-307** (Fase 2, portfólio) sem promessa na Fase 1.
+- Edições cirúrgicas: `01_product_spec_faseada.md` §6, `02_technical_spec.md` §3.3,
+  `04_issue_backlog.md` (ISSUE-103/104/105/113 + ISSUE-307 nova), `10_jornada_captura_radares.md`
+  (adendo de decisões).
+
+### **✅ VALIDAÇÃO:**
+Sessão 100% documental — nenhum arquivo em `src/` tocado (`lint`/`tsc`/`build` não se aplicam).
+Aritmética da matriz conferida persona a persona; dono validou em 3 rodadas (visão → feedback →
+aprovação final com correção da paleta de ferramentas).
+
+### **🎯 PRÓXIMOS PASSOS:**
+1. **ISSUE-104** (motor `lib/radar` + vitest) — codificar o doc 11 literalmente.
+2. **ISSUE-105** (conteúdo, Fable 5) — 14 blocos + 9 "Na prática" + mini-guias do e-mail +
+   teasers, na voz da newsletter.
+3. **ISSUE-103** (páginas) após 104+105; **ISSUE-106** (backend) em paralelo com 103.
+
+---
+
+## 🎯 SESSÃO Anterior: Revisão de Spec — Escada de Captura dos Radares (Fase 1 do revamp)
 **Data:** 06 de julho de 2026
 **Versão:** v3.6.3
 **Status:** ✅ Concluída — spec revisada, **nenhum código de produto alterado**
