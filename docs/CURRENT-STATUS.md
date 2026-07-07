@@ -1,4 +1,31 @@
-## 🎯 SESSÃO ATUAL: Cérebro dos Radares — motor, pesos, personas e decisões de UX (prep das ISSUE-103–106)
+## 🎯 SESSÃO ATUAL: Implementação do Motor dos Radares — ISSUE-104 e ISSUE-105 (prep da Fase 1 do revamp)
+**Data:** 07 de julho de 2026
+**Versão:** v3.6.5
+**Status:** ⚠️ Concluída (parcial) — **ISSUE-104 ✅ completa** (motor 100% testado), **ISSUE-105 ⚠️ parcial** (conteúdo pronto, aguarda leitura do dono para aprovação do tom). Radares prontos para UI (ISSUE-103) e backend (ISSUE-106).
+**Duração:** ~1 sessão longa
+
+### **🚀 O QUE FOI FEITO:**
+
+**ISSUE-104 — Motor de Assessment** (`src/lib/radar/`)
+- `types.ts` — contratos completos do motor (maturidade/oportunidades + teaser/gated)
+- `maturidade.ts` — 7 perguntas sutis (AI Fluency) + P8 não pontuada; scoring 7–35 / 5 faixas; eixos de gráfico
+- `oportunidades.ts` — matriz de pesos 100% declarativa (transcrição literal doc 11), modificadores (sensível, conforto), guard-rails (agêntico nunca entra), desempate por complexidade; P1 com áreas novas (Estudante/Empreendedor)
+- Testes (`vitest` 4.1.10): **37/37 passando** — 7 personas do dono + varredura de 7.000 combos de guard-rails, bordas de faixa, empates, determinismo. Aritmética validada ponto a ponto.
+- `npm run lint`, `npx tsc --noEmit`, `npm run build` — todos verdes (24 rotas, nada quebrou)
+
+**ISSUE-105 — Conteúdo dos Resultados** (`src/lib/radar/content.ts`)
+- 5 resultados de maturidade (grátis na tela): nível + corpo + risco + próximo salto + 2 leituras reais do Substack + ponte para oportunidades + 5 variações de próximo passo por P8
+- 9 teasers (tom de exploração, não veredito): direção da oportunidade + família 2-níveis + promessa do completo
+- 9 diagnósticos completos (atrás do e-mail): 8 blocos (tipo/porquê/complexidade/risco/passo/leitura/CTAs) + 9º bloco **"Na prática"** (gancho "Sabia que" com ferramenta real por nível — Gemini grátis até Claude Code; próximo degrau da família; mini-guia no e-mail)
+- Cruzamento de maturidade: real (`sessionStorage` via degrau 1) + estimativa por P8 (conforto)
+- Bloco de Diligência automático (dado sensível = sempre rebaixa + flag)
+- Exemplos por área (Estudante/Empreendedor em todos os 9 tipos)
+- **Validação:** 11 URLs conferidas byte a byte contra a fonte (contexto editorial §14); grep de frases proibidas limpo ("desbloqueio" achado e reescrito); Records TS garantem exaustividade (5 níveis × 9 tipos × 5 estimativas)
+- **Pendente:** Você lê os 14 blocos e aprova o tom (refinar depois de publicado = OK)
+
+---
+
+## 🎯 SESSÃO ANTERIOR: Cérebro dos Radares — motor, pesos, personas e decisões de UX (prep das ISSUE-103–106)
 **Data:** 06 de julho de 2026 (segunda sessão do dia)
 **Versão:** v3.6.4
 **Status:** ✅ Concluída — spec do motor APROVADA pelo dono, **nenhum código de produto alterado**

@@ -122,6 +122,9 @@ hardcoded em JSX).
 
 ## ISSUE-104 — Motor de assessment (lib/radar)
 
+**Status:** ✅ concluída em 2026-07-07 — `src/lib/radar/{types,maturidade,oportunidades}.ts` +
+vitest (37 testes: 7 personas do doc 11 + varredura de guard-rails + bordas/empates/determinismo);
+`lint`/`tsc`/`build` verdes.
 **Fase:** 1
 **Tipo:** Frontend (lógica) / Dados
 **Prioridade:** Alta
@@ -157,6 +160,10 @@ personas de exemplo antes de fechar.
 
 ## ISSUE-105 — Conteúdo dos resultados (14 blocos pré-escritos)
 
+**Status:** ⚠️ parcial em 2026-07-07 — `src/lib/radar/content.ts` completo (5 maturidade + 9
+teasers + 9 diagnósticos com 8 blocos + "Na prática" + cruzamento + famílias + bloco diligência;
+URLs conferidas byte a byte com a fonte; zero frase da lista proibida). **Falta só o critério
+final: dono ler os 14 e aprovar o tom.**
 **Fase:** 1
 **Tipo:** Copy / Conteúdo
 **Prioridade:** Alta

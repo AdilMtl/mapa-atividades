@@ -16,6 +16,39 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [v3.6.5] - 2026-07-07 - 🚀 Motor dos Radares Implementado — ISSUE-104 + ISSUE-105
+
+### ✅ Adicionado
+- **ISSUE-104 — Motor de assessment (`src/lib/radar/`)**: transcrição literal da spec aprovada (doc 11)
+  - `types.ts`: contratos de maturidade (nível 1–5, eixos 7) e oportunidades (tipo 1–9, teaser/gated, flags)
+  - `maturidade.ts`: 7 perguntas sutis (AI Fluency: Delegação, Amplitude, Descrição, Construção, Discernimento, Clareza de formato, Diligência) + P8 fronteira não pontuada; scoring 7–35 com 5 faixas (Curioso/Usuário/Operador/Builder/Referência)
+  - `oportunidades.ts`: matriz de pesos 100% declarativa (P2–P7, dominantes e contextuais); penalidade de dado sensível (−3 automatica/orquestrado, −2 app_tabela, −1 workflow); teto de conforto P8; guard-rail agêntico (só com P8 alto + dados de sistemas); desempate por complexidade + ordem fixa; eixos do teaser normalizados (0–100); estimativa de maturidade por P8
+  - **Vitest (4.1.10)**: 37/37 testes (`maturidade.test.ts`, `oportunidades.test.ts`) cobrindo 7 personas (doc 11 §9) + varredura de 7.000 combinações de guard-rails, bordas de faixa (11→12, 17→18, 24→25, 31→32), empates (ordem fixa), determinismo
+
+### ✅ Adicionado
+- **ISSUE-105 — Conteúdo dos Resultados (`src/lib/radar/content.ts`)**: 14 blocos na voz da newsletter
+  - Maturidade: 5 níveis (Curioso→Referência), cada com título/corpo/risco/próximo salto/2 leituras reais Substack/ponte oportunidades/5 variações por P8 (fronteira)
+  - Oportunidades: 9 teasers (exploração/"seu trabalho aponta para") + 9 diagnósticos (8 blocos §11.6 + 9º "Na prática" com ferramenta acessível por nível)
+  - "Na prática" (doc 11 §8.1): gancho "Sabia que X com Y" (ChatGPT/Gemini grátis → NotebookLM/Gems → Claude/Lovable → Claude Code/Cursor/Antigravity), começo no seu nível, um nível acima na família, mini-guia no e-mail
+  - Cruzamento de maturidade: real (nível real do degrau 1 via `sessionStorage`) + estimativa 5-faixas por P8; texto "No seu Radar você ficou em X" ou "Por seus sinais você parece estar entre X e Y"
+  - Bloco de Diligência (automático quando `flags.diligencia`): aviso + leitura "Quem leva esporro é você"
+  - Exemplos por área (P1): Estudante (NotebookLM) + Empreendedor (WhatsApp Business) em todos os 9 tipos
+  - URLs verificadas byte a byte contra a fonte (contexto editorial §14); zero frase proibida ("domine", "revolucione", "10x", "guru")
+
+### 📊 Técnico
+- `vitest.config.ts` criado (escopo: só `src/lib/radar/**/*.test.ts`); script `"test": "vitest run"` adicionado ao package.json
+- **Handoff criado** (`docs/revamp/HANDOFF-SESSAO-2026-07-07-issues-104-105.md`): documento de trabalho da sessão para referência pós-compactação de contexto
+- ISSUE-104 marcada `✅ concluída em 2026-07-07` no backlog; ISSUE-105 marcada `⚠️ parcial — aguarda leitura do dono`
+- `lint`, `tsc --noEmit`, `build` e `test` todos verdes (24 rotas, nada quebrou)
+
+### 🔧 Corrigido
+- (Nenhum bug de produto; apenas refatoração de infra)
+
+### 🎨 Melhorado
+- **Verso da modalidade revisor aprimorado:** copy do "Na prática" enriquecida com ferramentas da paleta oficial (doc 11 §8.2) calibradas por nível de maturidade — transformou "diagnóstico completo" em "diagnóstico + caminho concreto + mini-guia"
+
+---
+
 ## [v3.6.4] - 2026-07-06 - 🧠 Cérebro dos Radares — motor, pesos, personas e decisões de UX
 
 > Sessão de visão pré-implementação das ISSUE-103–106, sem código de produto. O dono pediu
