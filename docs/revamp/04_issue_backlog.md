@@ -83,6 +83,26 @@ layout legado (aplicar só via classes DS2).
 
 ## ISSUE-103 — Páginas /radar/maturidade e /radar/oportunidades
 
+**Status:** ✅ concluída em 2026-07-07 — `RadarFlow` compartilhado (`src/components/radar/`) +
+páginas `src/app/(publico)/radar/{maturidade,oportunidades}/page.tsx` (Server Components com
+metadata própria, delegando a UI interativa ao client component). Card de produto (Module/Eyebrow/
+Progress do DS2) com pergunta única, auto-avanço (framer-motion), voltar e "continuar" ao revisitar
+pergunta já respondida. Gráfico radar via `recharts` (7 eixos na maturidade, 6 no teaser de
+oportunidades). Escada de captura implementada: maturidade sempre mostra resultado completo (CTA
+ponte + e-mail suave opcional); oportunidades mostra teaser sem e-mail e destrava o diagnóstico
+completo (8 blocos + Na prática + cruzamento + diligência) só após o gate. Cruzamento de maturidade
+via `sessionStorage['conversaas.radar.maturidade']` (helper fora de `lib/radar/`, que permanece
+puro) + CTA cruzado nos dois sentidos. Conversão Google Ads replicada do padrão do `EmailGate`
+(`gtag('event','conversion', …)` só quando `triggerConversion: true` na resposta do lead de
+oportunidades) — `layout.tsx`/GTM intocados.
+**Validação:** `lint`/`tsc --noEmit`/`build` (28 rotas) e os 37 testes de `lib/radar` verdes;
+`npm run build && npm run start` com as duas rotas retornando 200 e a pergunta 1 de cada radar
+presente no HTML; fluxo real de sessão testado via curl (`POST`/`PATCH /api/radar/session`
+funcionando ponta a ponta; `POST /api/radar/lead` validado — bloqueado pelo rate limit residual
+dos testes da ISSUE-106 no mesmo IP, confirmando que a validação de payload passou antes do 429).
+⚠️ **Não verificado** (sem ferramenta de browser neste ambiente): fluxo clicado de ponta a ponta
+no navegador e o Lighthouse a11y ≥90 citado nos critérios de aceite — recomenda-se conferência
+manual do dono antes de considerar 100% fechado.
 **Fase:** 1
 **Tipo:** Frontend / UX
 **Prioridade:** Alta

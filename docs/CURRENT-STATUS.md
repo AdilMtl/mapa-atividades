@@ -1,4 +1,67 @@
-## 🎯 SESSÃO ATUAL: ISSUE-106 — Backend de captura dos radares (tabelas, RLS, rotas API)
+## 🎯 SESSÃO ATUAL: ISSUE-103 — Páginas /radar/maturidade e /radar/oportunidades
+**Data:** 07 de julho de 2026 (quarta sessão do dia)
+**Versão:** v3.6.7
+**Status:** ✅ Concluída — fluxo navegável ponta a ponta nos dois radares, validado localmente
+**Duração:** ~1 sessão
+
+### **🚀 O QUE FOI FEITO:**
+
+Com motor (104), conteúdo (105, aprovado pelo dono nesta sessão) e backend (106) prontos,
+implementada a UI dos dois radares — a primeira experiência pública nova do revamp que o dono
+efetivamente usou no navegador.
+
+- **`src/components/radar/`** — `RadarFlow` (orquestrador client-side compartilhado pelos dois
+  radares), `QuestionCard` (card de produto: pergunta única, auto-avanço, voltar/continuar ao
+  revisitar pergunta já respondida, transições `framer-motion`), `OptionButton`, `RadarChartAxes`
+  (gráfico radar via `recharts`), `EmailCaptureRadar` (formulário com honeypot + checkbox de
+  interesse no Lab), `MaturidadeResultado`, `OportunidadesResultado`.
+- **`src/app/(publico)/radar/{maturidade,oportunidades}/page.tsx`** — Server Components com
+  `metadata` própria por página, delegando toda a interatividade ao `RadarFlow`.
+- **`src/lib/radar-storage.ts`** — cruzamento de maturidade via
+  `sessionStorage['conversaas.radar.maturidade']`, deliberadamente fora de `lib/radar/` para
+  preservar a pureza do motor (regra da ISSUE-104).
+- **Escada de captura** (doc 10) respeitada: maturidade sempre entrega resultado completo grátis
+  (CTA-ponte para oportunidades + e-mail suave opcional, nunca bloqueia nada); oportunidades
+  mostra teaser real sem e-mail e só destrava o diagnóstico completo (8 blocos + "Na prática" +
+  cruzamento + diligência) depois do gate.
+- **Conversão do Google Ads replicada do padrão do `EmailGate`** — dispara
+  `gtag('event','conversion', …)` só quando a rota de lead responde `triggerConversion: true`
+  (lead de oportunidades). `layout.tsx` e o funil legado não foram tocados.
+- **Ajuste de acessibilidade:** inputs do formulário de e-mail ganharam `aria-label`; a pergunta
+  de cada card virou `<h1>` (heading único por tela) — vai além do mínimo pedido pela issue porque
+  o critério de aceite cita Lighthouse a11y ≥90 explicitamente.
+- **Ajuste de estilo pós-teste do dono:** o badge de "família" no resultado de oportunidades
+  (ex. "Visualização e decisão") usava a receita padrão do `Badge` do DS2 — mono, caixa alta,
+  pensada para tags curtas ("no ar", "premium"). Numa frase de duas palavras ficou ilegível; ajustado
+  para fonte sans, caixa normal, mantendo o formato pill. O espaçamento entre o rótulo do nível
+  ("você entra pelo nível 2: template reutilizável") ficou registrado como pendência de estilo
+  para revisão com Fable 5 — não mexido nesta sessão, por pedido do dono.
+
+### **✅ VALIDAÇÃO:**
+`lint`, `tsc --noEmit`, `build` (28 rotas, as 2 novas incluídas) e os 37 testes de `lib/radar`
+verdes. Sem ferramenta de browser neste ambiente — a verificação visual foi feita pelo dono
+rodando `npm run dev` localmente (ainda não publicado): confirmou o radar de maturidade "bonito"
+e o fluxo funcionando; achou e reportou o problema de estilo do badge (corrigido nesta sessão);
+não testou o envio de e-mail por completo porque os testes anteriores (via curl, ISSUE-106 e
+desta sessão) já tinham consumido o rate limit de 5 leads/hora/IP. **Lighthouse a11y ≥90** (citado
+nos critérios de aceite da issue) não foi medido — nenhuma ferramenta de auditoria disponível
+neste ambiente; recomenda-se rodar antes do lançamento público.
+**Incidente à parte, sem relação com o código:** durante o teste, um processo `node` de uma
+sessão de build anterior ficou preso na porta 3000 e serviu conteúdo obsoleto — parecia a home
+"quebrada", mas era só a porta errada. Resolvido matando o processo e subindo o servidor de novo;
+nenhum código foi alterado por causa disso. A landing page em si está intocada (é a antiga —
+o redesign é a ISSUE-107, fora do escopo desta issue).
+ISSUE-103 marcada `✅ concluída` em `docs/revamp/04_issue_backlog.md`.
+
+### **🎯 PRÓXIMOS PASSOS:**
+**ISSUE-109** (analytics do funil novo — GTM + Supabase, 15 eventos em duplo trilho) é a próxima
+do Sprint 1. Modelo recomendado: **Sonnet com persona Analytics & Ads** (validação final Fable 5).
+Só depois da 109 roda o gate de revisão do Sprint 1 completo (103+104+105+106+109 — "radar ponta
+a ponta com lead no banco + eventos visíveis") antes de abrir a ISSUE-107 (home), que é Sprint 2.
+
+---
+
+## 🎯 SESSÃO Anterior: ISSUE-106 — Backend de captura dos radares (tabelas, RLS, rotas API)
 **Data:** 07 de julho de 2026 (terceira sessão do dia)
 **Versão:** v3.6.6
 **Status:** ✅ Concluída — todos os 5 critérios de aceite validados em produção local

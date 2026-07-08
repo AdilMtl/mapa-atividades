@@ -16,6 +16,45 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [v3.6.7] - 2026-07-07 - 🎨 UI dos Radares — ISSUE-103
+
+### ✅ Adicionado
+- **ISSUE-103 — Páginas `/radar/maturidade` e `/radar/oportunidades`**: primeira UI pública nova
+  do revamp, navegável ponta a ponta
+  - `src/components/radar/`: `RadarFlow` (orquestrador compartilhado pelos dois radares),
+    `QuestionCard` (card de produto — pergunta única, auto-avanço, voltar/continuar, transições
+    `framer-motion`), `OptionButton`, `RadarChartAxes` (gráfico radar via `recharts`),
+    `EmailCaptureRadar` (honeypot + checkbox de interesse no Lab), `MaturidadeResultado`,
+    `OportunidadesResultado`
+  - `src/app/(publico)/radar/{maturidade,oportunidades}/page.tsx`: Server Components com
+    `metadata` própria, delegando a interatividade ao `RadarFlow`
+  - `src/lib/radar-storage.ts`: cruzamento de maturidade via
+    `sessionStorage['conversaas.radar.maturidade']`, fora de `lib/radar/` para manter o motor puro
+  - Escada de captura (doc 10) implementada: maturidade sempre mostra resultado completo grátis;
+    oportunidades mostra teaser sem e-mail e só destrava o diagnóstico completo (8 blocos + "Na
+    prática" + cruzamento + diligência) após o gate
+  - Conversão do Google Ads replicada do padrão do `EmailGate` — dispara só quando
+    `triggerConversion: true` vem do lead de oportunidades; `layout.tsx` e funil legado intocados
+
+### 🔧 Corrigido
+- Badge de "família" no resultado de oportunidades usava a receita padrão do DS2 (mono, caixa
+  alta) — pensada para tags curtas, ficou ilegível numa frase de duas palavras. Ajustado para
+  fonte sans/caixa normal nesse uso específico, mantendo o formato pill.
+
+### 📊 Técnico
+- `lint`/`tsc --noEmit`/`build` (28 rotas) e os 37 testes de `lib/radar` verdes
+- Ajustes de acessibilidade além do mínimo pedido: `aria-label` nos inputs do formulário de
+  e-mail; pergunta de cada card virou `<h1>` (heading único por tela) — critério de aceite da
+  issue cita Lighthouse a11y ≥90 explicitamente
+- Validado localmente pelo dono via `npm run dev` (ainda não publicado): fluxo de maturidade
+  aprovado; envio de e-mail não testado por completo (rate limit de 5 leads/hora/IP já consumido
+  pelos testes anteriores da sessão e da ISSUE-106); Lighthouse a11y não medido — sem ferramenta
+  de auditoria disponível neste ambiente
+- ISSUE-103 marcada `✅ concluída em 2026-07-07` no backlog; próxima do Sprint 1 é a ISSUE-109
+  (analytics), antes do gate de revisão do Sprint 1 completo e da ISSUE-107 (home, Sprint 2)
+
+---
+
 ## [v3.6.6] - 2026-07-07 - 🔐 Backend de Captura dos Radares — ISSUE-106
 
 ### ✅ Adicionado
