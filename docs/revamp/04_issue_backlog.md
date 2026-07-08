@@ -160,10 +160,10 @@ personas de exemplo antes de fechar.
 
 ## ISSUE-105 — Conteúdo dos resultados (14 blocos pré-escritos)
 
-**Status:** ⚠️ parcial em 2026-07-07 — `src/lib/radar/content.ts` completo (5 maturidade + 9
+**Status:** ✅ concluída em 2026-07-07 — `src/lib/radar/content.ts` completo (5 maturidade + 9
 teasers + 9 diagnósticos com 8 blocos + "Na prática" + cruzamento + famílias + bloco diligência;
-URLs conferidas byte a byte com a fonte; zero frase da lista proibida). **Falta só o critério
-final: dono ler os 14 e aprovar o tom.**
+URLs conferidas byte a byte com a fonte; zero frase da lista proibida). Dono leu os 14 blocos e
+aprovou o tom.
 **Fase:** 1
 **Tipo:** Copy / Conteúdo
 **Prioridade:** Alta

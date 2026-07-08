@@ -53,7 +53,7 @@ fechar, antes de avançar para a ISSUE-107 (home).
 ## 🎯 SESSÃO Anterior: Implementação do Motor dos Radares — ISSUE-104 e ISSUE-105 (prep da Fase 1 do revamp)
 **Data:** 07 de julho de 2026
 **Versão:** v3.6.5
-**Status:** ⚠️ Concluída (parcial) — **ISSUE-104 ✅ completa** (motor 100% testado), **ISSUE-105 ⚠️ parcial** (conteúdo pronto, aguarda leitura do dono para aprovação do tom). Radares prontos para UI (ISSUE-103) e backend (ISSUE-106).
+**Status:** ✅ Concluída — **ISSUE-104 ✅ completa** (motor 100% testado), **ISSUE-105 ✅ completa** (conteúdo pronto; dono leu os 14 blocos e aprovou o tom em 2026-07-07). Radares prontos para UI (ISSUE-103) e backend (ISSUE-106).
 **Duração:** ~1 sessão longa
 
 ### **🚀 O QUE FOI FEITO:**
