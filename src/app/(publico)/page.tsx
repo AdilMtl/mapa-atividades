@@ -5,6 +5,7 @@ import {
   AutorSection,
   ComoFuncionaSection,
   DiferenciacaoSection,
+  FechamentoSection,
   HeroSection,
   LabSection,
   NewsletterSection,
@@ -45,17 +46,20 @@ export default function HomePage() {
       />
       <PublicHeader />
       <PageContainer className="space-y-12 pb-16 pt-4">
+        {/* Ordem ISSUE-111.1: Newsletter sobe (oferta cedo p/ quem não vai testar agora),
+            Demo desce, Fechamento novo encerra a página pedindo ação. */}
         <HeroSection />
         <ProblemaSection />
         <ReframeSection />
         <PortasSection />
         <ComoFuncionaSection />
-        <PlataformaDemoSection />
         <NewsletterSection />
+        <PlataformaDemoSection />
         <DiferenciacaoSection />
         <PricingSection />
         <LabSection />
         <AutorSection />
+        <FechamentoSection />
       </PageContainer>
       <PublicFooter />
       <PWAInstallBanner />

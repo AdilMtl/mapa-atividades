@@ -1,5 +1,8 @@
 import { Eyebrow, Panel } from '@/components/ds2'
 
+// ISSUE-111.1: bio saiu do clichê "gestor + LinkedIn" para o endosso real — quem escreve
+// também constrói, e a prova é a plataforma que o visitante está usando. Fatos fornecidos
+// pelo dono em 2026-07-08 (99, agentes de IA, vibe coding, workshops); veto dele no aceite.
 export function AutorSection() {
   return (
     <section>
@@ -11,14 +14,18 @@ export function AutorSection() {
           A
         </div>
         <div>
-          <Eyebrow className="mb-2 block">Quem escreve</Eyebrow>
+          <Eyebrow className="mb-2 block">Quem escreve — e constrói</Eyebrow>
           <h3 className="font-ds2-serif text-[22px] font-medium text-ds2-text-primary">
             Adilson Matioli
           </h3>
-          <p className="mt-2 max-w-[560px] font-ds2-sans text-sm text-ds2-text-secondary">
-            Gestor com carreira executiva em grandes empresas. Comecei escrevendo as conversas
-            que eu gostaria de ter tido com meus gestores — hoje elas são sobre IA aplicada ao
-            trabalho real, fluência e construção.
+          <p className="mt-2 max-w-[620px] font-ds2-sans text-sm leading-relaxed text-ds2-text-secondary">
+            Gestor com carreira executiva em grandes empresas — hoje na 99, implementando
+            agentes de IA no trabalho real. Comecei escrevendo as conversas que eu gostaria de
+            ter tido com meus gestores; elas viraram esta newsletter, workshops de IA e
+            soluções construídas com vibe coding. Esta plataforma é uma delas.
+          </p>
+          <p className="mt-3 font-ds2-mono text-[11px] text-ds2-text-muted">
+            newsletter semanal · workshops de IA · agentes em produção · este site
           </p>
           <a
             href="https://www.linkedin.com/in/adilsonmatioli/"

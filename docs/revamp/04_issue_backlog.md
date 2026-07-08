@@ -605,6 +605,11 @@ lista); CTAs todos no padrão de intenção.
 
 ## ISSUE-111.1 — Otimização de conversão da home (navegação, fechamento e autor)
 
+**Status:** ⚠️ aplicada em 2026-07-08 — 5 itens do escopo no ar (local). Pendências do dono:
+(1) veto de leitura da bio e do fechamento; (2) configurar cores do embed no painel do
+Substack; (3) criar as 4 tags GA4 novas no GTM (spec no CURRENT-STATUS); (4) anotar a data do
+deploy para leitura antes/depois das métricas.
+
 **Fase:** 1
 **Tipo:** UI / Copy / Conversão
 **Prioridade:** Alta

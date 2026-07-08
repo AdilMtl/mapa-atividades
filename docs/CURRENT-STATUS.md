@@ -1,4 +1,71 @@
-## 🎯 SESSÃO ATUAL: ISSUE-111 — Revisão de copy (voz editorial)
+## 🎯 SESSÃO ATUAL: ISSUE-111.1 — Otimização de conversão da home
+**Data:** 08 de julho de 2026
+**Versão:** v3.10.0
+**Status:** ⚠️ Aplicada — 5 itens no ar (local); pendências operacionais do dono listadas abaixo
+
+### **🚀 O QUE FOI FEITO (em termos simples):**
+
+A home apresentava bem, mas vazava conversão em 5 pontos (diagnóstico de marketing feito na
+sessão anterior, registrado na própria issue). Todos atacados:
+
+1. **A página agora termina pedindo ação** — seção de fechamento nova antes do footer, com as
+   duas portas dos radares (mesmos rótulos do hero, para reconhecimento) + convite à
+   newsletter. Quem rolou a página inteira é o visitante mais engajado; antes ele encontrava
+   uma bio e ia embora.
+2. **Dá para assinar a newsletter sem sair do site** — o CTA que jogava para o Substack virou
+   um formulário embutido (embed oficial) na seção de newsletter. Era premissa aprovada desde
+   o início do revamp (pergunta 5 do `00b`) que nunca tinha sido implementada.
+3. **A newsletter subiu na página** — de posição 7 (depois dos 4 vídeos) para logo depois de
+   "Como funciona": quem não vai testar agora encontra a oferta "então assine" bem antes.
+4. **Micro-reasseguro nos convites de newsletter** — "Grátis. Uma conversa por semana. Cancela
+   quando quiser." (remoção de fricção clássica).
+5. **Bio do autor saiu do clichê** — de "gestor com carreira executiva + LinkedIn" para o
+   endosso real: hoje na 99 implementando agentes de IA, soluções construídas com vibe coding,
+   workshops, newsletter — fechando com *"Esta plataforma é uma delas."* (o site que a pessoa
+   está usando é a prova). ⚠️ Fatos fornecidos pelo dono na sessão; veto de leitura pendente.
+
+**Fora do escopo, por decisão registrada:** hero intocado (spec do mock), conteúdo do Pricing
+intocado, prova social adiada para quando houver material real de leitores (Fase 1.5).
+
+### **📊 TÉCNICO:**
+
+- Novos: `src/components/home/FechamentoSection.tsx` e `NewsletterSignup.tsx` (client, embed
+  com IntersectionObserver para o evento de visualização). `AutorSection.tsx` e
+  `NewsletterSection.tsx` reescritos; ordem nova em `(publico)/page.tsx`.
+- **4 eventos novos** na lista canônica (`src/lib/radar-events.ts`, a rota
+  `/api/radar/event` valida contra ela): `closing_cta_opportunities_clicked`,
+  `closing_cta_maturity_clicked`, `closing_newsletter_clicked`, `newsletter_embed_viewed`.
+  O CTA alternativo do embed usa `newsletter_cta_clicked` com prop `location:
+  'home_newsletter'` (não precisa de tag nova).
+- Cliques DENTRO do iframe do Substack são cross-origin — não rastreáveis. O
+  `newsletter_embed_viewed` dá a taxa de visualização; assinaturas efetivas o dono acompanha
+  no painel do Substack.
+
+### **📋 SPEC DE TAGS GTM (operação do dono, regra 5 do doc 07):**
+
+Para os 4 eventos novos chegarem ao GA4, criar no container `GTM-PDJ2K5BX`, para CADA nome:
+trigger tipo **Evento personalizado** com o nome exato do evento + tag **GA4 Event** enviando o
+mesmo nome. (Trilho Supabase já grava sem configuração.)
+
+### **✅ VALIDAÇÃO:**
+`tsc --noEmit`, `lint` (zero ocorrências nos arquivos tocados) e `build` limpos (37 páginas).
+Smoke test no build de produção: `/` em 200, GTM presente, iframe do embed presente, ordem
+nova confirmada no HTML (newsletter < demo < autor < fechamento), bio e fechamento renderizados,
+6 nomes de evento (2 do hero + 4 novos) confirmados nos chunks JS. Grep de copy proibida zerado.
+**Não verificado** (sem browser): disparo real no GTM Preview/Tag Assistant e aparência visual
+do embed no tema escuro — mesma limitação das sessões anteriores.
+
+### **🎯 PRÓXIMOS PASSOS (pendências do dono):**
+1. Ler bio + fechamento + itens da ISSUE-111 (pricing "séries", P1 "a sua cara") e dar o veto.
+2. Configurar as cores do embed no painel do Substack (o padrão é fundo branco — vai destoar
+   do tema escuro até ajustar).
+3. Criar as 4 tags GA4 no GTM (spec acima).
+4. No deploy, anotar a data para ler as métricas antes/depois da reordenação.
+Depois: ISSUE-112 (QA/gate de launch) ou Fase 1B em paralelo.
+
+---
+
+## 🎯 SESSÃO Anterior: ISSUE-111 — Revisão de copy (voz editorial)
 **Data:** 08 de julho de 2026
 **Versão:** v3.9.1
 **Status:** ⚠️ Aplicada — 7 ajustes de copy no ar (local); falta o veto de leitura do dono

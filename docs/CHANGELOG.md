@@ -16,6 +16,39 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [v3.10.0] - 2026-07-08 - 🎯 Otimização de conversão da home — ISSUE-111.1
+
+### ✅ Adicionado
+- **`FechamentoSection`** — a home agora termina pedindo ação: reprise das duas portas dos
+  radares (mesmos rótulos do hero) + convite à newsletter + micro-reasseguro, antes do footer.
+  Eventos próprios (`closing_cta_opportunities_clicked`, `closing_cta_maturity_clicked`,
+  `closing_newsletter_clicked`) para medir quanto o fim da página converte.
+- **`NewsletterSignup`** — embed oficial do Substack na seção de newsletter: assina sem sair
+  do site (premissa aprovada do `00b` pergunta 5, nunca implementada até aqui). Evento
+  `newsletter_embed_viewed` via IntersectionObserver; link alternativo para o Substack com
+  `newsletter_cta_clicked` + `location`. Cliques dentro do iframe são cross-origin (não
+  rastreáveis) — assinaturas efetivas ficam no painel do Substack.
+
+### 🎨 Melhorado
+- **Ordem das seções da home:** Newsletter subiu de 7º para logo após "Como funciona" (oferta
+  cedo para quem não vai testar agora); demo da plataforma desceu uma posição.
+- **AutorSection sem clichê:** bio reescrita com o endosso real — hoje na 99 implementando
+  agentes de IA, soluções com vibe coding, workshops, newsletter — fechando com "Esta
+  plataforma é uma delas." Fatos do dono (2026-07-08); veto de leitura pendente.
+- Micro-reasseguro sob os convites de newsletter: "Grátis. Uma conversa por semana. Cancela
+  quando quiser."
+
+### 📊 Técnico
+- 4 eventos novos na lista canônica (`radar-events.ts` — a rota `/api/radar/event` valida
+  contra ela; `event_name` é VARCHAR(100), folga confirmada). **Exigem tag/trigger GA4 no GTM
+  (operação do dono — spec no CURRENT-STATUS)**; trilho Supabase já grava.
+- Hero e Pricing intocados (spec do mock / decisão registrada); prova social adiada (Fase 1.5).
+- `tsc`, `lint` e `build` limpos (37 páginas). Smoke test em produção local: `/` 200, GTM
+  presente, embed presente, ordem nova confirmada no HTML, 6 nomes de evento (2 hero + 4
+  novos) nos chunks JS. Não verificado sem browser: Tag Assistant e visual do embed no dark.
+
+---
+
 ## [v3.9.1] - 2026-07-08 - ✍️ Revisão de copy (voz editorial) — ISSUE-111
 
 ### 🎨 Melhorado
