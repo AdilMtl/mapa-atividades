@@ -1,4 +1,75 @@
-## 🎯 SESSÃO ATUAL: fecha ISSUE-109 — 2 eventos do hero pendentes
+## 🎯 SESSÃO ATUAL: ISSUE-110 — SEO técnico
+**Data:** 08 de julho de 2026
+**Versão:** v3.9.0
+**Status:** ✅ Concluída — estrutura mínima de SEO no ar em todas as páginas públicas
+
+### **🚀 O QUE FOI FEITO (em termos simples):**
+
+Até aqui o site não tinha "etiquetas" para o Google entender. Fizemos 5 coisas:
+
+1. **Cartão de visita ao compartilhar o link** — WhatsApp/LinkedIn/Twitter agora mostram um
+   preview com título, descrição e uma imagem de capa da marca (gerada automaticamente, sem
+   precisar de designer). Antes o link aparecia pelado.
+2. **Mapa do site pro Google** (`sitemap.xml`) — lista as páginas que devem aparecer na busca:
+   home, os 2 radares, `/newsletter` e `/lab`.
+3. **Placa de "não entre aqui" pro Google** (`robots.txt`) — instrui o Google a não tentar
+   indexar as páginas que exigem login (dashboard, diagnóstico, painel semanal etc.), evitando
+   que apareça informação de assinante em busca e evitando desperdiçar o rastreamento do Google
+   com página que ele não consegue ver mesmo.
+4. **Ficha de identidade do site** (JSON-LD `WebSite` na home) — um bloco de dados invisível
+   dizendo explicitamente ao Google "isso é o +ConverSaaS, o ecossistema da newsletter Conversas
+   no Corredor", em vez de deixar o Google adivinhar pelo texto.
+5. **Corrigido um problema real de estrutura**: as páginas `/newsletter`, `/lab` e `/obrigado`
+   não tinham nenhum "título principal" marcado tecnicamente (H1) — só tinham H2. Visualmente
+   ninguém percebe diferença; para o Google, é como a página não ter título claro. Corrigido sem
+   mudar nada visual.
+
+**O que isso NÃO faz:** não garante posição no Google — isso depende de tempo, conteúdo e
+concorrência. É só a base técnica mínima para o site ser encontrável e bem interpretado.
+
+### **🚀 O QUE FOI FEITO (detalhe técnico):**
+
+- `metadataBase` + `openGraph`/`twitter` base em `src/app/layout.tsx` — título/descrição de cada
+  página passam a espelhar automaticamente em `og:title`/`og:description`/`twitter:*`.
+- `src/app/opengraph-image.tsx` + `twitter-image.tsx`: imagem 1200×630 gerada via `next/og`
+  `ImageResponse` (tokens DS2), estática em build. Sem ferramenta de edição de imagem disponível
+  neste ambiente para produzir um PNG manual em `public/og/*`, então a "imagem estática da marca"
+  virou uma rota de imagem gerada pelo Next — mesmo resultado prático (uma imagem, sempre igual,
+  servida em toda página que não define a própria).
+- `src/app/sitemap.ts` (5 rotas de conteúdo) e `src/app/robots.ts` (bloqueia `/api/` + as 9 rotas
+  privadas de `(app)`) novos.
+- JSON-LD `WebSite` em `src/app/(publico)/page.tsx`.
+- Auditoria de H1: `/newsletter`, `/lab`, `/obrigado` tinham 0 H1. Adicionada prop `as="h1"` no
+  `SectionTitle` (`src/components/ds2/SectionTitle.tsx`) — visual idêntico, só semântica — usada
+  no heading principal das 3 páginas.
+- `(app)/layout.tsx` é client component e não pode exportar `metadata`. Lógica extraída 100%
+  intacta para `src/app/(app)/AppShell.tsx`; o `layout.tsx` virou Server Component só com
+  `robots: {index:false, follow:false}`, cobrindo as 9 rotas privadas de uma vez, sem tocar em
+  nenhuma página individual da plataforma logada.
+- `/obrigado` (pós-conversão) ganhou `robots: {index:false}` própria e ficou fora do sitemap —
+  prática padrão de SEO para thank-you pages. `/auth` e `/pre-diagnostico` também ficaram fora do
+  sitemap (transacional a primeira; backstage/hands-off a segunda, ver `00b_open_questions.md`
+  pergunta 6).
+
+### **✅ VALIDAÇÃO:**
+`tsc --noEmit`, `lint` e `build` limpos (34 rotas). Smoke test via curl no build de produção:
+`og:title`/`og:description` espelhando o título de cada página automaticamente, `og:image`/
+`twitter:image` respondendo 200 (PNG real, 1200×630), JSON-LD válido (`JSON.parse` sem erro),
+`/dashboard` com `noindex, nofollow`, exatamente 1 `<h1>` em `/`, `/newsletter`, `/lab`,
+`/radar/maturidade`, GTM intacto, CTAs da home intactos, todas as rotas tocadas em 200.
+**Não verificado** (sem browser/internet neste ambiente): Rich Results Test do Google e
+Lighthouse SEO real — mesma limitação já registrada nas sessões anteriores de analytics/QA.
+
+### **🎯 PRÓXIMOS PASSOS:**
+Fase 1 segue com ISSUE-111 (revisão de copy) e ISSUE-112 (QA/gate de launch) como pendentes não
+iniciadas — ambas fazem sentido só depois de tudo visível estar pronto, o que já é o caso.
+Fase 1B (114–120, restyle DS2 da plataforma logada) segue liberada em paralelo. Oportunidade
+registrada, não corrigida: validar o Rich Results Test e o Lighthouse SEO reais quando houver
+acesso a browser/preview (dono pode rodar e reportar).
+
+---
+
+## 🎯 SESSÃO Anterior: fecha ISSUE-109 — 2 eventos do hero pendentes
 **Data:** 08 de julho de 2026
 **Versão:** v3.8.1
 **Status:** ✅ Concluída — ISSUE-109 fica 15/15 eventos instrumentados

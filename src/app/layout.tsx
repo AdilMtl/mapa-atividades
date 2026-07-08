@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next'
 import Script from 'next/script'
 import { Fraunces, IBM_Plex_Sans, IBM_Plex_Mono } from 'next/font/google'
 import './globals.css'
+import { SITE_NAME, SITE_URL } from '@/lib/site-config'
 
 // Layout raiz = Server Component (ISSUE-101): só html/body, GTM e metadata.
 // Gate de auth + sidebar da plataforma logada vivem em (app)/layout.tsx.
@@ -33,6 +34,7 @@ const ibmPlexMono = IBM_Plex_Mono({
 })
 
 export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
   title: '+Conversas no Corredor',
   description: 'Mapeie, diagnostique e otimize seu foco profissional',
   applicationName: '+Conversas no Corredor',
@@ -56,6 +58,16 @@ export const metadata: Metadata = {
     // appleWebApp.capable já emite a variante moderna mobile-web-app-capable;
     // esta repõe a tag apple- legada que o head antigo tinha (iOS antigo só lê esta).
     'apple-mobile-web-app-capable': 'yes',
+  },
+  // ISSUE-110: OG/Twitter base — cada página herda a imagem de opengraph-image.tsx/
+  // twitter-image.tsx e sobrescreve title/description via seu próprio `metadata`.
+  openGraph: {
+    type: 'website',
+    locale: 'pt_BR',
+    siteName: SITE_NAME,
+  },
+  twitter: {
+    card: 'summary_large_image',
   },
 }
 

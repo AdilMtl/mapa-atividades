@@ -9,6 +9,9 @@ import { LEITURAS } from '@/lib/radar/content'
 export const metadata: Metadata = {
   title: 'Obrigado — +ConverSaaS',
   description: 'Sua trilha está a caminho. Enquanto o e-mail não chega, comece por uma destas conversas.',
+  // Página pós-conversão (ISSUE-110): não faz sentido ranquear em busca orgânica,
+  // por isso fica fora do sitemap.ts e recebe noindex aqui.
+  robots: { index: false, follow: true },
 }
 
 const LEITURAS_RECOMENDADAS = [
@@ -29,7 +32,7 @@ export default function ObrigadoPage() {
       <PageContainer className="space-y-12 pb-16 pt-4">
         <section>
           <Eyebrow>Obrigado</Eyebrow>
-          <SectionTitle className="mt-3 max-w-[720px] text-[32px] md:text-[42px]">
+          <SectionTitle as="h1" className="mt-3 max-w-[720px] text-[32px] md:text-[42px]">
             Sua trilha está a caminho.
           </SectionTitle>
           <p className="mt-4 max-w-[640px] font-ds2-sans text-base leading-relaxed text-ds2-text-secondary">

@@ -539,6 +539,29 @@ analytics.
 
 ## ISSUE-110 — SEO técnico
 
+**Status:** ✅ concluída em 2026-07-08 — `metadataBase` + `openGraph`/`twitter` base no layout
+raiz; `src/app/opengraph-image.tsx` + `twitter-image.tsx` (via `next/og` `ImageResponse`, tokens
+DS2, estáticos em build — não há ferramenta de edição de imagem neste ambiente para gerar um PNG
+manual em `public/og/*`, então a imagem-fonte única virou rota de imagem gerada, mesmo resultado
+prático); `sitemap.ts` (5 rotas públicas de conteúdo) e `robots.ts` (bloqueia `/api/` + todas as
+rotas de `(app)`) novos; JSON-LD `WebSite` na home; auditoria de H1 achou 0 H1 em
+`/newsletter`, `/lab` e `/obrigado` (só H2 via `SectionTitle`) — corrigido com prop `as="h1"`
+nova no `SectionTitle` (visual idêntico, só semântica), usada no heading principal das 3
+páginas. `(app)/layout.tsx` (client) não podia exportar `metadata`; lógica extraída 100% intacta
+para `(app)/AppShell.tsx` e o `layout.tsx` virou Server Component só com
+`robots: {index:false, follow:false}` — cobre as 9 rotas privadas de uma vez. `/obrigado` (pós-
+conversão) ganhou `robots: {index:false}` própria e ficou fora do sitemap, por ser prática
+padrão de SEO para thank-you pages. `/auth` e `/pre-diagnostico` ficaram fora do sitemap por
+decisão (auth é transacional; pre-diagnostico é backstage — ninguém toca no código dele, ver
+`00b_open_questions.md` pergunta 6). `tsc`/`lint`/`build` limpos (34 rotas); smoke test via curl
+no build de produção confirmou: og:title/description espelhando o título de cada página
+automaticamente, `og:image`/`twitter:image` respondendo 200 (PNG real, 1200×630), JSON-LD válido
+(`JSON.parse` sem erro), `/dashboard` com `noindex, nofollow`, exatamente 1 `<h1>` em `/`,
+`/newsletter`, `/lab`, `/radar/maturidade`, GTM intacto, CTAs da home intactos, todas as rotas
+tocadas em 200.
+**Não verificado** (sem browser/internet neste ambiente): Rich Results Test do Google e
+Lighthouse SEO real — mesma limitação já registrada nas sessões anteriores.
+
 **Fase:** 1
 **Tipo:** SEO
 **Prioridade:** Média

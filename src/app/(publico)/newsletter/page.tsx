@@ -30,7 +30,7 @@ export default function NewsletterPage() {
       <PageContainer className="space-y-12 pb-16 pt-4">
         <Panel>
           <Eyebrow>Newsletter</Eyebrow>
-          <SectionTitle className="mt-3 max-w-[720px] text-[32px] md:text-[42px]">
+          <SectionTitle as="h1" className="mt-3 max-w-[720px] text-[32px] md:text-[42px]">
             A newsletter é onde a conversa continua.
           </SectionTitle>
           <p className="mt-4 max-w-[640px] font-ds2-sans text-base leading-relaxed text-ds2-text-secondary">

@@ -27,7 +27,7 @@ export default function LabPage() {
       <PageContainer className="pb-16 pt-4">
         <div className="rounded-ds2-panel border border-[rgba(211,76,117,0.20)] bg-[linear-gradient(145deg,rgba(211,76,117,0.10),rgba(255,255,255,0.04))] p-6 md:p-8">
           <Badge variant="premium">Lab · em construção</Badge>
-          <SectionTitle className="mt-4 max-w-[720px] text-[32px] md:text-[42px]">
+          <SectionTitle as="h1" className="mt-4 max-w-[720px] text-[32px] md:text-[42px]">
             Em breve: uma área para transformar leitura em prática.
           </SectionTitle>
           <p className="mt-4 max-w-[680px] font-ds2-sans text-base leading-relaxed text-ds2-text-secondary">

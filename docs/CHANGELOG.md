@@ -16,6 +16,49 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [v3.9.0] - 2026-07-08 - 🔍 SEO técnico — ISSUE-110
+
+### ✅ Adicionado
+- **ISSUE-110 — Estrutura mínima de SEO em todas as páginas públicas.** Em termos simples: o
+  site ganhou "etiquetas" para o Google (e para quem compartilha o link) entender do que se
+  trata — antes disso não existia nada disso.
+  - **Preview ao compartilhar o link** (og:image/twitter:image): imagem de capa da marca gerada
+    automaticamente (1200×630, via `next/og`), título e descrição de cada página aparecendo no
+    card do WhatsApp/LinkedIn/Twitter.
+  - **`sitemap.xml`**: lista as 5 páginas de conteúdo que devem ser indexadas (home, os 2
+    radares, `/newsletter`, `/lab`).
+  - **`robots.txt`**: bloqueia o Google de tentar indexar as 9 rotas privadas (dashboard,
+    diagnóstico, plano de ação, painel semanal, relatórios, perfil, configurações, privacidade,
+    admin) e as rotas de `/api/`.
+  - **JSON-LD `WebSite`** na home: identifica formalmente o site como "+ConverSaaS, o
+    ecossistema virtual da newsletter Conversas no Corredor".
+  - **H1 corrigido**: `/newsletter`, `/lab` e `/obrigado` não tinham nenhum H1 (só H2) — corrigido
+    com uma prop `as="h1"` nova no `SectionTitle` do DS2, sem mudar nada visual.
+  - `/obrigado` (pós-conversão) ganhou `robots: noindex` e ficou fora do sitemap — prática padrão
+    para thank-you pages.
+
+### 📊 Técnico
+- `metadataBase` + `openGraph`/`twitter` base em `src/app/layout.tsx` — title/description de
+  cada página passam a espelhar automaticamente em `og:*`/`twitter:*`.
+- `src/app/opengraph-image.tsx` + `twitter-image.tsx` (gerador compartilhado em
+  `src/lib/og-image.tsx`): imagem estática em build via `ImageResponse`, tokens DS2. Sem
+  ferramenta de edição de imagem disponível neste ambiente para produzir um PNG manual em
+  `public/og/*` — a rota de imagem gerada pelo Next cumpre o mesmo papel prático.
+- `src/app/sitemap.ts`, `src/app/robots.ts`, `src/lib/site-config.ts` (constantes `SITE_URL`/
+  `SITE_NAME` compartilhadas) novos.
+- `(app)/layout.tsx` era client component e não podia exportar `metadata`; lógica extraída 100%
+  intacta para `src/app/(app)/AppShell.tsx`, `layout.tsx` virou Server Component só com
+  `robots: {index:false, follow:false}` — cobre as 9 rotas privadas de uma vez, zero mudança de
+  comportamento na plataforma logada.
+- `tsc --noEmit`, `lint` e `build` limpos (34 rotas). Smoke test via curl no build de produção:
+  og:title/description corretos, imagens OG/Twitter reais (200, PNG, 1200×630), JSON-LD válido,
+  `/dashboard` com `noindex, nofollow`, H1 único nas páginas tocadas, GTM e CTAs da home
+  intactos, todas as rotas em 200.
+- **Não verificado** (sem browser/internet neste ambiente): Rich Results Test do Google e
+  Lighthouse SEO real.
+
+---
+
 ## [v3.8.1] - 2026-07-08 - 🔧 Fecha ISSUE-109 — 2 eventos do hero pendentes
 
 ### 🔧 Corrigido
