@@ -424,6 +424,30 @@ Lab.
 
 ## ISSUE-109 — Analytics do funil novo (GTM + Supabase)
 
+**Status:** ⚠️ parcial em 2026-07-07 — helper `src/lib/analytics.ts` (`track()` duplo trilho:
+`dataLayer.push` + `POST /api/radar/event` via `sendBeacon`/fetch keepalive) e captura/propagação
+de UTM (`capturarUtm`/`lerUtm`, sessionStorage) implementados; **12 dos 15 eventos do doc
+operacional §21 instrumentados** nos componentes existentes (`RadarFlow`, `EmailCaptureRadar`,
+`MaturidadeResultado`, `OportunidadesResultado`). 3 eventos (`hero_cta_opportunities_clicked`,
+`hero_cta_maturity_clicked`, `thank_you_page_viewed`) **não instrumentados** por dependerem de
+páginas que ainda não existem (home = ISSUE-107, `/obrigado` = ISSUE-108) — o helper já está
+pronto para eles, falta só a chamada de uma linha quando essas issues rodarem.
+**Achado de arquitetura:** os 15 nomes de evento foram extraídos para `src/lib/radar-events.ts`
+(módulo sem `'use client'`) em vez de ficarem só em `analytics.ts`. Motivo: a rota de API
+(`api/radar/event/route.ts`, server-side) importava a constante de um módulo `'use client'` e o
+Next resolvia isso como referência de client component no bundle do servidor — `.includes()`
+quebrava em runtime (`TypeError`, mascarado pelo catch-all que sempre responde `200`, achado só
+testando via curl). Registrado aqui para não repetir o padrão em issues futuras: constantes
+compartilhadas entre client e rota de API não podem morar num módulo `'use client'`.
+UTM real testado (`POST /api/radar/session` aceita e persiste `utm.source` etc., antes só o
+schema suportava mas o front não enviava). `lint`/`tsc --noEmit`/`build` (29 rotas, +1 pela rota
+`api/radar/event`) e os 37 testes de `lib/radar` verdes. Validado via curl: evento com nome fora
+da lista → `400`; evento válido → `200` + gravação em `radar_events`; rate limit
+(120/hora/IP) não testado por completo (evitar gerar 120 linhas de lixo no banco de produção).
+**Não verificado** (sem ferramenta de browser neste ambiente, mesma limitação da ISSUE-103):
+disparo real dos eventos clicando no fluxo do navegador + Tag Assistant/GTM Preview para as tags
+GA4 (ainda não criadas — é o dono que cria na UI do GTM, ver especificação entregue). Documento
+de especificação de eventos/tags para o dono: `ISSUE-109-eventos-analytics.md`.
 **Fase:** 1
 **Tipo:** Analytics
 **Prioridade:** Alta

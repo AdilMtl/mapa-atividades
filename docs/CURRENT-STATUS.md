@@ -1,4 +1,77 @@
-## 🎯 SESSÃO ATUAL: ISSUE-103 — Páginas /radar/maturidade e /radar/oportunidades
+## 🎯 SESSÃO ATUAL: ISSUE-109 — Analytics do funil novo (GTM + Supabase)
+**Data:** 07 de julho de 2026 (quinta sessão do dia)
+**Versão:** v3.6.8
+**Status:** ⚠️ Parcial — 12 dos 15 eventos instrumentados; 3 dependem de páginas que ainda não existem
+**Duração:** ~1 sessão
+
+### **🚀 O QUE FOI FEITO:**
+
+Com os radares navegáveis (ISSUE-103) e o backend de captura pronto (ISSUE-106), implementada a
+instrumentação de analytics do funil novo — duplo trilho (GTM/GA4 + Supabase), igual ao padrão
+já usado no funil legado.
+
+- **`src/lib/analytics.ts`** — helper `track(event, props)`: dispara `window.dataLayer.push`
+  (GTM → GA4, tag criada pelo dono na UI) e `POST /api/radar/event` via `navigator.sendBeacon`
+  com fallback `fetch(keepalive: true)`; nunca bloqueia navegação (falha de rede é engolida).
+  `capturarUtm()`/`lerUtm()` capturam UTM da URL no primeiro pageview e persistem em
+  `sessionStorage['conversaas.utm']` durante a sessão do navegador.
+- **`src/lib/radar-events.ts`** — lista canônica dos 15 nomes de evento do doc operacional §21,
+  em módulo neutro (sem `'use client'`) — motivo no achado de arquitetura abaixo.
+- **`src/app/api/radar/event/route.ts`** — grava em `radar_events` (schema reservado desde a
+  ISSUE-106); valida `eventName` contra a lista canônica (rejeita nomes inventados com `400`);
+  rate limit 120/hora/IP (mais generoso que sessão/lead — um único fluxo de radar dispara vários
+  eventos legítimos); responde `200` mesmo em erro interno — analytics não pode virar mensagem de
+  erro pro usuário.
+- **12 dos 15 eventos instrumentados** em `RadarFlow`, `EmailCaptureRadar`, `MaturidadeResultado`,
+  `OportunidadesResultado`: início/conclusão de cada radar, visualização e envio do formulário de
+  e-mail (honeypot filtrado — bot não conta como evento real), resultado revelado, clique em
+  leitura recomendada, interesse no Lab (clique + envio), CTA de newsletter.
+- **UTM real passou a ser enviado** — `POST /api/radar/session` já suportava `utm.*` desde a
+  ISSUE-106, mas o front não mandava; agora `RadarFlow` lê `sessionStorage` e envia no payload.
+- **`docs/revamp/ISSUE-109-eventos-analytics.md`** — especificação de tags/triggers GA4 para o
+  dono aplicar na UI do GTM (o código só faz `dataLayer.push`; a tag em si é config de plataforma).
+
+### **🔍 Achado de arquitetura (registrado no backlog para não repetir):**
+A rota de API (`api/radar/event/route.ts`, server-side) importava `RADAR_EVENT_NAMES` de
+`analytics.ts`, um módulo `'use client'`. O Next resolveu isso como referência de client
+component dentro do bundle do servidor — `RADAR_EVENT_NAMES.includes()` quebrava em runtime
+(`TypeError`), mascarado pelo catch-all que sempre responde `200` (só apareceu testando via curl
+e lendo o log do servidor; o teste "evento inválido deveria dar 400" retornava `200` silenciosamente).
+Corrigido extraindo a lista para `radar-events.ts`, um módulo neutro importado por ambos os lados.
+**Regra geral:** constantes compartilhadas entre componente client e rota de API não podem morar
+num módulo com `'use client'`.
+
+### **⚠️ Pendência explícita (não é retrabalho — bloqueio real de dependência):**
+3 dos 15 eventos (`hero_cta_opportunities_clicked`, `hero_cta_maturity_clicked`,
+`thank_you_page_viewed`) dependem de páginas que ainda não existem: a home nova (ISSUE-107) e a
+página `/obrigado` (ISSUE-108). O helper `track()` já está pronto — instrumentar esses 3 quando
+as issues rodarem é uma chamada de uma linha em cada CTA/mount, seguindo o padrão dos 12 já
+implementados.
+
+### **✅ VALIDAÇÃO:**
+`lint`, `tsc --noEmit`, `build` (29 rotas, +1 pela rota `api/radar/event`) e os 37 testes de
+`lib/radar` verdes. Testado via curl: `POST /api/radar/session` aceita e persiste `utm.source`
+etc.; `POST /api/radar/event` com nome de evento fora da lista canônica → `400`; evento válido →
+`200` + gravação confirmada em `radar_events` (session_id vinculado corretamente). Corrigido
+durante a validação: `session_id` estava vazando para o `dataLayer`/GA4 (deveria viajar só no
+trilho Supabase) — helper ajustado para separar os dois payloads.
+**Não verificado** (sem ferramenta de browser neste ambiente, mesma limitação registrada na
+ISSUE-103): clique real no fluxo do navegador disparando os eventos + GTM Preview/Tag Assistant
+para as tags GA4 (ainda não criadas — ver especificação entregue ao dono). Rate limit
+(120/hora/IP) não testado por completo, de propósito (evitaria gerar 120 linhas de lixo em
+`radar_events` de produção só para confirmar o teto).
+ISSUE-109 marcada `⚠️ parcial` em `docs/revamp/04_issue_backlog.md`. `docs/revamp/00b_open_questions.md`
+pergunta 8 atualizada: `radar_events` (não `roi_events`) confirmada como decisão final.
+
+### **🎯 PRÓXIMOS PASSOS:**
+Com 103+104+105+106+109 prontos (109 parcial, pendência documentada e não-bloqueante), o Sprint 1
+está no ponto do gate de revisão do diff acumulado antes de abrir a **ISSUE-107** (homepage
+reposicionada) — que também vai destravar os 3 eventos pendentes desta issue como parte natural
+do seu escopo (CTAs do hero). Considerar rodar a revisão Fable 5 do Sprint 1 antes de avançar.
+
+---
+
+## 🎯 SESSÃO Anterior: ISSUE-103 — Páginas /radar/maturidade e /radar/oportunidades
 **Data:** 07 de julho de 2026 (quarta sessão do dia)
 **Versão:** v3.6.7
 **Status:** ✅ Concluída — fluxo navegável ponta a ponta nos dois radares, validado localmente

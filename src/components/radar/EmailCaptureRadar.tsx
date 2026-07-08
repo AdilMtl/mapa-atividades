@@ -1,14 +1,18 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Loader2, Mail, ShieldCheck } from 'lucide-react'
 
 import { Button } from '@/components/ds2'
+import { track } from '@/lib/analytics'
+import type { RadarKind } from '@/lib/radar/types'
 import { cn } from '@/lib/utils'
 
 interface EmailCaptureRadarProps {
   /** Cria a sessão sob demanda se a criação inicial (no mount) tiver falhado. */
   ensureSessionId: () => Promise<string | null>
+  /** Qual radar originou esta captura — vira `assessment_type` nos eventos de analytics. */
+  assessmentType: RadarKind
   ctaLabel: string
   onSuccess: (result: { triggerConversion: boolean }) => void
   className?: string
@@ -20,6 +24,7 @@ function validarEmail(email: string): boolean {
 
 export function EmailCaptureRadar({
   ensureSessionId,
+  assessmentType,
   ctaLabel,
   onSuccess,
   className,
@@ -30,6 +35,21 @@ export function EmailCaptureRadar({
   const [website, setWebsite] = useState('') // honeypot — humano nunca preenche
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+
+  useEffect(() => {
+    void ensureSessionId().then((sessionId) => {
+      track('email_capture_viewed', { assessment_type: assessmentType, session_id: sessionId })
+    })
+  }, [ensureSessionId, assessmentType])
+
+  function handleLabInterestChange(checked: boolean) {
+    setLabInterest(checked)
+    if (checked) {
+      void ensureSessionId().then((sessionId) => {
+        track('premium_interest_clicked', { assessment_type: assessmentType, session_id: sessionId })
+      })
+    }
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -72,6 +92,14 @@ export function EmailCaptureRadar({
         setError(data.error || 'Não foi possível salvar seu e-mail. Tente novamente.')
         setLoading(false)
         return
+      }
+
+      // Honeypot preenchido = bot (a rota finge sucesso sem gravar) — não conta como evento real.
+      if (!website.trim()) {
+        track('email_submitted', { assessment_type: assessmentType, premium_interest: labInterest, session_id: sessionId })
+        if (labInterest) {
+          track('premium_waitlist_submitted', { assessment_type: assessmentType, session_id: sessionId })
+        }
       }
 
       onSuccess({ triggerConversion: Boolean(data.triggerConversion) })
@@ -123,7 +151,7 @@ export function EmailCaptureRadar({
         <input
           type="checkbox"
           checked={labInterest}
-          onChange={(e) => setLabInterest(e.target.checked)}
+          onChange={(e) => handleLabInterestChange(e.target.checked)}
           className="h-4 w-4 rounded border-ds2-border-medium accent-ds2-orange"
         />
         Quero entrar na lista do Lab (área premium, em breve)

@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { ArrowRight, CheckCircle2, Mail } from 'lucide-react'
 
 import { Badge, Button, Card, Eyebrow, Panel } from '@/components/ds2'
+import { track } from '@/lib/analytics'
 import type { MaturityContent, MaturityResult } from '@/lib/radar/types'
 
 import { EmailCaptureRadar } from './EmailCaptureRadar'
@@ -64,7 +65,19 @@ export function MaturidadeResultado({
         <div className="grid gap-3 sm:grid-cols-2">
           {conteudo.leituras.map((leitura) => (
             <Card key={leitura.url}>
-              <a href={leitura.url} target="_blank" rel="noopener noreferrer" className="block">
+              <a
+                href={leitura.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block"
+                onClick={() =>
+                  track('recommended_article_clicked', {
+                    assessment_type: 'maturidade',
+                    maturity_level: resultado.nivel,
+                    article_url: leitura.url,
+                  })
+                }
+              >
                 <span className="font-ds2-mono text-[11px] tracking-[0.08em] text-ds2-text-muted uppercase">
                   Leitura
                 </span>
@@ -94,6 +107,7 @@ export function MaturidadeResultado({
       {mostrarEmail && !emailEnviado && (
         <EmailCaptureRadar
           ensureSessionId={ensureSessionId}
+          assessmentType="maturidade"
           ctaLabel={conteudo.ctaEmailSuave}
           onSuccess={() => setEmailEnviado(true)}
           className="max-w-md"

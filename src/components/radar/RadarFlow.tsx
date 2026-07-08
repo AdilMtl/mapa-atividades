@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 
 import { GridSection } from '@/components/ds2'
+import { capturarUtm, lerUtm, track } from '@/lib/analytics'
 import { CONTEUDO_MATURIDADE } from '@/lib/radar/content'
 import { calcularMaturidade, PERGUNTAS_MATURIDADE } from '@/lib/radar/maturidade'
 import { decidirOportunidade, PERGUNTAS_OPORTUNIDADES } from '@/lib/radar/oportunidades'
@@ -18,6 +19,16 @@ import { salvarMaturidadeReal } from '@/lib/radar-storage'
 import { MaturidadeResultado } from './MaturidadeResultado'
 import { OportunidadesResultado } from './OportunidadesResultado'
 import { QuestionCard } from './QuestionCard'
+
+const EVENTO_INICIO_POR_KIND: Record<RadarKind, 'maturity_assessment_started' | 'opportunity_radar_started'> = {
+  maturidade: 'maturity_assessment_started',
+  oportunidades: 'opportunity_radar_started',
+}
+
+const EVENTO_CONCLUSAO_POR_KIND: Record<RadarKind, 'maturity_assessment_completed' | 'opportunity_radar_completed'> = {
+  maturidade: 'maturity_assessment_completed',
+  oportunidades: 'opportunity_radar_completed',
+}
 
 interface RadarFlowProps {
   kind: RadarKind
@@ -49,10 +60,20 @@ export function RadarFlow({ kind }: RadarFlowProps) {
   const ensureSessionId = useCallback(async (): Promise<string | null> => {
     if (sessionIdRef.current) return sessionIdRef.current
     if (!sessionPromiseRef.current) {
+      const utm = lerUtm()
       sessionPromiseRef.current = fetch('/api/radar/session', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ kind }),
+        body: JSON.stringify({
+          kind,
+          utm: {
+            source: utm.utm_source,
+            medium: utm.utm_medium,
+            campaign: utm.utm_campaign,
+            content: utm.utm_content,
+            term: utm.utm_term,
+          },
+        }),
       })
         .then((res) => res.json())
         .then((data) => {
@@ -68,10 +89,13 @@ export function RadarFlow({ kind }: RadarFlowProps) {
     return sessionPromiseRef.current
   }, [kind])
 
-  // Cria a sessão assim que o fluxo monta — não bloqueia a primeira pergunta.
+  // Captura UTM da URL + cria a sessão assim que o fluxo monta — não bloqueia a 1ª pergunta.
   useEffect(() => {
-    void ensureSessionId()
-  }, [ensureSessionId])
+    capturarUtm()
+    void ensureSessionId().then((sessionId) => {
+      track(EVENTO_INICIO_POR_KIND[kind], { assessment_type: kind, session_id: sessionId })
+    })
+  }, [ensureSessionId, kind])
 
   const persistirResultado = useCallback(
     async (respostasFinais: RadarAnswers, resultKey: string) => {
@@ -97,13 +121,30 @@ export function RadarFlow({ kind }: RadarFlowProps) {
         salvarMaturidadeReal(resultadoMaturidade.nivel, resultadoMaturidade.score)
         setResultado(resultadoMaturidade)
         void persistirResultado(respostasFinais, resultadoMaturidade.nivel)
+        void ensureSessionId().then((sessionId) => {
+          track(EVENTO_CONCLUSAO_POR_KIND[kind], {
+            assessment_type: kind,
+            maturity_level: resultadoMaturidade.nivel,
+            session_id: sessionId,
+          })
+          track('result_preview_viewed', { assessment_type: kind, session_id: sessionId })
+        })
       } else {
         const resultadoOportunidade = decidirOportunidade(respostasFinais)
         setResultado(resultadoOportunidade)
         void persistirResultado(respostasFinais, resultadoOportunidade.tipo)
+        void ensureSessionId().then((sessionId) => {
+          track(EVENTO_CONCLUSAO_POR_KIND[kind], {
+            assessment_type: kind,
+            recommended_solution_type: resultadoOportunidade.tipo,
+            area: resultadoOportunidade.area,
+            session_id: sessionId,
+          })
+          track('result_preview_viewed', { assessment_type: kind, session_id: sessionId })
+        })
       }
     },
-    [kind, persistirResultado]
+    [kind, persistirResultado, ensureSessionId]
   )
 
   function avancar(respostasAtuais: RadarAnswers) {

@@ -171,9 +171,16 @@ página. Risco gerenciado com a persona Analytics & Ads no QA.
 
 ---
 
-## Pergunta pendente 8
+## Pergunta pendente 8 — ✅ RESPONDIDA NA IMPLEMENTAÇÃO (ISSUE-106/109, 2026-07-07)
 
-**Tema:** Eventos de analytics — onde persistir (GTM/GA4 vs Supabase `roi_events` vs ambos)
+**Resposta final:** duplo trilho confirmado (dataLayer/GA4 + Supabase), mas a tabela NÃO é a
+`roi_events` reusada como a premissa original sugeria — é `radar_events`, uma tabela nova
+(decisão já tomada na ISSUE-106 por incompatibilidade de schema: FK de `roi_events` travada em
+`roi_prediag_sessions`, coluna `payload` ≠ `properties`). A ISSUE-109 implementou o helper
+`track()` e a rota `POST /api/radar/event` gravando nela. Views `vw_*` para Grafana continuam
+para o fim da fase.
+
+**Tema original:** Eventos de analytics — onde persistir (GTM/GA4 vs Supabase `roi_events` vs ambos)
 **Por que importa:** os documentos pedem ~15 eventos novos; o projeto já tem dois trilhos
 (dataLayer/GTM → GA4, e tabela `roi_events` → views `vw_*` → Grafana).
 **O que encontrei nos documentos/código:** funil atual grava `roi_events` via API; Grafana lê
@@ -227,7 +234,7 @@ negócio visível; o dono deve vetar aqui se discordar.
 | 5 | ✅ RESPONDIDA: sem integração hoje; assinatura paga manual via Substack; fluxo direto Stripe MAPEADO na ISSUE-305 para o futuro; Fase 1 = lead no banco + CTA/embed Substack + CSV manual | Não |
 | 6 | ✅ RESPONDIDA: `/pre-diagnostico` em BACKSTAGE — no ar e funcionando, mas sem nenhum link na home nova; CTAs vão para os radares; reformulação dele fica para depois | Não |
 | 7 | Refactor layout server-first é a primeira issue técnica | Não |
-| 8 | Analytics em duplo trilho (GTM + Supabase), reusando `roi_events` | Não |
+| 8 | ✅ RESPONDIDA: analytics em duplo trilho (GTM + Supabase); tabela é `radar_events` (nova), não `roi_events` reusada — schema incompatível, decidido na ISSUE-106, implementado na ISSUE-109 | Não |
 | 9 | ✅ RESPONDIDA: home nova MANTÉM a tabela de pricing (decisão do dono) | Não |
 | 10 | ✅ RESPONDIDA: funil novo usa o MESMO label de conversão Google Ads do funil atual; separação de labels entra no "plano de melhoria de Google Ads" (Fase 1.5, ISSUE-208) | Não |
 | 11 | ✅ NOVA (decisão do dono 2026-07-05): o plano inclui a **Fase 1B — redesign DS2 da plataforma logada** (ISSUES 114–120) e a home preserva o showcase da ferramenta (4 vídeos de demo) na seção "A plataforma em ação" | Não |

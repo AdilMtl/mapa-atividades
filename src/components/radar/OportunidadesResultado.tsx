@@ -5,6 +5,7 @@ import { ArrowRight, CheckCircle2, ShieldAlert } from 'lucide-react'
 import Link from 'next/link'
 
 import { Badge, Button, Card, Eyebrow, Panel } from '@/components/ds2'
+import { track } from '@/lib/analytics'
 import {
   BLOCO_DILIGENCIA,
   CONTEUDO_FAMILIAS,
@@ -50,6 +51,11 @@ export function OportunidadesResultado({
 
   function handleEmailSuccess({ triggerConversion }: { triggerConversion: boolean }) {
     setRevelado(true)
+    track('result_full_requested', {
+      assessment_type: 'oportunidades',
+      recommended_solution_type: resultado.tipo,
+      area: resultado.area,
+    })
     if (triggerConversion && typeof gtag !== 'undefined') {
       gtag('event', 'conversion', {
         send_to: 'AW-16601345592/0K0dCMm6oo4bELjckew9',
@@ -94,6 +100,7 @@ export function OportunidadesResultado({
           <p className="mt-2.5 text-sm leading-relaxed text-ds2-text-secondary">{teaser.promessaCompleto}</p>
           <EmailCaptureRadar
             ensureSessionId={ensureSessionId}
+            assessmentType="oportunidades"
             ctaLabel="Quero ver o diagnóstico completo"
             onSuccess={handleEmailSuccess}
             className="mt-4 max-w-md"
@@ -163,6 +170,13 @@ export function OportunidadesResultado({
                 target="_blank"
                 rel="noopener noreferrer"
                 className="mt-2.5 inline-block text-sm text-ds2-orange underline underline-offset-2"
+                onClick={() =>
+                  track('recommended_article_clicked', {
+                    assessment_type: 'oportunidades',
+                    recommended_solution_type: resultado.tipo,
+                    article_url: BLOCO_DILIGENCIA.leitura.url,
+                  })
+                }
               >
                 {BLOCO_DILIGENCIA.leitura.titulo}
               </a>
@@ -173,7 +187,19 @@ export function OportunidadesResultado({
             <div className="grid gap-3 sm:grid-cols-2">
               {diagnostico.leituras.map((leitura) => (
                 <Card key={leitura.url}>
-                  <a href={leitura.url} target="_blank" rel="noopener noreferrer" className="block">
+                  <a
+                    href={leitura.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="block"
+                    onClick={() =>
+                      track('recommended_article_clicked', {
+                        assessment_type: 'oportunidades',
+                        recommended_solution_type: resultado.tipo,
+                        article_url: leitura.url,
+                      })
+                    }
+                  >
                     <span className="font-ds2-mono text-[11px] tracking-[0.08em] text-ds2-text-muted uppercase">
                       Leitura
                     </span>
@@ -190,6 +216,12 @@ export function OportunidadesResultado({
                 href="https://conversasnocorredor.substack.com/subscribe"
                 target="_blank"
                 rel="noopener noreferrer"
+                onClick={() =>
+                  track('newsletter_cta_clicked', {
+                    assessment_type: 'oportunidades',
+                    recommended_solution_type: resultado.tipo,
+                  })
+                }
               >
                 {diagnostico.ctaNewsletter}
                 <ArrowRight className="h-4 w-4" />

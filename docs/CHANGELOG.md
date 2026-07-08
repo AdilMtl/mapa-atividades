@@ -16,6 +16,55 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [v3.6.8] - 2026-07-07 - 📊 Analytics do Funil Novo — ISSUE-109
+
+### ✅ Adicionado
+- **ISSUE-109 — Analytics dos radares (GTM + Supabase)**: duplo trilho, mesmo padrão do funil
+  legado, para os 15 eventos do doc operacional §21
+  - `src/lib/analytics.ts`: helper `track(event, props)` — `dataLayer.push` (GTM → GA4) +
+    `POST /api/radar/event` via `sendBeacon`/`fetch(keepalive)`; nunca bloqueia navegação.
+    `capturarUtm()`/`lerUtm()` capturam UTM da URL e persistem em `sessionStorage` durante a
+    sessão do navegador
+  - `src/lib/radar-events.ts`: lista canônica dos 15 nomes de evento (módulo neutro — ver
+    correção abaixo)
+  - `src/app/api/radar/event/route.ts`: grava em `radar_events` (schema da ISSUE-106); valida
+    `eventName` contra a lista canônica; rate limit 120/hora/IP; responde `200` mesmo em erro
+    interno (analytics não pode virar erro pro usuário)
+  - **12 dos 15 eventos instrumentados** em `RadarFlow`, `EmailCaptureRadar`,
+    `MaturidadeResultado`, `OportunidadesResultado`: início/conclusão dos radares, visualização e
+    envio do e-mail (honeypot filtrado), resultado revelado, clique em leitura, interesse no Lab,
+    CTA de newsletter
+  - UTM real propagado: `POST /api/radar/session` já aceitava `utm.*` desde a ISSUE-106, agora o
+    front realmente envia
+  - `docs/revamp/ISSUE-109-eventos-analytics.md`: especificação de tags/triggers GA4 para o dono
+    aplicar na UI do GTM
+
+### 🔧 Corrigido
+- `RADAR_EVENT_NAMES` importado de um módulo `'use client'` dentro da rota de API (server-side)
+  virava referência de client component no bundle do servidor — `.includes()` quebrava em
+  runtime, mascarado pelo catch-all que sempre responde `200`. Extraído para
+  `src/lib/radar-events.ts` (módulo neutro, sem `'use client'`), importado por ambos os lados.
+- `session_id` estava vazando para o `dataLayer`/GA4 no helper `track()` — deveria viajar só no
+  trilho Supabase (coluna própria em `radar_events`). Payloads separados corretamente.
+
+### 📊 Técnico
+- `lint`/`tsc --noEmit`/`build` (29 rotas, +1 pela rota `api/radar/event`) e os 37 testes de
+  `lib/radar` verdes. Testado via curl: evento com nome fora da lista → `400`; evento válido →
+  `200` + gravação confirmada em `radar_events` com `session_id` vinculado.
+- **Pendência explícita:** `hero_cta_opportunities_clicked`, `hero_cta_maturity_clicked` e
+  `thank_you_page_viewed` não instrumentados — dependem da home (ISSUE-107) e de `/obrigado`
+  (ISSUE-108), que ainda não existem. Helper pronto; falta uma chamada de uma linha quando essas
+  páginas forem construídas.
+- **Não verificado:** clique real no navegador disparando eventos + GTM Preview/Tag Assistant —
+  sem ferramenta de browser neste ambiente (mesma limitação da ISSUE-103).
+- `docs/revamp/00b_open_questions.md` pergunta 8 atualizada: `radar_events` (tabela nova, não
+  `roi_events` reusada) confirmada como decisão final, já implementada.
+- ISSUE-109 marcada `⚠️ parcial em 2026-07-07` no backlog — pendência é bloqueio real de
+  dependência (páginas inexistentes), não retrabalho. Sprint 1 (103+104+105+106+109) no ponto do
+  gate de revisão antes da ISSUE-107 (home).
+
+---
+
 ## [v3.6.7] - 2026-07-07 - 🎨 UI dos Radares — ISSUE-103
 
 ### ✅ Adicionado
