@@ -16,6 +16,22 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [v3.8.1] - 2026-07-08 - 🔧 Fecha ISSUE-109 — 2 eventos do hero pendentes
+
+### 🔧 Corrigido
+- **ISSUE-109 (analytics do funil novo) — fechada 15/15 eventos:** os CTAs do hero da home
+  (`HeroSection.tsx`) não disparavam `hero_cta_opportunities_clicked` nem
+  `hero_cta_maturity_clicked` — ficaram esquecidos na ISSUE-107, que criou a home mas não
+  instrumentou os cliques. Extraído `src/components/home/HeroCtas.tsx` (client) do
+  `HeroSection.tsx` (que continua server component) para chamar `track()` no `onClick` dos 2
+  CTAs, sem mudar copy, destino ou visual.
+
+### 📊 Técnico
+- `tsc --noEmit`, `lint` e `build` limpos (33 rotas). Smoke test via curl no build de produção:
+  os 2 nomes de evento presentes no HTML gerado, `href` dos CTAs intactos, `/` respondendo `200`.
+
+---
+
 ## [v3.8.0] - 2026-07-08 - 📰 Periferia do Funil — ISSUE-108
 
 ### ✅ Adicionado

@@ -1,8 +1,7 @@
-import Link from 'next/link'
-
-import { Badge, Button, GridSection } from '@/components/ds2'
+import { Badge, GridSection } from '@/components/ds2'
 
 import { HeroAppPreview } from './HeroAppPreview'
+import { HeroCtas } from './HeroCtas'
 
 export function HeroSection() {
   return (
@@ -25,12 +24,7 @@ export function HeroSection() {
             papel. Sem hype. Sem virar dev.
           </p>
           <div className="mt-6 flex flex-wrap items-center gap-3">
-            <Button asChild variant="primary">
-              <Link href="/radar/oportunidades">Descobrir o que posso construir</Link>
-            </Button>
-            <Button asChild variant="secondary">
-              <Link href="/radar/maturidade">Ver meu nível em IA</Link>
-            </Button>
+            <HeroCtas />
             <a
               href="https://conversasnocorredor.substack.com/subscribe"
               target="_blank"

@@ -486,14 +486,18 @@ Lab.
 
 ## ISSUE-109 — Analytics do funil novo (GTM + Supabase)
 
-**Status:** ⚠️ parcial em 2026-07-07 — helper `src/lib/analytics.ts` (`track()` duplo trilho:
+**Status:** ✅ concluída em 2026-07-08 — helper `src/lib/analytics.ts` (`track()` duplo trilho:
 `dataLayer.push` + `POST /api/radar/event` via `sendBeacon`/fetch keepalive) e captura/propagação
-de UTM (`capturarUtm`/`lerUtm`, sessionStorage) implementados; **12 dos 15 eventos do doc
-operacional §21 instrumentados** nos componentes existentes (`RadarFlow`, `EmailCaptureRadar`,
-`MaturidadeResultado`, `OportunidadesResultado`). 3 eventos (`hero_cta_opportunities_clicked`,
-`hero_cta_maturity_clicked`, `thank_you_page_viewed`) **não instrumentados** por dependerem de
-páginas que ainda não existem (home = ISSUE-107, `/obrigado` = ISSUE-108) — o helper já está
-pronto para eles, falta só a chamada de uma linha quando essas issues rodarem.
+de UTM (`capturarUtm`/`lerUtm`, sessionStorage) implementados; **15 dos 15 eventos do doc
+operacional §21 instrumentados**. Os últimos 3 (`hero_cta_opportunities_clicked`,
+`hero_cta_maturity_clicked`, `thank_you_page_viewed`) dependiam de páginas que só existiram
+depois (home = ISSUE-107, `/obrigado` = ISSUE-108): `thank_you_page_viewed` entrou junto com a
+própria ISSUE-108; os 2 CTAs do hero ficaram esquecidos na ISSUE-107 (que não os instrumentou
+apesar de ter criado a home) e foram fechados numa sessão de acompanhamento em 2026-07-08 —
+`src/components/home/HeroCtas.tsx` (novo, client, extraído do `HeroSection.tsx` que era server
+component) chama `track()` no `onClick` dos 2 CTAs do hero. `tsc`/`lint`/`build` limpos (33
+rotas); smoke test via curl confirmou os 2 nomes de evento no HTML gerado e os `href` dos CTAs
+intactos.
 **Achado de arquitetura:** os 15 nomes de evento foram extraídos para `src/lib/radar-events.ts`
 (módulo sem `'use client'`) em vez de ficarem só em `analytics.ts`. Motivo: a rota de API
 (`api/radar/event/route.ts`, server-side) importava a constante de um módulo `'use client'` e o

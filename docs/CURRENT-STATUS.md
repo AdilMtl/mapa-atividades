@@ -1,4 +1,35 @@
-## 🎯 SESSÃO ATUAL: ISSUE-108 — Páginas /newsletter, /lab e /obrigado
+## 🎯 SESSÃO ATUAL: fecha ISSUE-109 — 2 eventos do hero pendentes
+**Data:** 08 de julho de 2026
+**Versão:** v3.8.1
+**Status:** ✅ Concluída — ISSUE-109 fica 15/15 eventos instrumentados
+
+### **🚀 O QUE FOI FEITO:**
+
+Ao revisar o plano com o dono depois da ISSUE-108, ficou claro que a ISSUE-109 (analytics)
+continuava parcial: os 2 CTAs do hero da home (`Descobrir o que posso construir` / `Ver meu
+nível em IA`) não disparavam `hero_cta_opportunities_clicked`/`hero_cta_maturity_clicked` — a
+ISSUE-107 criou a home mas não instrumentou esses cliques, apesar do backlog já prever isso como
+parte do escopo dela.
+
+- Extraído `src/components/home/HeroCtas.tsx` (novo, `'use client'`) do `HeroSection.tsx`, que
+  continua server component. `HeroCtas` chama `track()` no `onClick` dos 2 botões, sem mudar
+  copy, destino ou visual.
+- `thank_you_page_viewed` (o 3º evento pendente) já tinha entrado junto com a ISSUE-108.
+
+### **✅ VALIDAÇÃO:**
+`tsc --noEmit`, `lint` e `build` limpos (33 rotas). Smoke test via curl no build de produção:
+os 2 nomes de evento presentes no HTML gerado da home, `href` dos CTAs (`/radar/oportunidades`,
+`/radar/maturidade`) intactos, `/` respondendo `200`.
+**Não verificado** (sem ferramenta de browser neste ambiente): disparo real no GTM
+Preview/Tag Assistant — mesma limitação já registrada nas sessões anteriores de analytics.
+
+### **🎯 PRÓXIMOS PASSOS:**
+Fase 1 segue com ISSUE-110 (SEO técnico), ISSUE-111 (revisão de copy) e ISSUE-112 (QA/gate de
+launch) como pendentes não iniciadas. Fase 1B (114–120) liberada para começar em paralelo.
+
+---
+
+## 🎯 SESSÃO Anterior: ISSUE-108 — Páginas /newsletter, /lab e /obrigado
 **Data:** 08 de julho de 2026
 **Versão:** v3.8.0
 **Status:** ✅ Concluída — 3 páginas no ar (local), SQL da tabela `lab_leads` rodado e verificado
