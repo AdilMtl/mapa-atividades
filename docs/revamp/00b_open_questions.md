@@ -223,6 +223,26 @@ negócio visível; o dono deve vetar aqui se discordar.
 
 ---
 
+## Pergunta pendente 12 — ✅ RESPONDIDA PELO DONO (2026-07-08, ISSUE-108)
+
+**Tema:** Onde persistir o interesse na lista do Lab de quem visita `/lab` direto (sem ter
+respondido um radar antes)
+**Por que importa:** a ISSUE-108 previa reusar `api/radar/lead` (flag `lab_interest`) ou criar
+rota própria. Na implementação, descobri que `api/radar/lead` exige `sessionId` de uma
+`radar_sessions` já existente (`kind` só aceita `'maturidade'`/`'oportunidades'`) — inviável
+para visita solta à `/lab` sem ter passado por um radar.
+**Opções possíveis:**
+a) Tabela nova e isolada (`lab_leads`), sem referenciar as tabelas do radar;
+b) Relaxar o CHECK de `kind` em `radar_sessions`/`radar_leads` para aceitar `'lab'` e tornar
+`session_id` opcional em `radar_leads`, reaproveitando a coluna `lab_interest` que já existe lá.
+**Resposta do dono:** opção (a) — tabela nova e isolada. Risco menor: não mexe em schema já
+validado em produção pelos radares. SQL em `docs/revamp/ISSUE-108-sql-lab-leads.md` (dono ainda
+precisa rodar).
+**Bloqueia implementação?** Não — rota `/api/lab/interest` já está pronta, só falta o SQL rodar
+para a gravação funcionar de verdade.
+
+---
+
 ## Resumo executivo das premissas assumidas
 
 | # | Premissa (segue valendo salvo veto do dono) | Bloqueio |
@@ -238,3 +258,4 @@ negócio visível; o dono deve vetar aqui se discordar.
 | 9 | ✅ RESPONDIDA: home nova MANTÉM a tabela de pricing (decisão do dono) | Não |
 | 10 | ✅ RESPONDIDA: funil novo usa o MESMO label de conversão Google Ads do funil atual; separação de labels entra no "plano de melhoria de Google Ads" (Fase 1.5, ISSUE-208) | Não |
 | 11 | ✅ NOVA (decisão do dono 2026-07-05): o plano inclui a **Fase 1B — redesign DS2 da plataforma logada** (ISSUES 114–120) e a home preserva o showcase da ferramenta (4 vídeos de demo) na seção "A plataforma em ação" | Não |
+| 12 | ✅ RESPONDIDA (2026-07-08, ISSUE-108): interesse no Lab de visita solta vai para tabela nova e isolada `lab_leads` (não reusa `radar_leads`/`radar_sessions`) | Não |

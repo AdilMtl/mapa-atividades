@@ -25,18 +25,18 @@ export function PublicHeader() {
           </p>
         </div>
         <div className="flex items-center gap-3.5 font-ds2-mono text-xs">
-          <a
-            href="#newsletter"
+          <Link
+            href="/newsletter"
             className="hidden text-ds2-text-secondary transition-colors hover:text-ds2-text-primary md:inline"
           >
             Newsletter
-          </a>
-          <a
-            href="#lab"
+          </Link>
+          <Link
+            href="/lab"
             className="hidden text-ds2-text-secondary transition-colors hover:text-ds2-text-primary md:inline"
           >
             Lab
-          </a>
+          </Link>
           <Link
             href="/auth"
             className="text-ds2-text-secondary transition-colors hover:text-ds2-text-primary"

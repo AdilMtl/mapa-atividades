@@ -1,4 +1,62 @@
-## 🎯 SESSÃO ATUAL: ISSUE-107 — Homepage reposicionada
+## 🎯 SESSÃO ATUAL: ISSUE-108 — Páginas /newsletter, /lab e /obrigado
+**Data:** 08 de julho de 2026
+**Versão:** v3.8.0
+**Status:** ✅ Concluída — 3 páginas no ar (local), SQL da tabela `lab_leads` rodado e verificado
+pelo dono, teste manual do dono aprovado
+**Duração:** ~1 sessão
+
+### **🚀 O QUE FOI FEITO:**
+
+Com a homepage reposicionada (ISSUE-107) no ar, a ISSUE-108 completou a periferia do funil:
+`/newsletter`, `/lab` e `/obrigado`.
+
+- **`/newsletter`** (`src/app/(publico)/newsletter/page.tsx`): página editorial com os temas da
+  newsletter (copy literal do doc operacional §8.7), exemplos de leitura reais e CTA de assinatura
+  (Substack).
+- **`/lab`** (`src/app/(publico)/lab/page.tsx`): premium em construção + formulário de lista de
+  interesse (`src/components/lab/LabWaitlistForm.tsx`, client). Descoberta na implementação:
+  `api/radar/lead` exige `sessionId` de uma `radar_sessions` existente — inviável para visita
+  solta à `/lab` sem ter passado por um radar antes. Decisão do dono: tabela nova e isolada
+  `lab_leads` (não referencia as tabelas do radar) + rota própria `POST /api/lab/interest`
+  (validação de e-mail, honeypot, rate limit 5/h/IP, mesmo padrão da ISSUE-106). SQL rodado e
+  verificado pelo dono em produção (`rowsecurity = true`, 0 políticas).
+- **`/obrigado`** (`src/app/(publico)/obrigado/page.tsx`): leituras recomendadas (reaproveitando
+  `LEITURAS`, agora exportado de `src/lib/radar/content.ts`) + CTA newsletter + CTA Lab. Dispara
+  `thank_you_page_viewed` via `src/components/obrigado/ObrigadoTracker.tsx` — o evento que a
+  ISSUE-109 tinha deixado pendente esperando esta página existir. **Decisão do dono:** página
+  fica standalone por enquanto — os componentes de resultado dos radares (já revisados/travados
+  no gate do Sprint 1) não foram tocados, então nada redireciona para cá ainda; ligar esse fluxo
+  fica para uma issue futura.
+- **Integração com o que já existia:** `PublicHeader` tinha links `#newsletter`/`#lab` (âncoras
+  que só funcionavam dentro da própria home, quebradas em qualquer outra página pública) —
+  corrigidos para rotas reais. O CTA "Quero entrar na lista do Lab" da home (`LabSection.tsx`)
+  ganhou destino real (`/lab`) — antes era só vitrine sem link.
+- **Achado do dono no teste manual (registrado, não corrigido — fora do escopo desta issue):** a
+  home não tem chamada óbvia para `/newsletter` — a seção "Newsletter" da home linka direto pro
+  Substack, nunca passa pela página interna; os links do `PublicHeader` só aparecem no desktop
+  (somem no mobile). Oportunidade de melhoria de UX/navegação para uma issue futura.
+
+### **✅ VALIDAÇÃO:**
+`tsc --noEmit`, `lint` (arquivos tocados) e `build` limpos (33 rotas). Grep de hex solto no diff:
+zero. Smoke test via curl no build de produção: `/`, `/newsletter`, `/lab`, `/obrigado`,
+`/radar/maturidade`, `/radar/oportunidades` respondendo `200`; GTM presente no HTML; CTAs
+corretos no HTML da home. `/api/lab/interest` testado (e-mail inválido → `400`; honeypot → `200`
+sem gravar; e-mail válido → `500` antes do SQL rodar, confirmando a dependência). Dono rodou o
+SQL de `lab_leads` (`docs/revamp/ISSUE-108-sql-lab-leads.md`), verificou RLS ligada e zero
+políticas, testou o formulário do `/lab` no navegador e aprovou.
+**Achado de ambiente (não é bug de código):** o build de produção falhava de forma intermitente
+com erro opaco de webpack ao pré-renderizar `/radar/maturidade` — causa real era um `npm run dev`
+do dono rodando em paralelo na mesma pasta (porta 3000), corrompendo a `.next` compartilhada com
+o build. Não rodar dev e build ao mesmo tempo na mesma pasta.
+
+### **🎯 PRÓXIMOS PASSOS:**
+Oportunidade registrada: dar mais destaque de navegação para `/newsletter` na home (CTA interno
++ link visível no mobile). Fora isso, a Fase 1B (redesign DS2 da plataforma logada, ISSUES
+114–120) segue liberada para começar a qualquer momento.
+
+---
+
+## 🎯 SESSÃO Anterior: ISSUE-107 — Homepage reposicionada
 **Data:** 08 de julho de 2026
 **Versão:** v3.7.0
 **Status:** ✅ Concluída — home nova no ar (local), validada por lint/tsc/build + smoke test +

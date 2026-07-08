@@ -25,7 +25,9 @@ import type {
 // Leituras da newsletter (URLs reais — conferidas na fonte)
 // ----------------------------------------------------------------------------
 
-const LEITURAS = {
+// Exportado para reuso fora do radar (ISSUE-108: /newsletter e /obrigado) — mesmas
+// URLs verificadas, nunca reinventar link.
+export const LEITURAS = {
   fluencia: {
     titulo: 'Fluência em IA',
     url: 'https://conversasnocorredor.substack.com/p/fluencia-em-ia',

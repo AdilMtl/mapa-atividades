@@ -418,6 +418,54 @@ captura → newsletter); `/pre-diagnostico` continua acessível por quem tiver o
 
 ## ISSUE-108 — Páginas /newsletter, /lab e /obrigado
 
+**Status:** ✅ concluída em 2026-07-08 — 3 páginas novas em `src/app/(publico)/{newsletter,lab,
+obrigado}/page.tsx`, todas com `PublicHeader`/`PublicFooter` e metadata própria.
+- **`/lab`:** `api/radar/lead` exige `sessionId` de uma `radar_sessions` existente (kind só
+  aceita 'maturidade'/'oportunidades') — inviável para visita solta sem radar prévio. Decisão do
+  dono: tabela nova e isolada `lab_leads` (não referencia as tabelas do radar) + rota própria
+  `POST /api/lab/interest` (validação de e-mail, honeypot, rate limit 5/h/IP — mesmo padrão da
+  106). SQL para o dono rodar: `docs/revamp/ISSUE-108-sql-lab-leads.md` (ainda **não executado no
+  banco** — rota funcional mas grava vai falhar com 500 até a tabela existir). Quem já respondeu
+  um radar e marcou "quero entrar no Lab" continua indo para `radar_leads.lab_interest`
+  (ISSUE-106), sem duplicar aqui. Formulário em `src/components/lab/LabWaitlistForm.tsx`
+  (client), captura UTM via `capturarUtm()`/`lerUtm()` do padrão existente.
+- **`/obrigado`:** dispara `thank_you_page_viewed` (o evento que a ISSUE-109 deixou pendente
+  justamente esperando esta página existir) via `src/components/obrigado/ObrigadoTracker.tsx`.
+  **Decisão do dono:** página fica standalone por enquanto — `OportunidadesResultado.tsx` e
+  `MaturidadeResultado.tsx` (arquivos do funil já revisados/travados no gate do Sprint 1) não
+  foram tocados, então nada redireciona para cá ainda. Ligar esse fluxo fica para uma issue
+  futura pequena. Leituras recomendadas reaproveitam `LEITURAS` (exportado de
+  `src/lib/radar/content.ts` para reuso fora do radar — mesmas URLs verificadas, sem reinventar
+  link) + CTA newsletter + CTA Lab.
+- **`/newsletter`:** copy literal do doc §8.7 (temas + CTA subscribe) + exemplos de leitura
+  (reaproveitando `LEITURAS`).
+- **Integração com páginas já existentes:** `PublicHeader` tinha links `#newsletter`/`#lab`
+  (âncoras que só funcionavam dentro da própria home — quebrados em qualquer outra página
+  pública); corrigidos para `Link` de rota real (`/newsletter`, `/lab`). O CTA "Quero entrar na
+  lista do Lab" da home (`LabSection.tsx`) recebeu destino real (`/lab`) — antes era só vitrine
+  sem link, como o próprio comentário no código já antecipava para esta issue.
+- **Validação:** `tsc --noEmit`, `lint` (só nos arquivos tocados) e `build` limpos (33 rotas).
+  Grep de hex solto no diff: zero. Smoke test via curl no build de produção: `/`, `/newsletter`,
+  `/lab`, `/obrigado`, `/radar/maturidade`, `/radar/oportunidades` respondendo `200`; GTM
+  presente no HTML; `/api/lab/interest` testado (e-mail inválido → `400`; honeypot → `200` sem
+  gravar; e-mail válido → `500` esperado, tabela ainda não existe no banco).
+- **Achado de ambiente (não é bug de código):** o build de produção falhava de forma
+  intermitente com erro opaco de webpack (`Cannot read properties of undefined (reading
+  'call')`) ao pré-renderizar `/radar/maturidade` — reproduzido até em `main` limpo via `git
+  stash`. Causa real: um `npm run dev` do dono rodando em paralelo na mesma pasta do projeto
+  (porta 3000), escrevendo na mesma `.next` que o build também escreve — corrompia o
+  `webpack-runtime.js` no meio da geração. Resolvido encerrando o processo antes de buildar.
+  Registrado aqui para não perder tempo "debugando" isso de novo: **não rodar `npm run dev` e
+  `npm run build` ao mesmo tempo na mesma pasta.**
+- **Pendências para o dono:** ✅ SQL de `lab_leads` rodado e verificado em 2026-07-08
+  (`rowsecurity = true`, 0 políticas) — dono testou `/lab` no navegador e aprovou.
+- **Achado do dono no teste manual (registrado, não corrigido — fora do escopo desta issue):**
+  a home não tem chamada óbvia para `/newsletter`. A seção "Newsletter" da home linka direto
+  pro Substack (externo), nunca passa pela página `/newsletter` interna; os links
+  "Newsletter"/"Lab" do `PublicHeader` só aparecem no desktop (`hidden md:inline` — somem no
+  mobile, que é a prioridade do projeto). O `/lab` está OK (CTA da `LabSection` já leva lá).
+  Oportunidade de melhoria para uma issue futura de UX/navegação — não é regressão desta issue.
+
 **Fase:** 1
 **Tipo:** Frontend / Copy
 **Prioridade:** Média

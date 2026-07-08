@@ -16,6 +16,41 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [v3.8.0] - 2026-07-08 - 📰 Periferia do Funil — ISSUE-108
+
+### ✅ Adicionado
+- **ISSUE-108 — Páginas /newsletter, /lab e /obrigado**: completa a periferia do funil da Fase 1
+  do revamp (+ConverSaaS)
+  - `/newsletter`: página editorial com temas, exemplos de leitura e CTA de assinatura (Substack)
+  - `/lab`: premium em construção + formulário de lista de interesse
+    (`src/components/lab/LabWaitlistForm.tsx`), gravando em tabela nova e isolada `lab_leads`
+    via `POST /api/lab/interest` (validação de e-mail, honeypot, rate limit 5/h/IP)
+  - `/obrigado`: leituras recomendadas + CTA newsletter + CTA Lab; dispara `thank_you_page_viewed`
+    (evento que a ISSUE-109 tinha deixado pendente esperando esta página existir)
+  - `PublicHeader`: links "Newsletter"/"Lab" corrigidos de âncoras quebradas (`#newsletter`,
+    `#lab`, só funcionavam dentro da home) para rotas reais
+  - `LabSection` (home): CTA "Quero entrar na lista do Lab" ganhou destino real (`/lab`)
+
+### 📊 Técnico
+- **Decisão de arquitetura:** `api/radar/lead` exige `sessionId` de uma `radar_sessions`
+  existente — inviável para visita solta à `/lab` sem radar prévio. Tabela nova `lab_leads`
+  (RLS habilitada, zero política pública, mesmo padrão da ISSUE-106) em vez de relaxar o schema
+  do radar. SQL: `docs/revamp/ISSUE-108-sql-lab-leads.md` — rodado e verificado em produção.
+- `LEITURAS` exportado de `src/lib/radar/content.ts` para reuso em `/newsletter` e `/obrigado`
+  (mesmas URLs verificadas, sem duplicar/reinventar link)
+- `tsc --noEmit`, `lint` e `build` limpos (33 rotas). Grep de hex solto no diff: zero. Smoke test
+  via curl no build de produção em todas as páginas tocadas + `/api/lab/interest`
+- **Decisão do dono:** `/obrigado` fica standalone por enquanto — nenhum redirecionamento dos
+  radares para lá ainda (arquivos de resultado já revisados/travados no gate do Sprint 1);
+  ligação fica para issue futura
+- **Achado registrado, não corrigido:** a home não tem chamada óbvia para `/newsletter` (seção
+  da home linka direto pro Substack; links do header somem no mobile) — oportunidade de UX para
+  issue futura
+- **Achado de ambiente:** build de produção falhava intermitentemente por um `npm run dev`
+  concorrente na mesma pasta corrompendo a `.next` compartilhada — não é bug de código
+
+---
+
 ## [v3.7.0] - 2026-07-08 - 🏠 Homepage Reposicionada — ISSUE-107
 
 ### ✅ Adicionado

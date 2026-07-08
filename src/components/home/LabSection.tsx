@@ -1,3 +1,5 @@
+import Link from 'next/link'
+
 import { Badge, Button, SectionTitle } from '@/components/ds2'
 
 const ITENS = [
@@ -9,9 +11,8 @@ const ITENS = [
   'Checklists de publicação',
 ]
 
-// A lista de interesse do Lab (captura real) é a ISSUE-108 — aqui o CTA é
-// só a vitrine do que vem a seguir, sem destino ainda (critério de aceite da
-// ISSUE-107 não exige que este link navegue).
+// A lista de interesse do Lab (captura real) é a página /lab (ISSUE-108) —
+// este CTA é a vitrine que leva até ela.
 export function LabSection() {
   return (
     <section id="lab">
@@ -28,8 +29,8 @@ export function LabSection() {
             <Badge key={item}>{item}</Badge>
           ))}
         </div>
-        <Button variant="secondary" className="mt-6" type="button">
-          Quero entrar na lista do Lab
+        <Button asChild variant="secondary" className="mt-6">
+          <Link href="/lab">Quero entrar na lista do Lab</Link>
         </Button>
         <p className="mt-2 font-ds2-mono text-xs text-ds2-text-muted">
           A lista ajuda a decidir o que construir primeiro.
