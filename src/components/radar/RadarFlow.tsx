@@ -49,13 +49,28 @@ export function RadarFlow({ kind }: RadarFlowProps) {
   const mountedRef = useRef(true)
   const sessionIdRef = useRef<string | null>(null)
   const sessionPromiseRef = useRef<Promise<string | null> | null>(null)
+  const avancoTimeoutRef = useRef<number | null>(null)
 
   useEffect(() => {
     mountedRef.current = true
     return () => {
       mountedRef.current = false
+      if (avancoTimeoutRef.current !== null) {
+        window.clearTimeout(avancoTimeoutRef.current)
+        avancoTimeoutRef.current = null
+      }
     }
   }, [])
+
+  // Cancela um auto-avanço agendado. Sem isso, dois cliques na mesma pergunta em <320ms
+  // enfileiram dois timeouts → o índice avança duas vezes e pula uma pergunta sem resposta
+  // (o motor lança erro no final e o usuário fica sem resultado).
+  function cancelarAvancoPendente() {
+    if (avancoTimeoutRef.current !== null) {
+      window.clearTimeout(avancoTimeoutRef.current)
+      avancoTimeoutRef.current = null
+    }
+  }
 
   const ensureSessionId = useCallback(async (): Promise<string | null> => {
     if (sessionIdRef.current) return sessionIdRef.current
@@ -148,6 +163,7 @@ export function RadarFlow({ kind }: RadarFlowProps) {
   )
 
   function avancar(respostasAtuais: RadarAnswers) {
+    cancelarAvancoPendente()
     if (indice + 1 < perguntas.length) {
       setIndice((i) => i + 1)
     } else {
@@ -159,13 +175,16 @@ export function RadarFlow({ kind }: RadarFlowProps) {
     const novasRespostas = { ...respostas, [perguntaId]: opcaoId }
     setRespostas(novasRespostas)
 
-    window.setTimeout(() => {
+    cancelarAvancoPendente()
+    avancoTimeoutRef.current = window.setTimeout(() => {
+      avancoTimeoutRef.current = null
       if (!mountedRef.current) return
       avancar(novasRespostas)
     }, 320)
   }
 
   function voltar() {
+    cancelarAvancoPendente()
     setIndice((i) => Math.max(0, i - 1))
   }
 

@@ -31,6 +31,14 @@ function isValidUuid(value: unknown): value is string {
     /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(value);
 }
 
+// Colunas utm_* são VARCHAR(100) — valor maior estoura o INSERT (erro 22001 → 500)
+// e derruba a criação de sessão justamente no tráfego pago com UTMs longas.
+function textoLimitado(valor: unknown, max: number): string | null {
+  if (typeof valor !== 'string') return null;
+  const limpo = valor.trim();
+  return limpo.length > 0 ? limpo.slice(0, max) : null;
+}
+
 // ═══════════════════════════════════════════════════════════════════
 // POST — cria a sessão (chamado no início do fluxo, ISSUE-103)
 // ═══════════════════════════════════════════════════════════════════
@@ -70,11 +78,11 @@ export async function POST(request: NextRequest) {
       .from('radar_sessions')
       .insert({
         kind,
-        utm_source: utm?.source ?? null,
-        utm_medium: utm?.medium ?? null,
-        utm_campaign: utm?.campaign ?? null,
-        utm_content: utm?.content ?? null,
-        utm_term: utm?.term ?? null,
+        utm_source: textoLimitado(utm?.source, 100),
+        utm_medium: textoLimitado(utm?.medium, 100),
+        utm_campaign: textoLimitado(utm?.campaign, 100),
+        utm_content: textoLimitado(utm?.content, 100),
+        utm_term: textoLimitado(utm?.term, 100),
         ip_address: ip !== 'unknown' ? ip : null,
         user_agent: userAgent,
       })
@@ -110,6 +118,17 @@ export async function PATCH(request: NextRequest) {
       return NextResponse.json({ error: 'answers deve ser um objeto' }, { status: 400 });
     }
 
+    // O fluxo real tem no máximo 8 perguntas com ids curtos — qualquer coisa muito além
+    // disso é abuso (JSONB sem teto vira vetor de inchaço da tabela).
+    const entradas = Object.entries(answers as Record<string, unknown>);
+    const answersValidos = entradas.length <= 40 &&
+      entradas.every(([chave, valor]) =>
+        chave.length <= 100 && typeof valor === 'string' && valor.length <= 100
+      );
+    if (!answersValidos) {
+      return NextResponse.json({ error: 'answers fora do formato esperado' }, { status: 400 });
+    }
+
     if (typeof resultKey !== 'string' || resultKey.trim().length === 0) {
       return NextResponse.json({ error: 'resultKey é obrigatório' }, { status: 400 });
     }
@@ -118,7 +137,8 @@ export async function PATCH(request: NextRequest) {
       .from('radar_sessions')
       .update({
         answers,
-        result_key: resultKey,
+        // result_key é VARCHAR(50) — o motor gera ids curtos, o slice é só proteção.
+        result_key: resultKey.trim().slice(0, 50),
         completed_at: new Date().toISOString(),
       })
       .eq('id', sessionId)

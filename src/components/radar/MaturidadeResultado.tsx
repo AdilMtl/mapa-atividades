@@ -25,6 +25,14 @@ export function MaturidadeResultado({
   const [mostrarEmail, setMostrarEmail] = useState(false)
   const [emailEnviado, setEmailEnviado] = useState(false)
 
+  // session_id só viaja no trilho Supabase (o helper track separa os payloads) — sem ele,
+  // radar_events grava a linha com session_id null e o funil por sessão não fecha.
+  function trackComSessao(...[event, props]: Parameters<typeof track>) {
+    void ensureSessionId().then((sessionId) => {
+      track(event, { ...props, session_id: sessionId })
+    })
+  }
+
   const proximoPasso = resultado.fronteira
     ? conteudo.proximoPassoPorFronteira[resultado.fronteira]
     : null
@@ -71,7 +79,7 @@ export function MaturidadeResultado({
                 rel="noopener noreferrer"
                 className="block"
                 onClick={() =>
-                  track('recommended_article_clicked', {
+                  trackComSessao('recommended_article_clicked', {
                     assessment_type: 'maturidade',
                     maturity_level: resultado.nivel,
                     article_url: leitura.url,

@@ -49,9 +49,17 @@ export function OportunidadesResultado({
 
   const exemploArea = resultado.area ? diagnostico.exemploPorArea?.[resultado.area] : undefined
 
+  // session_id só viaja no trilho Supabase (o helper track separa os payloads) — sem ele,
+  // radar_events grava a linha com session_id null e o funil por sessão não fecha.
+  function trackComSessao(...[event, props]: Parameters<typeof track>) {
+    void ensureSessionId().then((sessionId) => {
+      track(event, { ...props, session_id: sessionId })
+    })
+  }
+
   function handleEmailSuccess({ triggerConversion }: { triggerConversion: boolean }) {
     setRevelado(true)
-    track('result_full_requested', {
+    trackComSessao('result_full_requested', {
       assessment_type: 'oportunidades',
       recommended_solution_type: resultado.tipo,
       area: resultado.area,
@@ -171,7 +179,7 @@ export function OportunidadesResultado({
                 rel="noopener noreferrer"
                 className="mt-2.5 inline-block text-sm text-ds2-orange underline underline-offset-2"
                 onClick={() =>
-                  track('recommended_article_clicked', {
+                  trackComSessao('recommended_article_clicked', {
                     assessment_type: 'oportunidades',
                     recommended_solution_type: resultado.tipo,
                     article_url: BLOCO_DILIGENCIA.leitura.url,
@@ -193,7 +201,7 @@ export function OportunidadesResultado({
                     rel="noopener noreferrer"
                     className="block"
                     onClick={() =>
-                      track('recommended_article_clicked', {
+                      trackComSessao('recommended_article_clicked', {
                         assessment_type: 'oportunidades',
                         recommended_solution_type: resultado.tipo,
                         article_url: leitura.url,
@@ -217,7 +225,7 @@ export function OportunidadesResultado({
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={() =>
-                  track('newsletter_cta_clicked', {
+                  trackComSessao('newsletter_cta_clicked', {
                     assessment_type: 'oportunidades',
                     recommended_solution_type: resultado.tipo,
                   })

@@ -16,6 +16,50 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [v3.6.9] - 2026-07-08 - 🛡️ Gate de Revisão do Sprint 1 (Fable 5)
+
+### 🔧 Corrigido
+- **Corrida do duplo clique no auto-avanço** (`src/components/radar/RadarFlow.tsx`): corrigir a
+  resposta de uma pergunta em menos de 320ms enfileirava dois `setTimeout` sem cancelamento — o
+  índice avançava duas vezes, pulava uma pergunta sem resposta, e o motor
+  (`calcularMaturidade`/`decidirOportunidade`) lançava erro não tratado dentro do timeout: o
+  usuário respondia tudo e ficava travado sem resultado. Corrigido guardando o timeout num `ref`
+  e cancelando-o em toda seleção nova, "Continuar" e "Voltar".
+- **Estouro de `VARCHAR` sem sanitização** (`src/app/api/radar/session/route.ts`,
+  `src/app/api/radar/lead/route.ts`): `utm_*` (VARCHAR(100)), `name` (VARCHAR(100)) e `email`
+  (VARCHAR(255)) eram inseridos sem teto de tamanho — um valor maior (comum em UTM de campanha
+  paga) estourava o `INSERT` no Postgres (`22001`) e virava `500`, perdendo sessão/lead
+  justamente no tráfego pago. Truncado/validado antes do insert; `answers` do `PATCH` ganhou
+  teto (máx. 40 chaves, valores ≤100 chars) contra abuso de JSONB sem limite.
+- **`session_id` ausente em 3 eventos de conversão** (`OportunidadesResultado.tsx`,
+  `MaturidadeResultado.tsx`): `result_full_requested` (o evento do próprio gate de e-mail),
+  `recommended_article_clicked` e `newsletter_cta_clicked` gravavam em `radar_events` com
+  `session_id` nulo, quebrando o join do funil por sessão. Helper `trackComSessao` resolve o
+  `sessionId` antes de disparar.
+
+### 📊 Técnico
+- Ritual do `docs/revamp/05_model_execution_strategy.md` §2: `/code-review` (nível `high`) sobre
+  o diff acumulado do Sprint 1 (`3d25bcc..94038ac` — 104+105+106+103+109), rodado com Fable 5.
+  Os 8 subagentes paralelos do `/code-review` foram cortados pelo limite de sessão da conta antes
+  de devolver resultado; a revisão foi refeita inline (leitura completa dos arquivos de produto +
+  verificação de cada candidato contra o código real) — nada ficou pendente.
+- Travas confirmadas intactas: `layout.tsx`/GTM byte-idêntico, conversão do Google Ads
+  (`gtag`/`send_to`) derivada só do servidor, RLS das 3 tabelas de radar sem política pública,
+  matriz de pesos do motor sem buraco de opção.
+- `tsc --noEmit`, `lint` e 37 testes de `lib/radar` verdes; `build` com 29 rotas. Validado via
+  curl no build de produção: UTM de 300 chars → sessão criada (antes: `500`); `answers` abusivo →
+  `400`; email de 260 chars → `400` (antes: `500`); evento de conversão → gravado com
+  `session_id`. `/pre-diagnostico` e `/radar/oportunidades` respondendo `200`.
+- **3 decisões de produto registradas para o dono, não corrigidas** (fora do escopo de um gate de
+  código): `newsletter_optin: true` por default sem checkbox de consentimento; rate limit de 20
+  sessões/hora/IP pode bloquear tráfego atrás de NAT corporativo; conteúdo gated de oportunidades
+  viaja inteiro no bundle público (aceitável como gate de marketing, decisão registrada).
+- **Não verificado:** teste manual do duplo clique corrigido no navegador real (sem ferramenta de
+  browser neste ambiente).
+- Gate do Sprint 1 liberado — próxima é a **ISSUE-107** (homepage reposicionada).
+
+---
+
 ## [v3.6.8] - 2026-07-07 - 📊 Analytics do Funil Novo — ISSUE-109
 
 ### ✅ Adicionado

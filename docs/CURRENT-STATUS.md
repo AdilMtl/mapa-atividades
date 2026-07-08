@@ -1,4 +1,68 @@
-## 🎯 SESSÃO ATUAL: ISSUE-109 — Analytics do funil novo (GTM + Supabase)
+## 🎯 SESSÃO ATUAL: Gate de Revisão do Sprint 1 (Fable 5) — 103+104+105+106+109
+**Data:** 08 de julho de 2026
+**Versão:** v3.6.9
+**Status:** ✅ Concluída — 3 achados corrigidos e verificados; gate liberado para a ISSUE-107
+**Duração:** ~1 sessão
+
+### **🚀 O QUE FOI FEITO:**
+
+Ritual de fim de sprint do `docs/revamp/05_model_execution_strategy.md` §2: sessão trocada para
+Fable 5, `/code-review` (nível `high`) rodado sobre o diff acumulado do Sprint 1 completo
+(`3d25bcc..94038ac` — ISSUE-104+105 → 106 → 103 → 109), checado contra as travas (tracking/Ads,
+RLS, escopo, voz de copy).
+
+- **Achado de infraestrutura registrado:** os 8 subagentes paralelos do `/code-review` foram
+  cortados pelo limite de sessão da conta antes de devolver resultado. A revisão foi refeita
+  inline (leitura completa dos arquivos de produto do diff + verificação de cada candidato contra
+  o código real) — nada ficou pendente de re-execução.
+- **3 correções aplicadas:**
+  1. **Corrida do duplo clique** (`src/components/radar/RadarFlow.tsx`) — selecionar uma opção e
+     corrigir para outra em menos de 320ms enfileirava dois `setTimeout` de auto-avanço sem
+     cancelamento; o índice avançava duas vezes, pulava uma pergunta sem resposta, e o motor
+     (`calcularMaturidade`/`decidirOportunidade`) lançava erro não tratado dentro do timeout —
+     o usuário respondia tudo e ficava travado sem resultado, sem mensagem de erro. Corrigido
+     guardando o timeout num `ref` e cancelando-o em toda seleção nova, "Continuar" e "Voltar".
+  2. **Estouro de `VARCHAR` sem sanitização** (`src/app/api/radar/session/route.ts`,
+     `src/app/api/radar/lead/route.ts`) — `utm_*` (VARCHAR(100)), `name` (VARCHAR(100)) e `email`
+     (VARCHAR(255)) eram inseridos sem teto de tamanho; um valor maior (comum em UTM de campanha)
+     estourava o `INSERT` no Postgres (`22001`) e virava `500` — justamente no tráfego pago,
+     perdendo sessão/lead. Corrigido truncando/validando tamanho antes do insert; **bônus**:
+     `answers` do `PATCH` também ganhou teto (máx. 40 chaves, valores ≤100 chars) contra abuso de
+     JSONB sem limite.
+  3. **`session_id` ausente em 3 eventos de conversão** (`OportunidadesResultado.tsx`,
+     `MaturidadeResultado.tsx`) — `result_full_requested` (o evento do gate de e-mail),
+     `recommended_article_clicked` e `newsletter_cta_clicked` gravavam em `radar_events` com
+     `session_id` nulo, quebrando o join do funil por sessão. Corrigido com um helper
+     `trackComSessao` que resolve o `sessionId` antes de disparar.
+- **3 decisões de produto registradas para o dono, não corrigidas** (fora do escopo de um gate de
+  código): `newsletter_optin: true` por default no lead sem checkbox de consentimento (contradiz
+  o "sem spam" da tela); rate limit de 20 sessões/hora/IP pode bloquear tráfego atrás de NAT
+  corporativo; o conteúdo gated de oportunidades viaja inteiro no bundle público (aceitável como
+  gate de marketing já que a conversão real é derivada do servidor, mas vale registrar a decisão).
+
+### **✅ VALIDAÇÃO:**
+`npx tsc --noEmit` limpo, `npm run lint` sem nenhum aviso novo nos arquivos tocados, 37/37 testes
+de `lib/radar` verdes, `npm run build` com as 29 rotas. Testado via curl contra o build de
+produção (`npm run start` em porta isolada): UTM de 300 caracteres → sessão criada com sucesso
+(antes: 500); `answers` abusivo no PATCH → `400`; PATCH válido → `success`; email de 260
+caracteres → `400` (antes: 500 do Postgres); evento de conversão → gravado com `session_id`
+preenchido. `/pre-diagnostico` e `/radar/oportunidades` respondendo `200` (checklist padrão da
+casa após mudança em rotas de captura).
+**Não verificado** (sem ferramenta de browser neste ambiente, mesma limitação das sessões
+anteriores): teste manual do duplo clique corrigido no navegador real.
+
+### **🎯 PRÓXIMOS PASSOS:**
+Gate do Sprint 1 liberado — **ISSUE-107** (homepage reposicionada) é a próxima, já com CTAs
+diretos para `/radar/maturidade` e `/radar/oportunidades` (ver `03_implementation_plan.md`).
+Ela também destrava os 3 eventos de analytics pendentes da ISSUE-109
+(`hero_cta_opportunities_clicked`, `hero_cta_maturity_clicked`) como parte natural do seu escopo
+(CTAs do hero); o terceiro (`thank_you_page_viewed`) depende da ISSUE-108 (`/obrigado`).
+Modelo recomendado pela `05_model_execution_strategy.md`: Sonnet (mock já é a spec literal de
+conteúdo), com a `ISSUE-111` (Fable 5) como rede de segurança para copy nova fora do mock.
+
+---
+
+## 🎯 SESSÃO Anterior: ISSUE-109 — Analytics do funil novo (GTM + Supabase)
 **Data:** 07 de julho de 2026 (quinta sessão do dia)
 **Versão:** v3.6.8
 **Status:** ⚠️ Parcial — 12 dos 15 eventos instrumentados; 3 dependem de páginas que ainda não existem

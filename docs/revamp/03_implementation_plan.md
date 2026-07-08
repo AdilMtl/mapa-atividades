@@ -24,6 +24,10 @@ Sprint 0 — Fundação (⚠️ sequenciamento revisado de novo, dono, 2026-07-0
   ISSUE-102 Design System v2 (tokens+fontes+ds2/)   ← desbloqueia toda UI nova
 
 Sprint 1 — Radares (experiência interativa, rotas novas ainda não linkadas em lugar nenhum)
+  ✅ Gate de revisão Fable 5 rodado em 2026-07-08 (diff 3d25bcc..94038ac). Achados corrigidos:
+     corrida de duplo clique no auto-avanço (RadarFlow), estouro de VARCHAR em utm/name/email
+     sem sanitização (session+lead routes), session_id ausente em 3 eventos de conversão do
+     radar de oportunidades. Detalhes: docs/CHANGELOG.md v3.6.9.
   ISSUE-104 motor de assessment (lib/radar)          ← depende de 102; expõe teaser+completo
                                                         no resultado de oportunidades (escada
                                                         de captura, ver 10_jornada_captura_

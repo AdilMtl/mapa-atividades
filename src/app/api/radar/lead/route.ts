@@ -37,7 +37,8 @@ function isValidUuid(value: unknown): value is string {
 }
 
 function isValidEmail(email: string): boolean {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  // Teto de 255 = VARCHAR(255) da coluna — mais longo estouraria o INSERT (22001 → 500).
+  return email.length <= 255 && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
 
 function validarEntrada(body: unknown): { valido: boolean; erro?: string } {
@@ -107,7 +108,8 @@ export async function POST(request: NextRequest) {
       .insert({
         session_id: sessionId,
         kind,
-        name: name.trim(),
+        // name é VARCHAR(100) — trunca em vez de estourar o INSERT (22001 → 500).
+        name: name.trim().slice(0, 100),
         email: email.toLowerCase().trim(),
         newsletter_optin: newsletterOptin ?? true,
         lab_interest: labInterest ?? false,
