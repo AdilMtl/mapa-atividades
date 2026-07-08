@@ -16,6 +16,45 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [v3.6.6] - 2026-07-07 - 🔐 Backend de Captura dos Radares — ISSUE-106
+
+### ✅ Adicionado
+- **ISSUE-106 — Backend de captura (`src/app/api/radar/*`)**: fecha o funil dos radares com
+  persistência real, seguindo o padrão de segurança da v3.5.3
+  - 3 tabelas novas no Supabase (`radar_sessions`, `radar_leads`, `radar_events` — schema
+    reservado para ISSUE-109, sem código gravando nela ainda): RLS habilitada, zero políticas
+    para `anon`/`authenticated`, `REVOKE ALL` explícito contra o GRANT default residual do
+    Supabase (achado da revisão Fable 5 — mesma classe de risco do incidente `roi_leads` da
+    Fase 3, fechada preventivamente desta vez). SQL rodado pelo dono via SQL Editor
+    (`docs/revamp/ISSUE-106-sql-radar-tabelas.md`, com rollback)
+  - `api/radar/session/route.ts`: `POST` cria sessão no início do fluxo (rate limit por IP via
+    banco, 20/hora); `PATCH` salva respostas + `result_key` ao final
+  - `api/radar/lead/route.ts`: captura de e-mail com honeypot (campo `website` — bot recebe
+    sucesso falso sem gravar), rate limit próprio (5 leads/hora/IP), validação de formato simples
+    (não o `email-validator.ts` do allowlist pago — arquivo errado para lead público). `kind` e
+    `triggerConversion` **lidos da sessão salva no banco, nunca do body do cliente** — impede
+    forjar disparo de conversão do Google Ads
+  - Escada de captura (doc 10): `triggerConversion: true` só no lead de **oportunidades**
+    (evento de conversão real); **maturidade** é captura suave, não dispara a conversão principal
+
+### 🔧 Corrigido
+- 2 desvios da spec técnica (`02_technical_spec.md` §3.4) identificados e corrigidos antes de
+  codar: reuso de `roi_events` inviável (FK travada em `roi_prediag_sessions`, coluna `payload` ≠
+  `properties` assumido) → `radar_events` nova; `src/lib/email-validator.ts` citado na spec é o
+  arquivo errado (checa allowlist de assinante pago para login, não formato de e-mail público)
+
+### 📊 Técnico
+- Revisão Fable 5 do SQL/RLS + rotas antes de entregar ao dono (ritual da 106,
+  `05_model_execution_strategy.md`) — 1 achado aplicado, resto confirmado limpo
+- `lint`/`tsc --noEmit`/`build` verdes (26 rotas). Todos os 5 critérios de aceite validados via
+  `curl` contra servidor local pós-SQL: lead no banco, `triggerConversion` correto por `kind`,
+  e-mail inválido → 400, rate limit → 429 na 6ª tentativa, chave anon → `42501 permission denied`
+  (não `[]` silencioso), `/pre-diagnostico` intocado (200)
+- ISSUE-106 marcada `✅ concluída em 2026-07-07` no backlog; publicado também o commit v3.6.5
+  (ISSUE-104+105) que tinha ficado só local na sessão anterior
+
+---
+
 ## [v3.6.5] - 2026-07-07 - 🚀 Motor dos Radares Implementado — ISSUE-104 + ISSUE-105
 
 ### ✅ Adicionado

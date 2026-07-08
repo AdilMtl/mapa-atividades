@@ -204,6 +204,19 @@ mesma estrutura.
 
 ## ISSUE-106 — Backend de captura (tabelas, RLS, rotas API)
 
+**Status:** ✅ concluída em 2026-07-07 — código completo: `src/app/api/radar/{session,lead}/route.ts`
+(POST cria sessão + PATCH salva respostas/resultado; POST de lead com honeypot, rate limit por
+IP via banco, `kind`/`triggerConversion` derivados da sessão no servidor — nunca do body do
+cliente). SQL das 3 tabelas (`radar_sessions`, `radar_leads`, `radar_events` — esta última só
+schema, reservada para a ISSUE-109) com RLS + `REVOKE ALL` de anon/authenticated + rollback em
+`docs/revamp/ISSUE-106-sql-radar-tabelas.md`, revisado pelo Fable 5 (1 achado aplicado: REVOKE
+ALL contra privilégio default residual do Supabase — mesma classe do incidente `roi_leads` da
+Fase 3). `lint`/`tsc`/`build` verdes. **Todos os 5 critérios de aceite validados nesta sessão**
+(dono rodou o SQL — RLS `true` nas 3 tabelas, 0 políticas; eu testei via `curl` local: sessão +
+lead criados no banco, `triggerConversion` correto por `kind` (false/maturidade,
+true/oportunidades), e-mail inválido → 400, honeypot → sucesso falso sem gravar, rate limit
+bloqueou na 6ª tentativa → 429, chave anon → `42501 permission denied` em `radar_leads`,
+`/pre-diagnostico` intocado e respondendo 200).
 **Fase:** 1
 **Tipo:** Backend / Dados / Segurança
 **Prioridade:** Alta

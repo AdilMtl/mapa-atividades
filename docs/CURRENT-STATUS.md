@@ -1,4 +1,56 @@
-## 🎯 SESSÃO ATUAL: Implementação do Motor dos Radares — ISSUE-104 e ISSUE-105 (prep da Fase 1 do revamp)
+## 🎯 SESSÃO ATUAL: ISSUE-106 — Backend de captura dos radares (tabelas, RLS, rotas API)
+**Data:** 07 de julho de 2026 (terceira sessão do dia)
+**Versão:** v3.6.6
+**Status:** ✅ Concluída — todos os 5 critérios de aceite validados em produção local
+**Duração:** ~1 sessão
+
+### **🚀 O QUE FOI FEITO:**
+
+Publicado o commit pendente da sessão anterior (v3.6.5 estava só local, 1 commit atrás do
+`origin/main`) e implementada a ISSUE-106 — o backend que faltava para os radares deixarem de
+ser motor+conteúdo isolados (ISSUE-104/105) e virarem um funil de captura real.
+
+- **3 tabelas novas no Supabase** (`radar_sessions`, `radar_leads`, `radar_events` — esta última
+  só schema, reservada para a ISSUE-109/analytics, sem código gravando nela ainda): RLS
+  habilitada + **zero políticas** para `anon`/`authenticated` + `REVOKE ALL` explícito (achado
+  da revisão Fable 5: o Supabase concede um GRANT default residual em toda tabela nova do schema
+  `public`, que fica "dormindo" mesmo com RLS sem políticas — mesma classe de risco do incidente
+  `roi_leads` da Fase 3, agora fechada preventivamente). SQL entregue e **rodado pelo dono** em
+  `docs/revamp/ISSUE-106-sql-radar-tabelas.md` (com rollback e SELECTs de verificação).
+- **Duas rotas novas:** `src/app/api/radar/session/route.ts` (`POST` cria a sessão no início do
+  fluxo com rate limit por IP via banco; `PATCH` salva respostas + resultado ao final) e
+  `src/app/api/radar/lead/route.ts` (captura de e-mail com honeypot, rate limit próprio, e
+  `kind`/`triggerConversion` **derivados da sessão salva no banco — nunca do body do cliente**,
+  fechando uma brecha que permitiria forjar conversões falsas do Google Ads).
+- **2 desvios da spec escrita corrigidos antes de codar** (documentados e confirmados com o
+  dono): `roi_events` não podia ser reusada para os eventos do radar como o `02_technical_spec.md`
+  sugeria (FK travada em `roi_prediag_sessions`, coluna `payload` ≠ `properties` assumido) →
+  `radar_events` nova em vez disso; `src/lib/email-validator.ts` citado na spec é o arquivo
+  errado (checa allowlist de assinante pago pra login, não formato de e-mail público) → validação
+  de formato simples, igual ao padrão do `prediag/lead`.
+- **Revisão Fable 5** do SQL/RLS + das 2 rotas antes de entregar ao dono (ritual da 106 no
+  `05_model_execution_strategy.md`) — 1 achado aplicado (REVOKE ALL acima), resto confirmado
+  limpo (rollback, FKs, client service_role, ausência de SQL injection).
+
+### **✅ VALIDAÇÃO:**
+`lint`, `tsc --noEmit`, `build` (26 rotas) verdes. Todos os 5 critérios de aceite testados via
+`curl` contra o servidor local após o dono rodar o SQL: lead aparece no banco; `triggerConversion`
+correto por `kind` (`false` maturidade / `true` oportunidades); e-mail inválido → `400`; rate
+limit bloqueia na 6ª tentativa → `429`; chave anon → `42501 permission denied` em `radar_leads`
+(não vaza nem `[]` silencioso); honeypot devolve sucesso falso sem gravar; `/pre-diagnostico`
+intocado e respondendo `200` (checklist padrão da casa após mudança de schema/RLS).
+ISSUE-106 marcada `✅ concluída` em `docs/revamp/04_issue_backlog.md`.
+
+### **🎯 PRÓXIMOS PASSOS:**
+**ISSUE-103** (páginas `/radar/maturidade` e `/radar/oportunidades`) — agora com motor (104),
+conteúdo (105) e backend (106) todos prontos e testados; decisão de modelo confirmada: **Sonnet**
+(spec fechada, sem decisão de copy/design nova — ver `05_model_execution_strategy.md`). Rodar o
+gate de revisão Fable 5 do diff acumulado do Sprint 1 (103+104+105+106+109) depois que a 103
+fechar, antes de avançar para a ISSUE-107 (home).
+
+---
+
+## 🎯 SESSÃO Anterior: Implementação do Motor dos Radares — ISSUE-104 e ISSUE-105 (prep da Fase 1 do revamp)
 **Data:** 07 de julho de 2026
 **Versão:** v3.6.5
 **Status:** ⚠️ Concluída (parcial) — **ISSUE-104 ✅ completa** (motor 100% testado), **ISSUE-105 ⚠️ parcial** (conteúdo pronto, aguarda leitura do dono para aprovação do tom). Radares prontos para UI (ISSUE-103) e backend (ISSUE-106).
