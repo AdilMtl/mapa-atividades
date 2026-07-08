@@ -115,10 +115,9 @@ Invariantes que **continuam valendo** (não quebram com esta revisão):
 - **ISSUE-106 (captura):** a **conversão dispara no lead de oportunidades**; maturidade tem
   captura suave opcional. O e-mail de oportunidades entrega o diagnóstico completo. Rate
   limit/honeypot/service_role conforme já especificado.
-- **ISSUE-107 (home):** os CTAs devem refletir a escada — maturidade como **"comece (grátis)"**
-  e oportunidades como o passo que aprofunda. ⚠️ **Reconciliar com o mock aprovado**
-  (`mockups/landing-preview-final.html`), cujo CTA primário do hero hoje é *"Quero ver minhas
-  oportunidades"*. Ponto em aberto para a ISSUE-107 — não resolver aqui.
+- **ISSUE-107 (home):** ✅ resolvido na execução (2026-07-08) — CTAs refletem a escada: hero
+  primário e card "Oportunidades" → `/radar/oportunidades` (com badge "diagnóstico completo por
+  e-mail"); hero secundário e card "Maturidade" → `/radar/maturidade` (badge "comece grátis").
 
 ## 7. O que esta nota NÃO faz (para não repetir o erro de escopo)
 
@@ -139,7 +138,7 @@ Invariantes que **continuam valendo** (não quebram com esta revisão):
 - **Ponto de conversão:** movido de "opcional nos dois" para "lead de oportunidades = conversão".
 - **Escopo:** complementa 01 §3/§6/§7; mantém a metodologia de IA e a estrutura das issues
   103–106 intactas.
-- **Aberto:** reconciliar CTAs do hero (mock) com a escada — tratado na ISSUE-107.
+- ✅ CTAs do hero reconciliados com a escada na execução da ISSUE-107 (2026-07-08).
 
 ### Adendo — sessão de visão (2026-07-06, segunda sessão do dia)
 

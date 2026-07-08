@@ -16,6 +16,43 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [v3.7.0] - 2026-07-08 - 🏠 Homepage Reposicionada — ISSUE-107
+
+### ✅ Adicionado
+- **ISSUE-107 — Homepage reposicionada**: substitui a landing de produtividade antiga pela home
+  da nova tese "+ConverSaaS", go-live visual do reposicionamento (Fase 1)
+  - `src/app/(publico)/page.tsx` reescrito: monólito de 1106 linhas → composição das 12 seções
+    da spec em `src/components/home/*` (Hero, Problema, Reframe, Portas, ComoFunciona,
+    PlataformaDemo, Newsletter, Diferenciacao, Pricing, Lab, Autor), pixel-a-pixel com
+    `docs/revamp/mockups/landing-preview-final.html`
+  - `src/components/shared/`: `PublicHeader`/`PublicFooter` novos (DS2) + `PWAInstallBanner`
+    extraído do `page.tsx` antigo (lógica intocada, só mudou de arquivo)
+  - CTAs seguem a escada de captura (`10_jornada_captura_radares.md`): hero primário + card
+    "Oportunidades" → `/radar/oportunidades`; hero secundário + card "Maturidade" →
+    `/radar/maturidade` — direto, sem fallback, já que os radares (103–106) já existem
+  - Pricing (3 planos) e os 4 vídeos de demo reais preservados por decisão do dono, com
+    progressive loading (1º autoplay mudo, demais clique-para-tocar)
+  - `HeroAppPreview.tsx`: janela de app animada e decorativa no hero (prévia do Radar de
+    Oportunidades ciclando opção/progresso), respeita `prefers-reduced-motion`
+
+### 📊 Técnico
+- **ISSUE-107B fechada sem execução** — ficou obsoleta porque os radares já existiam quando a
+  107 rodou (CTAs nasceram diretos, nada para trocar depois)
+- `tsc --noEmit`, `lint` e `build` limpos; 29 rotas; home com 4,35 kB / 119 kB first load. Grep
+  de hex solto no diff limpo (zero fora dos tokens DS2). `src/app/layout.tsx` (GTM) confirmado
+  byte-idêntico — zero diff nesta sessão
+- Smoke test via `curl` no build de produção: `/`, `/radar/maturidade`, `/radar/oportunidades`,
+  `/auth`, `/privacidade` respondendo `200`; GTM presente no HTML; CTAs dos radares presentes
+- Validação manual do dono via `npm run dev` (mobile e desktop) — aprovado
+- CTA "Quero entrar na lista do Lab" fica sem destino funcional por enquanto (é vitrine; a
+  captura real via banco é a ISSUE-108) — não é regressão, é o escopo esperado desta issue
+- **Não verificado:** disparo real da conversão Google Ads via GTM Preview/Tag Assistant (exige
+  login do dono); o código do disparo não foi tocado por esta issue e já estava validado nas
+  sessões da ISSUE-106/109
+- Próxima natural: **ISSUE-108** (`/newsletter`, `/lab`, `/obrigado`)
+
+---
+
 ## [v3.6.9] - 2026-07-08 - 🛡️ Gate de Revisão do Sprint 1 (Fable 5)
 
 ### 🔧 Corrigido

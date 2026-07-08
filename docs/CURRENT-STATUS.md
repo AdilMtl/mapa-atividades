@@ -1,4 +1,61 @@
-## 🎯 SESSÃO ATUAL: Gate de Revisão do Sprint 1 (Fable 5) — 103+104+105+106+109
+## 🎯 SESSÃO ATUAL: ISSUE-107 — Homepage reposicionada
+**Data:** 08 de julho de 2026
+**Versão:** v3.7.0
+**Status:** ✅ Concluída — home nova no ar (local), validada por lint/tsc/build + smoke test +
+teste manual do dono (mobile e desktop)
+**Duração:** ~1 sessão
+
+### **🚀 O QUE FOI FEITO:**
+
+Com os radares (103–106) e o gate de revisão do Sprint 1 (v3.6.9) prontos, a ISSUE-107 trocou a
+landing de produtividade antiga pela home da nova tese — o go-live visual do reposicionamento.
+
+- **`src/app/(publico)/page.tsx`** reescrito do zero: era um monólito `'use client'` de 1106
+  linhas (JSX duplicado para mobile/desktop); virou uma composição limpa das 12 seções da spec
+  (`docs/revamp/01_product_spec_faseada.md` §5), cada uma em `src/components/home/*`
+  (HeroSection, ProblemaSection, ReframeSection, PortasSection, ComoFuncionaSection,
+  PlataformaDemoSection, NewsletterSection, DiferenciacaoSection, PricingSection, LabSection,
+  AutorSection), seguindo pixel-a-pixel o mock aprovado
+  `docs/revamp/mockups/landing-preview-final.html`.
+- **`src/components/shared/`** novo: `PublicHeader` e `PublicFooter` (navegação/rodapé públicos
+  no DS2) + `PWAInstallBanner` — extraído do `page.tsx` antigo (lógica 100% intocada) para não
+  perder o prompt de instalação do PWA ao substituir o arquivo inteiro.
+- **CTAs seguem a escada de captura** (`docs/revamp/10_jornada_captura_radares.md`): hero
+  primário e card "Oportunidades" → `/radar/oportunidades` (badge "diagnóstico completo por
+  e-mail"); hero secundário e card "Maturidade" → `/radar/maturidade` (badge "comece grátis").
+  Sem `href` de fallback — os radares já existem. **ISSUE-107B fechada sem execução** (ficou
+  obsoleta, como já era esperado).
+- **Preservado por decisão do dono:** pricing (3 planos, cards DS2) e a seção "A plataforma em
+  ação" com os 4 vídeos de demo reais, mantendo o progressive loading (1º autoplay mudo, demais
+  clique-para-tocar).
+- **Janela de app animada no hero** (`HeroAppPreview.tsx`, client): prévia decorativa do Radar
+  de Oportunidades ciclando opção destacada + progresso, respeitando `prefers-reduced-motion`
+  — não é o radar de verdade (fora do escopo desta issue).
+- **CTA "Quero entrar na lista do Lab" fica sem destino funcional de propósito** — é vitrine; a
+  captura real (waitlist no banco) é a ISSUE-108.
+
+### **✅ VALIDAÇÃO:**
+`tsc --noEmit`, `lint` e `build` limpos (29 rotas, home com 4,35 kB / 119 kB first load). Grep
+de `#[0-9a-fA-F]{6}` no diff retornou zero (um hex solto detectado e removido durante a própria
+sessão, trocado por token DS2). Smoke test via `curl` no build de produção: `/`,
+`/radar/maturidade`, `/radar/oportunidades`, `/auth`, `/privacidade` respondendo `200`; GTM
+(`GTM-PDJ2K5BX`) presente no HTML da home; os 2 CTAs de cada radar presentes no HTML.
+Confirmado que `src/app/layout.tsx` (onde vive o GTM) ficou byte-idêntico — zero diff nessa
+sessão. O dono testou a home em `npm run dev` (mobile e desktop) e aprovou visualmente.
+**Não verificado nesta sessão:** disparo real da conversão do Google Ads via GTM Preview/Tag
+Assistant (exige o login do dono no Google) — o código do disparo (`OportunidadesResultado.tsx`)
+não foi tocado por esta issue e já estava validado nas sessões da ISSUE-106/109; o dono foi
+orientado a confirmar via console (`Google Ads conversion triggered`) ou Tag Assistant quando
+quiser.
+
+### **🎯 PRÓXIMOS PASSOS:**
+Próxima natural é a **ISSUE-108** (`/newsletter`, `/lab`, `/obrigado`) — completa a periferia do
+funil e dá destino real ao CTA da lista do Lab. Em paralelo, a Fase 1B (redesign visual DS2 da
+plataforma logada, ISSUES 114–120) pode começar a qualquer momento, já que não depende da 108.
+
+---
+
+## 🎯 SESSÃO Anterior: Gate de Revisão do Sprint 1 (Fable 5) — 103+104+105+106+109
 **Data:** 08 de julho de 2026
 **Versão:** v3.6.9
 **Status:** ✅ Concluída — 3 achados corrigidos e verificados; gate liberado para a ISSUE-107

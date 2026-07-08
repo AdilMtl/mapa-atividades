@@ -263,6 +263,16 @@ verifica); e-mail inválido rejeitado; rate limit ativo; fluxo público não que
 
 ## ISSUE-107 — Homepage reposicionada
 
+**Status:** ✅ concluída em 2026-07-08 — home nova em `(publico)/page.tsx` + `components/home/*` +
+`components/shared/{PublicHeader,PublicFooter,PWAInstallBanner}`; CTAs diretos para
+`/radar/oportunidades` (primário/card) e `/radar/maturidade` (secundário/card) conforme a
+escada da ISSUE-107B/doc 10; pricing e os 4 vídeos de demo preservados (progressive loading);
+zero hex fora do DS2 no diff; `lint`/`tsc`/`build` limpos; smoke test via `curl` no build de
+produção confirmou `/`, `/radar/maturidade`, `/radar/oportunidades`, `/auth`, `/privacidade`
+respondendo 200, GTM presente e os 2 CTAs de cada radar no HTML. CTA "Quero entrar na lista do
+Lab" fica sem destino funcional de propósito — é vitrine, a captura real é a ISSUE-108. **ISSUE-
+107B confirmada obsoleta** (CTAs já nasceram diretos, nada para trocar depois).
+
 **Fase:** 1
 **Tipo:** Frontend / UX / Copy
 **Prioridade:** Alta
@@ -367,6 +377,10 @@ centralizada acima.
 no navegador (não com o `.html` do design system genérico — este já é a versão de conteúdo real).
 
 ## ISSUE-107B — Retargeting dos CTAs da home para os radares
+
+**Status:** ✅ fechada sem execução em 2026-07-08 — a ISSUE-107 rodou com os radares já
+prontos e os CTAs nasceram diretos para `/radar/maturidade` e `/radar/oportunidades` desde o
+primeiro commit; não havia `href` temporário para trocar.
 
 > ⚠️ **OBSOLETA sob o sequenciamento atual (dono, 2026-07-06):** com radares (103–106) construídos
 > ANTES da home (107), os CTAs já nascem apontando direto para `/radar/*` — não há destino
