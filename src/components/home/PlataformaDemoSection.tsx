@@ -46,7 +46,7 @@ export function PlataformaDemoSection() {
         <p className="mt-2 max-w-[680px] font-ds2-sans text-sm text-ds2-text-secondary">
           Isso não é maquete: assinantes usam todos os dias. O método ROI do Foco já roda aqui
           dentro — mapear onde o tempo vai, diagnosticar o que rende, agir no que importa. A
-          mesma engenharia que recebe os radares de IA.
+          mesma casa onde agora rodam os radares de IA.
         </p>
         <div className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2">
           {VIDEOS.map((video, index) => (

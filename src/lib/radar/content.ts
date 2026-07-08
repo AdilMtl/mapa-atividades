@@ -532,7 +532,7 @@ export const CONTEUDO_OPORTUNIDADES: Record<SolutionTypeId, OpportunityContent> 
       'Alta frequência, regras previsíveis, baixo julgamento por execução: atualizar status, ' +
       'mover dado, gerar lembrete, organizar resposta. Isso é exatamente o tipo de tarefa que ' +
       'NÃO deveria consumir a sua atenção — o valor não está em você fazer, está em você ' +
-      'desenhar a regra uma vez e sair do caminho.',
+      'desenhar a regra uma vez e deixar rodar.',
     complexidade:
       'Média. As ferramentas de automação atuais (n8n, Make, Zapier) têm plano gratuito e não ' +
       'pedem código — pedem clareza sobre a regra.',

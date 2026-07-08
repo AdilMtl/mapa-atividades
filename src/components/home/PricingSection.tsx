@@ -39,7 +39,7 @@ export function PricingSection() {
             R$ 15<small className="font-ds2-sans text-sm text-ds2-text-muted">/mês</small>
           </div>
           <ul className="flex-1 space-y-2 font-ds2-sans text-sm text-ds2-text-secondary">
-            <li>Artigos e cursos exclusivos</li>
+            <li>Artigos e séries exclusivas</li>
             <li>Acesso completo ao aplicativo</li>
             <li>Todo conteúdo pago publicado</li>
           </ul>

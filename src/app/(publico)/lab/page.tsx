@@ -31,10 +31,11 @@ export default function LabPage() {
             Em breve: uma área para transformar leitura em prática.
           </SectionTitle>
           <p className="mt-4 max-w-[680px] font-ds2-sans text-base leading-relaxed text-ds2-text-secondary">
-            O Lab do Conversas no Corredor está sendo desenhado para assinantes que querem ir além
-            da leitura: playbooks, templates, trilhas e ferramentas para estruturar ideias,
-            escolher o tipo certo de solução e evoluir do primeiro experimento para um ativo
-            digital real.
+            Conteúdo sobre IA não falta. O que falta é o passo seguinte: transformar a ideia que
+            ficou na cabeça em algo que funciona no seu trabalho. O Lab nasce para isso —
+            playbooks, templates, trilhas e ferramentas para assinantes que querem estruturar o
+            problema, escolher o formato certo de solução e levar o primeiro experimento até um
+            ativo digital de verdade.
           </p>
           <div className="mt-6 flex flex-wrap gap-2">
             {ITENS_FUTUROS.map((item) => (
@@ -43,7 +44,7 @@ export default function LabPage() {
           </div>
           <LabWaitlistForm className="mt-8 max-w-[520px]" />
           <p className="mt-3 font-ds2-mono text-xs text-ds2-text-muted">
-            A lista ajuda a priorizar quais ferramentas serão construídas primeiro.
+            A lista ajuda a decidir o que construir primeiro.
           </p>
         </div>
       </PageContainer>

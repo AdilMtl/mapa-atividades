@@ -1,4 +1,62 @@
-## 🎯 SESSÃO ATUAL: ISSUE-110 — SEO técnico
+## 🎯 SESSÃO ATUAL: ISSUE-111 — Revisão de copy (voz editorial)
+**Data:** 08 de julho de 2026
+**Versão:** v3.9.1
+**Status:** ⚠️ Aplicada — 7 ajustes de copy no ar (local); falta o veto de leitura do dono
+(critério de aceite da issue)
+
+### **🚀 O QUE FOI FEITO (em termos simples):**
+
+Passamos toda a superfície de texto nova (home, radares, resultados, `/newsletter`, `/lab`,
+`/obrigado`, formulários, metadata) pelo filtro da voz da newsletter, com três lentes: tom de
+corredor (sem cara de IA), português do Brasil de verdade (sem decalque de tradução) e CTAs que
+motivam clique. A varredura confirmou que a maior parte já estava boa — os 14 blocos de
+resultado dos radares são o padrão-ouro da casa e ficaram intocados. Saíram 7 ajustes cirúrgicos:
+
+1. **`/lab`** — parágrafo principal reescrito: era lista de features emendada, virou
+   tensão→contraste ("Conteúdo sobre IA não falta. O que falta é o passo seguinte...").
+2. **`/lab`** — microcopy da lista alinhada com a da home ("A lista ajuda a decidir o que
+   construir primeiro.").
+3. **Pricing (home)** — "Artigos e **cursos** exclusivos" → "Artigos e **séries** exclusivas":
+   a mesma página diz "não por quem vende curso". ⚠️ **Descreve a oferta paga — reverter se o
+   plano pago realmente incluir cursos.**
+4. **Demo da plataforma (home)** — "a mesma engenharia que recebe os radares" (imagem confusa)
+   → "a mesma casa onde agora rodam os radares de IA".
+5. **Radar de Maturidade, P1** — "Qual frase soa mais como você?" (decalque de *sounds like
+   you*) → "Qual frase é mais a sua cara?" ⚠️ Pergunta canônica do doc 11 — pede olhar do dono.
+6. **Diagnóstico de automação** — "desenhar a regra uma vez e sair do caminho" (*get out of the
+   way*) → "e deixar rodar".
+7. **Convite ao Radar de Maturidade** (resultado de Oportunidades) — link "Fazer o Radar de
+   Maturidade" (função) → "Descobrir meu nível de verdade" (intenção).
+
+**Avaliado e mantido de propósito:** mensagens de erro dos formulários (clareza > personalidade),
+perguntas do Radar de Oportunidades (literais do doc operacional §11.4), "Assinar a newsletter"
+no hero (spec do mock — trocar é decisão do dono), e todo o `content.ts` exceto o item 6.
+
+### **📋 TAMBÉM NESTA SESSÃO:**
+
+- **`docs/revamp/ISSUE-111-briefing-copy.md`** criado (mapa da varredura, preparado antes da
+  execução — serve de referência do que foi olhado e por quê).
+- **ISSUE-111.1 registrada no backlog** — otimização de conversão da home, nascida do
+  diagnóstico de marketing feito com o dono: seção de fechamento antes do footer, embed do
+  Substack na NewsletterSection (premissa aprovada da pergunta 5 do `00b`, nunca implementada),
+  reordenação (Newsletter sobe, Demo desce), micro-reasseguro nos CTAs e AutorSection robusta
+  ("quem escreve também constrói": 99, agentes de IA, vibe coding, workshops). Prova social
+  adiada por decisão do dono (sem material real ainda; Fase 1.5).
+
+### **✅ VALIDAÇÃO:**
+`tsc --noEmit` e `build` limpos (34 rotas); `lint` sem nenhum erro/warning nos arquivos tocados
+(os erros restantes são o débito legado da plataforma logada, adiado desde a Fase 3). Grep da
+lista proibida de copy em `src/` inteiro: zero ocorrências. Mudanças são 100% strings — nenhum
+componente, prop, rota ou tracking alterado.
+
+### **🎯 PRÓXIMOS PASSOS:**
+Dono lê as superfícies alteradas (em especial itens 3 e 5) e dá o veto final da ISSUE-111.
+Em seguida: ISSUE-111.1 (conversão da home) — já especificada no backlog e elegível; depois
+ISSUE-112 (QA/gate de launch). Fase 1B (114–120) segue liberada em paralelo.
+
+---
+
+## 🎯 SESSÃO Anterior: ISSUE-110 — SEO técnico
 **Data:** 08 de julho de 2026
 **Versão:** v3.9.0
 **Status:** ✅ Concluída — estrutura mínima de SEO no ar em todas as páginas públicas

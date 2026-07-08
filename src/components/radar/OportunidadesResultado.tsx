@@ -96,7 +96,7 @@ export function OportunidadesResultado({
           <p className="text-sm leading-relaxed text-ds2-text-secondary">
             {CONVITE_MATURIDADE}{' '}
             <Link href="/radar/maturidade" className="text-ds2-orange underline underline-offset-2">
-              Fazer o Radar de Maturidade
+              Descobrir meu nível de verdade
             </Link>
           </p>
         </Panel>

@@ -583,6 +583,10 @@ imagem estática, `sitemap.ts`, `robots.ts`, JSON-LD WebSite, auditoria de H1 ú
 
 ## ISSUE-111 — Revisão integral de copy (voz editorial)
 
+**Status:** ⚠️ aplicada em 2026-07-08 — 7 ajustes in place (mapa da varredura em
+`ISSUE-111-briefing-copy.md`); falta o veto final do dono (critério de aceite: ler sem
+"cheiro de IA"; atenção ao item do Pricing "cursos"→"séries", que descreve a oferta paga).
+
 **Fase:** 1
 **Tipo:** Copy
 **Prioridade:** Alta
@@ -598,6 +602,81 @@ erro, metadata; ajustes in place; relatório curto do que mudou.
 **Critérios de aceite:** dono lê e não "sente cheiro de IA"; zero termo proibido (grep pela
 lista); CTAs todos no padrão de intenção.
 **Riscos:** homogeneizar demais e perder o punch — preservar frases de tensão.
+
+## ISSUE-111.1 — Otimização de conversão da home (navegação, fechamento e autor)
+
+**Fase:** 1
+**Tipo:** UI / Copy / Conversão
+**Prioridade:** Alta
+**Complexidade:** Média
+**Modelo recomendado:** Fable 5 + veto final do dono
+**Objetivo:** transformar a home de "página que apresenta" em "página que converte", atacando os
+vazamentos mapeados no diagnóstico de 2026-07-08 (sessão da ISSUE-111), a serviço dos 2 objetivos
+estratégicos do dono, nesta ordem de valor por visitante: (1) iniciar um radar (lead no NOSSO
+banco, segmentado por resultado — alimenta a trilha dedicada da ISSUE-113); (2) assinar a
+newsletter (nutrição + efeito de rede de recomendações do Substack). Regra de ouro: nenhuma
+mudança pode otimizar o clique direto pro Substack ao custo de um início de radar.
+
+**Contexto:** diagnóstico completo na conversa de 2026-07-08 (resumo abaixo); voz da newsletter
+(`README.md` §7 + contexto editorial §7/§12); receitas visuais em `08_diretrizes_visuais_ds2.md`;
+premissa do embed Substack já aprovada em `00b_open_questions.md` pergunta 5 (opção a+b) e nunca
+implementada; eventos de analytics seguem o padrão `track()` da ISSUE-109.
+
+**Vazamentos diagnosticados (base do escopo):**
+1. A página termina em bio + footer — o visitante mais engajado (rolou tudo) não recebe nenhum
+   pedido de ação no fim.
+2. Todo CTA de newsletter joga para fora do site (Substack em outra aba, passo extra, não medido).
+3. Depois da PortasSection (seção 4 de 11), não existe mais nenhum caminho para os radares.
+4. AutorSection rasa ("gestor com carreira executiva" + LinkedIn) — afirmação sem evidência,
+   clichê de bio; o endosso real do autor é o que ele constrói.
+5. NewsletterSection funda demais (posição 7, depois dos 4 vídeos da demo).
+
+**Escopo incluído:**
+1. **Seção de fechamento** (componente novo, ex.: `FechamentoSection`) antes do `PublicFooter`:
+   reprise compacta das duas portas (CTAs idênticos em destino aos da PortasSection) + CTA de
+   newsletter. Eventos novos de clique para distinguir do hero/portas (ex.:
+   `closing_cta_opportunities_clicked`, `closing_cta_maturity_clicked`,
+   `closing_newsletter_clicked`).
+2. **Embed do Substack** na NewsletterSection (iframe `conversasnocorredor.substack.com/embed`),
+   mantendo o CTA atual como fallback/alternativa visível. Evento de visualização/interação.
+   Nota: as cores do embed se configuram no painel do Substack (operação do dono) — o código só
+   garante container/responsividade no DS2.
+3. **Reordenação das seções:** NewsletterSection sobe para logo após ComoFuncionaSection;
+   PlataformaDemoSection desce uma posição. Ordem-alvo: Hero → Problema → Reframe → Portas →
+   ComoFunciona → Newsletter → Demo → Diferenciação → Pricing → Lab → Autor → Fechamento.
+4. **Micro-reasseguro** sob os CTAs de newsletter (NewsletterSection e fechamento): "Grátis. Uma
+   conversa por semana. Cancela quando quiser." (ou variação na voz — decisão do executor).
+5. **AutorSection robusta** — reescrever saindo do clichê de bio, com credenciais CONCRETAS
+   fornecidas pelo dono (validar os fatos exatos com ele antes de publicar): gestor na 99
+   implementando agentes de IA no trabalho real; constrói soluções com vibe coding — inclusive
+   esta plataforma; workshops sobre IA; autor da newsletter. Ângulo editorial: "quem escreve
+   também constrói" — a prova é o ativo que o visitante está usando agora. Formato pode usar a
+   estética DS2 (ex.: ficha em mono) mantendo humano, sem tom de guru. LinkedIn permanece.
+
+**Escopo excluído:**
+- **Hero intocado** — spec pixel-a-pixel do mock aprovado, pontos inegociáveis do dono.
+- **Pricing permanece** como está (decisão registrada, `00b` p.9) — só desce/sobe se a
+  reordenação do item 3 exigir, sem mudar conteúdo.
+- **Prova social (depoimentos/números)** — ADIADA por decisão do dono (2026-07-08): hoje só há
+  comentários de amigos/trabalho, e depoimento fraco é pior que nenhum nesta marca. Registrar
+  como issue futura (Fase 1.5, junto do A/B da ISSUE-201) quando houver material real de
+  leitores. Não inventar, não usar placeholder.
+- Nenhuma mudança nas páginas de radar, nos fluxos ou no funil `/pre-diagnostico`.
+- Nenhuma mudança em `layout.tsx`/GTM.
+
+**Arquivos prováveis:** `src/app/(publico)/page.tsx` (ordem das seções),
+`src/components/home/NewsletterSection.tsx`, `AutorSection.tsx`, novo
+`FechamentoSection.tsx`, `src/lib/analytics.ts` (nomes de evento novos, se tipados).
+**Dependências:** ISSUE-111 aplicada (✅). Fatos da bio confirmados pelo dono na sessão.
+**Critérios de aceite:** `lint` + `tsc --noEmit` + `build` limpos; smoke test confirmando que os
+eventos do hero (ISSUE-109) continuam no HTML e os novos disparam; embed carregando com fallback
+funcional; CTAs todos no padrão de intenção e zero termo proibido (grep); mobile: touch ≥44px,
+sem overflow; dono aprova a bio (fatos e tom) e a nova ordem; anotar a data do deploy no
+CURRENT-STATUS para leitura antes/depois das métricas (a home instrumentada é a linha de base).
+**Riscos:** iframe do Substack destoar do tema escuro (mitigação: config no painel do Substack +
+container DS2); página ainda mais longa (mitigado pela reordenação e pelo fechamento);
+reordenar seções muda o contexto das métricas em curso — por isso a anotação de data é critério
+de aceite.
 
 ## ISSUE-112 — QA integral + validação de conversão (gate de launch)
 

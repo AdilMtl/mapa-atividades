@@ -16,6 +16,43 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [v3.9.1] - 2026-07-08 - ✍️ Revisão de copy (voz editorial) — ISSUE-111
+
+### 🎨 Melhorado
+- **ISSUE-111 — 7 ajustes de copy nas superfícies novas da Fase 1**, com três lentes: voz da
+  newsletter (sem "cheiro de IA"), português do Brasil (caça a decalque de tradução) e CTAs de
+  intenção que motivam clique:
+  - `/lab`: parágrafo principal reescrito em tensão→contraste (era lista de features emendada)
+    + microcopy da lista alinhada com a da home;
+  - Pricing (home): "cursos exclusivos" → "séries exclusivas" — eliminava contradição com "não
+    por quem vende curso" na mesma página (⚠️ descreve a oferta paga; dono pode vetar);
+  - Demo da plataforma (home): "a mesma engenharia que recebe os radares" → "a mesma casa onde
+    agora rodam os radares de IA";
+  - Radar de Maturidade P1: "Qual frase soa mais como você?" → "Qual frase é mais a sua cara?"
+    (decalque de *sounds like you*; pergunta canônica do doc 11 — pede olhar do dono);
+  - Diagnóstico de automação (`content.ts`): "sair do caminho" → "deixar rodar" (decalque de
+    *get out of the way*);
+  - Resultado de Oportunidades: link "Fazer o Radar de Maturidade" → "Descobrir meu nível de
+    verdade" (CTA de função → intenção).
+- **Avaliado e mantido de propósito:** mensagens de erro (clareza > personalidade), perguntas do
+  Radar de Oportunidades (literais do doc operacional), hero (spec do mock) e os 14 blocos de
+  resultado do `content.ts` (padrão-ouro da voz — risco da issue era homogeneizar e perder punch).
+
+### ✅ Adicionado
+- `docs/revamp/ISSUE-111-briefing-copy.md` — mapa da varredura de copy (o que foi olhado, o que
+  foi achado, o que ficou de fora e por quê).
+- **ISSUE-111.1 no backlog** — otimização de conversão da home (seção de fechamento, embed do
+  Substack, reordenação de seções, micro-reasseguro, AutorSection robusta), nascida do
+  diagnóstico de marketing da sessão. Prova social adiada por decisão do dono (Fase 1.5).
+
+### 📊 Técnico
+- Mudanças 100% em strings — nenhum componente, prop, rota ou tracking alterado. `tsc --noEmit`
+  e `build` limpos (34 rotas); `lint` sem ocorrências nos arquivos tocados; grep da lista
+  proibida de copy zerado em `src/`.
+- Status no backlog: ⚠️ aplicada — aguarda o veto de leitura do dono (critério de aceite).
+
+---
+
 ## [v3.9.0] - 2026-07-08 - 🔍 SEO técnico — ISSUE-110
 
 ### ✅ Adicionado

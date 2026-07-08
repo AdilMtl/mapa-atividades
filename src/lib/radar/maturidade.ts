@@ -27,7 +27,7 @@ function escada(perguntaId: string, labels: [string, string, string, string, str
 export const PERGUNTAS_MATURIDADE: RadarQuestion[] = [
   {
     id: 'mat_delegacao',
-    text: 'Pense na sua última semana de trabalho. Qual frase soa mais como você?',
+    text: 'Pense na sua última semana de trabalho. Qual frase é mais a sua cara?',
     scored: true,
     options: escada('mat_delegacao', [
       'IA ainda não entrou de verdade na minha rotina',
