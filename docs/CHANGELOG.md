@@ -16,6 +16,41 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [v3.11.0] - 2026-07-08 - 📧 E-mail de trilha dos radares + gate de QA — ISSUE-113 / ISSUE-112
+
+### ✅ Adicionado
+- **E-mail de trilha dos radares (ISSUE-113)** — Maturidade e Oportunidades agora enviam
+  e-mail de verdade após a captura (via Resend), fechando um gap que o dono flagrou em
+  produção: a tela prometia e-mail, mas nada era enviado. Template novo
+  (`src/app/api/radar/email-template.ts`), dark-safe (hex literal + `color-scheme: dark` —
+  não depende do tema do cliente de e-mail), 100% reaproveitando o conteúdo já escrito na
+  ISSUE-105 (nenhuma copy nova). Falha de envio nunca derruba o lead (best-effort); resposta
+  da rota ganhou o campo `emailSent`. Links com UTM (`utm_source=email&utm_medium=radar_trilha`).
+- **Redesign do e-mail (pedido do dono na mesma sessão)** — header reforçado (abre com
+  "Conversas no Corredor" + a tese da newsletter, não só o nome da plataforma) e bloco de
+  newsletter dedicado no fechamento dos dois e-mails: faixa de acento, pitch curto, botão
+  principal "Vamos para mais conversas" (com fallback VML para Outlook) e link para o arquivo
+  de textos publicados. Testado ao vivo no Gmail do dono, duas rodadas, aprovado.
+- **`docs/revamp/ISSUE-112-relatorio-qa.md`** — relatório do gate de launch da Fase 1: tudo
+  que é automatizável do `06_definition_of_done.md` foi executado (tipos, lint, build, matriz
+  de rotas, tracking, SEO, copy, design, PWA, Lighthouse mobile). Veredito: **não pronto para
+  launch**, 4 bloqueadores (e-mail sem envio — motivou a ISSUE-113 acima —, performance mobile
+  abaixo do alvo, reset de senha quebrado, `/privacidade` sem a captura nova e atrás de login).
+
+### 📊 Técnico
+- `src/app/api/radar/lead/route.ts` passou a buscar `answers` da sessão e recalcular o
+  resultado com o mesmo motor puro do `RadarFlow` (`calcularMaturidade`/`decidirOportunidade`)
+  para montar o e-mail — sem duplicar lógica de scoring.
+- `tsc`, `lint` e `build` limpos. Fluxo testado via API real em `build && start`: os dois
+  radares completos ponta a ponta, `emailSent:true`, e-mails confirmados no Gmail do dono.
+- Nenhuma mudança em `layout.tsx`, `EmailGate.tsx` ou `/pre-diagnostico` — tracking legado
+  intocado.
+- Pendências registradas para as próximas sessões (ordem escolhida pelo dono): issue pequena
+  de `/privacidade`, `/corrigir-bug` do reset de senha, diagnóstico de performance no preview
+  da Vercel, e re-execução do gate da ISSUE-112 até zero FALHOU.
+
+---
+
 ## [v3.10.0] - 2026-07-08 - 🎯 Otimização de conversão da home — ISSUE-111.1
 
 ### ✅ Adicionado

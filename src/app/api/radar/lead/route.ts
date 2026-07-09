@@ -7,6 +7,14 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { Resend } from 'resend';
+
+import { CONTEUDO_MATURIDADE, CONTEUDO_OPORTUNIDADES } from '@/lib/radar/content';
+import { calcularMaturidade } from '@/lib/radar/maturidade';
+import { decidirOportunidade } from '@/lib/radar/oportunidades';
+import type { RadarAnswers } from '@/lib/radar/types';
+
+import { gerarAssuntoEmailRadar, gerarTemplateEmailRadar } from '../email-template';
 
 // Client de service_role: radar_leads só concede acesso a service_role (RLS travada).
 const supabaseAdmin = createClient(
@@ -91,9 +99,11 @@ export async function POST(request: NextRequest) {
     }
 
     // kind vem da sessão (fonte da verdade), não do body — impede forjar triggerConversion.
+    // answers vem junto para recompor o resultado (mesmo motor puro do RadarFlow) e montar
+    // o e-mail de trilha (ISSUE-113) sem duplicar lógica de scoring aqui.
     const { data: session, error: sessionError } = await supabaseAdmin
       .from('radar_sessions')
-      .select('kind')
+      .select('kind, answers')
       .eq('id', sessionId)
       .single();
 
@@ -123,10 +133,46 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Não foi possível salvar o email' }, { status: 500 });
     }
 
+    // E-mail de trilha (ISSUE-113): best-effort — falha aqui NUNCA derruba o lead já salvo
+    // acima; o resultado completo já está na tela independente do e-mail chegar ou não.
+    let emailSent = false;
+    try {
+      const apiKey = process.env.RESEND_API_KEY;
+      if (!apiKey) {
+        console.warn('RESEND_API_KEY não configurada — e-mail de trilha do radar não enviado');
+      } else if (session.answers && typeof session.answers === 'object') {
+        const respostas = session.answers as RadarAnswers;
+        const firstName = name.trim().split(' ')[0];
+        const emailData = kind === 'maturidade'
+          ? {
+              kind: 'maturidade' as const,
+              firstName,
+              conteudo: CONTEUDO_MATURIDADE[calcularMaturidade(respostas).nivel],
+            }
+          : {
+              kind: 'oportunidades' as const,
+              firstName,
+              conteudo: CONTEUDO_OPORTUNIDADES[decidirOportunidade(respostas).tipo],
+            };
+
+        const resend = new Resend(apiKey);
+        await resend.emails.send({
+          from: process.env.EMAIL_FROM_ADDRESS || 'onboarding@resend.dev',
+          to: email.toLowerCase().trim(),
+          subject: gerarAssuntoEmailRadar(emailData),
+          html: gerarTemplateEmailRadar(emailData),
+        });
+        emailSent = true;
+      }
+    } catch (emailError) {
+      console.error('Erro ao enviar e-mail de trilha do radar:', emailError);
+    }
+
     return NextResponse.json({
       success: true,
       leadId: lead.id,
       triggerConversion: TRIGGER_CONVERSION_BY_KIND[kind] ?? false,
+      emailSent,
     });
   } catch (error) {
     console.error('Erro na API radar/lead:', error);

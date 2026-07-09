@@ -685,6 +685,13 @@ de aceite.
 
 ## ISSUE-112 — QA integral + validação de conversão (gate de launch)
 
+**Status:** ⚠️ parcial em 2026-07-08 — toda a parte automatizável do gate executada e relatório
+entregue em `ISSUE-112-relatorio-qa.md`: veredito **não pronto para launch** (4 bloqueadores:
+e-mail prometido sem ISSUE-113, performance mobile 24/49 vs alvo ≥85, reset de senha quebrado
+pré-existente, `/privacidade` sem a captura nova e atrás de login). Falta: roteiro do dono
+(Tag Assistant, mobile real, Supabase/RLS, veto de copy, PWA — §4 do relatório) e re-execução
+do gate após os fixes, até zero FALHOU.
+
 **Fase:** 1
 **Tipo:** Testes
 **Prioridade:** Alta
@@ -701,6 +708,20 @@ real; Lighthouse; relatório de pendências com severidade.
 
 ## ISSUE-113 — E-mail de trilha
 
+**Status:** ⚠️ aplicada em 2026-07-08 — template novo (`src/app/api/radar/email-template.ts`,
+DS2 dark-safe, cores em hex literal + `color-scheme: dark`) e envio via Resend na rota
+`api/radar/lead` (flag `emailSent` na resposta; falha não impede salvar o lead). Reaproveita
+100% do conteúdo já escrito na ISSUE-105 (`lib/radar/content.ts`) — o bloco "Na prática" da
+oportunidade É o mini-guia prometido na tela; nenhuma copy nova foi criada. Links do e-mail
+carregam UTM (`utm_source=email&utm_medium=radar_trilha&utm_campaign={maturidade|oportunidades}`).
+Testado ponta a ponta nesta sessão: os dois radares completos via API real, ambos retornaram
+`emailSent:true`, e-mails de teste enviados para o Gmail do dono. **Ajuste pós-veto do dono:**
+o e-mail de maturidade só levava para o Radar de Oportunidades — faltava convite à newsletter
+(conversão-fim da Fase 1). Adicionado link secundário "Quero receber as próximas conversas"
+(mesmo destino/UTM do CTA de oportunidades); reenviado e confirmado. **Pendente (dono):** confirmar
+visualmente a chegada/aparência no Gmail (inclusive app mobile) e, se tiver acesso, no Outlook —
+critério de aceite da issue exige os dois clientes. Rotina de import CSV → Substack (item
+separado do DoD, não desta issue) segue não documentada.
 **Fase:** 1
 **Tipo:** Backend / Copy
 **Prioridade:** Alta

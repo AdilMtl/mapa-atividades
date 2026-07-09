@@ -1,4 +1,62 @@
-## 🎯 SESSÃO ATUAL: ISSUE-111.1 — Otimização de conversão da home
+## 🎯 SESSÃO ATUAL: ISSUE-112 (gate de QA) + ISSUE-113 (e-mail de trilha)
+**Data:** 08 de julho de 2026
+**Versão:** v3.11.0
+**Status:** ISSUE-112 ⚠️ parcial (relatório entregue, launch bloqueado) · ISSUE-113 ⚠️ aplicada e aprovada pelo dono
+
+### **🚀 O QUE FOI FEITO (em termos simples):**
+
+1. **Gate de QA da Fase 1 (ISSUE-112)** — rodei tudo que é automatizável do checklist de launch
+   (`docs/revamp/06_definition_of_done.md`): tipos, lint, build, matriz de rotas, tracking,
+   SEO, copy, design, PWA e Lighthouse mobile. Relatório completo em
+   `docs/revamp/ISSUE-112-relatorio-qa.md`. **Veredito: não pronto para launch**, 4
+   bloqueadores — o principal, e que o dono confirmou ao vivo nesta sessão, é que os radares
+   prometiam e-mail na tela mas não enviavam nada (isso virou a ISSUE-113, abaixo). Os outros
+   três (performance mobile abaixo do alvo, reset de senha quebrado — bug pré-existente — e
+   `/privacidade` sem cobrir a captura nova e atrás de login) ficam para as próximas sessões,
+   na ordem que o dono escolheu.
+2. **E-mail de trilha dos radares (ISSUE-113)** — os dois radares (Maturidade e Oportunidades)
+   agora enviam e-mail de verdade depois da captura, via Resend. Template novo, no visual
+   escuro do site (não depende do tema do cliente de e-mail), reaproveitando 100% o conteúdo
+   que já existia — nenhuma copy nova foi escrita. Testado ao vivo: dois envios reais para o
+   Gmail do dono, aprovados.
+3. **Redesign do e-mail por pedido do dono, na hora** — o primeiro rascunho deixava a chamada
+   para a newsletter fraca (só um link). Refiz: header agora abre com "Conversas no Corredor"
+   e a tese da newsletter (antes só dizia "+ConverSaaS", sem contexto); e os dois e-mails
+   fecham com um bloco de newsletter dedicado — faixa de acento, pitch curto, botão grande
+   "Vamos para mais conversas" (à prova de Outlook) + link para o arquivo de textos publicados.
+   Reenviado e aprovado pelo dono.
+
+### **📊 TÉCNICO:**
+
+- Novo: `src/app/api/radar/email-template.ts` — template dark-safe (hex literal + `color-scheme:
+  dark`, não confia em CSS var nem em tema automático do cliente), botão principal com
+  fallback VML para Outlook, links com UTM (`utm_source=email&utm_medium=radar_trilha`).
+- `src/app/api/radar/lead/route.ts` — busca `answers` da sessão, recalcula o resultado com o
+  mesmo motor puro do `RadarFlow` (`calcularMaturidade`/`decidirOportunidade`), monta o e-mail
+  a partir do conteúdo já existente em `lib/radar/content.ts` e envia via Resend. Falha de
+  envio nunca derruba o lead (best-effort, try/catch isolado); resposta ganhou o campo
+  `emailSent`.
+- Nenhuma mudança em `layout.tsx`, `EmailGate.tsx` ou no funil `/pre-diagnostico` (fora do
+  escopo, tracking legado intocado).
+
+### **✅ VALIDAÇÃO:**
+`tsc --noEmit`, `lint` (zero ocorrências nos arquivos tocados) e `build` limpos. Fluxo real
+testado via API em `build && start`: os dois radares completos ponta a ponta, `emailSent:true`
+nas duas respostas, e-mails chegando no Gmail do dono (confirmado ao vivo, duas rodadas — antes
+e depois do redesign).
+**Não verificado nesta sessão:** entrega em Outlook (sem conta de teste disponível); rotina de
+import CSV → Substack (item do DoD, mas fora do escopo desta issue) segue sem documentação.
+
+### **🎯 PRÓXIMOS PASSOS (ordem combinada com o dono):**
+1. Issue pequena: mover `/privacidade` para o grupo público + mencionar a captura dos radares.
+2. `/corrigir-bug` do reset de senha (bug pré-existente, fora do revamp).
+3. Diagnóstico de performance no preview da Vercel (Lighthouse local deu 24–49 em mobile,
+   abaixo do alvo ≥85 — precisa re-medir fora do ambiente local antes de abrir a issue).
+4. Re-rodar o gate da ISSUE-112 depois dos itens acima, até zero FALHOU → autorizar o launch.
+
+---
+
+## 🎯 SESSÃO ANTERIOR: ISSUE-111.1 — Otimização de conversão da home
 **Data:** 08 de julho de 2026
 **Versão:** v3.10.0
 **Status:** ⚠️ Aplicada — 5 itens no ar (local); pendências operacionais do dono listadas abaixo
