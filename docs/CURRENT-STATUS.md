@@ -1,8 +1,69 @@
-## 🎯 SESSÃO ATUAL: avançando os bloqueadores do gate ISSUE-112
-**Data:** 08 de julho de 2026
-**Versão:** v3.11.1
-**Status:** 1 bloqueador resolvido (privacidade) · 1 diagnosticado, falta ação do dono (reset de
-senha) · 1 medido, sem mudança de código ainda (performance) · doc do CSV entregue
+## 🎯 SESSÃO ATUAL: rodada de configuração manual (Supabase, GTM, Substack) — 3 bloqueadores do gate ISSUE-112 fechados
+**Data:** 09 de julho de 2026
+**Versão:** v3.11.1 (sem alteração de código — sessão 100% operacional, configuração em painéis externos)
+**Status:** reset de senha ✅ resolvido e testado · analytics GA4 dos 19 eventos ✅ publicado e testado
+· `lab_leads`/embed Substack ✅ confirmados já resolvidos (achados de documentação desatualizada)
+· resta só performance (2.2) + o roteiro de validação do dono (§4 do relatório QA) pro gate fechar de vez
+
+### **🚀 O QUE FOI FEITO (sessão guiada passo a passo nos painéis, sem tocar em código):**
+
+1. **Bloqueador 2.3 (reset de senha) resolvido de ponta a ponta.** Causa confirmada na sessão
+   anterior (Site URL do Supabase apontando pro `localhost`). O dono corrigiu no painel
+   (Authentication → URL Configuration): Site URL trocada para
+   `https://conversas-no-corredor.vercel.app`, Redirect URLs já cobriam `/reset-password` +
+   wildcard `/**`. Testado ao vivo: pediu reset, recebeu e-mail com link correto, redefiniu a
+   senha com sucesso.
+2. **`SQL da `lab_leads` — achado que já estava resolvido, não pendente.** O `CURRENT-STATUS.md`
+   e o relatório de QA da ISSUE-112 (§3) vinham carregando uma nota desatualizada dizendo "SQL
+   ainda não rodou". Conferimos ao vivo (`SELECT` de verificação): a tabela já existe,
+   `rowsecurity = true`, zero políticas — rodada e validada de fato na sessão da ISSUE-108
+   (08/07). A nota errada não foi corrigida depois que a 108 fechou; corrigida agora.
+3. **Tags GA4 dos 19 eventos do funil de radares — publicadas e testadas (item 3 do §3 do
+   relatório de QA).** Achado importante no caminho: o container GTM (`GTM-PDJ2K5BX`) não tinha
+   nenhuma tag do tipo GA4 Event — as únicas 5 tags existentes eram do funil legado (conversão
+   Google Ads + a "Tag do Google" base, ID `AW-16601345592`). A "Tag do Google" está vinculada
+   como destino adicional à propriedade GA4 (`G-0HX5BX2XL7`) diretamente nas configurações da
+   conta Google (feito com o time do Google na configuração original) — por isso o GA4 já
+   recebia tráfego de pageview real sem nenhuma tag visível no GTM. Em vez de criar uma tag base
+   nova (arriscaria contar pageview em dobro) ou 19 pares de tag+trigger, criamos só **1 trigger
+   novo** (`CE - Eventos dos radares`, Custom Event com regex casando os 19 nomes canônicos de
+   `src/lib/radar-events.ts`) **+ 1 tag nova** (`GA4 Event - Eventos dos radares`, tipo GA4
+   Event, `ID da métrica` = `G-0HX5BX2XL7` — o GTM confirmou reconhecer a "Tag do Google"
+   existente e reaproveitar a config dela, sem inicialização nova). Testado no modo Preview do
+   GTM antes de publicar: a tag disparou 5 vezes pra eventos diferentes clicados ao vivo.
+   Publicado como Versão 3 do container.
+4. **Embed do Substack no tema escuro — já estava certo, não precisava de ação.** A pendência
+   registrada ("configurar cores no painel do Substack") partia de uma suposição errada: o embed
+   nativo do Substack não tem opção de customizar cor/fonte — ele reflete o tema geral já
+   configurado na própria publicação Substack do dono, que por já ser verde-escuro/laranja
+   combina com o DS2 do site. Conferido visualmente: sem trabalho a fazer.
+
+### **📊 TÉCNICO:**
+Nenhum arquivo em `src/` tocado — sessão 100% de configuração em painéis externos (Supabase,
+Google Tag Manager). `git status` limpo, nada a commitar em código.
+
+### **🎯 PRÓXIMA SESSÃO — roteiro do dono (§4 do `ISSUE-112-relatorio-qa.md`), 12 itens, nenhum
+bloqueia o desenvolvimento de outras issues (Fase 1B/ISSUE-114+ já está liberada em paralelo por**
+decisão registrada em `00b_open_questions.md`, pergunta 11) — isso é só o que falta pro **launch**
+do funil de radares, não pro trabalho seguir:**
+1. Conversão do funil legado (`/pre-diagnostico`) via Tag Assistant.
+2. Conversão do funil novo (radar de Oportunidades) via Tag Assistant.
+3. Conferir no GTM Preview/GA4 DebugView que os 19 eventos chegam com o nome certo (testamos uma
+   amostra ao vivo nesta sessão — 5 disparos confirmados; falta conferência mais completa).
+4. Leads de teste no banco (`radar_leads` com sessão/UTMs; `lab_leads`).
+5. RLS: query com chave anônima DEVE falhar em `radar_leads`/`radar_sessions`/`lab_leads`.
+6. Radares completos em celular real (iPhone + Android, <3min, voltar/refazer).
+7. "Teste dos 5 segundos" — pessoa de fora descreve o site como "IA aplicada ao trabalho".
+8. Ler e aprovar/vetar a copy nova (pendências da ISSUE-111/111.1).
+9. **PWA — só a infraestrutura foi verificada (`manifest.json`/`sw.js` respondem 200 no build de
+   produção); falta o teste manual real: instalar no celular, navegar até as rotas novas, hard
+   refresh.** Não confundir "infra ok" com "testado" — ainda pendente de verdade.
+10. Plataforma logada ponta a ponta (login → dashboard → kanban → relatórios → `/admin/assinantes`).
+11. ~~Embed Substack no dark~~ ✅ confirmado nesta sessão, sem ação necessária.
+12. Métrica norte: conferir no GA4/Grafana se dá pra calcular visitante → lead → assinante.
+
+Depois desse roteiro: só falta a performance (bloqueador 2.2, ainda não atacada em código) pra
+re-rodar o gate da ISSUE-112 até zero FALHOU e autorizar o launch.
 
 ### **🚀 O QUE FOI FEITO (tudo que dava pra fazer sozinho, sem depender de painel/dispositivo):**
 

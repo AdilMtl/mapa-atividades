@@ -685,12 +685,14 @@ de aceite.
 
 ## ISSUE-112 — QA integral + validação de conversão (gate de launch)
 
-**Status:** ⚠️ parcial em 2026-07-08 — toda a parte automatizável do gate executada e relatório
-entregue em `ISSUE-112-relatorio-qa.md`: veredito **não pronto para launch** (4 bloqueadores:
-e-mail prometido sem ISSUE-113, performance mobile 24/49 vs alvo ≥85, reset de senha quebrado
-pré-existente, `/privacidade` sem a captura nova e atrás de login). Falta: roteiro do dono
-(Tag Assistant, mobile real, Supabase/RLS, veto de copy, PWA — §4 do relatório) e re-execução
-do gate após os fixes, até zero FALHOU.
+**Status:** ⚠️ parcial em 2026-07-09 — 3 dos 4 bloqueadores originais resolvidos: e-mail de
+trilha (ISSUE-113, 08/07), `/privacidade` pública (08/07), reset de senha corrigido e testado
+(09/07, Site URL do Supabase). Resta **só a performance** (2.2, mobile 24/49 vs alvo ≥85 — ainda
+não atacada em código). Itens de atenção do §3 também fechados nesta sessão: SQL da `lab_leads`
+(já estava rodado, nota desatualizada corrigida), tags GA4 dos 19 eventos (publicadas e
+testadas), embed Substack no dark (já estava certo). Falta: roteiro do dono (Tag Assistant,
+mobile real, Supabase/RLS, veto de copy, PWA — §4 do relatório) e re-execução do gate após os
+fixes, até zero FALHOU. Detalhes: `docs/CURRENT-STATUS.md` (sessão de 09/07).
 
 **Fase:** 1
 **Tipo:** Testes

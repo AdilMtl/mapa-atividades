@@ -280,10 +280,11 @@ a) Tabela nova e isolada (`lab_leads`), sem referenciar as tabelas do radar;
 b) Relaxar o CHECK de `kind` em `radar_sessions`/`radar_leads` para aceitar `'lab'` e tornar
 `session_id` opcional em `radar_leads`, reaproveitando a coluna `lab_interest` que já existe lá.
 **Resposta do dono:** opção (a) — tabela nova e isolada. Risco menor: não mexe em schema já
-validado em produção pelos radares. SQL em `docs/revamp/ISSUE-108-sql-lab-leads.md` (dono ainda
-precisa rodar).
-**Bloqueia implementação?** Não — rota `/api/lab/interest` já está pronta, só falta o SQL rodar
-para a gravação funcionar de verdade.
+validado em produção pelos radares. SQL em `docs/revamp/ISSUE-108-sql-lab-leads.md`.
+**Bloqueia implementação?** Não. **✅ SQL rodado e verificado** (ainda na sessão da ISSUE-108,
+08/07: `rowsecurity = true`, zero políticas, formulário do `/lab` testado e aprovado). Essa nota
+tinha ficado desatualizada — o relatório de QA da ISSUE-112 e o topo do `CURRENT-STATUS.md`
+chegaram a listar isso como "pendente" por engano; reconfirmado ao vivo em 09/07.
 
 ---
 
