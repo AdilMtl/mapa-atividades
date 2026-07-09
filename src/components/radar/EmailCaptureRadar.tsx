@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import Link from 'next/link'
 import { Loader2, Mail, ShieldCheck } from 'lucide-react'
 
 import { Button } from '@/components/ds2'
@@ -166,7 +167,11 @@ export function EmailCaptureRadar({
 
       <p className="flex items-start gap-1.5 font-ds2-mono text-[11px] text-ds2-text-subtle">
         <ShieldCheck className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-        Sem conta, sem spam — só o resultado no seu e-mail.
+        Sem conta, sem spam — só o resultado no seu e-mail. Veja nossa{' '}
+        <Link href="/privacidade" className="underline transition-colors hover:text-ds2-text-secondary">
+          política de privacidade
+        </Link>
+        .
       </p>
     </form>
   )

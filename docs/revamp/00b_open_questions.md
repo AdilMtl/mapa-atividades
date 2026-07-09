@@ -25,6 +25,50 @@ corretos. Corrigir em sessão separada com `/corrigir-bug` (provável relação 
 do projeto Supabase novo pós-migração v3.5.2). Não misturar com issues do revamp.
 **Bloqueia implementação?** Não.
 
+**🔍 Diagnóstico feito em 2026-07-08 (`/corrigir-bug`, ISSUE-112 bloqueador 2.3):** o código do
+fluxo (`(publico)/auth/page.tsx` → `supabase.auth.resetPasswordForEmail` →
+`(app)/reset-password/page.tsx` → `supabase.auth.updateUser`) está correto, sem bug — chamada
+direta na API do Supabase (`POST /auth/v1/recover`, com o e-mail do dono) devolveu `200 {}` sem
+nenhum erro. Isso confirma que o problema não é código: o Supabase aceita o pedido e tenta
+mandar o e-mail em background no próprio servidor; se o SMTP estiver mal configurado lá, a
+falha é silenciosa — exatamente o sintoma relatado (tela diz "enviado", nada chega).
+**Ação pendente, só o dono consegue fazer (painel do Supabase):**
+1. **Authentication → Logs** (Auth Logs) do projeto `cuojmyqkezmpryeuyvqd`: filtrar por
+   `recover`/`sendEmail` no horário do teste (2026-07-08) e ver se aparece erro de SMTP.
+2. **Authentication → Settings → SMTP Settings**: confirmar se existe um provedor de SMTP
+   customizado configurado. Se estiver vazio/usando o mailer padrão do Supabase, essa é a causa
+   mais provável (o mailer padrão tem limite de envio muito baixo e não é confiável para
+   produção) — a correção seria configurar SMTP customizado (dá pra reaproveitar as credenciais
+   do Resend, que já funciona pros outros e-mails).
+3. **Authentication → URL Configuration → Redirect URLs**: confirmar que
+   `https://conversas-no-corredor.vercel.app/reset-password` está na allowlist (se não estiver,
+   o link do e-mail — quando/se chegar — falharia ao tentar autenticar).
+Sessão de teste real rodada com `adilson.matioli@gmail.com` em 2026-07-08 — conferir se chegou
+(inclusive spam).
+
+**✅ Resultado do teste (dono, 2026-07-08):** o e-mail **chegou** (não é spam, correção do relato
+anterior) — mas o link de dentro dele leva para **`localhost`** em vez do site em produção.
+Esse sintoma tem causa quase certa e é bem conhecida: o Supabase usa a **Site URL** configurada
+no projeto como base do link quando o `redirectTo` enviado pelo código não está na allowlist de
+**Redirect URLs** — e não erra, só troca silenciosamente pelo padrão. Como o projeto novo
+(`cuojmyqkezmpryeuyvqd`, pós-migração v3.5.2) provavelmente herdou a configuração de
+desenvolvimento (`http://localhost:3000`) e ninguém atualizou isso pra produção depois da
+migração, o link sai apontando pra lá. **Não é bug de código** — `auth/page.tsx` já manda o
+`redirectTo` certo (`window.location.origin` + `/reset-password`, ou seja, o domínio de onde a
+pessoa está usando o site); o problema é a config do lado do Supabase não aceitar/usar esse
+valor.
+**Ação pra próxima sessão (painel do Supabase → Authentication → URL Configuration):**
+1. **Site URL**: trocar de `http://localhost:3000` (suspeita) para
+   `https://conversas-no-corredor.vercel.app`.
+2. **Redirect URLs** (allowlist): garantir que
+   `https://conversas-no-corredor.vercel.app/reset-password` está na lista (adicionar se não
+   estiver). Vale conferir se outras rotas de auth (`/auth`, `/dashboard`) também precisam estar
+   lá, dependendo do que mais usa redirect (ex.: confirmação de cadastro).
+3. Depois de ajustar, repetir o teste (reset de senha de verdade) pra confirmar que o link novo
+   aponta pro domínio certo.
+A hipótese de SMTP/spam da rodada anterior fica descartada — o e-mail entrega bem, o problema é
+só o link de destino.
+
 ---
 
 ## Pergunta pendente 2 — ✅ RESPONDIDA PELO DONO (2026-07-05)

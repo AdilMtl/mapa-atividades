@@ -154,6 +154,26 @@ export default function PrivacidadePage() {
               </ul>
             </div>
           </div>
+
+          <div className="bg-white/5 border border-white/10 rounded-lg p-4 mt-6">
+            <h3 className="font-medium text-white mb-3 flex items-center gap-2">
+              <FileText className="w-4 h-4" />
+              Radares de IA e Lab (sem precisar criar conta)
+            </h3>
+            <p className="text-white/80 text-sm mb-2">
+              Ao responder o Radar de Maturidade ou o Radar de Oportunidades, ou ao entrar na
+              lista de interesse do Lab, coletamos:
+            </p>
+            <ul className="text-white/80 text-sm space-y-2">
+              <li>• Nome e e-mail informados no formulário</li>
+              <li>• Suas respostas ao radar (usadas para calcular o resultado)</li>
+              <li>• Endereço IP e parâmetros de origem (UTM), para segurança e métricas</li>
+            </ul>
+            <p className="text-white/70 text-xs mt-3">
+              Usamos isso para enviar seu resultado por e-mail e, se você topar, avisar sobre a
+              newsletter e o Lab. Nunca vendemos ou compartilhamos com terceiros.
+            </p>
+          </div>
         </Section>
 
         {/* Como Protegemos */}

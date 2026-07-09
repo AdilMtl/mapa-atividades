@@ -1,4 +1,61 @@
-## 🎯 SESSÃO ATUAL: ISSUE-112 (gate de QA) + ISSUE-113 (e-mail de trilha)
+## 🎯 SESSÃO ATUAL: avançando os bloqueadores do gate ISSUE-112
+**Data:** 08 de julho de 2026
+**Versão:** v3.11.1
+**Status:** 1 bloqueador resolvido (privacidade) · 1 diagnosticado, falta ação do dono (reset de
+senha) · 1 medido, sem mudança de código ainda (performance) · doc do CSV entregue
+
+### **🚀 O QUE FOI FEITO (tudo que dava pra fazer sozinho, sem depender de painel/dispositivo):**
+
+1. **Bloqueador 2.4 resolvido — `/privacidade` agora é pública.** Mudou de `(app)` para
+   `(publico)`: antes redirecionava visitante anônimo pra `/`, mesmo sendo a página que os
+   radares prometem no rodapé. Ganhou um parágrafo novo explicando a captura de dados dos
+   radares/Lab (nome, e-mail, respostas, IP/UTM) e o formulário de captura do radar
+   (`EmailCaptureRadar.tsx`) ganhou um link direto pra ela — antes o fluxo dos radares não
+   linkava a política em nenhum ponto. `/privacidade` também saiu do `disallow` do
+   `robots.ts` (não faz mais sentido bloquear indexação de uma rota pública).
+2. **Bloqueador 2.3 (reset de senha) — diagnosticado, mas a correção não é código.** Revisei
+   todo o fluxo (`auth/page.tsx` → `resetPasswordForEmail` → `reset-password/page.tsx`) e está
+   correto — manda o `redirectTo` certo. Testei de verdade batendo na API do Supabase, voltou
+   `200 {}` sem erro, e o e-mail **chegou** (não é spam). O problema real: o link de dentro do
+   e-mail leva pro `localhost` em vez do site em produção — sintoma clássico de **Site
+   URL/Redirect URLs desatualizados no painel do Supabase** (projeto novo pós-migração
+   provavelmente ainda com `http://localhost:3000` configurado em vez do domínio de produção).
+   Correção é 100% no painel, não no código. Detalhes e os 2 campos exatos a ajustar em
+   `docs/revamp/00b_open_questions.md` (pergunta 1).
+3. **Bloqueador 2.2 (performance) — remedido no site real, não mais local.** A medição da
+   ISSUE-112 foi feita rodando o build na minha máquina, que é mais lento que o site de verdade.
+   Rodei Lighthouse mobile direto em `conversas-no-corredor.vercel.app`: **home foi de 24→71**,
+   **radar de 49→75** — bem melhor, mas ainda abaixo do alvo de 85. TBT alto (1.100ms na home,
+   710ms no radar) é o principal vilão — JS pesado travando a página. Ainda não mexi em código
+   de performance; é a próxima etapa, se você topar priorizar.
+4. **`docs/revamp/rotina-import-leads-substack.md`** — passo a passo pra você exportar os leads
+   novos do Supabase (radar + Lab) via SQL Editor e importar no Substack (não existe integração
+   automática entre as duas plataformas). Resolve o item pendente do DoD C.
+
+### **📊 TÉCNICO:**
+- `src/app/(publico)/privacidade/page.tsx` (movido de `(app)`), `src/components/radar/EmailCaptureRadar.tsx`,
+  `src/app/robots.ts` — `tsc`, lint e build limpos; testado em `build && start` (200 público,
+  robots sem bloquear, link confirmado no bundle JS).
+- Nenhum código novo para o reset de senha (causa é fora do repo) nem para performance (só
+  medição desta vez).
+
+### **🎯 PRÓXIMA SESSÃO — precisa de você acompanhando (painel/dispositivo, não dá pra eu sozinho):**
+1. **Reset de senha — diagnóstico fechado, falta só a ação.** O e-mail chega certinho; o link
+   de dentro dele é que leva pro `localhost`. Painel do Supabase (`cuojmyqkezmpryeuyvqd`) →
+   **Authentication → URL Configuration**: trocar a **Site URL** de `http://localhost:3000` para
+   `https://conversas-no-corredor.vercel.app` e garantir que
+   `https://conversas-no-corredor.vercel.app/reset-password` está nas **Redirect URLs**. Depois,
+   repetir o teste de reset pra confirmar. Detalhes em `00b_open_questions.md` (pergunta 1).
+2. **Rodar o SQL do `lab_leads`** (`ISSUE-108-sql-lab-leads.md`, painel do Supabase → SQL
+   Editor) — ainda pendente, sem ele o formulário do `/lab` dá erro 500.
+3. **Configurar as tags GA4** no painel do **GTM** (spec no histórico da ISSUE-111.1) e as
+   **cores do embed** no painel do **Substack**.
+4. Depois desses passos: decidir se entra numa sessão de otimização de performance (o código
+   ainda não foi tocado) e reler os textos pendentes de aprovação.
+
+---
+
+## 🎯 SESSÃO ANTERIOR: ISSUE-112 (gate de QA) + ISSUE-113 (e-mail de trilha)
 **Data:** 08 de julho de 2026
 **Versão:** v3.11.0
 **Status:** ISSUE-112 ⚠️ parcial (relatório entregue, launch bloqueado) · ISSUE-113 ⚠️ aplicada e aprovada pelo dono

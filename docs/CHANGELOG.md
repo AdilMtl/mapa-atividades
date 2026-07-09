@@ -16,6 +16,33 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [v3.11.1] - 2026-07-08 - 🔒 Privacidade pública + avanço nos bloqueadores do gate ISSUE-112
+
+### ✅ Corrigido
+- **`/privacidade` agora é pública (bloqueador 2.4 do gate ISSUE-112)** — a página vivia no
+  grupo `(app)`, então visitante anônimo era redirecionado antes de conseguir ler a política,
+  mesmo sendo linkada no rodapé público. Movida para `(publico)`; ganhou parágrafo sobre a
+  captura de dados dos radares/Lab (nome, e-mail, respostas, IP/UTM) e saiu do `disallow` do
+  `robots.ts`. `EmailCaptureRadar.tsx` (formulário de captura do radar) ganhou link direto para
+  a política — antes o fluxo dos radares não linkava ela em nenhum ponto.
+
+### 📊 Técnico
+- Investigação do bug de reset de senha (bloqueador 2.3): código do fluxo revisado e correto;
+  teste real contra a API do Supabase (`POST /auth/v1/recover`) devolveu `200` sem erro, e o
+  e-mail chegou normalmente — mas o link de dentro dele aponta para `localhost` em vez do site
+  em produção. Causa isolada fora do código: Site URL/Redirect URLs desatualizados no painel do
+  Supabase (projeto novo pós-migração provavelmente ainda configurado para
+  `http://localhost:3000`). Diagnóstico completo e os campos exatos a corrigir em
+  `docs/revamp/00b_open_questions.md`.
+- Lighthouse mobile remedido no site em produção (não mais local): home 24→71, radar de
+  maturidade 49→75 — ainda abaixo do alvo de 85, mas evidencia que a medição anterior estava
+  pessimista pelo ambiente local. TBT alto segue sendo o principal fator.
+- Novo `docs/revamp/rotina-import-leads-substack.md` — passo a passo de export (Supabase SQL
+  Editor) + import (Substack) dos leads dos radares/Lab, fechando o item pendente do DoD C.
+- Nenhuma mudança em `layout.tsx`, `EmailGate.tsx` ou `/pre-diagnostico`.
+
+---
+
 ## [v3.11.0] - 2026-07-08 - 📧 E-mail de trilha dos radares + gate de QA — ISSUE-113 / ISSUE-112
 
 ### ✅ Adicionado
