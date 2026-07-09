@@ -1052,6 +1052,11 @@ critério da revisão da matriz de pesos do radar (dentro da 104).
 9 tipos. **Dep.:** nenhuma. **Risco:** baixo.
 
 ## ISSUE-313 — Wizard `/lab/novo-projeto`
+**Status:** ⚠️ parcial em 2026-07-09 — metade de spec redigida (Fable 5), aguardando revisão do
+dono. Doc: `docs/revamp/ISSUE-313-spec-wizard.md` (4 passos, texto de cada pergunta, decisões de
+enquadramento e de continuidade/pré-preenchimento). Falta: aprovação do dono e depois a
+implementação (Sonnet). **Bloqueio adicional achado nesta sessão:** a ISSUE-311 (LabShell/gate)
+ainda não foi feita — a 313 não tem onde plugar a tela até ela existir.
 **Tipo:** Frontend · **Prioridade:** Alta · **Complexidade:** Média-alta
 **Modelo:** **Fable 5 fecha as perguntas do wizard com o dono (sessão de spec) → Sonnet
 implementa o formulário sob a spec fechada.** Não pular a 1ª etapa: as perguntas exatas ainda

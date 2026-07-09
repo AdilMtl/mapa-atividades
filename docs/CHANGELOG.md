@@ -16,6 +16,28 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [v3.11.4] - 2026-07-09 - 📋 Spec do Wizard do Lab (ISSUE-313, metade Fable 5)
+
+### ✅ Adicionado
+- **`docs/revamp/ISSUE-313-spec-wizard.md`** — spec do wizard `/lab/novo-projeto`: 4 passos
+  (O problema · A rotina · Pessoas & dados · Ambição), texto de cada uma das 10 perguntas
+  obrigatórias + 4 opcionais (`contexto`, `ferramentas`, `urgencia`, `impacto_esperado`),
+  decisão de reenquadrar as perguntas reusadas do Radar de Oportunidades para o projeto
+  específico (mesmos ids/opções do contrato `WizardAnswers` v1, só muda o enunciado),
+  comportamento de continuidade (rascunho salvo por passo + pré-preenchimento de área/conforto
+  quando existirem, sempre editável), critérios de aceite. **Aguardando aprovação do dono** —
+  ainda não é spec fechada.
+
+### 🔧 Corrigido
+- `docs/revamp/04_issue_backlog.md`: ISSUE-313 marcada `⚠️ parcial` com o achado de que a
+  ISSUE-311 (LabShell/gate) precisa existir antes da implementação — a 313 não tem onde plugar
+  a tela ainda.
+
+### 📊 Técnico
+- Sessão 100% de documentação — zero arquivo em `src/` tocado.
+
+---
+
 ## [v3.11.3] - 2026-07-09 - 🔧 Infraestrutura do Lab — SQL + motor (ISSUE-310 / ISSUE-312)
 
 ### ✅ Adicionado

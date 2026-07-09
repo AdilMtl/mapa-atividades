@@ -7,7 +7,45 @@
 
 ---
 
-## 🎯 SESSÃO ATUAL: Infraestrutura do Lab — ISSUE-310 (SQL) + ISSUE-312 (motor)
+## 🎯 SESSÃO ATUAL: Spec do Wizard do Lab — ISSUE-313 (metade Fable 5)
+**Data:** 09 de julho de 2026
+**Versão:** v3.11.4 (sessão 100% de spec/documentação — zero código)
+**Status:** spec redigida, aguardando revisão do dono ⚠️ parcial
+
+### **🚀 O QUE FOI FEITO:**
+
+1. **Sessão de spec da ISSUE-313** (Wizard `/lab/novo-projeto`): carregado o handoff §8.1.2,
+   o contrato `WizardAnswers` v1 (`src/lib/lab/types.ts`, ids congelados pela ISSUE-312) e as
+   perguntas/opções do Radar de Oportunidades (`radar/oportunidades.ts`) para não reinventar o
+   que já existe. Duas decisões do dono destravaram o texto: (1) reenquadrar as perguntas para
+   o projeto específico que a pessoa acabou de descrever, em vez de repetir literalmente o
+   quiz do radar — mesmos ids/opções, muda só o enunciado onde fazia sentido; (2) dos 4 campos
+   opcionais do handoff, todos entram (`contexto`, `ferramentas`, `urgencia`,
+   `impacto_esperado`), com pedido explícito de comportamento de continuidade: rascunho salvo a
+   cada passo, e pré-preenchimento (área do perfil, conforto do Radar de Maturidade) sempre
+   editável, nunca escondido ou travado.
+2. **Doc produzido:** `docs/revamp/ISSUE-313-spec-wizard.md` — estrutura dos 4 passos, texto de
+   cada uma das 10 perguntas obrigatórias + 4 opcionais, comportamento de persistência/retomada,
+   critérios de aceite. Ainda **não aprovado pelo dono** — é rascunho de spec, não spec fechada.
+3. **Bloqueio adicional identificado:** a ISSUE-311 (route group `(lab)` + LabShell + gate
+   server-side) ainda não foi executada. A 313 não tem onde plugar a tela até ela existir —
+   registrado no backlog como pendência a resolver antes da implementação (Sonnet).
+4. **`docs/revamp/04_issue_backlog.md`:** ISSUE-313 marcada `⚠️ parcial em 2026-07-09` com
+   link pro doc de spec e o bloqueio da 311.
+
+### **📊 TÉCNICO:**
+Nenhum arquivo em `src/` tocado — sessão 100% de spec/documentação. Novo:
+`docs/revamp/ISSUE-313-spec-wizard.md`. Alterado: `docs/revamp/04_issue_backlog.md`.
+
+### **🎯 PRÓXIMA SESSÃO:**
+1. Dono revisa `ISSUE-313-spec-wizard.md` (texto das perguntas, toques editoriais inventados,
+   comportamento de continuidade) e aprova ou pede ajustes.
+2. Decidir se a ISSUE-311 entra antes da implementação da 313 (ela bloqueia onde a tela vive).
+3. Com spec fechada + 311 resolvida: Sonnet implementa o wizard sob a spec.
+
+---
+
+## 📋 SESSÃO ANTERIOR: Infraestrutura do Lab — ISSUE-310 (SQL) + ISSUE-312 (motor)
 **Data:** 09 de julho de 2026
 **Versão:** v3.11.3 (infraestrutura de dados e motor, zero mudança em UI)
 **Status:** ambas concluídas e testadas ✅
