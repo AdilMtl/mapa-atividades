@@ -1021,6 +1021,10 @@ promete nada disso na home** (regra anti-promessa do §12 da product spec).
 ### Fase 1A — Protótipo navegável sem IA (ordem de execução)
 
 ## ISSUE-310 — SQL das tabelas do Lab (`lab_profiles`, `lab_projects`, `lab_assets`)
+**Status:** ✅ concluída em 2026-07-09 — SQL rodado em produção pelo dono
+(`docs/revamp/ISSUE-310-sql-lab.md`); 4 SELECTs de verificação auditados (RLS on, 7 políticas
+`{authenticated}`, privilégios corretos, 3 triggers) + teste anon nas 3 tabelas devolvendo
+`42501 permission denied`. Isolamento entre 2 contas fica pro roteiro da 314/319 (sem UI ainda).
 **Tipo:** Dados/SQL · **Prioridade:** Alta · **Complexidade:** Média · **Modelo:** Fable 5 + dono (roda SQL no painel)
 RLS por usuário + REVOKE; JSONB versionado (`engine_version`) para diagnóstico/plano; SELECTs
 de verificação. **Dep.:** nenhuma. **Risco:** primeira RLS `auth.uid()` em tabela nova — auditar.
@@ -1033,6 +1037,12 @@ assinantes antigos** (decisão pergunta 14). **Dep.:** nenhuma. **Risco:** intro
 `@supabase/ssr` — testar login/logout ponta a ponta.
 
 ## ISSUE-312 — Motor do Lab (adaptador wizard→classificação + gerador de plano, lib pura)
+**Status:** ✅ concluída em 2026-07-09 — `src/lib/lab/{types,engine,plan-generator}.ts` + 2
+suites vitest (76 testes verdes no total, 9 tipos cobertos ponta a ponta); classificação 100%
+reusada do motor do radar; templates de plano na voz da newsletter semeados pelo `content.ts`;
+registro canônico de 10 slugs de materiais exportado (`SLUGS_CANONICOS`) como contrato da 316;
+tsc/lint/build limpos. Contrato de entrada `WizardAnswers` v1 fixado — a spec de perguntas da
+313 decide o texto, não os ids.
 **Tipo:** Lógica/Testes · **Prioridade:** Alta · **Complexidade:** Média
 **Modelo:** Fable 5 — o adaptador de classificação é mecânico (reusa `oportunidades.ts`), mas
 os **templates de plano por tipo × área × fluência são texto de metodologia/marca**, mesmo

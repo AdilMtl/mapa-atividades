@@ -7,7 +7,36 @@
 
 ---
 
-## 🎯 SESSÃO ATUAL: Plano da Fase 1 do Lab (Jornada Guiada de Construção) — série 310–330 substitui 301–304
+## 🎯 SESSÃO ATUAL: Infraestrutura do Lab — ISSUE-310 (SQL) + ISSUE-312 (motor)
+**Data:** 09 de julho de 2026
+**Versão:** v3.11.3 (infraestrutura de dados e motor, zero mudança em UI)
+**Status:** ambas concluídas e testadas ✅
+
+### **🚀 O QUE FOI FEITO:**
+
+1. **ISSUE-310 — SQL do Lab em produção** (`docs/revamp/ISSUE-310-sql-lab.md`): 3 tabelas
+   (`lab_profiles`, `lab_projects`, `lab_assets`) rodadas no painel Supabase pelo dono; RLS
+   ligada com 7 políticas (`{authenticated}` apenas, sem DELETE); 3 triggers de `updated_at`;
+   REVOKE seletivo bloqueando `anon`. Auditoria: 4 SELECTs passaram (tabelas ok, políticas ok,
+   privilégios corretos, triggers ok); teste anon devolveu `42501 permission denied` (sem vazamento).
+
+2. **ISSUE-312 — Motor do Lab** (`src/lib/lab/{types,engine,plan-generator}.ts` + 2 suites
+   vitest): adaptador puro wizard→classificação reusingzando 100% do motor do Radar aprovado
+   (doc 11 §3–§8); templates de plano por tipo × área × fluência na voz da newsletter
+   (conteúdo semeado do `content.ts`); 76 testes verdes cobrindo os 9 tipos ponta a ponta;
+   registro canônico de 10 slugs de materiais exportado (`SLUGS_CANONICOS`) — contrato com
+   ISSUE-316; `vitest.config.ts` estendido para incluir suites do Lab.
+
+### **📊 TÉCNICO:**
+
+- `tsc --noEmit` ✅ limpo (tipos corretos)
+- `npm run build` ✅ compila fim de sessão sem erro
+- `npm test` ✅ 76 testes verdes (vitest radar + lab)
+- ESLint: 92 erros legados (ignorados em build, fora do escopo desta sessão)
+
+---
+
+## 📋 SESSÃO ANTERIOR: Plano da Fase 1 do Lab (Jornada Guiada de Construção) — série 310–330 substitui 301–304
 **Data:** 09 de julho de 2026
 **Versão:** v3.11.2 (sem alteração de código — sessão 100% de planejamento/documentação)
 **Status:** plano completo produzido e aprovado pelo dono · 5 decisões de abertura registradas

@@ -16,6 +16,43 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [v3.11.3] - 2026-07-09 - 🔧 Infraestrutura do Lab — SQL + motor (ISSUE-310 / ISSUE-312)
+
+### ✅ Adicionado
+- **`docs/revamp/ISSUE-310-sql-lab.md`** — spec do SQL para o dono executar no painel: 3 tabelas
+  (`lab_profiles`, `lab_projects`, `lab_assets`) com RLS por usuário, REVOKE seletivo bloqueando
+  `anon`, índices e triggers de `updated_at`; 4 SELECTs de verificação auditados e 1 teste anon
+  confirmando `42501 permission denied` em produção.
+- **`src/lib/lab/types.ts`** — contratos TS dos 3 JSONB versionados (`WizardAnswers`, `LabDiagnosis`,
+  `LabPlan`); schema `wizard_answers.schema_version = 1` congelado (perguntas futuras podem ser
+  versão 2, redecisão no SQL).
+- **`src/lib/lab/engine.ts`** — adaptador wizard→classificação. Motor é 100% do Radar
+  (`decidirOportunidade`); este módulo só traduz respostas e deriva indicadores editoriais
+  (potencial de IA, potencial de automação, risco) por tabelas do handoff §4. Carimba
+  `engine_version` para re-diagnóstico auditável.
+- **`src/lib/lab/plan-generator.ts`** — 9 templates de plano (4–7 etapas cada) compostos por:
+  base do tipo (do template fixo) + personalização por área (exemplos do `content.ts`) +
+  personalização por fluência (nível real ou estimativa) + etapa de diligência (quando dado
+  sensível) + "um nível acima" (para fluência alta). Exporta `SLUGS_CANONICOS` (10 slugs —
+  contrato da ISSUE-316: cada asset da biblioteca nascerá com `published=false` até os 10
+  serem rascunhados e aprovados).
+- **2 suites vitest** — `engine.test.ts` (9 tipos cobrindo personas aprovadas + derivações +
+  determinismo), `plan-generator.test.ts` (estrutura/checklist/slugs/personalização ponta a
+  ponta). Total: 76 testes verdes (radar 62 + lab 14; antes da sessão era 62).
+
+### 🔧 Corrigido
+- `vitest.config.ts`: estendido de `src/lib/radar/**/*.test.ts` para incluir também
+  `src/lib/lab/**/*.test.ts` — lógica pura do Lab entra na cobertura obrigatória.
+
+### 📊 Técnico
+- Zero impacto em produção: mudanças são infraestrutura (DB + lib pura, sem UI).
+- `tsc --noEmit` — limpo (zero erro de tipo nos novos arquivos)
+- `npm test` — 76 testes verdes, setup vitest estendido
+- `npm run build` — compila sem erro (TS validado em build conforme Fase 3)
+- ESLint: 92 erros em código legado, fora do escopo (decisão do dono v3.5.3)
+
+---
+
 ## [v3.11.2] - 2026-07-09 - 📋 Plano da Fase 1 do Lab (Jornada Guiada de Construção)
 
 ### ✅ Adicionado
