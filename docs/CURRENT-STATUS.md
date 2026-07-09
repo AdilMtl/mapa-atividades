@@ -1,3 +1,12 @@
+> 🗺️ **Mapa visual do backlog do revamp** (todas as 43 issues, status, prioridade, fases —
+> leitura rápida "onde a gente tá"): [roadmap-backlog.html](revamp/roadmap-backlog.html) ·
+> publicado como Artifact em 2026-07-09. **Ao mudar status de qualquer issue, atualize o arquivo
+> e republique no MESMO link** (Artifact tool com o parâmetro `url` da versão anterior — pegar a
+> URL publicada com o dono se não estiver registrada em memória). Última atualização de conteúdo:
+> 2026-07-09 (pausa do Sprint 4 + promoção da Fase 2/Lab).
+
+---
+
 ## 🎯 SESSÃO ATUAL: rodada de configuração manual (Supabase, GTM, Substack) — 3 bloqueadores do gate ISSUE-112 fechados
 **Data:** 09 de julho de 2026
 **Versão:** v3.11.1 (sem alteração de código — sessão 100% operacional, configuração em painéis externos)
