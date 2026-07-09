@@ -763,9 +763,18 @@ próprio reabre quando o volume justificar (registrado no 00b).
 > Critério universal: screenshots antes/depois por tela + funcionalidade idêntica comprovada
 > pelo fluxo manual descrito em cada issue + `tsc`/`lint`/`build` verdes.
 
+## Sprint 4 (ISSUE-114 a 120) — ⏸️ PAUSADA em 2026-07-09 (decisão do dono)
+
+Plataforma logada atual sem uso real comprovado (site ficou efetivamente inacessível durante a
+pausa do Supabase — ninguém acessava). Restyle deixou de ser prioridade; páginas seguem no ar
+como **legado** (mantidas funcionando, sem novo investimento de design). Prioridade do dono
+agora é avançar direto para a Fase 2 (Lab, ISSUE-301-305) assim que o gate da ISSUE-112 fechar.
+Detalhes: `00b_open_questions.md` pergunta 13, `03_implementation_plan.md` Sprint 4. As issues
+abaixo ficam mapeadas (não deletadas) para o caso de o restyle voltar a fazer sentido depois.
+
 ## ISSUE-114 — AppShell DS2 (navegação do app logado)
 
-**Fase:** 1B
+**Fase:** 1B — ⏸️ pausada
 **Tipo:** UI / Frontend
 **Prioridade:** Alta
 **Complexidade:** Média
@@ -953,7 +962,13 @@ plano + especificação de mudanças para o dono aplicar no Google Ads/GTM.
 
 ---
 
-## FASE 2 — Valor de produto (resumo; detalhar quando a Fase 1 provar)
+## FASE 2 — Valor de produto (Lab) — 🔼 PROMOVIDA em 2026-07-09 (decisão do dono)
+
+Deixa de esperar "a Fase 1 provar" e o ciclo de growth da Fase 1.5 — vira a prioridade
+imediatamente depois do gate da ISSUE-112 fechar, substituindo o Sprint 4 (114-120, pausado) na
+fila. Ainda precisa da mesma disciplina do resto do revamp: abrir sessão de planejamento
+dedicada para detalhar cada issue (301-305) antes de codar — o resumo abaixo continua sendo só
+esqueleto. Detalhes da decisão: `00b_open_questions.md` pergunta 13.
 
 ## ISSUE-301 — Wizard "Que solução devo construir?" (evolução do radar com detalhamento guiado)
 ## ISSUE-302 — Classificação de solução em 4 níveis de app (offline / offline+tabela / orquestrado / agêntico) como página educativa + integração nos resultados

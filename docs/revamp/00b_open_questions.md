@@ -288,6 +288,35 @@ chegaram a listar isso como "pendente" por engano; reconfirmado ao vivo em 09/07
 
 ---
 
+## Pergunta pendente 13 — ✅ RESPONDIDA PELO DONO (2026-07-09) — supera a pergunta 11
+
+**Tema:** Prioridade do Sprint 4 (ISSUE-114-120, redesign DS2 da plataforma logada) vs. Fase 2
+(Lab, ISSUE-301-305)
+**Por que importa:** a pergunta 11 (2026-07-05) tinha decidido incluir o Sprint 4 no plano,
+sequenciado antes da Fase 2. Ao reabrir o projeto depois da pausa do Supabase (migração
+registrada em v3.5.2), o dono percebeu que o site ficou efetivamente inacessível pra qualquer
+usuário durante boa parte desse período — não há uso real registrado da plataforma logada atual
+(ROI do Foco: mapa, diagnóstico, plano de ação, kanban).
+**Resposta do dono:** restylar 6 páginas de um produto sem uso comprovado não é mais prioridade.
+A plataforma logada atual vira **legado**: segue no ar, sem quebrar, mas sem novo investimento
+de design planejado por ora (o Sprint 4 fica pausado, não cancelado — pode retomar se a
+percepção de uso mudar). No lugar dela, o dono quer avançar para uma **nova proposta de valor**
+atrás do login — que, ao revisar o backlog, é essencialmente o que a **Fase 2 (Lab)** já
+descrevia (ISSUE-301 Wizard, 302 classificação de solução, 303 Builder Canvas, 304 PRD Kit, 305
+área premium + Stripe). Decisão: promover a Fase 2 pra logo depois do gate da ISSUE-112 fechar,
+sem esperar o Sprint 4 nem o ciclo de growth da Fase 1.5.
+**Consequências para o plano:**
+- `03_implementation_plan.md` (Sprint 4) e `04_issue_backlog.md` (ISSUE-114 a 120) marcados
+  como ⏸️ pausados, com o motivo registrado — não deletados, ficam mapeados pro caso de retomar.
+- `04_issue_backlog.md` (Fase 2) marcada como 🔼 promovida — ainda precisa de sessão de
+  planejamento dedicada pra detalhar cada issue antes de codar (o resumo atual é só esqueleto).
+- Fase 1 (funil público de radares) segue até o fim normalmente — é o motor de aquisição que
+  alimenta de leads qualquer coisa que a Fase 2 construir; não foi descontinuada.
+**Bloqueia implementação?** Não — decisão registrada, código de 101/102 (fundação/DS2) segue
+válido e reaproveitável se o Sprint 4 for retomado no futuro.
+
+---
+
 ## Resumo executivo das premissas assumidas
 
 | # | Premissa (segue valendo salvo veto do dono) | Bloqueio |
@@ -302,5 +331,6 @@ chegaram a listar isso como "pendente" por engano; reconfirmado ao vivo em 09/07
 | 8 | ✅ RESPONDIDA: analytics em duplo trilho (GTM + Supabase); tabela é `radar_events` (nova), não `roi_events` reusada — schema incompatível, decidido na ISSUE-106, implementado na ISSUE-109 | Não |
 | 9 | ✅ RESPONDIDA: home nova MANTÉM a tabela de pricing (decisão do dono) | Não |
 | 10 | ✅ RESPONDIDA: funil novo usa o MESMO label de conversão Google Ads do funil atual; separação de labels entra no "plano de melhoria de Google Ads" (Fase 1.5, ISSUE-208) | Não |
-| 11 | ✅ NOVA (decisão do dono 2026-07-05): o plano inclui a **Fase 1B — redesign DS2 da plataforma logada** (ISSUES 114–120) e a home preserva o showcase da ferramenta (4 vídeos de demo) na seção "A plataforma em ação" | Não |
+| 11 | ⚠️ SUPERADA pela pergunta 13 (2026-07-09): a Fase 1B/Sprint 4 (ISSUES 114–120) foi pausada — ver linha 13. A home preserva o showcase da ferramenta (4 vídeos de demo) na seção "A plataforma em ação", isso continua valendo | Não |
 | 12 | ✅ RESPONDIDA (2026-07-08, ISSUE-108): interesse no Lab de visita solta vai para tabela nova e isolada `lab_leads` (não reusa `radar_leads`/`radar_sessions`) | Não |
+| 13 | ✅ RESPONDIDA (2026-07-09): Sprint 4 (114-120, restyle da plataforma logada) **pausado** — sem uso real comprovado. Fase 2 (Lab, 301-305) **promovida** pra logo depois do gate da ISSUE-112 fechar | Não |

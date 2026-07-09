@@ -61,7 +61,7 @@ Sprint 3 — Endurecimento e lançamento público
   ISSUE-112 QA integral + validação de conversão     ← gate de launch
   [dono: campanhas novas de Ads apontando p/ rotas novas — fora do código]
 
-Sprint 4 — FASE 1B: redesign DS2 da plataforma logada (2º resultado visual crítico)
+Sprint 4 — FASE 1B: redesign DS2 da plataforma logada — ⏸️ DESPRIORIZADA (dono, 2026-07-09)
   ISSUE-114 AppShell (sidebar/nav)                   ← define o padrão; review Fable 5
   ISSUE-115 /auth                                    ← porta de entrada do assinante
   ISSUE-116 /dashboard (mapa)                        ← tela-coração; sessão dedicada
@@ -70,12 +70,22 @@ Sprint 4 — FASE 1B: redesign DS2 da plataforma logada (2º resultado visual cr
   ISSUE-120 /relatorios + /perfil + /configuracoes + /admin
 ```
 
-O Sprint 4 pode começar em paralelo aos Sprints 1/2/3 em sessões separadas (arquivos disjuntos
+**⏸️ Sprint 4 despriorizada (decisão do dono, 2026-07-09):** ao desbloquear o projeto depois de
+meses pausado (Supabase suspenso), o dono confirmou que a plataforma logada atual (ROI do
+Foco: mapa, diagnóstico, plano de ação, kanban) não tem uso real registrado — o site estava
+efetivamente inacessível para qualquer usuário nesse período. Restylar 6 páginas de um produto
+sem uso comprovado deixou de fazer sentido como prioridade. Essas páginas passam a ser tratadas
+como **legado**: seguem no ar, sem quebrar, mas sem novo investimento de design planejado por
+ora. A prioridade que estava atrás do Sprint 4 (Fase 2 — Lab, ISSUE-301-305) foi **promovida**
+para logo depois do gate da ISSUE-112 fechar, sem esperar a Fase 1.5 (growth/otimização) ou o
+Sprint 4 — ver `00b_open_questions.md`, pergunta 13, e `04_issue_backlog.md` (Fase 2). O código
+de 101/102 (fundação/DS2) segue válido e reaproveitável se o Sprint 4 for retomado no futuro.
+
+~~O Sprint 4 pode começar em paralelo aos Sprints 1/2/3 em sessões separadas (arquivos disjuntos
 das issues públicas), desde que 101+102+114 estejam mergeadas — 114 primeiro sempre, porque
 define o padrão que 115–120 replicam. O launch público completo (Sprint 3) NÃO espera o
-Sprint 4: aquisição nova não depende do restyle logado; mas o dono definiu os dois como
-resultados visuais críticos, então o Sprint 4 vem logo depois (ou em paralelo), antes de
-qualquer item da Fase 1.5.
+Sprint 4: aquisição nova não depende do restyle logado.~~ (texto original, mantido riscado por
+histórico — superado pela decisão de 2026-07-09 acima.)
 
 Regra de paralelismo: 104/105/106 podem rodar em sessões separadas simultâneas (não tocam nos
 mesmos arquivos). 101 e 102 são sequenciais entre si? Não estritamente — 102 mexe em
