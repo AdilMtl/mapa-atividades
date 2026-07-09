@@ -28,8 +28,12 @@ Leia, nesta ordem:
 Rode `git status` e `git log --oneline -5` para ver se há trabalho não commitado ou pendências.
 
 Resuma ao usuário em 3–5 linhas: **fase atual do roadmap**, versão, última entrega e pendências.
-Se houver revamp em andamento, inclua também qual foi a última issue concluída e qual é a
-próxima elegível (ver `docs/revamp/03_implementation_plan.md`).
+Se houver revamp em andamento, inclua também qual foi a última issue concluída, qual é a
+próxima elegível (ver `docs/revamp/03_implementation_plan.md`) **e o modelo recomendado para
+ela** — leia o campo `**Modelo:**` da issue em `04_issue_backlog.md` e diga em 1 linha (ex.:
+"Modelo recomendado: Fable 5 — fecha a spec do wizard antes de codar"). Isso vale mesmo que a
+sessão não vá direto para `/executar-issue-revamp` — o dono decide se troca de modelo antes de
+começar.
 
 ## Passo 2 — Descobrir o tipo de tarefa
 

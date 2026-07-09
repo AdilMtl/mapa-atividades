@@ -7,7 +7,66 @@
 
 ---
 
-## 🎯 SESSÃO ATUAL: rodada de configuração manual (Supabase, GTM, Substack) — 3 bloqueadores do gate ISSUE-112 fechados
+## 🎯 SESSÃO ATUAL: Plano da Fase 1 do Lab (Jornada Guiada de Construção) — série 310–330 substitui 301–304
+**Data:** 09 de julho de 2026
+**Versão:** v3.11.2 (sem alteração de código — sessão 100% de planejamento/documentação)
+**Status:** plano completo produzido e aprovado pelo dono · 5 decisões de abertura registradas
+(pergunta 14) · backlog reestruturado · pronto para executar ISSUE-310 (SQL) + ISSUE-312
+(motor) na próxima sessão
+
+### **🚀 O QUE FOI FEITO:**
+
+1. **Consolidação de dois materiais trazidos pelo dono:** o dossiê de exploração
+   (`docs/revamp/12_exploracao_lab_chatgpt.md`, preparado para uma conversa externa) e o
+   handoff estratégico resultante (`docs/GPT Project Revamp/handoff_conversas_lab_fase1.md`),
+   que redefiniu o Lab de "ferramentas separadas" (Wizard/Builder Canvas/PRD Kit como telas
+   próprias) para uma **Jornada Guiada de Construção única** (wizard → classificação → plano
+   salvo → biblioteca conectada → perfil).
+2. **Auditoria real do código** (rotas, página `/lab` atual, `AppShell`/fluxo de auth, tabelas
+   Supabase existentes, motor dos radares em `src/lib/radar/`) para fundamentar o plano no que
+   já existe — achado central: o motor de classificação em 9 tipos (`oportunidades.ts`, com
+   testes) e a copy estruturada (`content.ts`, 866 linhas) já fazem o trabalho pesado da
+   classificação e dos planos; a Fase 1A é, em boa parte, recombinar motores provados atrás de
+   um login, não construir do zero.
+3. **Plano completo produzido em `docs/revamp/13_plano_fase1_lab.md`:** diagnóstico técnico,
+   jornada de dois caminhos (pós-workshop / newsletter-ads-radar) convergindo em `/lab/inicio`,
+   arquitetura de **5 telas** (cortadas das 7 do handoff — diagnóstico+plano viram uma página só
+   e a entrevista com IA sai da 1A por definição do próprio faseamento), fluxo funcional,
+   modelo de dados (4 tabelas, JSONB versionado em vez das 6 entidades do handoff), uso de IA
+   restrito à 1B, plano de monetização/premium preparado desde a 1A, backlog em issues e
+   critérios de aceite do gate da 1A.
+4. **Dono decidiu as 5 questões bloqueantes do plano** (registradas na pergunta 14 do
+   `00b_open_questions.md`): Fase 1A é **beta fechado por convite** (10–20 pessoas da lista
+   `lab_leads`); conteúdo dos primeiros ativos da biblioteca **rascunhado pelo Claude com
+   aprovação do dono**; plataforma legada (ROI do Foco) visível **só para assinantes antigos**
+   dentro do Lab; largada da Fase 1A **em paralelo** às pendências do launch do funil de
+   radares; IA da Fase 1B usa a **API da OpenAI, modelo barato** (o dono só tem chave OpenAI —
+   corrigiu a suposição inicial de Claude API no doc 13).
+5. **`docs/revamp/04_issue_backlog.md` reestruturado:** ISSUE-301–304 marcadas como
+   `⛔ SUPERSEDED` pela **série 310–330** (10 issues na Fase 1A, 4 na 1B, 3 na 1C, 1 na
+   integração com workshops); ISSUE-305/306 absorvidas pelas 325/316+326. Cada issue nova
+   ganhou campo `**Modelo:**` explícito, inclusive o padrão de duas etapas "Fable 5 fecha a
+   spec/copy → Sonnet implementa" nas issues cujo conteúdo (perguntas do wizard, texto dos
+   planos, ativos da biblioteca) ainda não estava fechado.
+6. **Skill `/iniciar-sessao` ajustada:** o resumo de abertura de qualquer sessão agora inclui
+   o modelo recomendado para a próxima issue elegível (lido do campo `Modelo:` do backlog) —
+   não é mais preciso perguntar isso a cada sessão nova.
+
+### **📊 TÉCNICO:**
+Nenhum arquivo em `src/` tocado — sessão 100% de planejamento/documentação. Alterados:
+`docs/revamp/00b_open_questions.md`, `docs/revamp/04_issue_backlog.md`,
+`.claude/skills/iniciar-sessao/SKILL.md`. Novos: `docs/revamp/12_exploracao_lab_chatgpt.md`,
+`docs/revamp/13_plano_fase1_lab.md`, `docs/GPT Project Revamp/handoff_conversas_lab_fase1.md`.
+
+### **🎯 PRÓXIMA SESSÃO:**
+Executar **ISSUE-310** (SQL das tabelas do Lab — Fable 5 prepara, dono roda no painel do
+Supabase) e **ISSUE-312** (motor do Lab + testes vitest — Fable 5), nesta ordem; nenhuma das
+duas toca em nada que está no ar. Antes da ISSUE-313 (wizard), revisar com o dono as perguntas
+exatas do formulário (handoff §8.1.2) — decisão explicitamente adiada para aquela sessão.
+
+---
+
+## 🎯 SESSÃO Anterior: rodada de configuração manual (Supabase, GTM, Substack) — 3 bloqueadores do gate ISSUE-112 fechados
 **Data:** 09 de julho de 2026
 **Versão:** v3.11.1 (sem alteração de código — sessão 100% operacional, configuração em painéis externos)
 **Status:** reset de senha ✅ resolvido e testado · analytics GA4 dos 19 eventos ✅ publicado e testado

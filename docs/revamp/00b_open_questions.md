@@ -317,6 +317,33 @@ válido e reaproveitável se o Sprint 4 for retomado no futuro.
 
 ---
 
+## Pergunta pendente 14 — ✅ RESPONDIDA PELO DONO (2026-07-09) — decisões de abertura da Fase 1 do Lab
+
+**Tema:** as 5 decisões bloqueantes do plano da Fase 1 do Lab (`13_plano_fase1_lab.md` §10).
+**Contexto:** o handoff estratégico (`docs/GPT Project Revamp/handoff_conversas_lab_fase1.md`)
+redefiniu a Fase 2 como uma Jornada Guiada de Construção única; o plano detalhado virou o doc 13
+e levantou 5 decisões antes de codar.
+**Respostas do dono (2026-07-09):**
+1. **Acesso na 1A:** beta fechado por convite — o dono libera manualmente 10–20 pessoas da
+   lista de espera (`lab_leads` → `authorized_emails` com `plan_type='lab_beta'`). Free tier
+   real só na 1C (Stripe).
+2. **Conteúdo dos primeiros ativos da biblioteca:** Claude rascunha a partir do `content.ts`
+   dos radares + material editorial; **nada publica sem aprovação do dono** (ISSUE-316).
+3. **Convivência com o legado (ROI do Foco):** link discreto no LabShell **só para assinantes
+   antigos**; convidados novos do beta não veem o legado na navegação.
+4. **Largada:** Fase 1A do Lab começa **já, em paralelo** às pendências do launch do funil
+   (roteiro §4 da ISSUE-112 + performance) — as primeiras issues (310 SQL, 312 motor puro) não
+   tocam nada público.
+5. **IA da Fase 1B:** usa a **API da OpenAI** (o dono só tem chave OpenAI), com modelo barato —
+   supera a suposição original de Claude API no doc 13. Zero IA na 1A de qualquer forma.
+- *(Não bloqueante, default assumido: as perguntas do wizard — handoff §8.1.2 — serão revisadas
+  junto com o dono na abertura da ISSUE-313, antes de codar a tela.)*
+**Consequências:** ISSUE-301–304 marcadas como superseded pela série 310+ no
+`04_issue_backlog.md`; ISSUE-305 absorvida pela 325; ISSUE-306 pela 316/326.
+**Bloqueia implementação?** Não — tudo decidido; próxima execução é ISSUE-310 + ISSUE-312.
+
+---
+
 ## Resumo executivo das premissas assumidas
 
 | # | Premissa (segue valendo salvo veto do dono) | Bloqueio |
@@ -333,4 +360,5 @@ válido e reaproveitável se o Sprint 4 for retomado no futuro.
 | 10 | ✅ RESPONDIDA: funil novo usa o MESMO label de conversão Google Ads do funil atual; separação de labels entra no "plano de melhoria de Google Ads" (Fase 1.5, ISSUE-208) | Não |
 | 11 | ⚠️ SUPERADA pela pergunta 13 (2026-07-09): a Fase 1B/Sprint 4 (ISSUES 114–120) foi pausada — ver linha 13. A home preserva o showcase da ferramenta (4 vídeos de demo) na seção "A plataforma em ação", isso continua valendo | Não |
 | 12 | ✅ RESPONDIDA (2026-07-08, ISSUE-108): interesse no Lab de visita solta vai para tabela nova e isolada `lab_leads` (não reusa `radar_leads`/`radar_sessions`) | Não |
+| 14 | ✅ RESPONDIDA (2026-07-09): Fase 1A do Lab = beta fechado por convite; ativos rascunhados pelo Claude com aprovação do dono; legado visível só p/ assinantes antigos; largada em paralelo ao launch do funil; IA da 1B via OpenAI (modelo barato) | Não |
 | 13 | ✅ RESPONDIDA (2026-07-09): Sprint 4 (114-120, restyle da plataforma logada) **pausado** — sem uso real comprovado. Fase 2 (Lab, 301-305) **promovida** pra logo depois do gate da ISSUE-112 fechar | Não |

@@ -962,19 +962,26 @@ plano + especificação de mudanças para o dono aplicar no Google Ads/GTM.
 
 ---
 
-## FASE 2 — Valor de produto (Lab) — 🔼 PROMOVIDA em 2026-07-09 (decisão do dono)
+## FASE 2 — Valor de produto (Lab) — 🔼 PROMOVIDA em 2026-07-09 · plano detalhado em `13_plano_fase1_lab.md`
 
-Deixa de esperar "a Fase 1 provar" e o ciclo de growth da Fase 1.5 — vira a prioridade
-imediatamente depois do gate da ISSUE-112 fechar, substituindo o Sprint 4 (114-120, pausado) na
-fila. Ainda precisa da mesma disciplina do resto do revamp: abrir sessão de planejamento
-dedicada para detalhar cada issue (301-305) antes de codar — o resumo abaixo continua sendo só
-esqueleto. Detalhes da decisão: `00b_open_questions.md` pergunta 13.
+A sessão de planejamento dedicada aconteceu em 2026-07-09: o handoff estratégico
+(`docs/GPT Project Revamp/handoff_conversas_lab_fase1.md`) redefiniu o Lab de "ferramentas
+separadas" (301–304) para uma **Jornada Guiada de Construção única** (wizard → classificação →
+plano salvo → biblioteca conectada → perfil). O plano completo — diagnóstico, telas, modelo de
+dados, IA, premium e critérios de aceite — está em **`13_plano_fase1_lab.md`**; decisões do
+dono na pergunta 14 do `00b_open_questions.md`. A execução usa a **série 310+** abaixo.
+Largada autorizada **em paralelo** às pendências do launch do funil (ISSUE-112).
 
-## ISSUE-301 — Wizard "Que solução devo construir?" (evolução do radar com detalhamento guiado)
-## ISSUE-302 — Classificação de solução em 4 níveis de app (offline / offline+tabela / orquestrado / agêntico) como página educativa + integração nos resultados
-## ISSUE-303 — Builder Canvas (canvas estruturado exportável)
-## ISSUE-304 — PRD Kit (templates de PRD orientados aos 4Ds — Descrição)
-## ISSUE-305 — Área premium inicial + fluxo direto Stripe
+## ISSUE-301 — ⛔ SUPERSEDED (2026-07-09) — Wizard "Que solução devo construir?"
+Absorvida pela jornada única: o wizard virou a entrada da jornada (ISSUE-313).
+## ISSUE-302 — ⛔ SUPERSEDED (2026-07-09) — Classificação em 4 níveis de app
+Absorvida: a classificação (9 tipos, incl. os 4 níveis de app) é o coração do diagnóstico da
+jornada (ISSUE-312/314), não uma página educativa separada.
+## ISSUE-303 — ⛔ SUPERSEDED (2026-07-09) — Builder Canvas
+Vira artefato sugerido no plano + ativo da biblioteca (ISSUE-316/326), não tela própria.
+## ISSUE-304 — ⛔ SUPERSEDED (2026-07-09) — PRD Kit
+Idem 303: template na biblioteca, orientado aos 4Ds (ISSUE-316/326).
+## ISSUE-305 — Área premium inicial + fluxo direto Stripe → absorvida pela ISSUE-325 (Fase 1C)
 Contexto registrado (dono, 2026-07-05): hoje a assinatura paga é intermediada pela newsletter
 (Substack) com autorização MANUAL — o dono adiciona o e-mail em `authorized_emails` e envia
 boas-vindas. Volume atual baixíssimo (meses sem assinante pago novo) → manual é suficiente por
@@ -986,7 +993,7 @@ no Stripe (dono cria no dashboard), tratamento de cancelamento (webhook
 `customer.subscription.deleted` → expirar autorização), página de gestão mínima. Decisão
 pendente na abertura: Stripe substitui ou convive com o plano pago do Substack (recomendação:
 convivem — Substack para quem já está lá, Stripe para conversão direta do site).
-## ISSUE-306 — Primeiros 10 ativos premium (checklists dos 4Ds, template narrar valor, guia IA-na-firma)
+## ISSUE-306 — Primeiros 10 ativos premium → absorvida pelas ISSUE-316 (seed inicial, 1A) e ISSUE-326 (completar + paywall, 1C)
 ## ISSUE-307 — Mentoria e palestras sobre IA no portfólio de produtos
 Registrado em 2026-07-06 (dono): as pesquisas/formulários mostram demanda de **empreendedores**
 (problemas complexos, sem tempo, precisam de aprendizado estruturado) e o dono quer oferecer
@@ -995,6 +1002,132 @@ na página inicial. Escopo a detalhar quando a Fase 1 provar: seção/página de
 de interesse (possível reuso de `lab_interest` ou flag própria), segmentação dos leads por área
 (`Empreendedor` já capturado no radar desde a Fase 1, ver doc 11 §9.6). **Na Fase 1 não se
 promete nada disso na home** (regra anti-promessa do §12 da product spec).
+
+## SÉRIE 310+ — Jornada Guiada de Construção (execução da Fase 2 / Lab)
+
+> Detalhe completo de cada issue (escopo, modelo de dados, critérios): `13_plano_fase1_lab.md`
+> §8. Rotas em português: `/lab/inicio`, `/lab/novo-projeto`, `/lab/projeto/[id]`,
+> `/lab/biblioteca`, `/lab/perfil`. Route group novo `(lab)` com LabShell DS2 próprio —
+> **proibido tocar no AppShell/`(app)` legado**. Padrão de segurança: RLS `auth.uid()` +
+> REVOKE seletivo (herda a disciplina da ISSUE-106 e da auditoria da Fase 3).
+>
+> **Critério de modelo (registrado em 2026-07-09, mesma regra de `05_model_execution_strategy.md`
+> §1):** Fable 5 onde o custo do erro é alto (segurança/RLS/pagamento), onde a issue **fecha
+> uma spec de conteúdo ainda aberta** (voz da marca — perguntas do wizard, texto dos planos por
+> tipo, ativos da biblioteca), ou onde é gate/QA/tracking público. Sonnet onde a spec já está
+> fechada — inclusive **dentro da mesma issue**, quando ela tem uma metade de decisão (Fable 5)
+> e uma metade de execução mecânica (Sonnet): registrado issue a issue abaixo.
+
+### Fase 1A — Protótipo navegável sem IA (ordem de execução)
+
+## ISSUE-310 — SQL das tabelas do Lab (`lab_profiles`, `lab_projects`, `lab_assets`)
+**Tipo:** Dados/SQL · **Prioridade:** Alta · **Complexidade:** Média · **Modelo:** Fable 5 + dono (roda SQL no painel)
+RLS por usuário + REVOKE; JSONB versionado (`engine_version`) para diagnóstico/plano; SELECTs
+de verificação. **Dep.:** nenhuma. **Risco:** primeira RLS `auth.uid()` em tabela nova — auditar.
+
+## ISSUE-311 — Route group `(lab)` + LabShell + gate server-side (`@supabase/ssr`)
+**Tipo:** Frontend/Auth · **Prioridade:** Alta · **Complexidade:** Média · **Modelo:** Fable 5
+Casca da área logada com navegação DS2 (Início · Biblioteca · Perfil); anônimo → `/auth` sem
+flash; logado não autorizado → tela "beta fechado"; link discreto pro legado **só para
+assinantes antigos** (decisão pergunta 14). **Dep.:** nenhuma. **Risco:** introduz
+`@supabase/ssr` — testar login/logout ponta a ponta.
+
+## ISSUE-312 — Motor do Lab (adaptador wizard→classificação + gerador de plano, lib pura)
+**Tipo:** Lógica/Testes · **Prioridade:** Alta · **Complexidade:** Média
+**Modelo:** Fable 5 — o adaptador de classificação é mecânico (reusa `oportunidades.ts`), mas
+os **templates de plano por tipo × área × fluência são texto de metodologia/marca**, mesmo
+critério da revisão da matriz de pesos do radar (dentro da 104).
+`src/lib/lab/engine.ts` (reusa motor de `radar/oportunidades.ts`) + `plan-generator.ts`
+(templates por tipo × área × fluência, semeados pelo `content.ts`) + testes vitest cobrindo os
+9 tipos. **Dep.:** nenhuma. **Risco:** baixo.
+
+## ISSUE-313 — Wizard `/lab/novo-projeto`
+**Tipo:** Frontend · **Prioridade:** Alta · **Complexidade:** Média-alta
+**Modelo:** **Fable 5 fecha as perguntas do wizard com o dono (sessão de spec) → Sonnet
+implementa o formulário sob a spec fechada.** Não pular a 1ª etapa: as perguntas exatas ainda
+não foram revisadas — é o mesmo caso do ISSUE-105 (voz da marca no momento de pico de atenção).
+4 passos (~10 campos do handoff §8.1.2 — **revisar as perguntas com o dono antes de codar**);
+rascunho salvo por passo; submissão roda a 312 e redireciona pro projeto. **Dep.:** 310–312.
+
+## ISSUE-314 — Página do projeto `/lab/projeto/[id]` (diagnóstico + plano + materiais)
+**Tipo:** Frontend · **Prioridade:** Alta · **Complexidade:** Média
+**Modelo:** **Fable 5 escreve a copy/estrutura da tela (é a tela que precisa "parecer diferente
+de um chat genérico" — equivalente à ISSUE-105) → Sonnet implementa o componente sob a spec
+fechada.**
+Classificação + plano com checklist persistido + materiais recomendados; projeto alheio → 404
+(testar com 2 contas). **Dep.:** 312, 313.
+
+## ISSUE-315 — Hub `/lab/inicio` com estados reais
+**Tipo:** Frontend · **Prioridade:** Alta · **Complexidade:** Baixa
+**Modelo:** Sonnet — estados de tela mecânicos, sem decisão de voz pendente (313/314 já fixaram
+o padrão visual).
+Estados vazio / 1 projeto / vários; "continue de onde parou" com progresso. **Dep.:** 311, 313, 314.
+
+## ISSUE-316 — Biblioteca `/lab/biblioteca` + seed dos primeiros 6–10 ativos
+**Tipo:** Frontend/Conteúdo · **Prioridade:** Alta · **Complexidade:** Média
+**Modelo:** Sonnet no código (filtro/render é trivial) + **Fable 5 rascunha o conteúdo dos
+ativos, dono aprova** (decisão pergunta 14) — o gargalo desta issue é conteúdo, não código.
+Filtros por tipo/formato, leitura markdown; ativos rascunhados pelo Claude a partir do
+`content.ts`, **publicação só com aprovação do dono**; zero slug quebrado nos planos.
+**Dep.:** 310, 311. **Risco:** gargalo é conteúdo.
+
+## ISSUE-317 — Perfil do Builder `/lab/perfil`
+**Tipo:** Frontend · **Prioridade:** Média · **Complexidade:** Baixa · **Modelo:** Sonnet — form simples, spec fechada.
+Form único (área, senioridade, fluência, objetivo, gargalo); alimenta personalização da 1B.
+**Dep.:** 310, 311.
+
+## ISSUE-318 — Analytics `lab_*` + vitrine `/lab` em modo beta + rotina de convites
+**Tipo:** Analytics/Growth · **Prioridade:** Alta · **Complexidade:** Média
+**Modelo:** Fable 5 (persona Analytics & Ads) — toca tracking público, trava crítica do
+projeto; qualquer issue que mexa nisso pede a persona dedicada, sem exceção.
+Eventos novos no padrão `radar-events.ts` + spec GTM pro dono; vitrine ganha estado "beta no
+ar"; doc da rotina de convite (`lab_leads` → `authorized_emails` `plan_type='lab_beta'` +
+Resend). **⚠️ Toca página pública — revalidar conversão GTM/Ads antes de commitar.**
+**Dep.:** 313–315.
+
+## ISSUE-319 — Gate de QA da Fase 1A
+**Tipo:** QA · **Prioridade:** Alta · **Complexidade:** Média
+**Modelo:** Fable 5 + dono (dispositivos reais) — papel de "QA final cético e gate de launch",
+mesmo critério da ISSUE-112.
+Critérios do §9 do doc 13: jornada completa <10min no celular, RLS com 2 contas, Lighthouse
+≥85 nas rotas novas, funis públicos revalidados, métrica norte ("projetos que chegam a plano")
+mensurável. **Dep.:** 310–318.
+
+### Fase 1B — IA controlada (OpenAI, modelo barato — decisão pergunta 14)
+
+## ISSUE-320 — Infra de IA (SDK OpenAI, env, rota server, telemetria de tokens, limites)
+**Modelo:** Fable 5 — 1ª integração de IA no projeto: decisão arquitetural de schema
+estruturado, fallback e custo, mesmo critério da ISSUE-101 (define o padrão que as próximas
+issues de IA replicam).
+
+## ISSUE-321 — Entrevista complementar `/lab/projeto/[id]/entrevista` (3–5 perguntas geradas, formulário — nunca chat; fallback gracioso se a IA falhar)
+**Modelo:** Sonnet, sob review Fable 5 — uma vez a 320 fixar o padrão, é replicação
+disciplinada (mesmo raciocínio da Fase 1B do restyle: "a 114 define, da 115 em diante é
+replicação").
+
+## ISSUE-322 — Plano enriquecido por IA + export Markdown (justificativa da classificação; regeneração limitada)
+**Modelo:** Sonnet, sob review Fable 5 — mesma lógica da 321; a justificativa em linguagem
+natural pode pedir 1 passada de Fable 5 se soar genérica.
+
+## ISSUE-323 — Medição da 1B (eventos de entrevista, custo por projeto, critério "IA melhora sem virar chat")
+**Modelo:** Sonnet — analytics mecânico, spec fechada.
+
+### Fase 1C — Premium inicial
+
+## ISSUE-324 — Modelo de planos free × premium (`src/lib/lab/limits.ts`: free = 1 projeto, plano resumido, biblioteca parcial)
+**Modelo:** Fable 5 — é decisão de produto (onde cortar), não implementação.
+
+## ISSUE-325 — Stripe (absorve a ISSUE-305: checkout, webhooks, `authorized_emails`, boas-vindas Resend; convive com Substack)
+**Modelo:** Fable 5 configura/revisa webhooks e fluxo de acesso (custo de erro alto — cobrança
+ou acesso errado) → Sonnet implementa sob a spec fechada.
+
+## ISSUE-326 — Biblioteca premium + export PDF (absorve a ISSUE-306: completar 10+ ativos, paywall efetivo, materiais `origin='workshop'`)
+**Modelo:** Sonnet no código + Fable 5/dono no conteúdo — mesmo padrão da 316.
+
+### Fase 2 do Lab — Integração com workshops
+
+## ISSUE-330 — Acesso/cupom por turma de workshop, materiais da turma na biblioteca, feedback e cases
+**Modelo:** a definir na abertura (fora do escopo imediato da Fase 1).
 
 ## FASE 3 — Ecossistema / Lab (resumo)
 

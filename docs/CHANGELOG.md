@@ -16,6 +16,34 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [v3.11.2] - 2026-07-09 - 📋 Plano da Fase 1 do Lab (Jornada Guiada de Construção)
+
+### ✅ Adicionado
+- **`docs/revamp/13_plano_fase1_lab.md`** — plano completo de implementação da Fase 1 do Lab,
+  produzido a partir do handoff estratégico externo (`docs/GPT Project Revamp/handoff_conversas_lab_fase1.md`)
+  e de auditoria real do código: diagnóstico técnico, jornada de dois caminhos (pós-workshop /
+  newsletter-ads-radar), arquitetura de 5 telas, fluxo funcional, modelo de dados, uso de IA,
+  monetização/premium e critérios de aceite da Fase 1A.
+- **Pergunta 14 no `00b_open_questions.md`** — 5 decisões do dono que destravam a execução:
+  Fase 1A é beta fechado por convite; conteúdo da biblioteca rascunhado pelo Claude com
+  aprovação do dono; legado (ROI do Foco) visível só para assinantes antigos; largada em
+  paralelo ao launch do funil de radares; IA da Fase 1B usa API da OpenAI (modelo barato).
+
+### 🔧 Corrigido
+- `docs/revamp/04_issue_backlog.md`: ISSUE-301–304 (Wizard/classificação/Builder Canvas/PRD
+  Kit como telas separadas) marcadas como superseded — o handoff redefiniu o Lab como uma
+  jornada única. Nasce a **série 310–330** em substituição, com campo `Modelo:` explícito em
+  cada issue (incluindo o padrão "Fable 5 fecha spec/copy → Sonnet implementa" onde o conteúdo
+  ainda não estava fechado).
+
+### 🎨 Melhorado
+- Skill `/iniciar-sessao`: o resumo de abertura de sessão agora sempre inclui o modelo
+  recomendado para a próxima issue elegível do revamp, lido do backlog.
+
+### 📊 Técnico
+- Sessão 100% de planejamento/documentação — nenhum arquivo em `src/` tocado; `tsc`/lint/build
+  não se aplicam (nada de código mudou).
+
 ## [v3.11.1] - 2026-07-08 - 🔒 Privacidade pública + avanço nos bloqueadores do gate ISSUE-112
 
 ### ✅ Corrigido
