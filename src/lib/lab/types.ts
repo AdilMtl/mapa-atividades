@@ -62,6 +62,81 @@ export interface WizardAnswers {
 }
 
 // ----------------------------------------------------------------------------
+// Respostas do wizard — SCHEMA v2 "Conversa de Consultor" (ISSUE-313 v2.1)
+// Spec: docs/revamp/ISSUE-313-spec-wizard.md. O v1 acima segue congelado.
+// Regra da 1A: texto livre (relato, arquetipo_outro) NUNCA classifica — a
+// heurística só opera sobre ids fechados. Os campos de classificação usam os
+// MESMOS ids de opção do radar (contrato herdado do v1).
+// ----------------------------------------------------------------------------
+
+export const WIZARD_SCHEMA_VERSION_V2 = 2
+
+/** Porta de entrada da conversa (bloco 1.3 da spec). */
+export type PortaEntrada = 'ideia' | 'dor' | 'difusa'
+
+/** Arquétipos da trilha IDEIA — os pedidos reais de workshop (spec §7.2). */
+export type ArquetipoId =
+  | 'arq_painel'
+  | 'arq_organizador'
+  | 'arq_input'
+  | 'arq_consolidador'
+  | 'arq_assistente'
+  | 'arq_automatizador'
+  | 'arq_outro'
+
+/** Arsenal de ferramentas (bloco 3.3) — modula o plano, nunca a classificação. */
+export type AmbienteId =
+  | 'amb_ia_gratuita'
+  | 'amb_ia_premium'
+  | 'amb_workspace'
+  | 'amb_copilot'
+  | 'amb_shadow'
+
+/** Registro do desempate condicional (bloco 4.3) — auditável. */
+export interface DesempateRegistro {
+  par: [SolutionTypeId, SolutionTypeId]
+  /** Id da opção binária escolhida (derivada da matriz de pesos — desempate.ts). */
+  resposta: string
+}
+
+export interface WizardAnswersV2 {
+  schema_version: typeof WIZARD_SCHEMA_VERSION_V2
+  porta: PortaEntrada
+  /** Trilha IDEIA (bloco 2.I1). `arq_outro` segue a trilha DOR sem classificar o texto. */
+  arquetipo?: ArquetipoId
+  /** Texto curto quando `arq_outro` — cor, jamais entra na heurística (1A). */
+  arquetipo_outro?: string
+  /** "Nas tuas palavras" (bloco 4.2) — cor opcional; insumo do slot de IA da 1B. */
+  relato?: string
+  /** Sugerido por template (wizard-flow), editável — espelha lab_projects.title. */
+  titulo: string
+  /** Campos de classificação: MESMOS ids do radar/v1 (congelados). */
+  area: string | null
+  entrega: string
+  perda: string
+  frequencia: string
+  publico: string
+  dado: string
+  desejo: string
+  conforto: string
+  /** Arsenal (multiselect) — vazio = base universal (IA de janela + HTML + CSV). */
+  ambiente: AmbienteId[]
+  /** Slider "quanto tempo isso come por semana?" — cor quantificadora da manchete. */
+  horas_semana?: number
+  /** Dimensões aceitas sem correção (analytics: termômetro do acerto das hipóteses). */
+  hipoteses_confirmadas?: string[]
+  desempate?: DesempateRegistro
+  /** Tipo escolhido na proposta assistida (pode diferir do vencedor do motor). */
+  escolha_tipo?: SolutionTypeId
+}
+
+/** Campos que alimentam o motor — compartilhados estruturalmente por v1 e v2. */
+export type CamposClassificacao = Pick<
+  WizardAnswersV2,
+  'area' | 'entrega' | 'perda' | 'frequencia' | 'publico' | 'dado' | 'desejo' | 'conforto'
+>
+
+// ----------------------------------------------------------------------------
 // Diagnóstico (lab_projects.diagnosis)
 // ----------------------------------------------------------------------------
 
@@ -131,4 +206,8 @@ export interface PlanoOpcoes {
   area?: string | null
   /** Nível REAL de fluência do lab_profiles; sem ele, usa a estimativa do diagnóstico. */
   fluencia?: MaturityLevelId | null
+  /** Arsenal do wizard v2 — modula a linha de ampliação e a diligência shadow (spec §7.3). */
+  ambiente?: AmbienteId[]
+  /** Horas/semana declaradas no slider — quantifica a manchete do resumo. */
+  horasSemana?: number
 }

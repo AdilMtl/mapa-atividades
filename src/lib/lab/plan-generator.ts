@@ -15,10 +15,10 @@ import {
   CRUZAMENTO_MATURIDADE,
 } from '../radar/content'
 import type { MaturityLevelId, SolutionTypeId } from '../radar/types'
-import type { LabDiagnosis, LabPlan, LabPlanEtapa, PlanoOpcoes } from './types'
+import type { AmbienteId, LabDiagnosis, LabPlan, LabPlanEtapa, PlanoOpcoes } from './types'
 
 /** Versão do gerador — gravada em `plan.generator_version` (mesma regra do engine). */
-export const GENERATOR_VERSION = 'lab-plan-1.0.0'
+export const GENERATOR_VERSION = 'lab-plan-1.1.0'
 
 // ----------------------------------------------------------------------------
 // Registro canônico de materiais (slugs de `lab_assets`)
@@ -488,6 +488,50 @@ function linhaFluencia(diagnostico: LabDiagnosis, fluencia?: MaturityLevelId | n
 }
 
 // ----------------------------------------------------------------------------
+// Personalização por arsenal (wizard v2 — spec ISSUE-313 v2.1 §7.3)
+// A base universal é o caminho do workshop: IA de janela + arquivo local + CSV
+// (o público SEMPRE tem alguma IA de janela — decisão do dono, pergunta 15).
+// O arsenal só muda a linha de AMPLIAÇÃO — uma por plano, por prioridade.
+// ----------------------------------------------------------------------------
+
+const LINHA_ARSENAL_BASE =
+  'Tudo aqui começa com o que você já tem: uma IA de janela e um arquivo no navegador — ' +
+  'ninguém precisa autorizar nada pra versão de corredor sair do papel.'
+
+/** Linha de ampliação por arsenal — prioridade: Workspace > Copilot > premium > base. */
+const LINHA_ARSENAL: Array<{ id: AmbienteId; linha: string }> = [
+  {
+    id: 'amb_workspace',
+    linha:
+      'Com o Google Workspace à mão, a ampliação natural é o AppScript em cima do Sheets: ' +
+      'quando a versão de corredor provar valor, ela vira ferramenta viva sem sair do ' +
+      'ecossistema que a firma já usa.',
+  },
+  {
+    id: 'amb_copilot',
+    linha:
+      'Com Copilot na firma, o caminho de ampliação é levar o padrão pra dentro do Office — ' +
+      'a IA oficial trabalhando nos teus arquivos, sem dado saindo de casa.',
+  },
+  {
+    id: 'amb_ia_premium',
+    linha:
+      'Tua IA premium segura o caminho inteiro: contexto maior, menos retrabalho — a ' +
+      'ampliação aqui é sofisticar o uso, não trocar de ferramenta.',
+  },
+]
+
+function linhaArsenal(ambiente: AmbienteId[]): string {
+  const especifica = LINHA_ARSENAL.find((l) => ambiente.includes(l.id))
+  return especifica?.linha ?? LINHA_ARSENAL_BASE
+}
+
+/** Reforço da diligência quando a pessoa usa IA por conta própria (shadow). */
+const DILIGENCIA_SHADOW =
+  ' E como você usa IA por conta própria: dado real da firma não sobe pra conta pessoal — ' +
+  'a IA trabalha com a estrutura e com exemplo fictício; o dado de verdade fica onde está.'
+
+// ----------------------------------------------------------------------------
 // Geração do plano
 // ----------------------------------------------------------------------------
 
@@ -500,17 +544,29 @@ export function gerarPlano(diagnostico: LabDiagnosis, opcoes: PlanoOpcoes = {}):
   const template = TEMPLATES[diagnostico.tipo]
   const conteudo = CONTEUDO_OPORTUNIDADES[diagnostico.tipo]
 
-  // Resumo composto: base do tipo + exemplo da área (quando existe) + fluência.
-  const partesResumo = [template.resumo]
+  // Resumo composto: manchete quantificada (wizard v2, quando houver) + base do
+  // tipo + exemplo da área (quando existe) + fluência + linha de arsenal (v2).
+  const partesResumo: string[] = []
+  if (opcoes.horasSemana && opcoes.horasSemana > 0) {
+    partesResumo.push(
+      `Em jogo: ~${opcoes.horasSemana}h da tua semana, toda semana — é isso que este ` +
+        'projeto compra de volta.',
+    )
+  }
+  partesResumo.push(template.resumo)
   const exemploArea = opcoes.area ? conteudo.exemploPorArea?.[opcoes.area] : undefined
   if (exemploArea) partesResumo.push(exemploArea)
   partesResumo.push(linhaFluencia(diagnostico, opcoes.fluencia))
+  // `ambiente` ausente = chamada v1 (saída idêntica à 1.0.0); presente (mesmo
+  // vazio) = wizard v2, que sempre ancora a viabilidade no arsenal.
+  if (opcoes.ambiente) partesResumo.push(linhaArsenal(opcoes.ambiente))
   const resumo = partesResumo.join('\n\n')
 
   // Etapas: diligência entra ANTES de tudo (dado sensível muda o jogo);
   // fluência alta ganha a etapa "um nível acima" no fim.
   const etapas: LabPlanEtapa[] = [...template.etapas]
   if (diagnostico.flags.diligencia) {
+    const usaShadow = opcoes.ambiente?.includes('amb_shadow') ?? false
     etapas.unshift({
       id: 'diligencia',
       titulo: 'Antes de tudo: combine o cuidado com os dados',
@@ -518,7 +574,8 @@ export function gerarPlano(diagnostico: LabDiagnosis, opcoes: PlanoOpcoes = {}):
         'Essa tarefa envolve dado sensível. A regra prática: a IA trabalha na ESTRUTURA ' +
         '(modelos, padrões, rascunhos), os dados reais ficam onde já estão. E na dúvida, ' +
         'fale com quem cuida disso na sua empresa antes de subir qualquer coisa — existir ' +
-        'essa conversa já te coloca na frente da maioria.',
+        'essa conversa já te coloca na frente da maioria.' +
+        (usaShadow ? DILIGENCIA_SHADOW : ''),
     })
   }
   if (temFluenciaAlta(diagnostico, opcoes.fluencia)) {

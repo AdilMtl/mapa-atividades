@@ -344,6 +344,52 @@ e levantou 5 decisões antes de codar.
 
 ---
 
+## Pergunta pendente 15 — ✅ RESPONDIDA PELO DONO (2026-07-09) — reformulação do wizard do Lab (ISSUE-313 v2)
+
+**Tema:** o dono revisou a spec v1 do wizard (formulário de 4 passos) e **rejeitou**: engessada,
+ignorava a maturidade da pessoa, assumia que toda entrada é um problema (nos workshops a maioria
+chega com **ideia de ferramenta** — dashboard, organizador, tela de input, consolidador), e
+pedia o que a pessoa não sabe responder (impacto). Pediu formato de **conversa convergente com
+árvore de decisão**, como consultor — heurística combinada com IA pra reduzir custo de tokens.
+**Respostas do dono (2026-07-09, sessão de reformulação):**
+1. **Entradas reais:** ideia de ferramenta pronta (mais comum) + dor/tarefa + vontade difusa.
+   Ancorar sempre num **benefício claro** (vender internamente) — nunca campo livre de impacto.
+2. **Método de referência:** o workshop de vibe code do dono (ideia → persona expert → "grill
+   me session" até conhecimento compartilhado → PRD → construir menor que a ambição → testar →
+   memória/versão). O wizard v2 é a versão produto desse fluxo.
+3. **Resultado:** proposta + 1–2 alternativas vizinhas, escolha assistida (impacta a ISSUE-314:
+   diagnóstico vira proposta escolhida, não veredito).
+4. **IA na 1A:** "desenhar e decidir vendo" — árvore 100% heurística com 2 pontos de IA
+   marcados (leitura do relato + redação do espelho), fallback obrigatório, custo <R$0,01 por
+   projeto; a decisão de antecipar a infra (ISSUE-320) fica pra quando o dono vir a spec v2.
+**Rodada 2 (mesma data — refinamento da v2 → v2.1):** o dono apontou a fragilidade da
+heurística aberta (dicionário de palavras-chave sobre texto livre "parece robusto mas só
+funciona pra casos específicos") e deu a experiência-alvo ("ele entendeu minha realidade,
+consigo fazer, ganho real, com as ferramentas que tenho acesso, e impressiono meu chefe").
+Decisões adicionais:
+5. **Texto livre nunca classifica na 1A** — vira cor opcional no fechamento; a IA da 1B
+   categoriza esse texto DENTRO do framing da heurística (mesmos ids fechados) — princípio
+   "IA sugere, heurística decide, pessoa confirma".
+6. **IA só na ISSUE-320** — decisão fechada (slots prontos no código com fallback).
+7. **Arsenal/ambiente entra no wizard** (`ambiente[]`): o público SEMPRE tem alguma IA de
+   janela ("tem que ter IA", inclusive shadow AI ética/uso pessoal); o plano recomenda só o
+   que cabe no arsenal; `amb_shadow` + dado sensível → diligência ativa na hora.
+8. **Teto de perguntas delegado ao design** com a referência do onboarding do Foodvisor
+   (formato variado + progresso visível > brevidade) → 4 blocos nomeados, ~14 interações.
+9. **Desempate condicional aprovado** com transparência ("tá entre dois caminhos").
+**Consequências:** spec v2.1 consolidada em `ISSUE-313-spec-wizard.md`; nasce
+`wizard_answers.schema_version = 2` (v1 congelado); `decidirOportunidade` intocado +
+adaptador v2; `plan-generator` ganha `ambiente?` (extensão aditiva); **auditoria exaustiva de
+todas as combinações fechadas vira critério de aceite** (robustez por construção);
+`ferramentas` do perfil (317) vira espelho do `ambiente[]`; `urgencia`/`impacto_esperado`
+fora da 1A.
+**Bloqueia implementação?** Não mais — o dono aprovou a v2.1 na mesma data ("está robusta")
+e o motor completo foi implementado e auditado na sequência (700k combinações, 125 testes;
+detalhe no CURRENT-STATUS v3.11.5). A UI da 313 depende só da ISSUE-311 (LabShell), próxima
+elegível.
+
+---
+
 ## Resumo executivo das premissas assumidas
 
 | # | Premissa (segue valendo salvo veto do dono) | Bloqueio |

@@ -134,6 +134,61 @@ describe('personalização', () => {
   })
 })
 
+describe('arsenal e manchete quantificada (wizard v2 — spec ISSUE-313 v2.1)', () => {
+  it('sem `ambiente` (chamada v1), a saída é idêntica à de antes — zero linha nova', () => {
+    const plano = gerarPlano(diagnosticoDe('prompt'), { area: 'area_juridico' })
+    expect(plano.resumo.split('\n\n').length).toBe(2)
+    expect(plano.resumo).not.toContain('IA de janela')
+  })
+
+  it('ambiente vazio (pessoa pulou) → linha da base universal', () => {
+    const plano = gerarPlano(diagnosticoDe('prompt'), { ambiente: [] })
+    expect(plano.resumo).toContain('IA de janela')
+    expect(plano.resumo).toContain('ninguém precisa autorizar nada')
+  })
+
+  it('Workspace tem prioridade sobre Copilot e premium (uma linha só)', () => {
+    const plano = gerarPlano(diagnosticoDe('dashboard'), {
+      ambiente: ['amb_ia_premium', 'amb_copilot', 'amb_workspace'],
+    })
+    expect(plano.resumo).toContain('AppScript')
+    expect(plano.resumo).not.toContain('Copilot')
+    expect(plano.resumo).not.toContain('IA premium')
+  })
+
+  it('Copilot e premium têm as suas linhas quando são o teto do arsenal', () => {
+    expect(
+      gerarPlano(diagnosticoDe('template'), { ambiente: ['amb_copilot'] }).resumo,
+    ).toContain('Copilot')
+    expect(
+      gerarPlano(diagnosticoDe('template'), { ambiente: ['amb_ia_premium'] }).resumo,
+    ).toContain('IA premium')
+  })
+
+  it('shadow + dado sensível → diligência reforçada (dado da firma × conta pessoal)', () => {
+    const sensivel = diagnosticoDe('template', {
+      flags: { diligencia: true, rebaixadoPorConforto: false },
+    })
+    const comShadow = gerarPlano(sensivel, { ambiente: ['amb_shadow'] })
+    expect(comShadow.etapas[0].descricao).toContain('conta pessoal')
+
+    const semShadow = gerarPlano(sensivel, { ambiente: ['amb_workspace'] })
+    expect(semShadow.etapas[0].descricao).not.toContain('conta pessoal')
+
+    // Shadow SEM dado sensível não inventa etapa de diligência.
+    const semSensivel = gerarPlano(diagnosticoDe('template'), { ambiente: ['amb_shadow'] })
+    expect(semSensivel.etapas.some((e) => e.id === 'diligencia')).toBe(false)
+  })
+
+  it('horasSemana quantifica a manchete do resumo', () => {
+    const plano = gerarPlano(diagnosticoDe('automacao'), { horasSemana: 6 })
+    expect(plano.resumo).toContain('~6h da tua semana')
+    // Zero horas (slider não preenchido) não gera manchete.
+    const sem = gerarPlano(diagnosticoDe('automacao'), { horasSemana: 0 })
+    expect(sem.resumo).not.toContain('Em jogo')
+  })
+})
+
 describe('determinismo e integração com o motor', () => {
   it('mesmo diagnóstico + mesmas opções → mesmo plano', () => {
     const d = diagnosticoDe('automacao')

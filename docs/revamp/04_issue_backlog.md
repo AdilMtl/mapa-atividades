@@ -1052,11 +1052,20 @@ critério da revisão da matriz de pesos do radar (dentro da 104).
 9 tipos. **Dep.:** nenhuma. **Risco:** baixo.
 
 ## ISSUE-313 — Wizard `/lab/novo-projeto`
-**Status:** ⚠️ parcial em 2026-07-09 — metade de spec redigida (Fable 5), aguardando revisão do
-dono. Doc: `docs/revamp/ISSUE-313-spec-wizard.md` (4 passos, texto de cada pergunta, decisões de
-enquadramento e de continuidade/pré-preenchimento). Falta: aprovação do dono e depois a
-implementação (Sonnet). **Bloqueio adicional achado nesta sessão:** a ISSUE-311 (LabShell/gate)
-ainda não foi feita — a 313 não tem onde plugar a tela até ela existir.
+**Status:** ⚠️ parcial em 2026-07-09 — **spec v2.1 aprovada pelo dono + MOTOR COMPLETO
+implementado e auditado** (v3.11.5). Spec "Conversa de Consultor"
+(`docs/revamp/ISSUE-313-spec-wizard.md`): 4 blocos, 3 trilhas (ideia/dor/difusa), hipóteses
+pré-marcadas, `ambiente[]` (arsenal), slider de horas, desempate condicional, proposta +
+alternativas; IA só na ISSUE-320 (slots com fallback). Motor entregue em `src/lib/lab/`:
+schema v2 (`types.ts`), árvore como dado (`wizard-flow.ts`), `diagnosticarV2` (`engine.ts`,
+motor do radar intocado), `desempate.ts` (pergunta derivada da matriz — 36 pares
+discrimináveis), `plan-generator` 1.1.0 (linha de arsenal + diligência shadow + manchete
+quantificada) e **auditoria exaustiva das 700.000 combinações** (`auditoria.test.ts`) — que
+já pagou: calibrou o `LIMIAR_DESEMPATE` de 1→0 (56%→22,7% de disparo) com guarda-corpo <30%
+no CI. 125 testes verdes (eram 76). **Falta só a UI:** telas dos 4 blocos + rascunho por
+bloco + rotas `api/lab/projects` (Sonnet, sob a spec fechada) — **depende da ISSUE-311**
+(LabShell), que é a próxima elegível. **Impacto sinalizado na 314** (proposta escolhida, não
+veredito — §9 da spec).
 **Tipo:** Frontend · **Prioridade:** Alta · **Complexidade:** Média-alta
 **Modelo:** **Fable 5 fecha as perguntas do wizard com o dono (sessão de spec) → Sonnet
 implementa o formulário sob a spec fechada.** Não pular a 1ª etapa: as perguntas exatas ainda

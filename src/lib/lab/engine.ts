@@ -11,10 +11,12 @@
 import { COMPLEXIDADE, decidirOportunidade, FAMILIA_POR_TIPO } from '../radar/oportunidades'
 import type { RadarAnswers, SolutionTypeId } from '../radar/types'
 import type {
+  CamposClassificacao,
   ComplexidadeLabel,
   LabDiagnosis,
   NivelIndicador,
   WizardAnswers,
+  WizardAnswersV2,
 } from './types'
 
 /**
@@ -87,8 +89,10 @@ const RISCO_ACIMA: Record<NivelIndicador, NivelIndicador> = {
 /**
  * Traduz as respostas do wizard para o formato do motor do radar. Os ids de
  * opção são os mesmos por contrato (types.ts) — isto é só remap de chaves.
+ * Aceita v1 e v2: os campos de classificação são estruturalmente idênticos
+ * (CamposClassificacao) — a diferença dos schemas está na captura, não aqui.
  */
-export function paraRespostasRadar(respostas: WizardAnswers): RadarAnswers {
+export function paraRespostasRadar(respostas: CamposClassificacao): RadarAnswers {
   return {
     ...(respostas.area ? { op_area: respostas.area } : {}),
     op_entrega: respostas.entrega,
@@ -107,6 +111,20 @@ export function paraRespostasRadar(respostas: WizardAnswers): RadarAnswers {
  * ou inválida (validação herdada do motor — a rota da 313 traduz em 400).
  */
 export function diagnosticar(respostas: WizardAnswers): LabDiagnosis {
+  return diagnosticarCampos(respostas)
+}
+
+/**
+ * Adaptador do schema v2 (spec ISSUE-313 v2.1). Só os ids fechados entram —
+ * `relato`/`arquetipo_outro` são cor e JAMAIS tocam a classificação (regra da
+ * 1A). `porta`/`arquetipo`/`ambiente` não pontuam: trilha e arsenal mudam a
+ * captura e o plano, nunca o motor.
+ */
+export function diagnosticarV2(respostas: WizardAnswersV2): LabDiagnosis {
+  return diagnosticarCampos(respostas)
+}
+
+function diagnosticarCampos(respostas: CamposClassificacao): LabDiagnosis {
   const resultado = decidirOportunidade(paraRespostasRadar(respostas))
   const complexidade = COMPLEXIDADE[resultado.tipo]
   const riscoBase = RISCO_POR_COMPLEXIDADE[complexidade]

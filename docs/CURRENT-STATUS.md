@@ -7,7 +7,60 @@
 
 ---
 
-## 🎯 SESSÃO ATUAL: Spec do Wizard do Lab — ISSUE-313 (metade Fable 5)
+## 🎯 SESSÃO ATUAL: Wizard do Lab — spec v2.1 aprovada + motor completo (ISSUE-313)
+**Data:** 09 de julho de 2026
+**Versão:** v3.11.5
+**Status:** spec fechada ✅ · motor implementado e auditado ✅ · falta só a UI (depende da 311)
+
+### **🚀 O QUE FOI FEITO (sessão em 3 atos):**
+
+1. **Spec v1 → v2 → v2.1, com o dono no loop.** O dono revisou a spec v1 (formulário de 4
+   passos) e rejeitou: engessada, ignorava maturidade, assumia que toda entrada é um problema
+   (nos workshops a maioria chega com IDEIA de ferramenta), pedia o que a pessoa não sabe
+   responder. A v2 virou conversa com 3 portas; a rodada 2 matou o último ponto frágil (o
+   dicionário de palavras-chave sobre texto livre) — na 1A **texto livre nunca classifica**,
+   heurística 100% fechada (robusta por construção), com a experiência-alvo dele como
+   requisito: "entendeu minha realidade, consigo fazer, ganho real, com as ferramentas que
+   tenho acesso, e impressiono meu chefe". Decisões registradas na pergunta 15 do
+   `00b_open_questions.md`. **Dono aprovou a v2.1** ("está robusta").
+2. **Motor completo implementado em 6 gates** (todos verdes: tsc + vitest por gate):
+   - `types.ts` — schema v2 aditivo (`WizardAnswersV2`, `AmbienteId`, `ArquetipoId`); v1 congelado.
+   - `wizard-flow.ts` — a conversa como dado: roteiro das 3 trilhas (~14 interações), 6
+     arquétipos→hipóteses, cenas por área (10 genéricas + overrides p/ 5 áreas), fluência
+     comportamental, `sugerirTitulo`, `montarEspelho` (fallback do slot de IA #2).
+   - `engine.ts` — `diagnosticarV2`; motor do radar intocado; testado que relato/porta/
+     arsenal **nunca** mudam a classificação.
+   - `desempate.ts` — pergunta discriminante DERIVADA da matriz de pesos (zero conteúdo à
+     mão); teste exaustivo: os 36 pares de tipos são todos discrimináveis.
+   - `plan-generator.ts` 1.1.0 — linha de arsenal (prioridade Workspace>Copilot>premium>base
+     universal), diligência shadow ("dado da firma não sobe pra conta pessoal"), manchete
+     "~Xh da tua semana". Sem `ambiente` = saída idêntica à 1.0.0 (aditivo puro).
+3. **Auditoria exaustiva (`auditoria.test.ts`) — e ela já pagou o investimento:** roda as
+   **700.000 combinações** do espaço fechado contra o motor (~33s) validando os invariantes
+   da spec §7.4. Primeiro achado real: o limiar de desempate de 1 ponto dispararia em 56,2%
+   das conversas ("consultor sempre em dúvida") — calibrado para empate exato (22,7%), com
+   guarda-corpo de <30% como teste de CI. Distribuição de vencedores no espaço uniforme:
+   dashboard 34,6% · prompt 20,3% · template 20,2% · automacao/workflow ~9,4% · cauda
+   ambiciosa rara (guard-rails/teto agindo — esperado).
+
+### **📊 TÉCNICO:**
+- **125 testes verdes** (eram 76) · `tsc --noEmit` limpo · `npm run build` ok · lint sem erro
+  novo nos arquivos do Lab
+- Novos: `src/lib/lab/{wizard-flow,desempate}.ts` + 3 suites de teste. Estendidos:
+  `types.ts`, `engine.ts`, `plan-generator.ts` (tudo aditivo — zero linha do motor do radar
+  alterada)
+- Docs: spec v2.1 consolidada, pergunta 15 no `00b`, backlog atualizado, memória de execução
+  (`lab-issue-313-execucao.md`)
+
+### **🎯 PRÓXIMA SESSÃO — recomendação:**
+**ISSUE-311 — Route group `(lab)` + LabShell + gate server-side (`@supabase/ssr`)** ·
+**Modelo recomendado: Fable 5** (definido no backlog — introduz `@supabase/ssr` e o gate de
+auth do beta fechado; custo de erro alto, testar login/logout ponta a ponta). É a única
+dependência que falta pra UI da 313 (Sonnet, sob a spec fechada) entrar na sessão seguinte.
+
+---
+
+## 📋 SESSÃO ANTERIOR: Spec do Wizard do Lab — ISSUE-313 (metade Fable 5)
 **Data:** 09 de julho de 2026
 **Versão:** v3.11.4 (sessão 100% de spec/documentação — zero código)
 **Status:** spec redigida, aguardando revisão do dono ⚠️ parcial

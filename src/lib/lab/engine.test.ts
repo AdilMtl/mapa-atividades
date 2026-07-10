@@ -4,8 +4,8 @@
 // (3) derivações editoriais (potenciais/risco/labels), (4) determinismo/versão.
 import { describe, expect, it } from 'vitest'
 import { decidirOportunidade } from '../radar/oportunidades'
-import { diagnosticar, ENGINE_VERSION, paraRespostasRadar } from './engine'
-import type { WizardAnswers } from './types'
+import { diagnosticar, diagnosticarV2, ENGINE_VERSION, paraRespostasRadar } from './engine'
+import type { WizardAnswers, WizardAnswersV2 } from './types'
 import { WIZARD_SCHEMA_VERSION } from './types'
 
 interface Cenario {
@@ -250,5 +250,56 @@ describe('contrato e determinismo', () => {
   it('resposta de classificação inválida propaga o erro do motor', () => {
     const invalida = wizard({ ...CENARIOS[1].cenario, conforto: 'conf_inexistente' })
     expect(() => diagnosticar(invalida)).toThrow(/op_conforto/)
+  })
+})
+
+// ----------------------------------------------------------------------------
+// Adaptador do schema v2 (ISSUE-313, spec v2.1)
+// ----------------------------------------------------------------------------
+
+describe('diagnosticarV2 (schema v2 — Conversa de Consultor)', () => {
+  function wizardV2(c: Cenario): WizardAnswersV2 {
+    return {
+      schema_version: 2,
+      porta: 'ideia',
+      arquetipo: 'arq_painel',
+      titulo: 'Projeto v2 de teste',
+      area: c.area ?? null,
+      entrega: c.entrega,
+      perda: c.perda,
+      frequencia: c.frequencia,
+      publico: c.publico,
+      dado: c.dado,
+      desejo: c.desejo,
+      conforto: c.conforto,
+      ambiente: ['amb_ia_gratuita'],
+    }
+  }
+
+  it('v1 e v2 com os mesmos ids fechados → diagnóstico idêntico', () => {
+    for (const { cenario } of CENARIOS) {
+      expect(diagnosticarV2(wizardV2(cenario))).toEqual(diagnosticar(wizard(cenario)))
+    }
+  })
+
+  it('relato/arquetipo_outro/porta/ambiente/horas NUNCA mudam a classificação (regra da 1A)', () => {
+    const base = wizardV2(CENARIOS[0].cenario)
+    const carregado: WizardAnswersV2 = {
+      ...base,
+      porta: 'difusa',
+      arquetipo: 'arq_outro',
+      arquetipo_outro: 'quero um robô que faz tudo sozinho com dados do SAP',
+      relato: 'na real o que me consome é planilha de vendas todo santo dia',
+      ambiente: ['amb_shadow', 'amb_copilot'],
+      horas_semana: 9,
+      hipoteses_confirmadas: ['entrega', 'perda'],
+      escolha_tipo: 'agentico',
+    }
+    expect(diagnosticarV2(carregado)).toEqual(diagnosticarV2(base))
+  })
+
+  it('validação do motor segue valendo no v2', () => {
+    const invalida = wizardV2({ ...CENARIOS[1].cenario, dado: 'dado_inexistente' })
+    expect(() => diagnosticarV2(invalida)).toThrow(/op_dado/)
   })
 })

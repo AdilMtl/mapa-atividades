@@ -16,6 +16,48 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [v3.11.5] - 2026-07-09 - 🧠 Wizard do Lab: spec v2.1 aprovada + motor completo auditado (ISSUE-313)
+
+### ✅ Adicionado
+- **`docs/revamp/ISSUE-313-spec-wizard.md` v2.1 "Conversa de Consultor"** — aprovada pelo dono
+  após 2 rodadas de feedback (v1 formulário rejeitada; v2 corrigida): 4 blocos nomeados,
+  3 trilhas de entrada (ideia/dor/difusa), hipóteses pré-marcadas confirmáveis, dimensão nova
+  `ambiente[]` (arsenal), slider de horas, desempate condicional, proposta + alternativas;
+  na 1A texto livre nunca classifica (heurística 100% fechada); IA só na ISSUE-320 (slots com
+  fallback prontos). Decisões registradas na pergunta 15 do `00b_open_questions.md`.
+- **`src/lib/lab/wizard-flow.ts`** — a conversa como dado: roteiro por trilha (~14 interações),
+  6 arquétipos com hipóteses (contrato com a matriz testado), cenas por área (10 genéricas +
+  overrides para vendas/operações/marketing/finanças/RH), fluência comportamental,
+  `sugerirTitulo` e `montarEspelho` (fallback do slot de IA #2). 23 testes.
+- **`src/lib/lab/desempate.ts`** — desempate condicional com pergunta DERIVADA da matriz de
+  pesos (zero conteúdo escrito à mão por par); teste exaustivo prova que os 36 pares de tipos
+  são discrimináveis. 10 testes.
+- **`src/lib/lab/auditoria.test.ts`** — auditoria exaustiva das **700.000 combinações** do
+  espaço fechado (~33s): todos os 9 tipos alcançáveis, teto de conforto nunca violado, dado
+  sensível sempre liga diligência, desempate como exceção (<30%, guarda-corpo de CI), todo
+  plano com versão de corredor para qualquer arsenal.
+- **`diagnosticarV2`** em `engine.ts` (schema v2 → motor intocado) e **tipos v2 aditivos** em
+  `types.ts` (`WizardAnswersV2`, `AmbienteId`, `ArquetipoId`, `CamposClassificacao`).
+
+### 🔧 Corrigido
+- **Calibragem do desempate (achado da auditoria):** limiar de 1 ponto dispararia a pergunta
+  extra em 56,2% das conversas ("consultor sempre em dúvida"); calibrado para empate exato
+  (22,7% — 1 a cada ~4 conversas, quando o motor está genuinamente indeciso).
+
+### 🎨 Melhorado
+- `plan-generator.ts` **1.1.0** (aditivo — sem `ambiente`, saída idêntica à 1.0.0): linha de
+  ampliação por arsenal (Workspace→AppScript > Copilot > IA premium > base universal do
+  workshop), diligência reforçada pra shadow AI + dado sensível, manchete quantificada
+  ("Em jogo: ~Xh da tua semana").
+
+### 📊 Técnico
+- **125 testes verdes** (eram 76) · `tsc --noEmit` limpo · `npm run build` ok · lint sem erro
+  novo nos arquivos do Lab · zero linha do motor do radar alterada · zero mudança em rota pública
+- Falta da ISSUE-313: só a UI (4 blocos + rascunho por bloco + `api/lab/projects`), que
+  depende da ISSUE-311 (LabShell) — próxima elegível, modelo Fable 5.
+
+---
+
 ## [v3.11.4] - 2026-07-09 - 📋 Spec do Wizard do Lab (ISSUE-313, metade Fable 5)
 
 ### ✅ Adicionado
