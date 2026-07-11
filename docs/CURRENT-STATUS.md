@@ -1,9 +1,10 @@
-> 🗺️ **Mapa visual do backlog do revamp** (todas as 43 issues, status, prioridade, fases —
+> 🗺️ **Mapa visual do backlog do revamp** (56 issues, status, prioridade, fases —
 > leitura rápida "onde a gente tá"): [roadmap-backlog.html](revamp/roadmap-backlog.html) ·
 > publicado como Artifact em 2026-07-09. **Ao mudar status de qualquer issue, atualize o arquivo
 > e republique no MESMO link** (Artifact tool com o parâmetro `url` da versão anterior — pegar a
 > URL publicada com o dono se não estiver registrada em memória). Última atualização de conteúdo:
-> 2026-07-09 (pausa do Sprint 4 + promoção da Fase 2/Lab).
+> 2026-07-11 (esqueleto antigo da Fase 2 trocado pela série 310+ real do Lab — 5 das 10 issues
+> da Fase 1A prontas/aplicadas; ISSUE-314 entregue nesta data; ISSUE-209/210 novas na Fase 1.5).
 
 ---
 

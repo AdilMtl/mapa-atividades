@@ -400,20 +400,20 @@
 
   <p class="eyebrow">+conversas no corredor · revamp +conversaas</p>
   <h1 class="title">O backlog inteiro, em uma leitura só</h1>
-  <p class="dek">43 issues, seis fases. O que já foi entregue, o que mudou de rumo hoje e o que vem a seguir — sem jargão técnico. <b>09 de julho de 2026.</b></p>
+  <p class="dek">56 issues, seis fases. O que já foi entregue, o que mudou de rumo e o que vem a seguir — sem jargão técnico. <b>11 de julho de 2026.</b></p>
 
   <div class="banner">
     <p class="banner-label">A decisão de hoje</p>
-    <p>A plataforma logada atual (mapa, diagnóstico, plano de ação, kanban) não teve uso real registrado — o site ficou praticamente inacessível durante os meses em que o banco esteve pausado. Redesenhar 6 páginas de um produto sem uso comprovado deixou de ser prioridade.</p>
-    <p>O <b>Sprint 4</b> (restyle da plataforma logada) fica <b>pausado</b>, não cancelado. No lugar dele, a <b>Fase 2 — o Lab</b> — sobe na fila: assim que o funil público dos radares estiver liberado para lançar, o próximo passo de produto é essa nova proposta de valor, não o retoque visual do que já existe.</p>
-    <p class="ref">registrado em 00b_open_questions.md, pergunta 13</p>
+    <p>O Lab saiu do papel. Desde que a Fase 2 foi promovida (09/07), <b>5 das 10 issues da "Fase 1A"</b> já estão prontas ou aplicadas: o SQL das tabelas, o motor de classificação, o wizard "Conversa de Consultor" e — entregue nesta sessão — a <b>página do projeto</b> (diagnóstico + plano + primeiro prompt pronto pra copiar, sem depender de IA em tempo real).</p>
+    <p>O que falta pra fechar a Fase 1A: o <b>hub</b> que lista os projetos da pessoa (315), a <b>biblioteca</b> de materiais — que ficou mais leve porque boa parte do conteúdo já nasceu na página do projeto (316), o <b>perfil</b> do builder (317), <b>analytics + convites do beta</b> (318) e o <b>gate de QA</b> final (319). O Sprint 4 (restyle do legado) segue <b>pausado</b>, não cancelado.</p>
+    <p class="ref">registrado em 04_issue_backlog.md, série 310+ · pergunta 17 do 00b_open_questions.md</p>
   </div>
 
   <div class="tracker">
-    <div class="tick now"><div class="tn">Fase 1</div><div class="tl">Quase pronta</div></div>
+    <div class="tick"><div class="tn">Fase 1</div><div class="tl">Aguarda o gate</div></div>
     <div class="tick paused"><div class="tn">Fase 1B</div><div class="tl">Pausada</div></div>
     <div class="tick"><div class="tn">Fase 1.5</div><div class="tl">Não começou</div></div>
-    <div class="tick promoted"><div class="tn">Fase 2 — Lab</div><div class="tl">Promovida</div></div>
+    <div class="tick now"><div class="tn">Fase 2 — Lab</div><div class="tl">1A: 5 de 10</div></div>
     <div class="tick"><div class="tn">Fase 3</div><div class="tl">Mais adiante</div></div>
     <div class="tick"><div class="tn">Fase 4</div><div class="tl">Contínua</div></div>
   </div>
@@ -626,6 +626,16 @@
         <div class="body"><h3>Plano de mídia</h3><p>Documento com o plano de evolução das campanhas do Google Ads para o dono aplicar.</p></div>
         <div class="meta"><span class="chip skeleton">a fazer</span><span class="pri">prior. média</span></div>
       </div>
+      <div class="row">
+        <div class="num">209</div>
+        <div class="body"><h3>Banner de cookies (LGPD)</h3><p>Aviso de consentimento para os cookies de rastreamento (GTM/Ads/GA4) — achado durante a construção do Lab.</p></div>
+        <div class="meta"><span class="chip skeleton">a fazer</span><span class="pri">prior. média</span></div>
+      </div>
+      <div class="row">
+        <div class="num">210</div>
+        <div class="body"><h3>Lista de áreas de atuação</h3><p>A lista de áreas do questionário (radar e wizard do Lab) não cobre tudo — falta TI/Tecnologia e outras. Achado no 1º teste do wizard.</p></div>
+        <div class="meta"><span class="chip skeleton">a fazer</span><span class="pri">prior. média</span></div>
+      </div>
 
     </div>
   </section>
@@ -635,45 +645,129 @@
     <div class="phase-head">
       <span class="phase-num">Fase 2 · o Lab</span>
       <h2 class="phase-title">A nova proposta de valor</h2>
-      <span class="phase-flag promoted">promovida 09/07</span>
+      <span class="phase-flag promoted">em execução</span>
     </div>
-    <p class="phase-desc">O que vai substituir o restyle pausado como prioridade de produto. Ainda é esqueleto — cada issue precisa de uma sessão de planejamento própria antes de virar código.</p>
+    <p class="phase-desc">Promovida em 09/07 no lugar do restyle pausado. As primeiras 7 issues (301–307) eram um esqueleto de "ferramentas separadas" — foram substituídas por uma <b>Jornada Guiada de Construção única</b> (wizard → diagnóstico → plano salvo → materiais), a série 310+. <span style="color:var(--ink-faint)">301–304 viraram parte do wizard/diagnóstico da 313/314 · 305 e 306 foram herdadas pelas 325/316/326, mais à frente.</span></p>
     <div class="rows">
 
-      <div class="row">
-        <div class="num">301</div>
-        <div class="body"><h3>Wizard "Que solução devo construir?"</h3><p>Uma versão mais profunda do radar, guiando a pessoa até uma solução concreta e detalhada.</p></div>
-        <div class="meta"><span class="chip skeleton">a detalhar</span></div>
-      </div>
-      <div class="row">
-        <div class="num">302</div>
-        <div class="body"><h3>Classificação de solução</h3><p>Página educativa explicando os 4 níveis de complexidade de um app, do mais simples ao agêntico.</p></div>
-        <div class="meta"><span class="chip skeleton">a detalhar</span></div>
-      </div>
-      <div class="row">
-        <div class="num">303</div>
-        <div class="body"><h3>Builder Canvas</h3><p>Uma ferramenta de canvas para estruturar e exportar a solução que a pessoa está desenhando.</p></div>
-        <div class="meta"><span class="chip skeleton">a detalhar</span></div>
-      </div>
-      <div class="row">
-        <div class="num">304</div>
-        <div class="body"><h3>PRD Kit</h3><p>Modelos prontos de documento de especificação de produto, baseados no framework 4Ds.</p></div>
-        <div class="meta"><span class="chip skeleton">a detalhar</span></div>
-      </div>
-      <div class="row">
-        <div class="num">305</div>
-        <div class="body"><h3>Assinatura direta (Stripe)</h3><p>Fluxo de pagamento direto no site, sem depender do processo manual de hoje (autorização via Substack).</p></div>
-        <div class="meta"><span class="chip skeleton">a detalhar</span></div>
-      </div>
-      <div class="row">
-        <div class="num">306</div>
-        <div class="body"><h3>Primeiros materiais premium</h3><p>Os 10 primeiros ativos prontos para quem assina o premium (checklists, templates, guias).</p></div>
-        <div class="meta"><span class="chip skeleton">a detalhar</span></div>
-      </div>
       <div class="row">
         <div class="num">307</div>
         <div class="body"><h3>Mentoria e palestras</h3><p>Produto extra sobre IA no portfólio, fora da plataforma, oferecido para empreendedores.</p></div>
         <div class="meta"><span class="chip skeleton">a detalhar</span></div>
+      </div>
+
+    </div>
+
+    <p style="margin:30px 0 -6px;font-family:ui-monospace,Consolas,monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-faint);border-top:1px solid var(--line);padding-top:18px;">Fase 1A do Lab · protótipo navegável, sem IA</p>
+    <div class="rows" style="border-top:none;">
+
+      <div class="row">
+        <div class="num">310</div>
+        <div class="body"><h3>Tabelas do banco</h3><p>Onde o perfil, os projetos e os materiais do Lab ficam guardados — com trava de segurança (só o dono do projeto acessa o dele).</p></div>
+        <div class="meta"><span class="chip done">concluída</span><span class="pri alta">prior. <b>alta</b></span></div>
+      </div>
+      <div class="row">
+        <div class="num">311</div>
+        <div class="body"><h3>Área logada do Lab</h3><p>A "casca" de quem entra no Lab: login sem tela branca, aviso de "beta fechado" pra quem não tem convite.</p><span class="note">falta o roteiro do dono com conta real</span></div>
+        <div class="meta"><span class="chip progress">parcial</span><span class="pri alta">prior. <b>alta</b></span></div>
+      </div>
+      <div class="row">
+        <div class="num">312</div>
+        <div class="body"><h3>Motor do Lab</h3><p>O "cérebro" que lê as respostas da pessoa e decide o tipo de solução + gera o plano de construção.</p></div>
+        <div class="meta"><span class="chip done">concluída</span><span class="pri alta">prior. <b>alta</b></span></div>
+      </div>
+      <div class="row">
+        <div class="num">313</div>
+        <div class="body"><h3>Wizard "Conversa de Consultor"</h3><p>A entrevista guiada onde a pessoa conta o problema/ideia dela e o Lab vai anotando, como um consultor.</p><span class="note">falta o roteiro do dono (3 portas + celular)</span></div>
+        <div class="meta"><span class="chip progress">aplicada</span><span class="pri alta">prior. <b>alta</b></span></div>
+      </div>
+      <div class="row">
+        <div class="num">314</div>
+        <div class="body"><h3>Página do projeto</h3><p>Onde o resultado vira experiência: devolutiva do que a pessoa disse, diagnóstico em prosa, checklist que marca de verdade, e um primeiro prompt pronto pra copiar.</p><span class="note">entregue nesta sessão (11/07) · falta o roteiro do dono</span></div>
+        <div class="meta"><span class="chip progress">aplicada</span><span class="pri alta">prior. <b>alta</b></span></div>
+      </div>
+      <div class="row">
+        <div class="num">315</div>
+        <div class="body"><h3>Hub "Início"</h3><p>Lista os projetos da pessoa — "continue de onde parou". Hoje não existe: terminar um projeto não deixa como voltar nele.</p></div>
+        <div class="meta"><span class="chip skeleton">a fazer</span><span class="pri alta">prior. <b>alta</b></span></div>
+      </div>
+      <div class="row">
+        <div class="num">316</div>
+        <div class="body"><h3>Biblioteca de materiais</h3><p>Página com os guias/modelos por tipo de solução.</p><span class="note">ficou mais leve — boa parte do conteúdo já nasceu embutido na 314</span></div>
+        <div class="meta"><span class="chip skeleton">a fazer</span><span class="pri alta">prior. <b>alta</b></span></div>
+      </div>
+      <div class="row">
+        <div class="num">317</div>
+        <div class="body"><h3>Perfil do builder</h3><p>Formulário simples (área, senioridade, fluência em IA, objetivo) que personaliza a experiência.</p></div>
+        <div class="meta"><span class="chip skeleton">a fazer</span><span class="pri">prior. média</span></div>
+      </div>
+      <div class="row">
+        <div class="num">318</div>
+        <div class="body"><h3>Analytics + convites do beta</h3><p>Rastreamento dos eventos do Lab + a rotina de convidar gente da lista de espera pro beta fechado.</p></div>
+        <div class="meta"><span class="chip skeleton">a fazer</span><span class="pri alta">prior. <b>alta</b></span></div>
+      </div>
+      <div class="row">
+        <div class="num">319</div>
+        <div class="body"><h3>Gate de QA da Fase 1A</h3><p>O checklist final antes de abrir o beta de verdade: jornada completa no celular, segurança testada com 2 contas, velocidade.</p></div>
+        <div class="meta"><span class="chip skeleton">a fazer</span><span class="pri alta">prior. <b>alta</b></span></div>
+      </div>
+
+    </div>
+
+    <p style="margin:30px 0 -6px;font-family:ui-monospace,Consolas,monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-faint);border-top:1px solid var(--line);padding-top:18px;">Fase 1B do Lab · IA controlada (depois da 1A fechar)</p>
+    <div class="rows" style="border-top:none;">
+
+      <div class="row">
+        <div class="num">320</div>
+        <div class="body"><h3>Infraestrutura de IA</h3><p>Conecta a API da OpenAI (modelo barato) com limites de custo e um plano B se a IA falhar.</p></div>
+        <div class="meta"><span class="chip skeleton">a detalhar</span></div>
+      </div>
+      <div class="row">
+        <div class="num">321</div>
+        <div class="body"><h3>Entrevista complementar</h3><p>3 a 5 perguntas geradas por IA pra afinar o diagnóstico — sempre formulário, nunca chat aberto.</p></div>
+        <div class="meta"><span class="chip skeleton">a detalhar</span></div>
+      </div>
+      <div class="row">
+        <div class="num">322</div>
+        <div class="body"><h3>Plano enriquecido por IA</h3><p>A IA explica o porquê da classificação e o plano ganha opção de exportar em Markdown.</p></div>
+        <div class="meta"><span class="chip skeleton">a detalhar</span></div>
+      </div>
+      <div class="row">
+        <div class="num">323</div>
+        <div class="body"><h3>Medição da IA</h3><p>Quanto custa cada projeto, e se a IA está melhorando a experiência sem virar "só mais um chat".</p></div>
+        <div class="meta"><span class="chip skeleton">a detalhar</span></div>
+      </div>
+
+    </div>
+
+    <p style="margin:30px 0 -6px;font-family:ui-monospace,Consolas,monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-faint);border-top:1px solid var(--line);padding-top:18px;">Fase 1C do Lab · premium</p>
+    <div class="rows" style="border-top:none;">
+
+      <div class="row">
+        <div class="num">324</div>
+        <div class="body"><h3>Free × premium</h3><p>Define o corte: quanto o plano grátis oferece (ex.: 1 projeto) antes de pedir assinatura.</p></div>
+        <div class="meta"><span class="chip skeleton">a detalhar</span></div>
+      </div>
+      <div class="row">
+        <div class="num">325</div>
+        <div class="body"><h3>Pagamento direto (Stripe)</h3><p>Assinar e ganhar acesso na hora, sem o processo manual de hoje. Convive com o Substack.</p></div>
+        <div class="meta"><span class="chip skeleton">a detalhar</span></div>
+      </div>
+      <div class="row">
+        <div class="num">326</div>
+        <div class="body"><h3>Biblioteca premium</h3><p>Completa os materiais da 316 e liga o cadeado pra quem não é assinante.</p></div>
+        <div class="meta"><span class="chip skeleton">a detalhar</span></div>
+      </div>
+
+    </div>
+
+    <p style="margin:30px 0 -6px;font-family:ui-monospace,Consolas,monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-faint);border-top:1px solid var(--line);padding-top:18px;">Integração com os workshops</p>
+    <div class="rows" style="border-top:none;">
+
+      <div class="row">
+        <div class="num">330</div>
+        <div class="body"><h3>Turmas do workshop no Lab</h3><p>Acesso/cupom por turma, materiais exclusivos da turma na biblioteca, espaço pra feedback e cases.</p></div>
+        <div class="meta"><span class="chip skeleton">a definir</span></div>
       </div>
 
     </div>
@@ -736,8 +830,8 @@
   </section>
 
   <div class="foot">
-    <span>docs/revamp/04_issue_backlog.md · 03_implementation_plan.md</span>
-    <span>gerado em 09 de julho de 2026</span>
+    <span>docs/revamp/04_issue_backlog.md · 13_plano_fase1_lab.md</span>
+    <span>gerado em 11 de julho de 2026</span>
   </div>
 
 </div>
