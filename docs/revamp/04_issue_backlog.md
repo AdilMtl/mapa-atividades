@@ -1142,17 +1142,17 @@ não foram revisadas — é o mesmo caso do ISSUE-105 (voz da marca no momento d
 rascunho salvo por passo; submissão roda a 312 e redireciona pro projeto. **Dep.:** 310–312.
 
 ## ISSUE-314 — Página do projeto `/lab/projeto/[id]` (diagnóstico + plano + materiais)
-**Status:** 📐 spec fechada em 2026-07-11 (`ISSUE-314-spec-pagina-projeto.md`, decisões na
-pergunta 17 do `00b`) — conceito "as notas viraram o plano": leitura guiada na 1ª visita /
-documento nas seguintes, devolutiva ecoando o wizard, checklist vivo (status automático na
-entrada, cerimonial na saída), bloco Mão na massa (guia + primeiro prompt copiável,
-personalizado sem IA), linha de evolução via vencedor_bruto. Conteúdo editorial AUTORADO na
-mesma data (`ISSUE-314-materiais-conteudo.md`: copy dos 5 blocos, devolutiva por porta/
-arquétipo, 10 guias, 9 primeiros prompts, 8 linhas de evolução, regras de personalização).
-**✅ Conteúdo APROVADO pelo dono em 2026-07-11**, após rodada de revisão de voz contra os
-guias oficiais do dono (fora do repo — ver nota no próprio doc de conteúdo). Pronta para
-implementação: abrir sessão nova com Sonnet, ler `ISSUE-314-spec-pagina-projeto.md` +
-`ISSUE-314-materiais-conteudo.md` (ambos aprovados), escopo excluído é vinculante.
+**Status:** ✅ implementada em 2026-07-11 (v3.11.9→11) — spec (`ISSUE-314-spec-pagina-projeto.md`)
++ conteúdo (`ISSUE-314-materiais-conteudo.md`, aprovado pelo dono) transpostos pro código:
+`src/lib/lab/materiais.ts` (+testes: 133 novos, zero placeholder vazando em nenhuma combinação
+de fallback), PATCH `/api/lab/projects/[id]` com checklist vivo + transições de status
+(`em_construcao` automático na 1ª marcação, `concluido` só por ação explícita, servidor nunca
+confia no cliente), 6 componentes novos em `src/components/lab/projeto/`, redirect do wizard
+com `?leitura=1`. 271 testes verdes (eram 138) · tsc/lint/build limpos · smoke test do server
+de produção validado (rotas públicas 200, gate do Lab 307 pra anônimo, API 401 sem sessão).
+**Falta pra fechar de vez:** o roteiro manual do dono com conta real (ler a leitura guiada,
+marcar etapas, copiar o prompt, concluir um projeto, revisitar em modo documento, testar no
+celular) — critério de aceite 8 da spec é subjetivo e só o dono valida.
 **Tipo:** Frontend · **Prioridade:** Alta · **Complexidade:** Média
 **Modelo:** **Fable 5 escreve a copy/estrutura da tela (é a tela que precisa "parecer diferente
 de um chat genérico" — equivalente à ISSUE-105) → Sonnet implementa o componente sob a spec

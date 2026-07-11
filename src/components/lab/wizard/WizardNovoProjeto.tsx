@@ -216,7 +216,9 @@ export function WizardNovoProjeto({
           body: JSON.stringify({ finalizar: completo }),
         })
         if (!res.ok) throw new Error('finalizar')
-        router.push(`/lab/projeto/${id}`)
+        // ?leitura=1: sinaliza a 314 pra abrir em modo guiado (só a 1ª visita,
+        // spec ISSUE-314 §2) — sem storage, sem SQL.
+        router.push(`/lab/projeto/${id}?leitura=1`)
       } catch {
         setErroFinal(
           'Não consegui criar o projeto agora — tuas respostas continuam aqui, tenta de novo.',

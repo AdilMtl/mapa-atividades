@@ -482,11 +482,11 @@ repete até caber.
 
 Com o fluxo fechado, defina a v1 com exatamente: UMA tela, UM perfil de usuário, UMA
 integração (ou entrada manual de dados, se a integração puder esperar). Liste explicitamente
-o que fica de FORA da v1 — essa lista é tão importante quanto o que entra.
+o que fica de FORA da v1 — essa lista é tão importante quanto o que fica dentro.
 
-Feche com a descrição de uma página dessa v1 (quem usa, dor, o que entra, o que sai,
-primeira tela), pronta pra eu colar numa ferramenta de construção como Lovable ou v0 — ou
-te pedir a primeira versão aqui mesmo.
+Feche com a descrição de uma página dessa v1 (quem usa, dor, o que a pessoa informa, o que
+ela recebe de volta, primeira tela), pronta pra eu colar numa ferramenta de construção como
+Lovable ou v0 — ou te pedir a primeira versão aqui mesmo.
 ```
 
 ### 5.9 `agentico` — pra começar o agente (pela consulta)

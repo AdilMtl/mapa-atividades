@@ -1,99 +1,94 @@
-import { notFound } from 'next/navigation'
+import { Caveat } from 'next/font/google'
+import { notFound, redirect } from 'next/navigation'
 
-import { Badge, Card, Eyebrow } from '@/components/ds2'
-import type { LabDiagnosis, LabPlan } from '@/lib/lab/types'
+import { PaginaProjeto } from '@/components/lab/projeto/PaginaProjeto'
+import {
+  guiaAncora,
+  linhaEvolucao,
+  montarDevolutiva,
+  montarPrimeiroPrompt,
+  paraFonteDevolutiva,
+} from '@/lib/lab/materiais'
+import type { AmbienteId, LabDiagnosis, LabPlan } from '@/lib/lab/types'
 import { criarClienteServidor } from '@/lib/supabase-server'
 
 // =============================================================================
-// /lab/projeto/[id] — ESQUELETO (criado na ISSUE-313, mesmo padrão do esqueleto
-// que a 311 fez pro /lab/inicio): recebe o redirect do wizard e prova que o
-// projeto nasceu com diagnóstico e plano. A página COMPLETA — checklist
-// clicável, materiais, diligência, estados — é a ISSUE-314. Não expandir aqui.
-// Projeto de outra pessoa → RLS devolve vazio → 404 (aceite da 314, já valendo).
+// /lab/projeto/[id] — "A FOLHA VIROU PLANO" (ISSUE-314)
+// Server Component: busca o projeto (RLS — de outra pessoa não existe aqui,
+// vira 404) e faz TODA a composição de texto (devolutiva, guia âncora,
+// primeiro prompt, linha de evolução) via `lib/lab/materiais.ts` — puro,
+// testado, sem IA em runtime. O cliente (PaginaProjeto) só orquestra a
+// revelação em blocos e a persistência do checklist.
+// A fonte manuscrita (Caveat) carrega SÓ nesta rota, como no wizard — o eco
+// manuscrito do Bloco 1 é coadjuvante aqui, não protagonista (spec §3).
+// Spec completa: docs/revamp/ISSUE-314-spec-pagina-projeto.md
 // =============================================================================
 
-const LABEL_STATUS: Record<string, string> = {
-  rascunho: 'rascunho',
-  diagnosticado: 'diagnosticado',
-  planejado: 'planejado',
-  em_construcao: 'em construção',
-  concluido: 'concluído',
-}
+const fonteNota = Caveat({
+  subsets: ['latin', 'latin-ext'],
+  variable: '--font-nota',
+  display: 'swap',
+})
 
 export default async function ProjetoPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ id: string }>
+  searchParams: Promise<{ leitura?: string }>
 }) {
   const { id } = await params
+  const { leitura } = await searchParams
   const supabase = await criarClienteServidor()
 
   const { data: projeto } = await supabase
     .from('lab_projects')
-    .select('id, title, status, diagnosis, plan')
+    .select('id, title, status, diagnosis, plan, wizard_answers')
     .eq('id', id)
     .maybeSingle()
 
   if (!projeto) notFound()
 
+  // Rascunho não tem diagnóstico/plano — a tela que resolve isso é a do
+  // wizard (retoma o rascunho no ponto certo). Nada pra mostrar aqui.
+  if (projeto.status === 'rascunho') {
+    redirect('/lab/novo-projeto')
+  }
+
   const diagnosis = projeto.diagnosis as LabDiagnosis | null
   const plan = projeto.plan as LabPlan | null
+  if (!diagnosis || !plan) notFound()
+
+  const wizardAnswers = projeto.wizard_answers as {
+    area?: string | null
+    entrega?: string
+    ambiente?: AmbienteId[]
+  } | null
+
+  const devolutiva = montarDevolutiva(paraFonteDevolutiva(projeto.wizard_answers))
+  const guia = guiaAncora(diagnosis.tipo)
+  const prompt = montarPrimeiroPrompt(diagnosis.tipo, {
+    area: wizardAnswers?.area ?? null,
+    entrega: wizardAnswers?.entrega ?? null,
+    ambiente: wizardAnswers?.ambiente ?? null,
+  })
+  const evolucao = linhaEvolucao(diagnosis)
 
   return (
-    <div className="space-y-6">
-      <div>
-        <Eyebrow>teu projeto no lab</Eyebrow>
-        <div className="mt-3 flex flex-wrap items-center gap-3">
-          <h1 className="font-ds2-serif text-4xl font-medium tracking-[-0.045em]">
-            {projeto.title}
-          </h1>
-          <Badge>{LABEL_STATUS[projeto.status] ?? projeto.status}</Badge>
-        </div>
-      </div>
-
-      {plan && (
-        <Card className="max-w-3xl">
-          <p className="mb-6 font-ds2-mono text-[11px] tracking-[0.08em] text-ds2-text-muted">
-            01 / RESUMO DO PLANO
-          </p>
-          <p className="text-sm leading-relaxed whitespace-pre-line text-ds2-text-secondary">
-            {plan.resumo}
-          </p>
-        </Card>
-      )}
-
-      {plan && (
-        <Card className="max-w-3xl">
-          <p className="mb-6 font-ds2-mono text-[11px] tracking-[0.08em] text-ds2-text-muted">
-            02 / ETAPAS ({plan.etapas.length})
-          </p>
-          <ol className="space-y-4">
-            {plan.etapas.map((etapa, idx) => (
-              <li key={etapa.id} className="flex gap-3">
-                <span className="font-ds2-mono text-xs text-ds2-amber-soft">
-                  {String(idx + 1).padStart(2, '0')}
-                </span>
-                <div>
-                  <h3 className="font-ds2-sans text-sm font-semibold text-ds2-text-primary">
-                    {etapa.titulo}
-                  </h3>
-                  <p className="mt-1 text-sm leading-relaxed text-ds2-text-secondary">
-                    {etapa.descricao}
-                  </p>
-                </div>
-              </li>
-            ))}
-          </ol>
-        </Card>
-      )}
-
-      {diagnosis && (
-        <p className="font-ds2-mono text-xs text-ds2-text-muted">
-          classificação: {diagnosis.tipo} · família {diagnosis.familia} · complexidade{' '}
-          {diagnosis.complexidade_label} — a página completa do projeto (checklist,
-          materiais, diligência) chega na próxima atualização.
-        </p>
-      )}
+    <div className={fonteNota.variable}>
+      <PaginaProjeto
+        id={projeto.id}
+        titulo={projeto.title}
+        status={projeto.status}
+        diagnosis={diagnosis}
+        etapas={plan.etapas}
+        checklistInicial={plan.checklist}
+        devolutiva={devolutiva}
+        guia={guia}
+        prompt={prompt}
+        linhaEvolucao={evolucao}
+        modoInicial={leitura === '1' ? 'guiado' : 'documento'}
+      />
     </div>
   )
 }
