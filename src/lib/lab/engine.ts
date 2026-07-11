@@ -145,3 +145,32 @@ function diagnosticarCampos(respostas: CamposClassificacao): LabDiagnosis {
     engine_version: ENGINE_VERSION,
   }
 }
+
+/**
+ * Reancora o diagnóstico num tipo ESCOLHIDO pela pessoa (proposta assistida da
+ * ISSUE-313: desempate/alternativas — "proposta escolhida, não veredito").
+ * Recalcula tudo que deriva do tipo pelas mesmas tabelas acima; preserva o que
+ * veio da conversa (flags, pontuação, vencedor bruto, estimativa, versão) —
+ * a auditoria continua enxergando o veredito original na `pontuacao`.
+ * Mesmo tipo → devolve o diagnóstico intacto. Aditivo: nada do fluxo v1/v2 muda.
+ */
+export function ajustarDiagnosticoParaTipo(
+  diagnostico: LabDiagnosis,
+  tipo: SolutionTypeId,
+): LabDiagnosis {
+  if (tipo === diagnostico.tipo) return diagnostico
+  const complexidade = COMPLEXIDADE[tipo]
+  const riscoBase = RISCO_POR_COMPLEXIDADE[complexidade]
+
+  return {
+    ...diagnostico,
+    tipo,
+    familia: FAMILIA_POR_TIPO[tipo].familia,
+    nivel_na_familia: FAMILIA_POR_TIPO[tipo].nivelNaFamilia,
+    complexidade,
+    complexidade_label: LABEL_COMPLEXIDADE[complexidade],
+    potencial_ia: POTENCIAL_IA[tipo],
+    potencial_automacao: POTENCIAL_AUTOMACAO[tipo],
+    risco: diagnostico.flags.diligencia ? RISCO_ACIMA[riscoBase] : riscoBase,
+  }
+}

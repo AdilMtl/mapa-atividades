@@ -7,7 +7,82 @@
 
 ---
 
-## 🎯 SESSÃO ATUAL: LabShell + gate server-side testado com conta real (ISSUE-311)
+## 🎯 SESSÃO ATUAL: UI completa do Wizard do Lab — "Conversa de Consultor" (ISSUE-313)
+**Data:** 11 de julho de 2026
+**Versão:** v3.11.7
+**Status:** ⚠️ parcial — implementação completa e validada tecnicamente; falta só o roteiro
+manual do dono nas 3 portas + mobile real
+
+### **🚀 O QUE FOI FEITO:**
+
+1. **Sessão de design ANTES de codar** (persona: designer de produto mobile-first, a pedido
+   do dono — "não quero formulário, quero algo se construindo na tela"). Decisões fechadas via
+   perguntas estruturadas e registradas na **pergunta 16 do `00b_open_questions.md`**: as
+   "Notas do Consultor" (o espelho incremental da spec) viram PROTAGONISTAS — uma folha
+   manuscrita que se escreve sozinha enquanto a pessoa responde (referência do dono: "diário
+   do Voldemort", escrita esquerda→direita), fonte cursiva **Caveat** carregada só na rota do
+   wizard (layout raiz intocado — trava de tracking preservada); split-screen no desktop
+   (pergunta à esquerda, notas sticky à direita), coluna única com notas compactas/expansíveis
+   no mobile; ritmo ágil (0.18–0.28s). Política de animação em 2 camadas: framer-motion (já no
+   projeto) + ícones lucide ANIMADOS copiados pra dentro (padrão MIT `pqoqubbw/icons`, zero
+   dependência nova, zero CDN externo) — Lottie/Rive avaliados e **vetados por ora**
+   (registrado como ideia futura: assets próprios no repo).
+2. **Implementação completa sob a spec v2.1 fechada** (`docs/revamp/ISSUE-313-spec-wizard.md`):
+   - `src/lib/lab/validacao.ts` — validação pura em 2 posturas: `sanitizarRascunho` tolerante
+     (abandono nunca falha) e `validarCompleto` estrito (vocabulário fechado, mesma robustez-
+     por-construção da heurística). 20 testes novos.
+   - `ajustarDiagnosticoParaTipo` em `engine.ts` (aditivo) — reancora o diagnóstico no tipo que
+     a PESSOA escolheu na proposta assistida, preservando pontuação/vencedor bruto do motor
+     pra auditoria ("proposta escolhida, não veredito", spec §9). 3 testes novos.
+   - `src/app/api/lab/projects/{route,[id]/route}.ts` — POST cria rascunho, PATCH salva
+     progresso OU finaliza (motor roda NO SERVIDOR — o cliente só faz preview); 3 camadas de
+     segurança (sessão via cookie + gate `authorized_emails` + RLS `auth.uid()` via cliente da
+     própria sessão, nunca service role).
+   - `src/components/lab/wizard/` — orquestrador (`WizardNovoProjeto`, rascunho salvo por
+     virada de bloco, retomada no ponto exato), `NotasConsultor` (a folha manuscrita),
+     `IconesAnimados`, `EtapaPergunta` (todos os formatos: escala, chips, cards, confirmação
+     de hipótese, multiselect, slider, texto), `EtapaEspelho` (ajuste POR DIMENSÃO — corrigir
+     um campo nunca descarta os demais, critério de aceite da spec), `EtapaProposta`
+     (desempate transparente máx. 1× + nome sugerido + proposta com 2 alternativas, formato
+     consultor: por que serve pro teu caso · corredor · evolui pra).
+   - `/lab/novo-projeto` (Server Component: retomada de rascunho + pré-preenchimento de
+     fluência do perfil), esqueleto de `/lab/projeto/[id]` (recebe o redirect; a página
+     completa é a 314), CTA real no `/lab/inicio`.
+3. **Feedback do 1º teste do dono (mesma sessão) — roteado, não perdido:**
+   - **Final "frio"** (escolhia e caía direto nos 3 cards): ✅ **resolvido na hora** — nova
+     moldura do consultor (beat "analisando teu caso…" + leitura "recomendo [tipo], lê os
+     três e escolhe o que é o teu") antes dos cards.
+   - **Lista de áreas incompleta** (falta TI/Tecnologia etc.) → **ISSUE-210 nova** no backlog.
+   - **Página do projeto "genérica/sem next step"** → nota forte na **ISSUE-314** (ela é quem
+     resolve: tela diagnóstica de verdade, não esqueleto).
+   - **Não dá pra reconsultar o projeto depois** → nota na **ISSUE-315** (hub precisa listar).
+   - **"Plano saiu errado"** → roteado pra revisão editorial do 312/content + profundidade
+     real com IA na fase 1B (320/321), como o próprio dono intuiu.
+   - Redirect pós-wizard **confirmado funcionando** (não era bug).
+
+### **📊 TÉCNICO:**
+- **138 testes verdes** (eram 125) · `tsc --noEmit` limpo · lint sem erro/warning novo (zero
+  arquivo do Lab/wizard na lista de pendências pré-existentes do projeto) · `npm run build`
+  ok (`/lab/novo-projeto` 22,8 kB / 186 kB first load) · smoke test no build de produção:
+  rotas do Lab 307 sem flash pra anônimo, APIs 401 sem sessão, rotas públicas/tracking
+  intocadas (home, `/lab` vitrine, `/pre-diagnostico` todas 200).
+- Novos: `src/lib/lab/validacao.ts` (+test), `src/app/api/lab/projects/**`,
+  `src/components/lab/wizard/**`, `src/app/(lab)/lab/{novo-projeto,projeto/[id]}/page.tsx`.
+  Alterados: `src/lib/lab/engine.ts` (+test, aditivo), `src/app/(lab)/lab/inicio/page.tsx`
+  (CTA real).
+- Docs: pergunta 16 nova no `00b_open_questions.md`; ISSUE-313 marcada com status detalhado
+  + feedback roteado; ISSUE-210 nova; notas cravadas nas ISSUE-314/315.
+
+### **🎯 PRÓXIMA SESSÃO:**
+1. **Fechar a 313:** dono roda o roteiro manual completo (3 portas com conta real + mobile).
+2. **Recomendação do dono para adiantar Fable 5:** metade Fable 5 da **ISSUE-314** (copy/
+   estrutura da página do projeto — "não pode parecer chat genérico", mesmo critério da 105/
+   313) — reforçada pelo próprio feedback desta sessão. Secundários: ISSUE-210 (áreas) e
+   revisão editorial dos templates do 312.
+
+---
+
+## 📋 SESSÃO ANTERIOR: LabShell + gate server-side testado com conta real (ISSUE-311)
 **Data:** 09 de julho de 2026
 **Versão:** v3.11.6
 **Status:** ⚠️ parcial (validado pelo dono com conta real; falta só o roteiro completo dos 5 passos)

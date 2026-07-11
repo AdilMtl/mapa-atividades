@@ -4,7 +4,13 @@
 // (3) derivações editoriais (potenciais/risco/labels), (4) determinismo/versão.
 import { describe, expect, it } from 'vitest'
 import { decidirOportunidade } from '../radar/oportunidades'
-import { diagnosticar, diagnosticarV2, ENGINE_VERSION, paraRespostasRadar } from './engine'
+import {
+  ajustarDiagnosticoParaTipo,
+  diagnosticar,
+  diagnosticarV2,
+  ENGINE_VERSION,
+  paraRespostasRadar,
+} from './engine'
 import type { WizardAnswers, WizardAnswersV2 } from './types'
 import { WIZARD_SCHEMA_VERSION } from './types'
 
@@ -301,5 +307,41 @@ describe('diagnosticarV2 (schema v2 — Conversa de Consultor)', () => {
   it('validação do motor segue valendo no v2', () => {
     const invalida = wizardV2({ ...CENARIOS[1].cenario, dado: 'dado_inexistente' })
     expect(() => diagnosticarV2(invalida)).toThrow(/op_dado/)
+  })
+})
+
+// ----------------------------------------------------------------------------
+// Ajuste do diagnóstico ao tipo ESCOLHIDO (ISSUE-313 — proposta assistida)
+// ----------------------------------------------------------------------------
+
+describe('ajustarDiagnosticoParaTipo', () => {
+  const base = diagnosticar(wizard(CENARIOS[0].cenario)) // dashboard
+
+  it('mesmo tipo → devolve o diagnóstico intacto (mesma referência)', () => {
+    expect(ajustarDiagnosticoParaTipo(base, base.tipo)).toBe(base)
+  })
+
+  it('tipo novo → recalcula derivados e preserva o que veio da conversa', () => {
+    const ajustado = ajustarDiagnosticoParaTipo(base, 'automacao')
+    expect(ajustado.tipo).toBe('automacao')
+    expect(ajustado.familia).toBe('fluxo')
+    expect(ajustado.nivel_na_familia).toBe(2)
+    expect(ajustado.complexidade).toBe(2)
+    expect(ajustado.potencial_automacao).toBe('alto')
+    // Preservados: a conversa não muda porque a escolha mudou.
+    expect(ajustado.pontuacao).toEqual(base.pontuacao)
+    expect(ajustado.vencedor_bruto).toBe(base.vencedor_bruto)
+    expect(ajustado.flags).toEqual(base.flags)
+    expect(ajustado.engine_version).toBe(ENGINE_VERSION)
+  })
+
+  it('diligência continua subindo o risco no tipo ajustado', () => {
+    const sensivel = diagnosticar(
+      wizard({ ...CENARIOS[0].cenario, dado: 'dado_sensiveis' }),
+    )
+    expect(sensivel.flags.diligencia).toBe(true)
+    const ajustado = ajustarDiagnosticoParaTipo(sensivel, 'prompt')
+    // prompt: complexidade 1 → risco base baixo, diligência sobe pra médio.
+    expect(ajustado.risco).toBe('medio')
   })
 })

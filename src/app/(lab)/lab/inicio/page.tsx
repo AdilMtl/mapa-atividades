@@ -1,9 +1,12 @@
-import { Badge, Card, Eyebrow, GridSection } from '@/components/ds2'
+import Link from 'next/link'
+
+import { Button, Card, Eyebrow, GridSection } from '@/components/ds2'
 
 // =============================================================================
 // /lab/inicio — ESQUELETO (ISSUE-311). O hub real, com estados vazio/1/N
 // projetos e "continue de onde parou", é a ISSUE-315 — aqui só se prova que o
 // gate + shell funcionam, já na voz e no visual certos.
+// ISSUE-313: o wizard existe — o card de novo projeto agora leva até ele.
 // =============================================================================
 
 export default function LabInicioPage() {
@@ -35,7 +38,9 @@ export default function LabInicioPage() {
               sai com diagnóstico e plano de construção.
             </p>
           </div>
-          <Badge>chega na próxima atualização</Badge>
+          <Button asChild>
+            <Link href="/lab/novo-projeto">Quero começar meu projeto</Link>
+          </Button>
         </div>
       </GridSection>
 

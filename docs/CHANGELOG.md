@@ -16,6 +16,50 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [v3.11.7] - 2026-07-11 - 🧙 UI completa do Wizard do Lab — "Conversa de Consultor" (ISSUE-313)
+
+### ✅ Adicionado
+- **UI completa de `/lab/novo-projeto`** sob a spec v2.1 fechada: orquestrador
+  (`WizardNovoProjeto`, split-screen desktop/coluna única mobile, rascunho salvo por virada
+  de bloco, retomada no ponto exato), todos os formatos de etapa (escala, chips, cards,
+  confirmação de hipótese, multiselect, slider, texto), espelho com ajuste POR DIMENSÃO
+  (corrigir um campo nunca descarta os demais), desempate condicional transparente (máx. 1×),
+  proposta assistida com 2 alternativas no formato consultor.
+- **`NotasConsultor`** — decisão de UX da sessão (pergunta 16 do `00b_open_questions.md`):
+  o espelho incremental vira uma folha de notas MANUSCRITAS que se escreve sozinha enquanto a
+  pessoa responde (fonte cursiva Caveat, carregada só na rota do wizard). Beat "anotando…"
+  (lápis + pontinhos) antes de cada linha.
+- **`IconesAnimados.tsx`** — micro-animações no padrão MIT `pqoqubbw/icons` (framer-motion
+  animando traços lucide), copiadas pra dentro do repo: zero dependência nova, zero CDN
+  externo. Lottie/Rive avaliados e vetados por ora (ideia futura: assets próprios no repo).
+- **`src/lib/lab/validacao.ts`** — validação pura em 2 posturas: rascunho tolerante (abandono
+  nunca falha) e completo estrito (vocabulário fechado — mesma robustez-por-construção da
+  heurística). 20 testes novos.
+- **`ajustarDiagnosticoParaTipo`** em `engine.ts` (aditivo) — reancora o diagnóstico no tipo
+  ESCOLHIDO pela pessoa na proposta, preservando pontuação/vencedor bruto do motor original
+  pra auditoria ("proposta escolhida, não veredito", spec §9). 3 testes novos.
+- **`src/app/api/lab/projects/{route,[id]/route}.ts`** — POST cria rascunho; PATCH salva
+  progresso ou finaliza (motor roda NO SERVIDOR); 3 camadas de segurança (sessão + gate +
+  RLS via cliente da própria sessão, nunca service role).
+- **Esqueleto de `/lab/projeto/[id]`** (recebe o redirect pós-wizard; página completa é a
+  314) e CTA real no `/lab/inicio`.
+- **ISSUE-210 nova no backlog** (revisão da taxonomia de áreas `op_area` — achado no teste
+  do dono; falta TI/Tecnologia entre outras).
+
+### 🎨 Melhorado
+- **Fechamento da proposta**, ajustado no mesmo dia após 1º teste do dono ("final frio"):
+  beat "analisando teu caso…" + leitura do consultor apresentando a recomendação e convidando
+  a ler as 2 alternativas antes dos cards.
+
+### 📊 Técnico
+- **138 testes verdes** (eram 125) · `tsc --noEmit` limpo · lint sem erro/warning novo em
+  nenhum arquivo do Lab/wizard · `npm run build` ok (`/lab/novo-projeto` 22,8 kB / 186 kB
+  first load) · smoke test no build de produção validado (rotas do Lab 307 sem flash pra
+  anônimo, APIs 401 sem sessão, rotas públicas/tracking intocadas).
+- **Falta pra fechar a ISSUE-313:** roteiro manual do dono (3 portas com conta real + mobile).
+
+---
+
 ## [v3.11.6] - 2026-07-09 - 🚪 LabShell + gate server-side (ISSUE-311)
 
 ### ✅ Adicionado

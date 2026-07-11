@@ -388,6 +388,34 @@ e o motor completo foi implementado e auditado na sequência (700k combinações
 detalhe no CURRENT-STATUS v3.11.5). A UI da 313 depende só da ISSUE-311 (LabShell), próxima
 elegível.
 
+## Pergunta pendente 16 — ✅ RESPONDIDA PELO DONO (2026-07-10/11) — UX/UI do wizard e política de animação do Lab
+
+**Contexto:** antes de implementar a UI da 313, o dono pediu uma sessão de design ("que não
+seja um formulário — algo se construindo na tela"). Decisões, respondidas via
+AskUserQuestion + conversa:
+
+1. **Metáfora protagonista: "Notas do consultor"** — o espelho incremental da spec deixa de
+   ser rodapé e vira uma folha de notas MANUSCRITAS que se escreve sozinha enquanto a pessoa
+   responde (referência do dono: "diário do Voldemort", escrita da esquerda pra direita).
+   Fonte cursiva **Caveat** (Google Fonts via `next/font`, carregada SÓ na rota do wizard —
+   layout raiz intocado, trava de tracking). Beat curto de "anotando…" (lápis + pontinhos)
+   antes de cada linha = o "background action" que o dono queria.
+2. **Layout: split-screen no desktop** (pergunta à esquerda, notas à direita, sticky);
+   coluna única no mobile com notas compactas/expansíveis no topo.
+3. **Ritmo: ágil e fluido** — transições 0.18–0.28s, beats de ~380ms; nada de "consultor
+   deliberado" lento.
+4. **Política de animação do Lab (camadas):** camada 1 = framer-motion (já no projeto);
+   camada 2 = ícones lucide ANIMADOS no padrão pqoqubbw/icons (MIT) — código copiado pra
+   dentro (`IconesAnimados.tsx`), zero dependência nova, zero CDN/host externo; camada 3
+   (Lottie/Rive) = **vetada por ora** — se um momento-herói pedir no futuro, a preferência
+   do dono é criar assets PRÓPRIOS dentro do repo (e aí avaliar Rive, não Lottie).
+   `prefers-reduced-motion` respeitado em tudo.
+
+**Consequências:** UI da 313 implementada nesta sessão sob essas decisões (v3.11.7);
+`NotasConsultor`/`IconesAnimados` viram o padrão de "vida" das telas seguintes do Lab
+(314/315) — não introduzir outra biblioteca de animação sem reabrir esta pergunta.
+**Bloqueia implementação?** Não.
+
 ---
 
 ## Resumo executivo das premissas assumidas

@@ -971,6 +971,19 @@ LGPD. O cookie de sessão do login NÃO exige consentimento (estritamente necess
 Google Consent Mode v2 + teste de que a conversão Ads continua medindo (trava do CLAUDE.md).
 **Dep.:** nenhuma técnica; decidir timing com o dono (toca o funil que converte).
 
+## ISSUE-210 — Revisão da taxonomia de ÁREAS de atuação (`op_area`)
+**Tipo:** Conteúdo/Taxonomia · **Prioridade:** Média · **Complexidade:** Baixa
+**Modelo:** Fable 5 rascunha a lista + dono aprova (é vocabulário de marca e segmentação).
+Registrada em 2026-07-11 (feedback do 1º teste do wizard, ISSUE-313): a lista de áreas
+(`op_area` em `src/lib/radar/oportunidades.ts`) pode não abranger todo o público — falta clara
+de **TI/Tecnologia**; candidatos: Logística/Supply, Compras/Procurement, Dados/BI, Comunicação/
+PR, Administrativo, Saúde, Educação. ⚠️ **É vocabulário COMPARTILHADO com o Radar de
+Oportunidades** — mexer aqui muda o quiz do radar também; `op_area` tem `scored:false` (não
+pontua, só personaliza exemplos e segmenta → baixo risco técnico). Escopo: definir a lista com
+o dono; adicionar ids/labels; opcionalmente estender os overrides de cena por área
+(`CENA_POR_AREA` em `wizard-flow.ts`, hoje só 5 áreas — as demais caem no genérico, que já
+existe). **Dep.:** nenhuma. **Risco:** baixo (aditivo; ids congelados não mudam, só entram novos).
+
 ---
 
 ## FASE 2 — Valor de produto (Lab) — 🔼 PROMOVIDA em 2026-07-09 · plano detalhado em `13_plano_fase1_lab.md`
@@ -1078,8 +1091,37 @@ critério da revisão da matriz de pesos do radar (dentro da 104).
 9 tipos. **Dep.:** nenhuma. **Risco:** baixo.
 
 ## ISSUE-313 — Wizard `/lab/novo-projeto`
-**Status:** ⚠️ parcial em 2026-07-09 — **spec v2.1 aprovada pelo dono + MOTOR COMPLETO
-implementado e auditado** (v3.11.5). Spec "Conversa de Consultor"
+**Status:** ⚠️ implementada por completo em 2026-07-11 (v3.11.7) — **falta só o roteiro
+manual do dono** (3 portas com conta real + mobile). Entregue nesta data: UI completa da
+"Conversa de Consultor" sob a spec v2.1 + decisões de UX da pergunta 16 do `00b` (notas do
+consultor manuscritas como protagonista — fonte Caveat só na rota; split-screen desktop /
+coluna única mobile; ritmo ágil; framer-motion + lucide animado padrão pqoqubbw, zero dep
+nova). Componentes em `src/components/lab/wizard/` (orquestrador, notas, etapas de todos os
+formatos, espelho com ajuste por dimensão, desempate transparente, proposta assistida com
+alternativas); rascunho salvo por virada de bloco + retomada no ponto certo; rotas
+`api/lab/projects` (POST) e `[id]` (PATCH rascunho/finalizar — motor roda NO SERVIDOR, com
+`validarCompleto` estrito de `validacao.ts`); `ajustarDiagnosticoParaTipo` no engine
+(aditivo — plano segue a ESCOLHA, pontuação preserva o veredito); esqueleto mínimo de
+`/lab/projeto/[id]` pra receber o redirect (página real segue sendo a 314); CTA real no
+`/lab/inicio`. 138 testes verdes · tsc/lint/build limpos · smoke anônimo: 307 sem flash nas
+rotas do Lab, 401 nas APIs, rotas públicas intocadas.
+**🔎 Feedback do 1º teste do dono (2026-07-11) — roteado, não perdido:**
+- **Moldura antes das 3 opções:** ✅ RESOLVIDO na própria 313 nesta data — a proposta agora
+  abre com beat "analisando teu caso…" + leitura do consultor ("analisei; pra [benefício] eu
+  recomendo [tipo]; lê os três e escolhe o que é o teu"). Era o "final frio" que ele apontou.
+- **Lista de áreas pode não abranger todos** (falta TI/Tecnologia, provavelmente Logística/
+  Supply, Compras, Dados/BI, Comunicação, Administrativo): é o `op_area` do Radar (vocabulário
+  **compartilhado**, `scored:false` → baixo risco técnico, mas toca o Radar e é voz de marca).
+  → **registrado como ISSUE-210** (revisão de taxonomia de áreas, Fable 5 + dono aprova a lista).
+- **"Página do projeto fria/genérica/determinística" + "e depois? salva? começa?":** era o
+  ESQUELETO que a 313 deixou no lugar — é exatamente o que a **ISSUE-314** resolve (tela
+  diagnóstica, texto pré-formatado, checklist, "começar", materiais). Sinal forte pra 314.
+- **"O plano saiu errado" (fluidez/realidade do negócio):** duas pistas — revisão editorial
+  dos templates determinísticos (**312/content**, Fable 5) e a profundidade real com IA
+  (passo a passo detalhado) que é a **fase 1B / ISSUE-320-321**. Ele mesmo intuiu "conectar IA".
+
+**Histórico:** ⚠️ 2026-07-09 — spec v2.1 aprovada + MOTOR COMPLETO implementado e auditado
+(v3.11.5). Spec "Conversa de Consultor"
 (`docs/revamp/ISSUE-313-spec-wizard.md`): 4 blocos, 3 trilhas (ideia/dor/difusa), hipóteses
 pré-marcadas, `ambiente[]` (arsenal), slider de horas, desempate condicional, proposta +
 alternativas; IA só na ISSUE-320 (slots com fallback). Motor entregue em `src/lib/lab/`:
@@ -1106,12 +1148,19 @@ de um chat genérico" — equivalente à ISSUE-105) → Sonnet implementa o comp
 fechada.**
 Classificação + plano com checklist persistido + materiais recomendados; projeto alheio → 404
 (testar com 2 contas). **Dep.:** 312, 313.
+> 🔎 **Do teste do dono (2026-07-11):** o esqueleto que a 313 deixou aqui foi sentido como
+> "frio/genérico/determinístico" e sem "e depois?". Esta issue é a resposta — tela DIAGNÓSTICA
+> com texto pré-formatado e robusto, não tabela seca; deixar claro o próximo passo (começar/
+> salvar/checklist/materiais). É a tela que "não pode parecer chat genérico" (crit. do Modelo).
 
 ## ISSUE-315 — Hub `/lab/inicio` com estados reais
 **Tipo:** Frontend · **Prioridade:** Alta · **Complexidade:** Baixa
 **Modelo:** Sonnet — estados de tela mecânicos, sem decisão de voz pendente (313/314 já fixaram
 o padrão visual).
 Estados vazio / 1 projeto / vários; "continue de onde parou" com progresso. **Dep.:** 311, 313, 314.
+> 🔎 **Do teste do dono (2026-07-11):** hoje, terminado o wizard, não há como RECONSULTAR o
+> projeto depois — o hub é esqueleto e não lista nada. É esta issue que precisa mostrar o
+> histórico de projetos (e o link de volta pra cada um), fechando o "não consigo voltar nele".
 
 ## ISSUE-316 — Biblioteca `/lab/biblioteca` + seed dos primeiros 6–10 ativos
 **Tipo:** Frontend/Conteúdo · **Prioridade:** Alta · **Complexidade:** Média
