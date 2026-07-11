@@ -33,7 +33,7 @@ export function PublicHeader() {
           </Link>
           <Link
             href="/lab"
-            className="hidden text-ds2-text-secondary transition-colors hover:text-ds2-text-primary md:inline"
+            className="text-ds2-text-secondary transition-colors hover:text-ds2-text-primary"
           >
             Lab
           </Link>
