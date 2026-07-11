@@ -138,8 +138,10 @@ export default function AuthPage() {
         const next = new URLSearchParams(window.location.search).get('next')
         let destino = next && next.startsWith('/') && !next.startsWith('//') ? next : null
         if (!destino) {
-          // Sem ?next=: beta do Lab cai direto no Lab; o resto segue pro legado
-          // (comportamento de antes — nada muda pra quem não tem acesso ao Lab).
+          // Sem ?next=: quem tem acesso ao Lab (QUALQUER authorized_emails
+          // válido — mesma regra de verificarAutorizacao no gate do Lab,
+          // não é exclusivo de plan_type='lab_beta') cai direto no Lab; sem
+          // acesso, segue pro legado (comportamento de antes, inalterado).
           try {
             const planResponse = await fetch('/api/auth/check-authorization', {
               method: 'POST',
@@ -147,9 +149,9 @@ export default function AuthPage() {
               body: JSON.stringify({ email })
             })
             const planData = await planResponse.json()
-            destino = planData.planType === 'lab_beta' ? '/lab/inicio' : '/dashboard'
+            destino = planData.authorized ? '/lab/inicio' : '/dashboard'
           } catch (err) {
-            console.error('Erro ao verificar plano para redirect:', err)
+            console.error('Erro ao verificar acesso ao Lab para redirect:', err)
             destino = '/dashboard'
           }
         }

@@ -4,7 +4,12 @@ import { usePathname, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
 import { Button } from '@/components/ui/button'
-import { BarChart3, Map, User, Settings, LogOut, Menu, X, Target, Shield, TrendingUp, Calendar, FlaskConical } from 'lucide-react'
+import { BarChart3, Map, User, Settings, LogOut, Menu, X, Target, Shield, TrendingUp, Calendar, FlaskConical, UserCog } from 'lucide-react'
+
+// E-mail do dono/admin — mesma constante hardcoded já usada em
+// api/admin/assinantes/route.ts e admin/assinantes/page.tsx (fonte da verdade
+// do gate de admin; não duplicar lógica nova, só reusar o mesmo critério).
+const ADMIN_EMAIL = 'adilson.matioli@gmail.com'
 
 // Gate de auth + navegação da plataforma logada (extraído do layout raiz na ISSUE-101,
 // extraído do (app)/layout.tsx para AppShell na ISSUE-110 — só para o layout poder
@@ -46,7 +51,10 @@ export function AppShell({ children }: AppShellProps) {
             body: JSON.stringify({ email: session.user.email })
           })
           const data = await res.json()
-          setTemAcessoLab(data.planType === 'lab_beta')
+          // Mesma regra do gate real do Lab (verificarAutorizacao): QUALQUER
+          // authorized_emails válido entra, não só plan_type='lab_beta'
+          // (esse campo só decide se o LabShell mostra o link de volta).
+          setTemAcessoLab(Boolean(data.authorized))
         } catch (err) {
           console.error('Erro ao verificar acesso ao Lab:', err)
         }
@@ -79,6 +87,7 @@ export function AppShell({ children }: AppShellProps) {
   // 🎯 NAVEGAÇÃO CORRIGIDA - Com Fluxo Semanal
   const navigationItems = [
     ...(temAcessoLab ? [{ href: '/lab/inicio', label: 'Lab', icon: FlaskConical }] : []),
+    ...(user?.email === ADMIN_EMAIL ? [{ href: '/admin/assinantes', label: 'Admin', icon: UserCog }] : []),
     { href: '/dashboard', label: 'Mapa', icon: Map },
     { href: '/diagnostico', label: 'Diagnóstico', icon: TrendingUp },
     { href: '/plano-acao', label: 'Plano de Ação', icon: Target },
