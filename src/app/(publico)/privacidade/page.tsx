@@ -174,6 +174,26 @@ export default function PrivacidadePage() {
               newsletter e o Lab. Nunca vendemos ou compartilhamos com terceiros.
             </p>
           </div>
+
+          <div className="bg-white/5 border border-white/10 rounded-lg p-4 mt-6">
+            <h3 className="font-medium text-white mb-3 flex items-center gap-2">
+              <FileText className="w-4 h-4" />
+              Cookies
+            </h3>
+            <ul className="text-white/80 text-sm space-y-2">
+              <li>
+                • <strong>Cookie de sessão (essencial):</strong> ao fazer login, guardamos sua
+                sessão em um cookie próprio — é ele que mantém você conectado com segurança.
+                Sem ele, a área logada não funciona; por isso não depende de consentimento
+                (LGPD, cookies estritamente necessários).
+              </li>
+              <li>
+                • <strong>Cookies de métricas e anúncios:</strong> usamos Google Tag Manager,
+                Google Analytics e Google Ads para medir visitas e campanhas. Você pode
+                bloqueá-los nas configurações do seu navegador sem perder acesso ao site.
+              </li>
+            </ul>
+          </div>
         </Section>
 
         {/* Como Protegemos */}

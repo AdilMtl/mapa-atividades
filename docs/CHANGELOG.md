@@ -16,6 +16,40 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [v3.11.6] - 2026-07-09 - 🚪 LabShell + gate server-side (ISSUE-311)
+
+### ✅ Adicionado
+- **`src/middleware.ts`** — escopado só às 5 rotas logadas do Lab; anônimo → `/auth?next=`
+  antes de qualquer render (testado no build de produção: 307 do servidor, zero flash).
+- **`src/lib/supabase-server.ts`** — sessão via cookie + `verificarAutorizacao` contra
+  `authorized_emails` (service role, mesma regra da rota `check-authorization`).
+- **`src/app/(lab)/lab/{layout,inicio}`** — gate server-side (não autorizado → tela "beta
+  fechado"; autorizado → `LabShell`) + esqueleto do hub.
+- **`src/components/lab/{LabShell,BetaFechado,LabLogout}.tsx`** — casca DS2 da área logada
+  (nav Início/Biblioteca "em breve"/Perfil "em breve"; link discreto pro legado só para
+  `plan_type ≠ 'lab_beta'`).
+- **`?next=` no `/auth`** (`src/app/(publico)/auth/page.tsx`) — volta pra rota que pediu
+  login, com guarda anti open-redirect (só caminho interno).
+- **Seção de cookies em `/privacidade`** (LGPD): cookie de sessão (estritamente necessário,
+  sem exigir consentimento) vs. cookies de tracking (GTM/GA4/Ads, já existentes).
+- **ISSUE-209 nova no backlog** — banner de consentimento pros cookies de tracking (gap
+  pré-existente, achado na revisão de LGPD desta sessão; não bloqueia o Lab).
+
+### 🔧 Corrigido
+- `src/lib/supabase.ts`: sessão migrada de localStorage → **cookie**
+  (`createBrowserClient`, `@supabase/ssr`) — pré-requisito pro gate server-side ler a sessão
+  sem round-trip ao cliente. Efeito único: quem estava logado via localStorage precisa logar
+  de novo uma vez (aceito pelo dono; volume de assinantes ativos é baixo). API do cliente
+  idêntica — `AppShell` legado sem nenhuma linha alterada.
+
+### 📊 Técnico
+- `tsc --noEmit` limpo · `npm run build` ok · lint sem erro novo (2 erros pré-existentes fora
+  das linhas tocadas) · testado com conta real do dono: login → tela do Lab renderizou.
+- **Falta pra fechar a ISSUE-311:** roteiro completo (link do legado, `?next=` ponta a ponta,
+  logout, confirmação de que o legado segue intocado) — nenhum item é bloqueio técnico.
+
+---
+
 ## [v3.11.5] - 2026-07-09 - 🧠 Wizard do Lab: spec v2.1 aprovada + motor completo auditado (ISSUE-313)
 
 ### ✅ Adicionado

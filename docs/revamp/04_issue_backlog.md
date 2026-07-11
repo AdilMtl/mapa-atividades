@@ -960,6 +960,17 @@ intenção (doc operacional §17); (c) valores de conversão diferenciados por q
 (d) revisão de Quality Score/message match pós-reposicionamento. Entregável: documento de
 plano + especificação de mudanças para o dono aplicar no Google Ads/GTM.
 
+## ISSUE-209 — Banner de consentimento de cookies (LGPD) para os cookies de tracking
+**Tipo:** Compliance/Analytics · **Prioridade:** Média · **Complexidade:** Média
+**Modelo:** Fable 5 (persona Analytics & Ads — banner mal feito derruba a conversão que paga
+as contas; avaliar Google Consent Mode v2 antes de qualquer bloqueio de tag)
+Registrada em 2026-07-09 (surgiu na ISSUE-311): o site dispara cookies de tracking/marketing
+(GTM `GTM-PDJ2K5BX`, GA4, Google Ads) **sem banner de consentimento** — gap pré-existente de
+LGPD. O cookie de sessão do login NÃO exige consentimento (estritamente necessário; a
+/privacidade já documenta ambos desde a 311). Escopo: banner/gestor de consentimento +
+Google Consent Mode v2 + teste de que a conversão Ads continua medindo (trava do CLAUDE.md).
+**Dep.:** nenhuma técnica; decidir timing com o dono (toca o funil que converte).
+
 ---
 
 ## FASE 2 — Valor de produto (Lab) — 🔼 PROMOVIDA em 2026-07-09 · plano detalhado em `13_plano_fase1_lab.md`
@@ -1030,6 +1041,21 @@ RLS por usuário + REVOKE; JSONB versionado (`engine_version`) para diagnóstico
 de verificação. **Dep.:** nenhuma. **Risco:** primeira RLS `auth.uid()` em tabela nova — auditar.
 
 ## ISSUE-311 — Route group `(lab)` + LabShell + gate server-side (`@supabase/ssr`)
+**Status:** ⚠️ parcial em 2026-07-09 — implementada e validada nos caminhos anônimos; falta o
+roteiro logado do dono. Entregue: sessão migrada de localStorage → **cookie**
+(`createBrowserClient`; decisão do dono com ciente do relogin único; cookie de auth é
+estritamente necessário — LGPD ok, /privacidade ganhou seção de cookies);
+`src/lib/supabase-server.ts` (sessão + `verificarAutorizacao` via service role);
+`src/middleware.ts` ESCOPADO só às rotas logadas do Lab (refresh de token + anônimo →
+`/auth?next=` — testado no build de prod: **307 server-side, zero flash**; vitrine `/lab`,
+home, `/auth` e `/dashboard` intocados); gate no layout `(lab)` (não autorizado → tela "beta
+fechado" DS2; `plan_type ≠ 'lab_beta'` → link discreto pro legado); `LabShell` DS2 (Início
+ativo · Biblioteca/Perfil "em breve"); esqueleto `/lab/inicio`; `?next=` no `/auth` (com
+guarda anti open-redirect). Nasceu a **ISSUE-209** (banner de consentimento pros cookies de
+tracking — gap pré-existente achado na conversa de LGPD). tsc/lint/build limpos.
+**Falta (roteiro do dono, precisa de conta real):** login → volta pro `/lab/inicio`; conta
+autorizada vê o shell; conta não autorizada vê "beta fechado"; logout limpa e volta pra home;
+relogin único no legado pós-migração de cookie.
 **Tipo:** Frontend/Auth · **Prioridade:** Alta · **Complexidade:** Média · **Modelo:** Fable 5
 Casca da área logada com navegação DS2 (Início · Biblioteca · Perfil); anônimo → `/auth` sem
 flash; logado não autorizado → tela "beta fechado"; link discreto pro legado **só para
@@ -1063,9 +1089,9 @@ discrimináveis), `plan-generator` 1.1.0 (linha de arsenal + diligência shadow 
 quantificada) e **auditoria exaustiva das 700.000 combinações** (`auditoria.test.ts`) — que
 já pagou: calibrou o `LIMIAR_DESEMPATE` de 1→0 (56%→22,7% de disparo) com guarda-corpo <30%
 no CI. 125 testes verdes (eram 76). **Falta só a UI:** telas dos 4 blocos + rascunho por
-bloco + rotas `api/lab/projects` (Sonnet, sob a spec fechada) — **depende da ISSUE-311**
-(LabShell), que é a próxima elegível. **Impacto sinalizado na 314** (proposta escolhida, não
-veredito — §9 da spec).
+bloco + rotas `api/lab/projects` (Sonnet, sob a spec fechada) — dependências (310, 311, 312)
+todas satisfeitas, **próxima sessão elegível**. **Impacto sinalizado na 314** (proposta
+escolhida, não veredito — §9 da spec).
 **Tipo:** Frontend · **Prioridade:** Alta · **Complexidade:** Média-alta
 **Modelo:** **Fable 5 fecha as perguntas do wizard com o dono (sessão de spec) → Sonnet
 implementa o formulário sob a spec fechada.** Não pular a 1ª etapa: as perguntas exatas ainda

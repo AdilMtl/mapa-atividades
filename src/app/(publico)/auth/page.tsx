@@ -133,7 +133,11 @@ export default function AuthPage() {
           setLoading(false)
           return
         }
-        window.location.href = '/dashboard'
+        // ?next= (ISSUE-311): volta pra rota que pediu login (ex.: /lab/inicio).
+        // Só caminho interno ('/x', nunca '//x') — evita open redirect.
+        const next = new URLSearchParams(window.location.search).get('next')
+        const destino = next && next.startsWith('/') && !next.startsWith('//') ? next : '/dashboard'
+        window.location.href = destino
       } else {
         // CADASTRO
         // Primeiro verificar se conta já existe

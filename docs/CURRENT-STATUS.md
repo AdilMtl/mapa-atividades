@@ -7,7 +7,52 @@
 
 ---
 
-## 🎯 SESSÃO ATUAL: Wizard do Lab — spec v2.1 aprovada + motor completo (ISSUE-313)
+## 🎯 SESSÃO ATUAL: LabShell + gate server-side testado com conta real (ISSUE-311)
+**Data:** 09 de julho de 2026
+**Versão:** v3.11.6
+**Status:** ⚠️ parcial (validado pelo dono com conta real; falta só o roteiro completo dos 5 passos)
+
+### **🚀 O QUE FOI FEITO:**
+
+1. **Sessão migrada de localStorage → cookie** (`src/lib/supabase.ts`, `createBrowserClient`
+   do `@supabase/ssr`): é o que permite o gate ler a sessão no servidor, sem flash. Decisão do
+   dono: aceitar o relogin único (baixo volume de assinantes ativos), com a ressalva de LGPD —
+   confirmado que o cookie de sessão é estritamente necessário (não exige banner). API do
+   cliente idêntica; `AppShell` legado não mudou uma linha.
+2. **`src/middleware.ts`** — escopado só às 5 rotas logadas do Lab (matcher explícito).
+   Anônimo → `/auth?next=<rota>` **antes de qualquer render** (testado no build de produção:
+   307 do servidor, zero flash). Vitrine `/lab`, home, `/auth`, `/dashboard` fora do matcher —
+   confirmado sem mudança de comportamento.
+3. **`src/lib/supabase-server.ts`** — leitura de sessão via cookie + `verificarAutorizacao`
+   (mesma regra de `authorized_emails` da rota `check-authorization`, agora como função).
+4. **Gate + LabShell** (`src/app/(lab)/lab/layout.tsx`, `src/components/lab/`): não
+   autorizado → tela "beta fechado" DS2; autorizado → `LabShell` (nav Início ativo,
+   Biblioteca/Perfil "em breve"; link discreto pro legado só quando `plan_type ≠ 'lab_beta'`).
+   Esqueleto `/lab/inicio` (hub real é a ISSUE-315).
+5. **`?next=` no `/auth`** com guarda anti open-redirect (só caminho interno).
+6. **LGPD:** seção de cookies adicionada à `/privacidade` (cookie de sessão vs. cookies de
+   tracking). Gap pré-existente do banner de consentimento pros cookies de GTM/Ads/GA4
+   registrado como **ISSUE-209** nova no backlog (persona Analytics & Ads).
+7. **Teste com conta real (dono):** login funcionou (susto inicial foi senha errada, não bug),
+   tela do Lab renderizou correta. Falta confirmar os itens 2–5 do roteiro (link do legado
+   visível, fluxo `?next=` completo, logout, legado intocado) — nenhum é bloqueio técnico.
+
+### **📊 TÉCNICO:**
+- `tsc --noEmit` limpo · `npm run build` ok · lint sem erro novo nos arquivos tocados (2 erros
+  pré-existentes em `auth/page.tsx`/`privacidade/page.tsx`, fora das linhas desta sessão)
+- Novos: `src/middleware.ts`, `src/lib/supabase-server.ts`, `src/app/(lab)/`,
+  `src/components/lab/{LabShell,BetaFechado,LabLogout}.tsx`. Alterados: `src/lib/supabase.ts`,
+  `src/app/(publico)/auth/page.tsx`, `src/app/(publico)/privacidade/page.tsx`
+
+### **🎯 PRÓXIMA SESSÃO:**
+**UI do wizard da ISSUE-313** — as telas dos 4 blocos (Sonnet, sob a spec v2.1 já fechada e o
+motor já pronto e auditado em `src/lib/lab/`): rascunho salvo por bloco, rotas
+`api/lab/projects`, componentes `QuestionCard`/`OptionButton`/`Progress` do DS2. Dependências
+(310, 311, 312) todas satisfeitas.
+
+---
+
+## 📋 SESSÃO ANTERIOR: Wizard do Lab — spec v2.1 aprovada + motor completo (ISSUE-313)
 **Data:** 09 de julho de 2026
 **Versão:** v3.11.5
 **Status:** spec fechada ✅ · motor implementado e auditado ✅ · falta só a UI (depende da 311)
