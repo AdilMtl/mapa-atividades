@@ -136,7 +136,23 @@ export default function AuthPage() {
         // ?next= (ISSUE-311): volta pra rota que pediu login (ex.: /lab/inicio).
         // Só caminho interno ('/x', nunca '//x') — evita open redirect.
         const next = new URLSearchParams(window.location.search).get('next')
-        const destino = next && next.startsWith('/') && !next.startsWith('//') ? next : '/dashboard'
+        let destino = next && next.startsWith('/') && !next.startsWith('//') ? next : null
+        if (!destino) {
+          // Sem ?next=: beta do Lab cai direto no Lab; o resto segue pro legado
+          // (comportamento de antes — nada muda pra quem não tem acesso ao Lab).
+          try {
+            const planResponse = await fetch('/api/auth/check-authorization', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ email })
+            })
+            const planData = await planResponse.json()
+            destino = planData.planType === 'lab_beta' ? '/lab/inicio' : '/dashboard'
+          } catch (err) {
+            console.error('Erro ao verificar plano para redirect:', err)
+            destino = '/dashboard'
+          }
+        }
         window.location.href = destino
       } else {
         // CADASTRO

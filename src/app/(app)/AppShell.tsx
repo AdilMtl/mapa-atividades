@@ -4,11 +4,15 @@ import { usePathname, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
 import { Button } from '@/components/ui/button'
-import { BarChart3, Map, User, Settings, LogOut, Menu, X, Target, Shield, TrendingUp, Calendar } from 'lucide-react'
+import { BarChart3, Map, User, Settings, LogOut, Menu, X, Target, Shield, TrendingUp, Calendar, FlaskConical } from 'lucide-react'
 
 // Gate de auth + navegação da plataforma logada (extraído do layout raiz na ISSUE-101,
 // extraído do (app)/layout.tsx para AppShell na ISSUE-110 — só para o layout poder
 // exportar `metadata` com robots:index:false; lógica idêntica, nada mudou aqui).
+// Link pro Lab no sidebar (ajuste pontual, sessão 2026-07-11): só assinante
+// `plan_type = 'lab_beta'` vê o atalho — espelha o link discreto pro legado que
+// o LabShell já mostra pro sentido contrário (pergunta 14 do 00b). Resto da
+// navegação/lógica do AppShell continua intocado.
 
 interface AppShellProps {
   children: React.ReactNode
@@ -18,6 +22,7 @@ export function AppShell({ children }: AppShellProps) {
   const [user, setUser] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [temAcessoLab, setTemAcessoLab] = useState(false)
   const pathname = usePathname()
   const router = useRouter()
 
@@ -31,6 +36,20 @@ export function AppShell({ children }: AppShellProps) {
       // Redirecionar não autenticados (exceto landing e auth)
       if (!session?.user && pathname !== '/auth' && pathname !== '/' && pathname !== '/pre-diagnostico') {
         router.push('/')
+      }
+
+      if (session?.user?.email) {
+        try {
+          const res = await fetch('/api/auth/check-authorization', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email: session.user.email })
+          })
+          const data = await res.json()
+          setTemAcessoLab(data.planType === 'lab_beta')
+        } catch (err) {
+          console.error('Erro ao verificar acesso ao Lab:', err)
+        }
       }
     }
     checkAuth()
@@ -59,6 +78,7 @@ export function AppShell({ children }: AppShellProps) {
 
   // 🎯 NAVEGAÇÃO CORRIGIDA - Com Fluxo Semanal
   const navigationItems = [
+    ...(temAcessoLab ? [{ href: '/lab/inicio', label: 'Lab', icon: FlaskConical }] : []),
     { href: '/dashboard', label: 'Mapa', icon: Map },
     { href: '/diagnostico', label: 'Diagnóstico', icon: TrendingUp },
     { href: '/plano-acao', label: 'Plano de Ação', icon: Target },
