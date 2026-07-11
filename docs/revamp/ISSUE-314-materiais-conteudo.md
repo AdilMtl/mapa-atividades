@@ -1,15 +1,22 @@
 # ISSUE-314 — Conteúdo editorial: materiais, prompts e copy da página do projeto
 
 > Autorado em 2026-07-11 (Fable 5), sob a spec `ISSUE-314-spec-pagina-projeto.md`.
-> **Status: aguardando aprovação do dono.** Nada daqui vira código antes do veto/aprovação
-> (mesma regra da 316). Na implementação, o Sonnet transpõe: §2–§3 pra copy dos componentes,
-> §4–§6 pra `src/lib/lab/materiais.ts` (módulo puro, testável), §7 pras funções de
-> personalização.
+> **Status: ✅ APROVADO pelo dono em 2026-07-11**, após rodada de revisão de voz (ver nota
+> abaixo). Pronto para handoff ao Sonnet. Na implementação, o Sonnet transpõe: §2–§3 pra copy
+> dos componentes, §4–§6 pra `src/lib/lab/materiais.ts` (módulo puro, testável), §7 pras
+> funções de personalização.
 >
 > Convenções: placeholders `{{area}}`, `{{entrega}}`, `{{ferramenta}}`, `{{horas}}` são
 > resolvidos deterministicamente (regras no §7) — **todo placeholder tem fallback; prompt
 > nunca sai com buraco.** Voz: a da newsletter (mesma régua do `plan-generator.ts` e do
 > `radar/content.ts`, que são a referência aprovada).
+>
+> **Revisão de voz (2026-07-11, feedback do dono):** copy revisada contra os guias oficiais
+> de voz do dono (fora do repo): `C:\Users\adils\OneDrive\Desktop\Development\4. Newsletter
+> agent\cnc-agentic\cnc-agentic\docs\Tom de escrita Adilson.md\Guia de Voz.md` e
+> `...\3. referência de notes.md`. Régua final de QUALQUER copy nova desta issue: o checklist
+> §8 do Guia de Voz ("isso parece o Adil?") — em especial: zero tradução do inglês, zero
+> staccato, zero paralelismo "não é X, é Y" empilhado, falar como gente fala num café.
 
 ---
 
@@ -20,7 +27,7 @@
 | Copy dos 5 blocos (§2) | Títulos, textos fixos, botões | componentes da 314 |
 | Devolutiva (§3) | Bloco 1 | `materiais.ts` (fragmentos) + função de composição |
 | Guias dos 10 slugs (§4) | Bloco 4 (guia do slug âncora); a 316 reaproveita TODOS | `materiais.ts` |
-| Prompts de arranque (§5) | Bloco 4 (um por projeto, pelo tipo) | `materiais.ts` |
+| Primeiros prompts (§5) | Bloco 4 (um por projeto, pelo tipo) | `materiais.ts` |
 | Linhas de evolução (§6) | Bloco 5 (quando a regra da escada permitir) | `materiais.ts` |
 | Regras de personalização (§7) | Servidor, na montagem da página | função pura + testes |
 
@@ -44,19 +51,20 @@ verbaliza a intenção dela, regra de CTA da casa).
 
 ### Aberturas fixas de cada bloco (1 linha, antes do conteúdo dinâmico)
 
-- Bloco 2: *"Agora deixa eu te devolver o que isso significa."*
+- Bloco 2: *"Agora deixa eu te falar o que isso significa."*
 - Bloco 3: *"O caminho, do jeito que eu desenharia contigo numa folha."*
-- Bloco 4: *"Nada disso vale se você não arrancar. Então eu já deixei o arranque pronto."*
+- Bloco 4: *"Plano bom é plano que sai do papel. Então eu já deixei teu primeiro passo pronto."*
 - Bloco 5: *"Última coisa — e é a mais importante."*
 
 (O bloco 1 não tem abertura fixa: ele JÁ É a abertura da página.)
 
 ### Bloco 5 — texto de rotina (fixo)
 
-> Esse projeto agora é teu lugar de trabalho aqui dentro: marca as etapas conforme for
-> fazendo, volta quando travar, copia o prompt de novo quando precisar. Ele fica te esperando
-> do jeito que você deixou — e é assim, uma etapa por semana que seja, que isso entra na tua
-> rotina de verdade. Não é sprint, é ofício.
+> Você já viu esse filme: a ideia empolga na sexta, e na segunda ela já tá enterrada embaixo
+> de vinte e-mails. Não é falta de vontade — é falta de lugar na rotina. Então combina isso
+> comigo: uma etapa por semana, que seja. Marca aqui o que você for fazendo, volta quando
+> travar, copia o prompt de novo quando precisar. Esse projeto fica te esperando, do jeito
+> que você deixou.
 
 ### Botão "Concluir projeto" e fechamento de conclusão
 
@@ -64,10 +72,10 @@ Botão (aparece só com todas as etapas marcadas): **"Concluir projeto"**.
 
 Texto exibido ao concluir:
 
-> Fechou. Você pegou uma coisa que morava na tua cabeça — ou na tua pilha — e transformou num
-> ativo que existe e funciona. Pouca gente atravessa esse caminho inteiro; a maioria para na
-> conversa. Esse projeto fica guardado aqui, do jeito que você construiu. E se o uso da semana
-> te mostrar um degrau novo, você sabe onde me encontrar.
+> Fechou. Você tirou a ideia do papel e colocou pra rodar no teu trabalho de verdade. Pouca
+> gente atravessa esse caminho inteiro — a maioria ainda tá na conversa sobre IA, e você
+> construiu uma coisa com ela. O projeto fica guardado aqui, do jeito que você deixou. E
+> quando o uso te mostrar o próximo degrau, você já sabe onde me encontrar.
 
 ### Rodapé auditável (mono, discreto, fim da página)
 
@@ -174,18 +182,18 @@ esqueleto.
 
 **O fluxo em etapas**
 
-O que você descreveu não é uma tarefa — é uma sequência disfarçada de tarefa. Coletar,
-consolidar, resumir, revisar, entregar. Jogar isso inteiro num prompt só é pedir pra IA
+O que você descreveu não é uma tarefa — é uma sequência disfarçada de tarefa: coletar,
+consolidar, resumir, revisar e entregar. Jogar isso inteiro num prompt só é pedir pra IA
 adivinhar demais; o resultado sai diferente a cada vez, e você para de confiar.
 
-Desenha o fluxo em 4 a 6 passos numerados, com uma pergunta por passo: o que ENTRA aqui, o que
-SAI daqui? Se não cabe em seis, o recorte tá grande — corta. Depois roda a sequência uma vez
-inteira, com a IA em cada etapa e você validando no meio. Onde funcionar, congela o prompt do
-passo.
+Desenha o fluxo em 4 a 6 passos numerados, com duas perguntas por passo: o que eu preciso ter
+em mãos pra fazer essa parte, e o que ela deixa pronto pra próxima? Se não cabe em seis, o
+recorte tá grande — corta. Depois roda a sequência uma vez inteira, com a IA em cada etapa e
+você validando no meio. Onde funcionar, congela o prompt do passo.
 
-O ganho não é só velocidade — é auditabilidade. Quando cada etapa tem entrada, saída e prompt
-fixo, você sabe exatamente ONDE o resultado degradou quando degradar. E esse desenho de passos
-numerados é, literalmente, a planta da automação que isso pode virar um dia.
+E tem um ganho escondido aí: quando cada passo tem o seu material, o seu resultado e o seu
+prompt fixo, você sabe exatamente ONDE a coisa desandou quando desandar. Esse desenho de
+passos numerados é, literalmente, a planta da automação que isso pode virar um dia.
 
 ### 4.4 `regra-quando-x-faca-y` (âncora de: automacao)
 
@@ -230,8 +238,9 @@ painel.
 
 Antes de qualquer código — que a IA escreve por você — vem o documento que separa projeto de
 devaneio: uma página, cinco blocos. **Quem usa** (de verdade, com nome se possível), **a dor**
-(o que acontece hoje sem a ferramenta), **o que entra** (dados, informação), **o que sai**
-(o resultado que resolve a dor) e **a primeira tela** (o que a pessoa vê quando abre).
+(o que acontece hoje sem a ferramenta), **o que a pessoa informa** (os dados que ela coloca),
+**o que ela recebe de volta** (o resultado que resolve a dor) e **a primeira tela** (o que ela
+vê quando abre).
 
 Uma página é o tamanho certo por design: se não cabe, a ambição tá maior que o recorte — e
 recorte grande é onde projeto de gente ocupada vai morrer. Corta até caber. A versão que cabe
@@ -264,14 +273,15 @@ morto é cemitério com login.
 **O recorte do fluxo principal**
 
 Sistema de verdade se constrói por recorte, não por escopo completo — porque sistema que nasce
-completo nasce atrasado. O exercício: descreve o fluxo principal em CINCO frases. Quem entra,
-o que faz, o que sai. Precisou da sexta frase? O recorte ainda tá grande. Corta de novo.
+completo nasce atrasado. O exercício: descreve o fluxo principal em CINCO frases — quem usa,
+o que a pessoa faz e o que ela leva pronto no final. Precisou da sexta frase? O recorte ainda
+tá grande. Corta de novo.
 
 O recorte certo tem uma tela, um perfil de usuário, uma integração. Só. A segunda tela, o
 segundo perfil e a segunda integração esperam a primeira rodada provar valor — e quem decide o
 que entra depois não é tua empolgação, são as três pessoas que usaram a primeira versão.
 
-Esse disciplina de recorte é o que diferencia quem CONSTRÓI de quem desenha arquitetura no
+Essa disciplina de recorte é o que diferencia quem CONSTRÓI de quem desenha arquitetura no
 papel pra sempre. A versão de teste feia que resolve UM fluxo real vale mais que o diagrama
 perfeito do sistema inteiro — porque ela existe.
 
@@ -312,13 +322,14 @@ tudo isso responde sim. Anonimiza, troca por placeholder, ou simplesmente não s
 
 E a jogada que quase ninguém faz: pergunta pra quem cuida disso na tua empresa. Existir essa
 conversa já te coloca na frente da maioria — e transforma teu projeto de "risco em potencial"
-em "caso exemplar de uso responsável". É diferencial, não burocracia.
+em "caso exemplar de uso responsável". No fim das contas, essa conversa te diferencia — não
+te atrasa.
 
 ---
 
-## 5. Prompts de arranque (um por tipo — 9)
+## 5. Primeiros prompts (um por tipo — 9)
 
-O prompt de arranque destrava a **primeira etapa** do plano. É colado na IA da pessoa
+O primeiro prompt destrava a **primeira etapa** do plano. É colado na IA da pessoa
 (`{{ferramenta}}` resolvida pelo arsenal, §7). Todos seguem a mesma anatomia — contexto,
 objetivo, processo, formato, critérios — porque o prompt também ENSINA o método pelo exemplo.
 Na página: bloco copiável, com o botão "Copiar prompt".
@@ -327,7 +338,7 @@ Na página: bloco copiável, com o botão "Copiar prompt".
 > — é o "grill me" do método do dono virando produto, e é o que separa esses prompts de um
 > template da internet.
 
-### 5.1 `prompt` — arranque do prompt estruturado
+### 5.1 `prompt` — pra começar o prompt estruturado
 
 ```text
 Você vai me ajudar a construir um prompt reutilizável de quatro partes para uma tarefa real
@@ -344,7 +355,7 @@ deve produzir a entrega sem me fazer perguntas de novo.
 Regra: não invente informações sobre meu trabalho — o que você não souber, pergunte.
 ```
 
-### 5.2 `template` — arranque do template
+### 5.2 `template` — pra começar o template
 
 ```text
 Você vai me ajudar a transformar uma entrega repetitiva em um template de campos fixos.
@@ -364,7 +375,7 @@ reescrever mais de 20% do resultado, o molde falhou — nesse caso, quero ajusta
 não o texto.
 ```
 
-### 5.3 `workflow` — arranque do fluxo em etapas
+### 5.3 `workflow` — pra começar o fluxo em etapas
 
 ```text
 Você vai me ajudar a desenhar um fluxo de trabalho em etapas para uma sequência que hoje eu
@@ -373,15 +384,16 @@ faço na mão. Trabalho com {{area}} e o resultado final é {{entrega}}.
 Primeiro, me entreviste: faça até 4 perguntas, uma de cada vez, para mapear a sequência
 completa — de onde a informação vem, o que eu faço com ela em cada passo e onde ela termina.
 
-Depois, desenhe o fluxo em 4 a 6 etapas numeradas. Para cada etapa: um nome curto, o que
-ENTRA, o que SAI e um prompt pronto para eu usar com IA naquele passo. Se a sequência não
-couber em 6 etapas, me proponha um recorte menor em vez de espremer.
+Depois, desenhe o fluxo em 4 a 6 etapas numeradas. Para cada etapa: um nome curto, o que eu
+preciso ter em mãos, o que ela deixa pronto pra seguinte, e um prompt para eu usar com IA
+naquele passo. Se a sequência não couber em 6 etapas, me proponha um recorte menor em vez de
+espremer.
 
 No final, me diga qual etapa você recomenda que eu rode primeiro como teste — a que tem mais
 ganho com menos risco — e por quê.
 ```
 
-### 5.4 `automacao` — arranque da automação
+### 5.4 `automacao` — pra começar a automação
 
 ```text
 Você vai me ajudar a preparar uma automação simples, começando pela regra — não pela
@@ -400,7 +412,7 @@ Feche com o protocolo de teste: como eu rodo essa automação em paralelo com o 
 manual por uma semana antes de confiar nela.
 ```
 
-### 5.5 `dashboard` — arranque do painel
+### 5.5 `dashboard` — pra começar o painel
 
 ```text
 Você vai me ajudar a montar a primeira versão de um painel (dashboard) para dados que hoje
@@ -418,7 +430,7 @@ responde melhor (número, gráfico, tabela) e por quê. Formato final: uma tela,
 Vou montar em {{ferramenta}} ou no Looker Studio — me dê o passo a passo do que criar.
 ```
 
-### 5.6 `app_offline` — arranque do app simples
+### 5.6 `app_offline` — pra começar o app simples
 
 ```text
 Você vai me ajudar a escrever a "descrição de uma página" de um app simples, que roda no
@@ -439,7 +451,7 @@ português, simples e com botões grandes. A primeira versão pode ser feia; ela
 funcionar na tarefa real.
 ```
 
-### 5.7 `app_tabela` — arranque do app com tabela
+### 5.7 `app_tabela` — pra começar o app com tabela
 
 ```text
 Você vai me ajudar a começar um app que nasce de uma tabela — validando com planilha ANTES
@@ -457,15 +469,16 @@ conta (é esse sinal que define a primeira tela do app).
 Não gere nenhuma interface ainda. O app vem depois que a tabela provar que o dado vive.
 ```
 
-### 5.8 `orquestrado` — arranque do sistema orquestrado
+### 5.8 `orquestrado` — pra começar o sistema orquestrado
 
 ```text
 Você vai me ajudar a recortar um sistema grande até ele caber numa primeira versão
 construível. Trabalho com {{area}} e o sistema envolve {{entrega}}.
 
 Primeiro, o fluxo principal em 5 frases: me entreviste (até 5 perguntas, uma de cada vez)
-sobre quem usa, o que a pessoa faz e o que sai. Depois, escreva o fluxo principal em NO
-MÁXIMO cinco frases. Se precisar de mais, me proponha um recorte menor — repete até caber.
+sobre quem usa, o que a pessoa faz e o que ela leva pronto no final. Depois, escreva o fluxo
+principal em NO MÁXIMO cinco frases. Se precisar de mais, me proponha um recorte menor —
+repete até caber.
 
 Com o fluxo fechado, defina a v1 com exatamente: UMA tela, UM perfil de usuário, UMA
 integração (ou entrada manual de dados, se a integração puder esperar). Liste explicitamente
@@ -476,7 +489,7 @@ primeira tela), pronta pra eu colar numa ferramenta de construção como Lovable
 te pedir a primeira versão aqui mesmo.
 ```
 
-### 5.9 `agentico` — arranque do agente (pela consulta)
+### 5.9 `agentico` — pra começar o agente (pela consulta)
 
 ```text
 Você vai me ajudar a começar um projeto de agente de IA pelo único lugar seguro: a qualidade
@@ -557,7 +570,7 @@ usuário: teste automatizado varre `{{` no output de todas as combinações de f
 - [ ] Copy dos 5 blocos (§2) — títulos, botões, rotina, conclusão
 - [ ] Devolutiva (§3) — as 3 chegadas + arquétipos, horas, relato manuscrito
 - [ ] Guias (§4) — os 10, voz e conteúdo
-- [ ] Prompts de arranque (§5) — os 9 (são o coração do bloco Mão na massa)
+- [ ] Primeiros prompts (§5) — os 9 (são o coração do bloco Mão na massa)
 - [ ] Linhas de evolução (§6)
 - [ ] Regras de personalização (§7)
 

@@ -3,7 +3,7 @@
 > Spec v1.0, fechada em 2026-07-11 na sessão de design com o dono (Fable 5), a partir do
 > material preparatório (`ISSUE-314-contexto-preparatorio.md`) e das decisões registradas na
 > pergunta 17 do `00b_open_questions.md`. **Sonnet implementa sob esta spec** — mesma dinâmica
-> da 313. O conteúdo editorial dos materiais (9 guias + 9 prompts de arranque) é autorado pelo
+> da 313. O conteúdo editorial dos materiais (9 guias + 9 primeiros prompts) é autorado pelo
 > Fable em documento próprio (`ISSUE-314-materiais-conteudo.md`) e transposto pro código na
 > implementação.
 
@@ -107,7 +107,7 @@ O bloco novo que o esqueleto não tinha e que mata a sensação de beco:
   em poucos parágrafos, na voz da newsletter. Sem página de biblioteca — o conteúdo mora aqui
   (decisão: não esperar a 316; quando a 316 nascer, ela reaproveita esses textos pelos mesmos
   slugs de `SLUGS_POR_TIPO`).
-- **Prompt de arranque** — UM por projeto (não por etapa): o prompt pronto que destrava a
+- **Primeiro prompt** — UM por projeto (não por etapa): o prompt pronto que destrava a
   primeira execução real, **personalizado deterministicamente** com o que a pessoa respondeu:
   área, entrega, e a ferramenta âncora do arsenal (`amb_workspace` → Gemini/Sheets;
   `amb_copilot` → Copilot; `amb_ia_premium` → "tua IA premium"; arsenal vazio/base → IA
@@ -133,9 +133,16 @@ trabalho") aterrissado, sem prometer a Fase 2:
 
 ## 4. Voz e proibições de copy
 
-- Voz da newsletter (fonte obrigatória: `contexto_editorial_newsletter_conversas_no_corredor.md`):
-  direto, brasileiro, levemente provocativo, exemplos concretos. Tratamento "tu/você" seguindo
-  o padrão já usado no plan-generator ("teu caso", "tua semana").
+- Voz da newsletter (fonte obrigatória: `contexto_editorial_newsletter_conversas_no_corredor.md`
+  **+ os guias de voz do dono, fora do repo** — `C:\Users\adils\OneDrive\Desktop\Development\
+  4. Newsletter agent\cnc-agentic\cnc-agentic\docs\Tom de escrita Adilson.md\Guia de Voz.md` e
+  `...\3. referência de notes.md`; a régua final de qualquer copy nova é o checklist §8 do
+  Guia de Voz, "isso parece o Adil?"): direto, brasileiro, levemente provocativo, exemplos
+  concretos. Tratamento "tu/você" seguindo o padrão já usado no plan-generator ("teu caso",
+  "tua semana"). Proibições que o dono já vetou NESTA issue (não reincidir): "arrancar/
+  arranque", "te devolver o que isso significa", linguagem de entrada/saída ("o que entra,
+  o que sai" — falar "o que você coloca / o que recebe de volta"), staccato, paralelismo
+  "não é X, é Y" como slogan.
 - Proibido: "domine", "revolucione", "desbloqueie", "10x", tom de guru, e qualquer frase que
   passaria num relatório de consultoria genérica ("com base nas suas respostas, identificamos
   que..."). Teste do cheiro: se o ChatGPT abriria a resposta assim, reescreva.
@@ -159,7 +166,7 @@ trabalho") aterrissado, sem prometer a Fase 2:
   gate + RLS via cliente da sessão). Motor/planos NUNCA re-rodam aqui.
 - **Conteúdo dos materiais:** módulo determinístico novo (`src/lib/lab/materiais.ts`),
   keyed pelos slugs de `SLUGS_POR_TIPO` + `SLUG_DILIGENCIA` — cada entrada: título, guia
-  (texto), template do prompt de arranque com placeholders tipados. Fonte editorial:
+  (texto), template do primeiro prompt com placeholders tipados. Fonte editorial:
   `ISSUE-314-materiais-conteudo.md` (Fable autora, dono aprova antes de virar código — mesma
   regra da 316: nada publica sem aprovação).
 - **Personalização do prompt:** função pura (testável) que resolve placeholders a partir de
@@ -176,7 +183,7 @@ trabalho") aterrissado, sem prometer a Fase 2:
 
 `ISSUE-314-materiais-conteudo.md` — para os 9 tipos: guia curto do material âncora (usar os
 slugs existentes; ~3–5 parágrafos cada, semeados por `CONTEUDO_OPORTUNIDADES` do
-`radar/content.ts` e pela newsletter) + template do prompt de arranque (com os placeholders de
+`radar/content.ts` e pela newsletter) + template do primeiro prompt (com os placeholders de
 área/entrega/ferramenta). Mais: as variações de devolutiva por porta/arquétipo, a copy dos 5
 blocos, o texto do fechamento de conclusão e a linha de evolução por par de tipos que a regra
 da escada permitir. Dono aprova o documento antes da transposição pra código.
@@ -202,7 +209,7 @@ da escada permitir. Dono aprova o documento antes da transposição pra código.
    diferentes); projeto v1/dados ausentes degradam sem quebrar.
 4. Checklist persiste entre sessões e dispositivos; primeira marcação vira `em_construcao`;
    "Concluir projeto" só com tudo marcado; status nunca regride.
-5. Prompt de arranque copia com um toque e reflete área/entrega/arsenal da pessoa; sem
+5. Primeiro prompt copia com um toque e reflete área/entrega/arsenal da pessoa; sem
    placeholder vazando.
 6. Projeto alheio → 404 (2 contas reais).
 7. Zero regressão: wizard, rotas públicas, tracking e build intocados; tsc/lint/build limpos;

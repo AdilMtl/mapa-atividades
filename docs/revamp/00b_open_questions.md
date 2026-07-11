@@ -446,7 +446,8 @@ coletar a visão dele — consolidada em `ISSUE-314-contexto-preparatorio.md`. A
 5. **Linha de evolução:** `vencedor_bruto` aparece no fechamento como "próximo degrau natural"
    — só quando difere do tipo atual E está acima na escada; nunca como "o motor quase escolheu
    outra coisa".
-6. **Prompt de arranque: UM por projeto** (não por etapa), personalizado deterministicamente
+6. **Primeiro prompt (rebatizado — "prompt de arranque" caiu por veto de voz do dono,
+   2026-07-11): UM por projeto** (não por etapa), personalizado deterministicamente
    com área/entrega/ferramenta âncora do arsenal, com botão copiar. Zero IA em runtime.
 
 **Consequências:** conteúdo editorial (9 guias + 9 prompts + copy dos blocos) é autorado pelo
