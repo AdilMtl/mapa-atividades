@@ -16,6 +16,52 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [v3.11.14] - 2026-07-11 - 📄 Página do projeto do Lab (ISSUE-314) + correções de navegação
+
+### ✅ Adicionado
+- **Página `/lab/projeto/[id]` completa** (ISSUE-314, "as notas viraram o plano"): leitura
+  guiada bloco a bloco na 1ª visita (`?leitura=1` no redirect do wizard), modo documento nas
+  revisitas; devolutiva ecoando o que a pessoa respondeu no wizard; diagnóstico em prosa
+  reaproveitando o conteúdo já aprovado do radar (ISSUE-105); checklist vivo e persistido
+  (marcar/desmarcar via PATCH, `em_construcao` automático na 1ª marcação, `concluido` só por
+  ação explícita com tudo marcado); bloco "mão na massa" com guia + primeiro prompt pronto pra
+  copiar, personalizado por área/entrega/arsenal sem IA em runtime; linha de evolução via
+  `vencedor_bruto` no fechamento.
+- **`src/lib/lab/materiais.ts`** — módulo puro com os 10 guias, 9 primeiros prompts, devolutiva
+  e linha de evolução. 133 testes novos: zero placeholder vazando em nenhuma combinação de
+  fallback (área/entrega/arsenal ausentes, projeto schema v1).
+- **PATCH `/api/lab/projects/[id]`** ganhou os modos `checklistItem` e `concluir` — vocabulário
+  fechado (só ids que existem no checklist do projeto), transições de status calculadas e
+  validadas no servidor, nunca no cliente.
+- **Item "Lab" na sidebar do app legado** (`AppShell.tsx`) e **item "Admin"** (visível só pro
+  e-mail do dono) — antes só existia o caminho contrário (Lab → legado).
+- Conteúdo editorial completo aprovado: `docs/revamp/ISSUE-314-materiais-conteudo.md` (fonte
+  de verdade da copy, revisada contra os guias oficiais de voz do dono).
+
+### 🔧 Corrigido
+- Link "Lab" da navegação pública sumia no mobile (`hidden md:inline` por engano) — sempre
+  visível agora.
+- **Causa raiz de dois bugs de acesso ao Lab:** login sempre caía no legado (`/dashboard`) e a
+  sidebar do legado não linkava pro Lab. A causa era a mesma nos dois lugares — checavam
+  `plan_type === 'lab_beta'`, mas o gate real do Lab (`verificarAutorizacao`) libera **qualquer**
+  `authorized_emails` válido, não só quem tem esse plano específico (`lab_beta` só decide se
+  aparece o link *de volta* pro legado). Corrigido pra usar a mesma condição do gate real nos
+  dois lugares.
+
+### 📊 Técnico
+- 271 testes verdes (eram 138) · `tsc --noEmit`/`lint`/`build` limpos em toda a sessão · smoke
+  test do servidor de produção validado 3× (rotas públicas 200, gate do Lab 307 pra anônimo,
+  API 401 sem sessão).
+- Novos: `src/lib/lab/materiais.ts` (+test), `src/components/lab/projeto/{BlocoDevolutiva,
+  BlocoLeitura,BlocoPlano,BlocoMaoNaMassa,BlocoRotina,ManuscritoEco,PaginaProjeto}.tsx`,
+  `docs/revamp/ISSUE-314-{contexto-preparatorio,spec-pagina-projeto,materiais-conteudo}.md`.
+- Mapa visual do backlog (`roadmap-backlog.html`) atualizado: esqueleto antigo da Fase 2 trocado
+  pela série 310+ real (5 de 10 issues da Fase 1A prontas/aplicadas); ISSUE-209/210 somadas.
+- **Falta pra fechar a Fase 1A do Lab de vez:** roteiro manual do dono (313+314, conta real,
+  celular) — depois disso, próxima issue de código é a 315 (hub `/lab/inicio`).
+
+---
+
 ## [v3.11.7] - 2026-07-11 - 🧙 UI completa do Wizard do Lab — "Conversa de Consultor" (ISSUE-313)
 
 ### ✅ Adicionado

@@ -8,7 +8,71 @@
 
 ---
 
-## 🎯 SESSÃO ATUAL: UI completa do Wizard do Lab — "Conversa de Consultor" (ISSUE-313)
+## 🎯 SESSÃO ATUAL: Página do projeto do Lab (ISSUE-314) + correções de navegação
+**Data:** 11 de julho de 2026 (sessão longa, sequência v3.11.8→v3.11.14)
+**Versão:** v3.11.14
+**Status:** ✅ ISSUE-314 implementada e no ar; ⚠️ falta o roteiro manual do dono (313 e 314
+juntos) pra fechar de vez a Fase 1A do Lab
+
+### **🚀 O QUE FOI FEITO:**
+
+1. **Fix rápido (v3.11.8):** link "Lab" da navegação pública estava `hidden md:inline` — sumia
+   no mobile. Corrigido pra sempre visível, igual ao "Entrar".
+2. **ISSUE-314 — spec + conteúdo (v3.11.9/10, Fable 5, sessão de design com o dono):**
+   preparação (Sonnet) coletando a visão do dono → spec fechada (`ISSUE-314-spec-pagina-
+   projeto.md`, conceito "as notas viraram o plano") → conteúdo editorial completo
+   (`ISSUE-314-materiais-conteudo.md`: copy dos 5 blocos, devolutiva por porta/arquétipo, 10
+   guias, 9 primeiros prompts, linhas de evolução) → **rodada de revisão de voz** contra os
+   guias oficiais do dono (fora do repo) que matou anglicismos ("arrancar/arranque",
+   "devolver o que isso significa", linguagem de entrada/saída) → **conteúdo aprovado**.
+3. **ISSUE-314 — implementação (v3.11.11, Sonnet):** `src/lib/lab/materiais.ts` (módulo puro:
+   guias, primeiros prompts personalizados por área/entrega/arsenal, devolutiva, linha de
+   evolução — 133 testes novos, zero placeholder vazando em nenhuma combinação de fallback);
+   PATCH `/api/lab/projects/[id]` ganhou `checklistItem` (marca/desmarca com vocabulário
+   fechado, `em_construcao` automático na 1ª marcação) e `concluir` (servidor recalcula, nunca
+   confia no cliente); 6 componentes novos em `src/components/lab/projeto/` (leitura guiada na
+   1ª visita via `?leitura=1` no redirect do wizard, modo documento nas revisitas); página
+   reescrita como Server Component que faz toda a composição de texto (zero IA em runtime).
+   271 testes verdes (eram 138) · tsc/lint/build limpos · smoke test do servidor de produção
+   validado.
+4. **Bug de navegação achado pelo dono, corrigido em 2 rodadas (v3.11.12/13):** login caía
+   sempre no legado (`/dashboard`) e a sidebar do legado não tinha link pro Lab. 1ª correção
+   usou a condição errada (`plan_type === 'lab_beta'`); 2ª correção usou a condição real do
+   gate do Lab (`verificarAutorizacao`: **qualquer** `authorized_emails` válido, não só
+   `lab_beta` — esse campo só decide se aparece o link de volta pro legado dentro do Lab).
+   Aproveitado pra adicionar item "Admin" na sidebar do legado, visível só pro e-mail hardcoded
+   que já protege `/admin/assinantes`.
+5. **Mapa visual do backlog atualizado (v3.11.14):** trocado o esqueleto antigo da Fase 2
+   (301-307, "a detalhar") pela série 310+ real — 5 das 10 issues da Fase 1A prontas/aplicadas,
+   sub-fases 1A/1B/1C separadas visualmente. ISSUE-209/210 somadas na Fase 1.5. Republicado no
+   mesmo link do Artifact.
+
+### **📊 TÉCNICO:**
+- 271 testes verdes · `tsc --noEmit`/`lint`/`build` limpos em toda a sessão · zero regressão em
+  rotas públicas/tracking/wizard (validado por smoke test do servidor de produção 3x).
+- Novos: `src/lib/lab/materiais.ts` (+test), `src/components/lab/projeto/**` (6 arquivos),
+  `docs/revamp/ISSUE-314-{contexto-preparatorio,spec-pagina-projeto,materiais-conteudo}.md`.
+  Alterados: `src/app/api/lab/projects/[id]/route.ts`, `src/app/(lab)/lab/projeto/[id]/page.tsx`,
+  `src/components/lab/wizard/WizardNovoProjeto.tsx`, `src/app/(publico)/auth/page.tsx`,
+  `src/app/(app)/AppShell.tsx`, `src/components/shared/PublicHeader.tsx`,
+  `docs/revamp/{00b_open_questions.md,04_issue_backlog.md,roadmap-backlog.html}`.
+- Todos os 7 commits pushados direto na `main` nesta sessão (autorização explícita do dono pro
+  ciclo inteiro — "ninguém está usando, assim eu já treino").
+
+### **🎯 PRÓXIMA SESSÃO:**
+1. **Dono roda o roteiro manual** da 313 + 314 juntos (conta real, celular): wizard completo →
+   leitura guiada da página do projeto → marcar etapas → copiar prompt → concluir → revisitar
+   em modo documento → confirmar login caindo no Lab e o link Admin.
+2. **Próxima issue de código:** ISSUE-315 (hub `/lab/inicio` com estados reais — Sonnet, sem
+   decisão de voz pendente, complexidade baixa).
+3. **Trabalho de Fable já adiantável agora** (não depende do roteiro nem da 315 — ver análise
+   completa na conversa desta sessão): conteúdo/algoritmo da ISSUE-316 (biblioteca) e definição
+   da ISSUE-210 (taxonomia de áreas) — ambos são trabalho de especificação pura, prontos pra
+   virar código quando a carcaça (315/316) for construída.
+
+---
+
+## 📋 SESSÃO ANTERIOR: UI completa do Wizard do Lab — "Conversa de Consultor" (ISSUE-313)
 **Data:** 11 de julho de 2026
 **Versão:** v3.11.7
 **Status:** ⚠️ parcial — implementação completa e validada tecnicamente; falta só o roteiro
