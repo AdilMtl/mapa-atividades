@@ -1142,6 +1142,14 @@ não foram revisadas — é o mesmo caso do ISSUE-105 (voz da marca no momento d
 rascunho salvo por passo; submissão roda a 312 e redireciona pro projeto. **Dep.:** 310–312.
 
 ## ISSUE-314 — Página do projeto `/lab/projeto/[id]` (diagnóstico + plano + materiais)
+**Status:** 📐 spec fechada em 2026-07-11 (`ISSUE-314-spec-pagina-projeto.md`, decisões na
+pergunta 17 do `00b`) — conceito "as notas viraram o plano": leitura guiada na 1ª visita /
+documento nas seguintes, devolutiva ecoando o wizard, checklist vivo (status automático na
+entrada, cerimonial na saída), bloco Mão na massa (guia + prompt de arranque copiável,
+personalizado sem IA), linha de evolução via vencedor_bruto. Conteúdo editorial AUTORADO na
+mesma data (`ISSUE-314-materiais-conteudo.md`: copy dos 5 blocos, devolutiva por porta/
+arquétipo, 10 guias, 9 prompts de arranque, 8 linhas de evolução, regras de personalização).
+**Falta antes do Sonnet implementar:** dono aprovar o conteúdo (checklist no §8 do próprio doc).
 **Tipo:** Frontend · **Prioridade:** Alta · **Complexidade:** Média
 **Modelo:** **Fable 5 escreve a copy/estrutura da tela (é a tela que precisa "parecer diferente
 de um chat genérico" — equivalente à ISSUE-105) → Sonnet implementa o componente sob a spec
@@ -1152,6 +1160,12 @@ Classificação + plano com checklist persistido + materiais recomendados; proje
 > "frio/genérico/determinístico" e sem "e depois?". Esta issue é a resposta — tela DIAGNÓSTICA
 > com texto pré-formatado e robusto, não tabela seca; deixar claro o próximo passo (começar/
 > salvar/checklist/materiais). É a tela que "não pode parecer chat genérico" (crit. do Modelo).
+> **📋 Antes de começar a spec, leia `docs/revamp/ISSUE-314-contexto-preparatorio.md`** —
+> sessão de preparação (Sonnet, 2026-07-11) que já coletou a visão do dono (leitura em blocos
+> sequenciais, checklist simples sem virar task manager, prompts prontos do Fable embutidos no
+> plano sem esperar a 316, "toque humano" explícito no algoritmo, Fase 2 de acompanhamento
+> fora do escopo) grounded no handoff estratégico e no código real do motor/plano. Não repita
+> a descoberta — comece a sessão de design a partir dali.
 
 ## ISSUE-315 — Hub `/lab/inicio` com estados reais
 **Tipo:** Frontend · **Prioridade:** Alta · **Complexidade:** Baixa

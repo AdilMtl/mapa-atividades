@@ -416,6 +416,45 @@ AskUserQuestion + conversa:
 (314/315) — não introduzir outra biblioteca de animação sem reabrir esta pergunta.
 **Bloqueia implementação?** Não.
 
+## Pergunta pendente 17 — ✅ RESPONDIDA PELO DONO (2026-07-11) — spec da página do projeto (ISSUE-314)
+
+**Contexto:** antes da sessão de spec, o dono pediu uma rodada de preparação (Sonnet) pra
+coletar a visão dele — consolidada em `ISSUE-314-contexto-preparatorio.md`. A sessão de design
+(Fable 5, mesma data) fechou as decisões em cima disso. Spec resultante:
+`ISSUE-314-spec-pagina-projeto.md`.
+
+**Decisões da preparação (Sonnet + dono):**
+1. Materiais mínimos (guias + prompts prontos) embutidos no plano JÁ, sem esperar a 316 — a
+   316 reaproveita depois pelos mesmos slugs.
+2. Checklist simples de marcar-feito (guardrail §9 do handoff: nada de task manager).
+3. Leitura em blocos sequenciais (ritmo do consultor, anti-aceleração).
+4. Fase 2 de acompanhamento (check-up, realimentar o motor) FORA — issue futura com spec própria.
+5. Zero CTA comercial/curso/premium na página.
+6. Curso de Vibe Coding: nenhum conteúdo agora; gancho só estrutural, invisível.
+7. Gatilho de status delegado ao Fable (fechado na sessão de design, item 4 abaixo).
+
+**Decisões da sessão de design (Fable 5 + dono):**
+1. **Conceito: "as notas viraram o plano"** — a página é a continuação da cena do wizard: a
+   folha manuscrita do consultor virou documento de trabalho.
+2. **Dois modos:** leitura guiada só na PRIMEIRA visita (query param no redirect do wizard);
+   revisitas abrem em modo documento, tudo visível, sem pedágio.
+3. **Manuscrito coadjuvante:** o documento é DS2 limpo; Caveat sobrevive como 1–3 anotações
+   de margem (a devolutiva, uma citação do relato) — nunca como estrutura da página.
+4. **Status: automático na entrada, cerimonial na saída** — primeira etapa marcada →
+   `em_construcao` (server-side, sem cerimônia); `concluido` só por botão explícito com tudo
+   marcado; status nunca regride.
+5. **Linha de evolução:** `vencedor_bruto` aparece no fechamento como "próximo degrau natural"
+   — só quando difere do tipo atual E está acima na escada; nunca como "o motor quase escolheu
+   outra coisa".
+6. **Prompt de arranque: UM por projeto** (não por etapa), personalizado deterministicamente
+   com área/entrega/ferramenta âncora do arsenal, com botão copiar. Zero IA em runtime.
+
+**Consequências:** conteúdo editorial (9 guias + 9 prompts + copy dos blocos) é autorado pelo
+Fable em `ISSUE-314-materiais-conteudo.md`, aprovado pelo dono, e transposto pra
+`src/lib/lab/materiais.ts` na implementação (Sonnet). O arco "eco do que a pessoa disse →
+leitura em prosa → plano vivo → mão na massa → rotina" vira o padrão de tela-resultado do Lab.
+**Bloqueia implementação?** Não — spec fechada; falta só o conteúdo editorial antes do Sonnet.
+
 ---
 
 ## Resumo executivo das premissas assumidas
