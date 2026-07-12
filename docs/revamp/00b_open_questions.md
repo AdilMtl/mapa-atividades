@@ -458,6 +458,46 @@ leitura em prosa → plano vivo → mão na massa → rotina" vira o padrão de 
 
 ---
 
+## Pergunta pendente 18 — ✅ RESPONDIDA PELO DONO (2026-07-11) — continuidade entre etapas do plano (ISSUE-314B)
+
+**Contexto:** no roteiro manual da 313+314 o dono sentiu a jornada quebrar depois de copiar o
+primeiro prompt: "terminei e não tinha onde continuar — tinha que voltar pra tela de cima pra
+clicar no checklist". Virou a ISSUE-314B; a sessão de design (Fable 5, mesma data) fechou as
+decisões abaixo. Sem spec em arquivo separado — o volume coube nesta pergunta + comentários no
+código (`src/lib/lab/continuidade.ts`).
+
+**Decisões fechadas:**
+1. **"Onde parei" é derivado do checklist** (primeira etapa não marcada) — o checklist já
+   persiste no banco, então a posição sobrevive a sessão/dispositivo sem SQL novo e sem estado
+   paralelo pra dessincronizar. Decisão técnica invisível, tomada sem gastar rodada do dono.
+2. **Etapa atual destacada no plano** — moldura + eyebrow "você tá aqui"; etapas feitas
+   compactam (título riscado, descrição recolhida); etapas futuras seguem legíveis por inteiro
+   (ler adiante nunca é punido — coerente com o modo documento da 314).
+3. **Beat do consultor a cada marcação** — uma linha apresentando a próxima etapa ("Fechamos
+   essa. A próxima da fila é X — tá destacada aí no plano") ou o fechamento quando era a
+   última. O texto já foi desenhado pra receber os minutos estimados da 314C sem reescrever.
+4. **Fechar o ciclo no bloco Mão na massa** — a etapa atual aparece com botão "fiz essa etapa"
+   logo abaixo do prompt copiável; marcar dali rola a página de volta pra próxima etapa no
+   plano. É o loop "copia → executa do outro lado → volta → marca → próxima" que o dono
+   descreveu como "esse auxiliar que eu quero".
+5. **Cartão de retomada na revisita** — modo documento com caminhada real (≥1 feita, ≥1
+   pendente): "Da última vez você parou na etapa N de M" + botão "continuar de onde parei"
+   (scroll até a etapa). Some assim que a pessoa interage — daí o beat assume a condução.
+
+**Visão maior do dono roteada (não perdida, não implementada de contrabando):**
+- **Mini-gate com evidência por etapa** ("a pessoa traz o que fez na fase 1, tipo um exemplo,
+  mini questionário") + **compartilhar resultados ao concluir** → **ISSUE-314D nova** — pede
+  persistência nova e decisões de produto (evidência obrigatória tensiona o guardrail
+  "checklist simples, não task manager" do handoff §9); merece sessão de spec própria.
+- **Minutos estimados por etapa** (citados de novo nesta sessão) → confirma a **ISSUE-314C**
+  já registrada.
+
+**Consequências:** módulo puro novo `src/lib/lab/continuidade.ts` (+11 testes); nenhum SQL,
+nenhuma mudança de API (o PATCH `checklistItem` existente já cobre tudo).
+**Bloqueia implementação?** Não — implementada na mesma sessão (v3.11.15).
+
+---
+
 ## Resumo executivo das premissas assumidas
 
 | # | Premissa (segue valendo salvo veto do dono) | Bloqueio |

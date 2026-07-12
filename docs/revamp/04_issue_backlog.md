@@ -1170,6 +1170,60 @@ Classificação + plano com checklist persistido + materiais recomendados; proje
 > fora do escopo) grounded no handoff estratégico e no código real do motor/plano. Não repita
 > a descoberta — comece a sessão de design a partir dali.
 
+## ISSUE-314B — Continuidade entre blocos do plano (retomar de onde parei)
+**Status:** ✅ concluída em 2026-07-11 (v3.11.15, Fable 5 — design + implementação na mesma
+sessão). Decisões registradas na **pergunta 18 do `00b_open_questions.md`**: etapa atual
+derivada do checklist (zero SQL novo), moldura "você tá aqui" + etapas feitas compactadas,
+beat do consultor a cada marcação (com espaço reservado pros minutos da 314C), "fiz essa
+etapa" direto do bloco Mão na massa (com scroll de volta pro plano) e cartão de retomada na
+revisita. Módulo puro `src/lib/lab/continuidade.ts` (+11 testes, 282 verdes no total);
+tsc/lint/build limpos; smoke test de produção ok (públicas 200, gate 307, API 401). A visão
+maior do dono (gate com evidência por etapa + compartilhar ao concluir) virou a **ISSUE-314D**.
+**Falta pra fechar de vez:** roteiro manual do dono (celular): copiar prompt → marcar do bloco
+Mão na massa → ver o beat + destaque na próxima → sair e revisitar → cartão de retomada.
+**Tipo:** Frontend · **Prioridade:** Alta · **Complexidade:** Média
+**Modelo:** Fable 5 escreve a transição entre blocos (é interação/voz — "não pode virar task
+manager frio", mesmo critério da 313/314) → Sonnet implementa sob a spec fechada.
+Hoje, ao terminar de interagir com um bloco (ex.: copiar o primeiro prompt do "mão na massa"),
+não existe nenhum sinal de "próximo passo" — a pessoa precisa voltar pro topo da página e achar
+o checklist manualmente. Precisa: (1) estado persistido de em qual bloco a pessoa está (além do
+`done`/`false` do checklist — onde ela parou de interagir); (2) uma transição guiada por bloco,
+no mesmo espírito da leitura guiada da 1ª visita (`?leitura=1`) — "bloco concluído → vamos pro
+bloco 2"; (3) CTA de retomada visível quando a pessoa reabre o projeto no meio do caminho.
+**Dep.:** 314.
+> 🔎 **Do teste do dono (2026-07-11, roteiro 313+314):** "terminei e ficou tipo não tinha onde
+> continuar... tinha que voltar pra tela de cima pra clicar no checklist... uma jornada quebrada,
+> chego até o prompt e não tem nenhum botão que me faz retomar a partir desse ponto." Distinto da
+> ISSUE-315 (hub externo, lista projetos): esta issue é o fluxo DENTRO da página do projeto,
+> entre os blocos do mesmo plano.
+
+## ISSUE-314D — Gate de evidência por etapa + compartilhar ao concluir
+**Tipo:** Frontend/Produto · **Prioridade:** Média · **Complexidade:** Média
+**Modelo:** Fable 5 pra spec (decisão de produto delicada — ver risco abaixo) → Sonnet
+implementa.
+Visão do dono (sessão de design da 314B, 2026-07-11): ao marcar uma etapa, a pessoa pode
+registrar uma evidência do que fez ("um exemplo, mini questionário, alguma coisa assim") —
+um mini-gate entre as fases, "como se fosse um desenvolvimento mesmo". E ao concluir o
+projeto, poder compartilhar o que construiu e os resultados. Pede persistência nova (evidência
+por etapa em `lab_projects` ou tabela própria) e novos modos no PATCH.
+**Risco/tensão a resolver na spec:** evidência OBRIGATÓRIA vira burocracia e bate no guardrail
+"checklist simples, não task manager" (handoff §9) — a spec precisa decidir onde ela é
+convite e onde é gate de verdade. Sinergia natural com a Fase 2 de acompanhamento (check-up)
+que o dono já adiou uma vez — avaliar se esta issue é o começo dela.
+**Dep.:** 314B. Compartilhamento pode se apoiar no export Markdown da 322 (avaliar ordem).
+
+## ISSUE-314C — Estimativa de tempo por etapa do plano
+**Tipo:** Frontend/Conteúdo · **Prioridade:** Média · **Complexidade:** Baixa
+**Modelo:** Sonnet no código (campo novo + render é mecânico) + Fable 5 calibra os números de
+duração (evita chute não confiável — mesma lógica de conteúdo da ISSUE-316).
+Adicionar duração estimada por etapa (`LabPlanEtapa` em `plan-generator.ts`) e um total agregado
+no topo do plano, pra pessoa ter noção de quanto tempo vai dedicar até completar o projeto.
+Reaproveitável na transição guiada da ISSUE-314B ("bloco 2, ~15 min").
+**Dep.:** 314. Fica mais forte se vier junto/depois da 314B, mas não depende dela.
+> 🔎 **Do teste do dono (2026-07-11):** "colocar uma estimativa de tempo pra cada uma das
+> seções, quanto tempo vai demorar pra pessoa ter noção do quanto ela vai dedicar ali até ter o
+> projeto completo."
+
 ## ISSUE-315 — Hub `/lab/inicio` com estados reais
 **Tipo:** Frontend · **Prioridade:** Alta · **Complexidade:** Baixa
 **Modelo:** Sonnet — estados de tela mecânicos, sem decisão de voz pendente (313/314 já fixaram
@@ -1212,9 +1266,26 @@ mensurável. **Dep.:** 310–318.
 ### Fase 1B — IA controlada (OpenAI, modelo barato — decisão pergunta 14)
 
 ## ISSUE-320 — Infra de IA (SDK OpenAI, env, rota server, telemetria de tokens, limites)
+**Status:** ✅ spec v2 fechada em 2026-07-11 — `ISSUE-320-spec-infra-ia.md`
+(`ISSUE-320-contexto-preparatorio.md` tem o raciocínio completo). v2 = revisão rigorosa sobre a
+v1: fechou persistência do output em `lab_projects` (renderiza do banco, nunca re-chama IA em
+pageview), defesa contra injeção de prompt (dado delimitado + validação de vocabulário
+fechado), regra "fallback nunca finge personalização", prompts versionados no repo com
+`prompt_version` rastreável, kill-switch `LAB_IA_DESLIGADA`, e campo `motivo` por pergunta da
+entrevista (o toque humano do consultor). Implementação ainda não começou.
 **Modelo:** Fable 5 — 1ª integração de IA no projeto: decisão arquitetural de schema
 estruturado, fallback e custo, mesmo critério da ISSUE-101 (define o padrão que as próximas
 issues de IA replicam).
+Rota por feature (321/322) + lib `chamarIA()` compartilhada; modelo default **`gpt-5.4-mini`**
+(decisão de custo do dono na v2 — ~US$0,01/projeto; upgrade path pra `gpt-5.6-luna` se a 323
+mostrar output raso; verificar pricing no dashboard antes do deploy); fallback com timeout
+10s + 1 retry; telemetria `lab_ai_usage` só com metadados, sem coluna de custo (calcula na
+leitura); rate limit de 10 chamadas/projeto/dia contando a própria telemetria. Herdou 2
+decisões de valor pra 321/322: pitch interno de justificativa (liga à tese de carreira da
+newsletter) e alternativas enriquecidas como notas curtas.
+**Bloqueante pra 321:** `/privacidade` precisa de disclosure do subprocessador OpenAI antes de
+dado real de usuário ser enviado (não bloqueia a 320 em si). **Dep.:** nenhuma de código (Fase
+1A ainda não fechou, mas a spec não depende disso).
 
 ## ISSUE-321 — Entrevista complementar `/lab/projeto/[id]/entrevista` (3–5 perguntas geradas, formulário — nunca chat; fallback gracioso se a IA falhar)
 **Modelo:** Sonnet, sob review Fable 5 — uma vez a 320 fixar o padrão, é replicação

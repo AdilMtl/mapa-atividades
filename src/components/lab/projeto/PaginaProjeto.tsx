@@ -1,12 +1,16 @@
 'use client'
 
 // =============================================================================
-// PÁGINA DO PROJETO — ORQUESTRADOR (ISSUE-314)
+// PÁGINA DO PROJETO — ORQUESTRADOR (ISSUE-314 + 314B)
 // "As notas viraram o plano": a folha manuscrita do wizard virou documento de
 // trabalho. Dois modos (spec §2):
 //   guiado    → só a 1ª visita (redirect do wizard, ?leitura=1): os 5 blocos
 //               se revelam em sequência, "avançar" descobre o próximo.
 //   documento → todas as visitas seguintes: tudo aberto, sem pedágio.
+// A 314B soma a continuidade: etapa atual derivada do checklist (primeira
+// pendente — lib/lab/continuidade.ts), beat do consultor após cada marcação,
+// marcação direto do bloco Mão na massa (com scroll de volta pro plano) e
+// cartão de retomada na revisita ("você parou na etapa N de M").
 // Toda a composição de texto (devolutiva, guia, prompt, linha de evolução) já
 // vem PRONTA do Server Component (materiais.ts é puro, roda no servidor) —
 // este componente só orquestra revelação + persistência do checklist.
@@ -15,7 +19,8 @@
 import * as React from 'react'
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
 
-import { Button } from '@/components/ds2'
+import { Button, Card } from '@/components/ds2'
+import { beatTransicao, etapaAtual, textoRetomada } from '@/lib/lab/continuidade'
 import type { Devolutiva, Guia } from '@/lib/lab/materiais'
 import type { LabChecklistItem, LabDiagnosis, LabPlanEtapa } from '@/lib/lab/types'
 
@@ -69,16 +74,38 @@ export function PaginaProjeto({
   const [pendentes, setPendentes] = React.useState<Set<string>>(new Set())
   const [concluindo, setConcluindo] = React.useState(false)
   const [erro, setErro] = React.useState<string | null>(null)
+  // Beat do consultor após marcar (ISSUE-314B) — limpa ao desmarcar/errar.
+  const [beat, setBeat] = React.useState<string | null>(null)
+  // Retomada some assim que a pessoa interage — daí em diante o beat guia.
+  const [interagiu, setInteragiu] = React.useState(false)
 
   const mostrarTudo = !guiado || blocoAtual >= TOTAL_BLOCOS - 1
   const podeAvancar = guiado && blocoAtual < TOTAL_BLOCOS - 1
 
+  const atual = etapaAtual(etapas, checklist)
+  const retomada =
+    !guiado && !interagiu && status !== 'concluido' ? textoRetomada(etapas, checklist) : null
+
+  const irParaEtapa = React.useCallback(
+    (etapaId: string | null) => {
+      const alvo = etapaId ? `etapa-${etapaId}` : null
+      if (!alvo) return
+      document
+        .getElementById(alvo)
+        ?.scrollIntoView({ behavior: semMovimento ? 'auto' : 'smooth', block: 'center' })
+    },
+    [semMovimento],
+  )
+
   const onToggle = React.useCallback(
     async (itemId: string, done: boolean) => {
       const anterior = checklist
+      const proximo = checklist.map((c) => (c.id === itemId ? { ...c, done } : c))
       setErro(null)
-      setChecklist((atual) => atual.map((c) => (c.id === itemId ? { ...c, done } : c)))
-      setPendentes((atual) => new Set(atual).add(itemId))
+      setInteragiu(true)
+      setChecklist(proximo)
+      setBeat(done ? beatTransicao(etapas, proximo) : null)
+      setPendentes((atualSet) => new Set(atualSet).add(itemId))
       try {
         const res = await fetch(`/api/lab/projects/${id}`, {
           method: 'PATCH',
@@ -90,16 +117,29 @@ export function PaginaProjeto({
         setStatus(data.status)
       } catch {
         setChecklist(anterior)
+        setBeat(null)
         setErro('Não consegui salvar essa marcação agora — tenta de novo.')
       } finally {
-        setPendentes((atual) => {
-          const proximo = new Set(atual)
-          proximo.delete(itemId)
-          return proximo
+        setPendentes((atualSet) => {
+          const proximoSet = new Set(atualSet)
+          proximoSet.delete(itemId)
+          return proximoSet
         })
       }
     },
-    [checklist, id],
+    [checklist, etapas, id],
+  )
+
+  // Marcar a partir do bloco Mão na massa (ISSUE-314B): mesmo toggle, e a
+  // página volta sozinha pra próxima etapa no plano — a navegação que faltava.
+  const onMarcarDoCiclo = React.useCallback(
+    (itemId: string) => {
+      const proximo = checklist.map((c) => (c.id === itemId ? { ...c, done: true } : c))
+      const proximaEtapa = etapaAtual(etapas, proximo)
+      void onToggle(itemId, true)
+      requestAnimationFrame(() => irParaEtapa(proximaEtapa?.id ?? itemId))
+    },
+    [checklist, etapas, irParaEtapa, onToggle],
   )
 
   const onConcluir = React.useCallback(async () => {
@@ -113,6 +153,7 @@ export function PaginaProjeto({
       })
       if (!res.ok) throw new Error('falhou')
       setStatus('concluido')
+      setBeat(null)
     } catch {
       setErro('Não consegui concluir o projeto agora — tenta de novo.')
     } finally {
@@ -127,6 +168,20 @@ export function PaginaProjeto({
 
   return (
     <div className="space-y-10 pb-16">
+      {retomada && atual && (
+        <Card className="max-w-3xl space-y-3 border-ds2-orange/25">
+          <p className="text-sm leading-relaxed text-ds2-text-secondary">{retomada}</p>
+          <Button
+            type="button"
+            variant="secondary"
+            onClick={() => irParaEtapa(atual.id)}
+            className="py-2.5 text-xs"
+          >
+            continuar de onde parei
+          </Button>
+        </Card>
+      )}
+
       <BlocoDevolutiva devolutiva={devolutiva} titulo={titulo} />
 
       <AnimatePresence initial={false}>
@@ -159,6 +214,8 @@ export function PaginaProjeto({
               concluindo={concluindo}
               onConcluir={onConcluir}
               jaConcluido={status === 'concluido'}
+              etapaAtualId={atual?.id ?? null}
+              beat={beat}
             />
           </motion.div>
         )}
@@ -172,7 +229,14 @@ export function PaginaProjeto({
             animate={{ opacity: 1, y: 0 }}
             transition={transicao}
           >
-            <BlocoMaoNaMassa guia={guia} prompt={prompt} />
+            <BlocoMaoNaMassa
+              guia={guia}
+              prompt={prompt}
+              etapaAtual={atual}
+              onMarcarEtapa={onMarcarDoCiclo}
+              marcando={atual ? pendentes.has(atual.id) : false}
+              aguardandoConclusao={podeConcluir && status === 'em_construcao'}
+            />
           </motion.div>
         )}
       </AnimatePresence>

@@ -8,7 +8,67 @@
 
 ---
 
-## 🎯 SESSÃO ATUAL: Página do projeto do Lab (ISSUE-314) + correções de navegação
+## 🎯 SESSÃO ATUAL: Continuidade entre etapas do plano (ISSUE-314B) + spec de infra de IA (ISSUE-320)
+**Data:** 11 de julho de 2026
+**Versão:** v3.11.15
+**Status:** ✅ ISSUE-314B implementada e validada; ✅ spec da ISSUE-320 fechada (v2, revisada);
+✅ ISSUE-314D registrada; ⚠️ falta o roteiro manual do dono (314B) e a chancela do Fable na v2
+da spec da 320
+
+### **🚀 O QUE FOI FEITO:**
+
+1. **ISSUE-314B — continuidade entre etapas (Fable 5, design + implementação na mesma sessão):**
+   resolve a queixa do dono no roteiro manual da 313+314 ("terminei e não tinha onde continuar").
+   Etapa atual derivada do checklist (zero SQL novo) com moldura "você tá aqui" no plano; beat do
+   consultor a cada marcação apresentando a próxima etapa; botão "fiz essa etapa" direto no
+   bloco Mão na massa (fecha o ciclo copia→executa→volta→marca, com scroll automático de volta
+   pro plano); cartão de retomada na revisita ("você parou na etapa N de M"). Módulo puro novo
+   `src/lib/lab/continuidade.ts` (+11 testes). Decisões completas na **pergunta 18** do
+   `00b_open_questions.md`.
+2. **ISSUE-314D nova:** a visão maior do dono (gate de evidência por etapa + compartilhar
+   resultados ao concluir) foi roteada pra issue própria — tensiona o guardrail "checklist
+   simples, não task manager" do handoff, precisa de sessão de spec dedicada.
+3. **ISSUE-320 — spec de infra de IA fechada em duas passadas:** preparatório (Sonnet) com
+   grounding técnico + achado de LGPD (a `/privacidade` promete "nunca compartilhar com
+   terceiros" — precisa de disclosure antes da 321 enviar dado real pra OpenAI) → sessão de
+   arquitetura fechando modelo, contrato do helper `chamarIA()`, fallback e telemetria → revisão
+   rigorosa (v2) que achou 5 lacunas reais: persistência do output em `lab_projects` (nunca
+   re-chama IA em pageview), defesa contra injeção de prompt, regra "fallback nunca finge
+   personalização", telemetria sem coluna de custo em dólar (calcula na leitura) e kill-switch
+   `LAB_IA_DESLIGADA`. Modelo default trocado pra `gpt-5.4-mini` (decisão de custo do dono,
+   ~US$0,01/projeto). Duas decisões de valor herdadas pra 321/322: pitch interno de justificativa
+   (liga à tese de carreira da newsletter) e alternativas enriquecidas como notas curtas.
+   Documentos: `ISSUE-320-contexto-preparatorio.md` + `ISSUE-320-spec-infra-ia.md`. Zero código
+   implementado (é só spec — a 320 ainda não tem carcaça de Fase 1A completa como dependência
+   real de deploy).
+
+### **📊 TÉCNICO:**
+- 282 testes verdes (eram 271) · `tsc --noEmit`/`lint`/`build` limpos · smoke test do servidor de
+  produção validado (rotas públicas 200, gate do Lab 307 pra anônimo, API 401 sem sessão).
+- Novos: `src/lib/lab/continuidade.ts` (+test), `docs/revamp/ISSUE-320-{contexto-preparatorio,
+  spec-infra-ia}.md`. Alterados: `src/components/lab/projeto/{PaginaProjeto,BlocoPlano,
+  BlocoMaoNaMassa}.tsx`, `docs/revamp/{00b_open_questions.md,04_issue_backlog.md}`.
+- **Nota de processo:** a troca de modelo pro Fable 5 pedida pelo dono não se confirmou durante
+  boa parte da sessão (ambiente reportou Sonnet 5) — registrado nos documentos afetados para
+  rastreabilidade; a v2 da spec da 320 já rodou com o Fable confirmado.
+
+### **🎯 PRÓXIMA SESSÃO:**
+1. **Roteiro manual do dono (celular):** copiar prompt → marcar etapa direto do bloco Mão na
+   massa → conferir o beat do consultor e o destaque na próxima etapa → sair e revisitar →
+   conferir o cartão de retomada — fecha a validação subjetiva da 314B.
+2. **Spec da ISSUE-320 (v2) pede uma chancela do Fable** focada no §2 (modelo) e §5 (prompts) —
+   são as decisões de maior julgamento; o resto pode seguir pro Sonnet implementar.
+3. **Fila de código em aberto:** ISSUE-315 (hub, Sonnet, pronta) segue como próxima natural;
+   ISSUE-314D precisa de sessão de spec própria antes de virar código.
+4. **Trabalho de Fable adiantável (sem depender de código novo):** ISSUE-316 (conteúdo da
+   biblioteca) e ISSUE-210 (taxonomia de áreas) — ambas seguem como candidatas registradas em
+   sessões anteriores.
+5. **Mapa visual do backlog** (`roadmap-backlog.html`) não foi atualizado nesta sessão — está
+   defasado em relação à 314B/314D/320.
+
+---
+
+## 📋 SESSÃO ANTERIOR: Página do projeto do Lab (ISSUE-314) + correções de navegação
 **Data:** 11 de julho de 2026 (sessão longa, sequência v3.11.8→v3.11.14)
 **Versão:** v3.11.14
 **Status:** ✅ ISSUE-314 implementada e no ar; ⚠️ falta o roteiro manual do dono (313 e 314
@@ -60,15 +120,27 @@ juntos) pra fechar de vez a Fase 1A do Lab
   ciclo inteiro — "ninguém está usando, assim eu já treino").
 
 ### **🎯 PRÓXIMA SESSÃO:**
-1. **Dono roda o roteiro manual** da 313 + 314 juntos (conta real, celular): wizard completo →
-   leitura guiada da página do projeto → marcar etapas → copiar prompt → concluir → revisitar
-   em modo documento → confirmar login caindo no Lab e o link Admin.
-2. **Próxima issue de código:** ISSUE-315 (hub `/lab/inicio` com estados reais — Sonnet, sem
-   decisão de voz pendente, complexidade baixa).
+1. **Dono rodou o roteiro manual** da 313 + 314 (conta real, celular) e devolveu feedback
+   (2026-07-11): fluxo natural, copy sem ajuste, mas jornada quebra ao terminar de interagir com
+   o primeiro bloco do plano (sem CTA de continuar/retomar). Virou **ISSUE-314B** (continuidade
+   entre blocos, retomar de onde parou) e **ISSUE-314C** (estimativa de tempo por etapa) no
+   backlog, ambas com o relato do dono citado. Falta o dono decidir se elas furam a fila da 315
+   ou entram depois.
+2. **Próxima issue de código (ordem original):** ISSUE-315 (hub `/lab/inicio` com estados reais
+   — Sonnet, sem decisão de voz pendente, complexidade baixa). **Concorrendo por prioridade:**
+   ISSUE-314B, que ataca a mesma dor ("não acho onde continuar") mas de dentro da página do
+   projeto, não do hub — precisa de sessão de spec com Fable antes de codar (é interação/voz).
 3. **Trabalho de Fable já adiantável agora** (não depende do roteiro nem da 315 — ver análise
-   completa na conversa desta sessão): conteúdo/algoritmo da ISSUE-316 (biblioteca) e definição
-   da ISSUE-210 (taxonomia de áreas) — ambos são trabalho de especificação pura, prontos pra
-   virar código quando a carcaça (315/316) for construída.
+   completa na conversa desta sessão): conteúdo/algoritmo da ISSUE-316 (biblioteca), definição
+   da ISSUE-210 (taxonomia de áreas) e agora também a spec da ISSUE-314B — todos são trabalho de
+   especificação pura, prontos pra virar código quando a carcaça (315/316) for construída.
+4. **Adiantado o grounding da ISSUE-320** (infra de IA, Fase 1B) a pedido do dono: mesmo com a
+   Fase 1A ainda em andamento, o dono quer usar o restinho de créditos do Fable pra deixar a
+   arquitetura de IA especificada e pronta pra virar código depois. Preparatório salvo em
+   `docs/revamp/ISSUE-320-contexto-preparatorio.md` — leia antes de abrir a sessão do Fable
+   pra essa issue. Já inclui a filosofia de custo do dono (modelo capaz porém barato por
+   chamada, uso pouco frequente por projeto, nunca "virar um ChatGPT em outro lugar") e onde a
+   chave da OpenAI vai ser configurada (Vercel env var, não local).
 
 ---
 

@@ -1,20 +1,42 @@
 'use client'
 
 // =============================================================================
-// PÁGINA DO PROJETO — BLOCO 4: "MÃO NA MASSA" (ISSUE-314)
-// O guia âncora do tipo + o primeiro prompt, prontos pra copiar. Resposta
-// direta ao "e como eu faço isso na prática?" — sem depender da biblioteca
-// (316), que ainda não existe: o conteúdo mora aqui (spec §3, Bloco 4).
+// PÁGINA DO PROJETO — BLOCO 4: "MÃO NA MASSA" (ISSUE-314 + 314B)
+// O guia âncora do tipo + o primeiro prompt, prontos pra copiar. A 314B fecha
+// o ciclo que o dono sentiu aberto no teste: a pessoa copia o prompt, executa
+// "do outro lado" (na IA dela) e volta — e agora marca a etapa AQUI MESMO,
+// sem rolar de volta pro checklist. Marcar daqui dispara o mesmo onToggle do
+// plano (estado único, otimista) e o orquestrador rola até a próxima etapa.
 // =============================================================================
 
 import * as React from 'react'
 import { Check, Copy } from 'lucide-react'
 
 import { Button, Card } from '@/components/ds2'
+import type { EtapaAtualInfo } from '@/lib/lab/continuidade'
 import type { Guia } from '@/lib/lab/materiais'
 import { cn } from '@/lib/utils'
 
-export function BlocoMaoNaMassa({ guia, prompt }: { guia: Guia; prompt: string }) {
+interface BlocoMaoNaMassaProps {
+  guia: Guia
+  prompt: string
+  /** Etapa em que a pessoa está (null = tudo marcado ou plano vazio). */
+  etapaAtual: EtapaAtualInfo | null
+  /** Marca a etapa atual como feita a partir daqui (ISSUE-314B). */
+  onMarcarEtapa: (id: string) => void
+  marcando: boolean
+  /** Tudo marcado mas ainda não concluído → aponta pro botão lá em cima. */
+  aguardandoConclusao: boolean
+}
+
+export function BlocoMaoNaMassa({
+  guia,
+  prompt,
+  etapaAtual,
+  onMarcarEtapa,
+  marcando,
+  aguardandoConclusao,
+}: BlocoMaoNaMassaProps) {
   const [copiado, setCopiado] = React.useState(false)
 
   const copiar = React.useCallback(async () => {
@@ -69,11 +91,41 @@ export function BlocoMaoNaMassa({ guia, prompt }: { guia: Guia; prompt: string }
           {prompt}
         </pre>
         <p className="text-xs text-ds2-text-muted">
-          Cola isso na tua IA — {' '}
-          {/* a ferramenta já está resolvida DENTRO do texto do prompt quando faz sentido (ex.: dashboard) */}
-          e volta aqui pra marcar a etapa quando terminar.
+          Cola isso na tua IA — e volta aqui pra marcar a etapa quando terminar.
         </p>
       </Card>
+
+      {/* O fecho do ciclo (ISSUE-314B): executou do outro lado, marca daqui. */}
+      {etapaAtual && (
+        <Card className="max-w-3xl space-y-3 border-ds2-orange/25">
+          <p className="text-sm leading-relaxed text-ds2-text-secondary">
+            Executou aí do outro lado? Então marca aqui mesmo, sem caçar o checklist lá em cima:
+          </p>
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <p className="font-ds2-sans text-sm font-semibold text-ds2-text-primary">
+              <span className="font-ds2-mono text-xs font-normal text-ds2-text-muted">
+                {String(etapaAtual.indice + 1).padStart(2, '0')}
+              </span>{' '}
+              {etapaAtual.titulo}
+            </p>
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={() => onMarcarEtapa(etapaAtual.id)}
+              disabled={marcando}
+              className="py-2.5 text-xs"
+            >
+              <Check className="h-4 w-4" /> {marcando ? 'salvando…' : 'fiz essa etapa'}
+            </Button>
+          </div>
+        </Card>
+      )}
+
+      {aguardandoConclusao && (
+        <p className="max-w-3xl text-sm leading-relaxed text-ds2-text-secondary">
+          Tudo marcado por aqui — falta só o &quot;Concluir projeto&quot;, ali em cima no plano.
+        </p>
+      )}
     </section>
   )
 }

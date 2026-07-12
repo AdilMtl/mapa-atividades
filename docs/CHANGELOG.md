@@ -16,6 +16,32 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [v3.11.15] - 2026-07-11 - 🧭 Continuidade entre etapas do plano (ISSUE-314B) + spec de infra de IA (ISSUE-320)
+
+### ✅ Adicionado
+- **Continuidade entre etapas do plano do Lab (ISSUE-314B):** etapa atual destacada no plano
+  ("você tá aqui", derivada do checklist — zero SQL novo); beat do consultor a cada marcação
+  apresentando a próxima etapa; botão "fiz essa etapa" direto no bloco Mão na massa, fechando o
+  ciclo copia→executa→volta→marca com scroll automático de volta pro plano; cartão de retomada
+  na revisita ("você parou na etapa N de M"). Resolve a queixa do dono no roteiro manual da
+  313+314 ("terminei e não tinha onde continuar").
+- **`src/lib/lab/continuidade.ts`** — módulo puro novo com a lógica de etapa atual/retomada/beat
+  de transição. 11 testes novos.
+- **Spec de arquitetura da ISSUE-320** (infra de IA, Fase 1B) fechada em duas passadas:
+  preparatório com grounding técnico + achado de LGPD, sessão de arquitetura, e revisão
+  rigorosa (v2) que endureceu persistência, defesa contra injeção de prompt, regra de fallback
+  honesto, telemetria sem coluna de custo fixo e kill-switch de emergência. Documentado em
+  `docs/revamp/ISSUE-320-{contexto-preparatorio,spec-infra-ia}.md`. Sem código — é spec.
+- **ISSUE-314D registrada** no backlog: gate de evidência por etapa + compartilhar resultados ao
+  concluir (visão maior do dono, roteada pra spec própria).
+
+### 📊 Técnico
+- 282 testes verdes (eram 271) · `tsc --noEmit`/`lint`/`build` limpos · smoke test do servidor de
+  produção validado (rotas públicas 200, gate do Lab 307 pra anônimo, API 401 sem sessão).
+- Decisões de UX/produto completas na **pergunta 18** do `docs/revamp/00b_open_questions.md`.
+
+---
+
 ## [v3.11.14] - 2026-07-11 - 📄 Página do projeto do Lab (ISSUE-314) + correções de navegação
 
 ### ✅ Adicionado
