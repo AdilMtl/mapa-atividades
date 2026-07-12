@@ -1,11 +1,14 @@
 // =============================================================================
-// LAB — CONTINUIDADE ENTRE ETAPAS DO PLANO (ISSUE-314B)
-// "Onde você parou" derivado do checklist (primeira etapa não marcada) — o
-// checklist já persiste no banco, então a posição da pessoa sobrevive a
+// LAB — A CAMINHADA: CONTINUIDADE ENTRE FASES DO PLANO (ISSUE-314B v2)
+// O plano deixou de ser lista com checkbox e virou uma jornada em fases: cada
+// etapa é um bloco sequencial que abre, executa e fecha com um gate ("fechei
+// essa fase"). A posição da pessoa é derivada do checklist (primeira fase não
+// marcada) — o checklist já persiste no banco, então a jornada sobrevive a
 // sessão/dispositivo sem SQL novo. Módulo puro (mesma regra do materiais.ts):
 // composição de texto testável, sem DOM, sem rede. A UI só renderiza.
-// Decisões de voz/interação: sessão de design de 2026-07-11 com o dono
-// (pergunta 18 do 00b_open_questions.md).
+// v1 (destaque + scroll de volta pro checklist) foi vetada pelo dono no teste
+// manual — "eu queria senso de jornada". Decisões: pergunta 18 do
+// 00b_open_questions.md (revisada na v2).
 // =============================================================================
 
 import type { LabChecklistItem, LabPlanEtapa } from './types'
@@ -18,9 +21,9 @@ export interface EtapaAtualInfo {
 }
 
 /**
- * A etapa em que a pessoa está: a PRIMEIRA (na ordem do plano) ainda não
+ * A fase em que a pessoa está: a PRIMEIRA (na ordem do plano) ainda não
  * marcada. Marcar fora de ordem não quebra — a atual continua sendo a primeira
- * pendente. Etapa cujo id não exista no checklist é pulada (o PATCH rejeitaria
+ * pendente. Fase cujo id não exista no checklist é pulada (o PATCH rejeitaria
  * a marcação — melhor não apontar a pessoa pra um beco). `null` = tudo feito
  * ou plano sem etapas.
  */
@@ -38,7 +41,7 @@ export function etapaAtual(
 
 /**
  * Cartão de retomada da revisita (modo documento). Só existe quando há
- * caminhada de verdade pra retomar: pelo menos uma etapa feita E pelo menos
+ * caminhada de verdade pra retomar: pelo menos uma fase feita E pelo menos
  * uma pendente. Antes disso a página inteira já é o convite; depois disso o
  * que falta é concluir, não retomar.
  */
@@ -50,14 +53,15 @@ export function textoRetomada(
   if (!atual) return null
   const algumaFeita = checklist.some((c) => c.done)
   if (!algumaFeita) return null
-  return `Da última vez você parou na etapa ${atual.indice + 1} de ${etapas.length} — "${atual.titulo}".`
+  return `Da última vez você parou na fase ${atual.indice + 1} de ${etapas.length} — "${atual.titulo}".`
 }
 
 /**
- * O beat do consultor logo depois de uma etapa marcada: apresenta a próxima
- * (ou o fechamento, quando era a última). Chamar com o checklist JÁ
- * atualizado. A 314C vai somar os minutos estimados a esta frase — o texto
- * já foi desenhado pra receber esse acréscimo sem reescrever.
+ * A fala do consultor no topo da fase recém-aberta, logo depois de um gate
+ * fechado. Chamar com o checklist JÁ atualizado. Sem número da fase fechada
+ * de propósito: marcar fora de ordem não pode gerar contagem errada. A 314C
+ * vai somar os minutos estimados aqui — o texto já recebe o acréscimo sem
+ * reescrever.
  */
 export function beatTransicao(
   etapas: LabPlanEtapa[],
@@ -67,5 +71,19 @@ export function beatTransicao(
   if (!proxima) {
     return 'Essa era a última — agora é só apertar o botão de concluir aqui embaixo.'
   }
-  return `Fechamos essa. A próxima da fila é "${proxima.titulo}" — tá destacada aí no plano.`
+  return 'Fechamos essa. A próxima já tá aberta aqui embaixo — segue no teu ritmo.'
+}
+
+/**
+ * Em qual fase mora o material de execução (guia do ofício + primeiro prompt,
+ * o antigo bloco "Mão na massa"): a primeira etapa cujo texto fala de prompt
+ * ou de IA — é ali que a pessoa vai trocar de tela e executar. Fallback: a
+ * primeira fase (o material é o "primeiro passo pronto" por definição).
+ * Decisão do dono (2026-07-12): cada fase carrega o que precisa pra ser
+ * executada ali, não um bloco separado no fim da página.
+ */
+export function faseDoMaterial(etapas: LabPlanEtapa[]): string | null {
+  if (etapas.length === 0) return null
+  const comPrompt = etapas.find((e) => /prompt|\bIA\b/i.test(`${e.titulo} ${e.descricao}`))
+  return (comPrompt ?? etapas[0]).id
 }

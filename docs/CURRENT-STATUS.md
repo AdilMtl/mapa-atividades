@@ -8,23 +8,28 @@
 
 ---
 
-## 🎯 SESSÃO ATUAL: Continuidade entre etapas do plano (ISSUE-314B) + spec de infra de IA (ISSUE-320)
-**Data:** 11 de julho de 2026
-**Versão:** v3.11.15
-**Status:** ✅ ISSUE-314B implementada e validada; ✅ spec da ISSUE-320 fechada (v2, revisada);
-✅ ISSUE-314D registrada; ⚠️ falta o roteiro manual do dono (314B) e a chancela do Fable na v2
-da spec da 320
+## 🎯 SESSÃO ATUAL: "A Caminhada" — plano do Lab em fases (ISSUE-314B v2) + spec de infra de IA (ISSUE-320)
+**Data:** 11–12 de julho de 2026
+**Versão:** v3.11.16
+**Status:** ✅ ISSUE-314B v2 ("A Caminhada") implementada e validada; ✅ spec da ISSUE-320 fechada
+(v2, revisada); ✅ ISSUE-314D registrada; ⚠️ falta o roteiro manual do dono (314B v2) e a
+chancela do Fable na v2 da spec da 320
 
 ### **🚀 O QUE FOI FEITO:**
 
-1. **ISSUE-314B — continuidade entre etapas (Fable 5, design + implementação na mesma sessão):**
-   resolve a queixa do dono no roteiro manual da 313+314 ("terminei e não tinha onde continuar").
-   Etapa atual derivada do checklist (zero SQL novo) com moldura "você tá aqui" no plano; beat do
-   consultor a cada marcação apresentando a próxima etapa; botão "fiz essa etapa" direto no
-   bloco Mão na massa (fecha o ciclo copia→executa→volta→marca, com scroll automático de volta
-   pro plano); cartão de retomada na revisita ("você parou na etapa N de M"). Módulo puro novo
-   `src/lib/lab/continuidade.ts` (+11 testes). Decisões completas na **pergunta 18** do
-   `00b_open_questions.md`.
+0. **ISSUE-314B v1 VETADA pelo dono → v2 "A Caminhada" (2026-07-12).** A v1 (v3.11.15) só
+   decorava a lista com destaque + botão que rolava de volta pro checklist; o dono rejeitou no
+   teste manual: *"é só um volta pro checklist, eu queria senso de jornada"*. A v2 redesenhou a
+   ESTRUTURA: o plano virou uma jornada em fases (`BlocoCaminhada`, que funde os antigos
+   `BlocoPlano` + `BlocoMaoNaMassa`). Cada etapa é uma fase que **abre** (card grande com
+   instrução densa + o material da fase — guia + prompt — quando é a fase de executar com IA),
+   **fecha** com o gate "fechei essa fase", e a **próxima abre sozinha** com o beat do consultor.
+   Fases feitas colapsam (toque pra reler + reabrir "marquei sem querer"); fases futuras mostram
+   só o título como mapa da trilha (toque pra espiar). Revisita abre já na fase certa + cartão de
+   retomada. Tudo derivado do checklist (zero SQL, PATCH `checklistItem` intacto). Módulo
+   `src/lib/lab/continuidade.ts` (+16 testes); `BlocoPlano`/`BlocoMaoNaMassa` removidos.
+   Decisões completas na **pergunta 18** do `00b_open_questions.md`. **Lição registrada:** a
+   visão de jornada do dono era pra redesenhar o plano, não decorar a lista com navegação.
 2. **ISSUE-314D nova:** a visão maior do dono (gate de evidência por etapa + compartilhar
    resultados ao concluir) foi roteada pra issue própria — tensiona o guardrail "checklist
    simples, não task manager" do handoff, precisa de sessão de spec dedicada.
@@ -43,23 +48,26 @@ da spec da 320
    real de deploy).
 
 ### **📊 TÉCNICO:**
-- 282 testes verdes (eram 271) · `tsc --noEmit`/`lint`/`build` limpos · smoke test do servidor de
+- 287 testes verdes (eram 271) · `tsc --noEmit`/`lint`/`build` limpos · smoke test do servidor de
   produção validado (rotas públicas 200, gate do Lab 307 pra anônimo, API 401 sem sessão).
-- Novos: `src/lib/lab/continuidade.ts` (+test), `docs/revamp/ISSUE-320-{contexto-preparatorio,
-  spec-infra-ia}.md`. Alterados: `src/components/lab/projeto/{PaginaProjeto,BlocoPlano,
-  BlocoMaoNaMassa}.tsx`, `docs/revamp/{00b_open_questions.md,04_issue_backlog.md}`.
-- **Nota de processo:** a troca de modelo pro Fable 5 pedida pelo dono não se confirmou durante
-  boa parte da sessão (ambiente reportou Sonnet 5) — registrado nos documentos afetados para
-  rastreabilidade; a v2 da spec da 320 já rodou com o Fable confirmado.
+- Novos: `src/lib/lab/continuidade.ts` (+test), `src/components/lab/projeto/BlocoCaminhada.tsx`,
+  `docs/revamp/ISSUE-320-{contexto-preparatorio,spec-infra-ia}.md`. Alterados:
+  `src/components/lab/projeto/PaginaProjeto.tsx`, `docs/revamp/{00b_open_questions.md,
+  04_issue_backlog.md}`. Removidos: `src/components/lab/projeto/{BlocoPlano,BlocoMaoNaMassa}.tsx`
+  (fundidos na Caminhada).
+- **Nota de processo:** a v1 da 314B rodou em Sonnet 5 (a troca pro Fable não se confirmou de
+  imediato); a v2 "A Caminhada" e a spec v2 da 320 rodaram com Fable/Opus confirmados. A v1
+  vetada está registrada na pergunta 18 como lição, não apagada.
 
 ### **🎯 PRÓXIMA SESSÃO:**
-1. **Roteiro manual do dono (celular):** copiar prompt → marcar etapa direto do bloco Mão na
-   massa → conferir o beat do consultor e o destaque na próxima etapa → sair e revisitar →
-   conferir o cartão de retomada — fecha a validação subjetiva da 314B.
+1. **Roteiro manual do dono (celular) da 314B v2:** abrir fase → copiar/executar o prompt →
+   "fechei essa fase" → conferir a próxima abrindo sozinha com o beat → espiar uma fase futura →
+   sair e revisitar (abre na fase certa + cartão de retomada). Fecha a validação subjetiva.
 2. **Spec da ISSUE-320 (v2) pede uma chancela do Fable** focada no §2 (modelo) e §5 (prompts) —
    são as decisões de maior julgamento; o resto pode seguir pro Sonnet implementar.
 3. **Fila de código em aberto:** ISSUE-315 (hub, Sonnet, pronta) segue como próxima natural;
-   ISSUE-314D precisa de sessão de spec própria antes de virar código.
+   ISSUE-314D (evidência por fase — encaixa no gate "fechei essa fase" da Caminhada) precisa de
+   sessão de spec própria antes de virar código.
 4. **Trabalho de Fable adiantável (sem depender de código novo):** ISSUE-316 (conteúdo da
    biblioteca) e ISSUE-210 (taxonomia de áreas) — ambas seguem como candidatas registradas em
    sessões anteriores.

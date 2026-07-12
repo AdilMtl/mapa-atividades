@@ -1,16 +1,16 @@
 'use client'
 
 // =============================================================================
-// PÁGINA DO PROJETO — ORQUESTRADOR (ISSUE-314 + 314B)
+// PÁGINA DO PROJETO — ORQUESTRADOR (ISSUE-314 + 314B v2)
 // "As notas viraram o plano": a folha manuscrita do wizard virou documento de
 // trabalho. Dois modos (spec §2):
-//   guiado    → só a 1ª visita (redirect do wizard, ?leitura=1): os 5 blocos
+//   guiado    → só a 1ª visita (redirect do wizard, ?leitura=1): os 4 blocos
 //               se revelam em sequência, "avançar" descobre o próximo.
-//   documento → todas as visitas seguintes: tudo aberto, sem pedágio.
-// A 314B soma a continuidade: etapa atual derivada do checklist (primeira
-// pendente — lib/lab/continuidade.ts), beat do consultor após cada marcação,
-// marcação direto do bloco Mão na massa (com scroll de volta pro plano) e
-// cartão de retomada na revisita ("você parou na etapa N de M").
+//   documento → todas as visitas seguintes: blocos abertos, e a CAMINHADA
+//               (o plano em fases) já abre na fase em que a pessoa parou.
+// Arco v2 (314B): devolutiva → leitura → caminhada → rotina. Os antigos
+// blocos "plano" (checklist) e "mão na massa" (guia+prompt no fim) viraram
+// UM bloco de execução em fases — o material mora dentro da fase certa.
 // Toda a composição de texto (devolutiva, guia, prompt, linha de evolução) já
 // vem PRONTA do Server Component (materiais.ts é puro, roda no servidor) —
 // este componente só orquestra revelação + persistência do checklist.
@@ -20,14 +20,18 @@ import * as React from 'react'
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
 
 import { Button, Card } from '@/components/ds2'
-import { beatTransicao, etapaAtual, textoRetomada } from '@/lib/lab/continuidade'
+import {
+  beatTransicao,
+  etapaAtual,
+  faseDoMaterial,
+  textoRetomada,
+} from '@/lib/lab/continuidade'
 import type { Devolutiva, Guia } from '@/lib/lab/materiais'
 import type { LabChecklistItem, LabDiagnosis, LabPlanEtapa } from '@/lib/lab/types'
 
+import { BlocoCaminhada } from './BlocoCaminhada'
 import { BlocoDevolutiva } from './BlocoDevolutiva'
 import { BlocoLeitura } from './BlocoLeitura'
-import { BlocoMaoNaMassa } from './BlocoMaoNaMassa'
-import { BlocoPlano } from './BlocoPlano'
 import { BlocoRotina } from './BlocoRotina'
 
 export interface PaginaProjetoProps {
@@ -44,12 +48,12 @@ export interface PaginaProjetoProps {
   modoInicial: 'guiado' | 'documento'
 }
 
-const TOTAL_BLOCOS = 5
+const TOTAL_BLOCOS = 4
 
 function rotuloAvancar(blocoAtual: number): string {
-  // Do bloco 3 (Plano, índice 2) pro 4 (Mão na massa): o botão verbaliza a
-  // pergunta que a pessoa está fazendo nesse momento (regra de CTA da casa).
-  return blocoAtual === 2 ? 'E como eu começo?' : 'Continuar'
+  // Da leitura (índice 1) pra caminhada: o botão verbaliza a pergunta que a
+  // pessoa está fazendo nesse momento (regra de CTA da casa).
+  return blocoAtual === 1 ? 'E como eu começo?' : 'Continuar'
 }
 
 export function PaginaProjeto({
@@ -74,25 +78,24 @@ export function PaginaProjeto({
   const [pendentes, setPendentes] = React.useState<Set<string>>(new Set())
   const [concluindo, setConcluindo] = React.useState(false)
   const [erro, setErro] = React.useState<string | null>(null)
-  // Beat do consultor após marcar (ISSUE-314B) — limpa ao desmarcar/errar.
+  // Beat do consultor no topo da fase recém-aberta — limpa ao reabrir/errar.
   const [beat, setBeat] = React.useState<string | null>(null)
-  // Retomada some assim que a pessoa interage — daí em diante o beat guia.
+  // Retomada some assim que a pessoa interage — daí a caminhada guia sozinha.
   const [interagiu, setInteragiu] = React.useState(false)
 
   const mostrarTudo = !guiado || blocoAtual >= TOTAL_BLOCOS - 1
   const podeAvancar = guiado && blocoAtual < TOTAL_BLOCOS - 1
 
   const atual = etapaAtual(etapas, checklist)
+  const faseMaterialId = faseDoMaterial(etapas)
   const retomada =
     !guiado && !interagiu && status !== 'concluido' ? textoRetomada(etapas, checklist) : null
 
-  const irParaEtapa = React.useCallback(
-    (etapaId: string | null) => {
-      const alvo = etapaId ? `etapa-${etapaId}` : null
-      if (!alvo) return
+  const irParaFase = React.useCallback(
+    (faseId: string) => {
       document
-        .getElementById(alvo)
-        ?.scrollIntoView({ behavior: semMovimento ? 'auto' : 'smooth', block: 'center' })
+        .getElementById(`fase-${faseId}`)
+        ?.scrollIntoView({ behavior: semMovimento ? 'auto' : 'smooth', block: 'start' })
     },
     [semMovimento],
   )
@@ -130,16 +133,25 @@ export function PaginaProjeto({
     [checklist, etapas, id],
   )
 
-  // Marcar a partir do bloco Mão na massa (ISSUE-314B): mesmo toggle, e a
-  // página volta sozinha pra próxima etapa no plano — a navegação que faltava.
-  const onMarcarDoCiclo = React.useCallback(
-    (itemId: string) => {
-      const proximo = checklist.map((c) => (c.id === itemId ? { ...c, done: true } : c))
-      const proximaEtapa = etapaAtual(etapas, proximo)
-      void onToggle(itemId, true)
-      requestAnimationFrame(() => irParaEtapa(proximaEtapa?.id ?? itemId))
+  // Gate da fase (ISSUE-314B v2): fecha a atual e leva a pessoa pra próxima,
+  // que abre sozinha — a navegação É a jornada, sem voltar pra checklist.
+  const onFecharFase = React.useCallback(
+    (faseId: string) => {
+      const proximo = checklist.map((c) => (c.id === faseId ? { ...c, done: true } : c))
+      const proximaFase = etapaAtual(etapas, proximo)
+      void onToggle(faseId, true)
+      if (proximaFase) {
+        requestAnimationFrame(() => irParaFase(proximaFase.id))
+      }
     },
-    [checklist, etapas, irParaEtapa, onToggle],
+    [checklist, etapas, irParaFase, onToggle],
+  )
+
+  const onReabrirFase = React.useCallback(
+    (faseId: string) => {
+      void onToggle(faseId, false)
+    },
+    [onToggle],
   )
 
   const onConcluir = React.useCallback(async () => {
@@ -174,7 +186,7 @@ export function PaginaProjeto({
           <Button
             type="button"
             variant="secondary"
-            onClick={() => irParaEtapa(atual.id)}
+            onClick={() => irParaFase(atual.id)}
             className="py-2.5 text-xs"
           >
             continuar de onde parei
@@ -200,22 +212,26 @@ export function PaginaProjeto({
       <AnimatePresence initial={false}>
         {(mostrarTudo || blocoAtual >= 2) && (
           <motion.div
-            key="plano"
+            key="caminhada"
             initial={semMovimento ? false : { opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
             transition={transicao}
           >
-            <BlocoPlano
+            <BlocoCaminhada
               etapas={etapas}
               checklist={checklist}
               pendentes={pendentes}
-              onToggle={onToggle}
+              onFecharFase={onFecharFase}
+              onReabrirFase={onReabrirFase}
               podeConcluir={podeConcluir && status === 'em_construcao'}
               concluindo={concluindo}
               onConcluir={onConcluir}
               jaConcluido={status === 'concluido'}
               etapaAtualId={atual?.id ?? null}
               beat={beat}
+              guia={guia}
+              prompt={prompt}
+              faseMaterialId={faseMaterialId}
             />
           </motion.div>
         )}
@@ -223,26 +239,6 @@ export function PaginaProjeto({
 
       <AnimatePresence initial={false}>
         {(mostrarTudo || blocoAtual >= 3) && (
-          <motion.div
-            key="mao-na-massa"
-            initial={semMovimento ? false : { opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={transicao}
-          >
-            <BlocoMaoNaMassa
-              guia={guia}
-              prompt={prompt}
-              etapaAtual={atual}
-              onMarcarEtapa={onMarcarDoCiclo}
-              marcando={atual ? pendentes.has(atual.id) : false}
-              aguardandoConclusao={podeConcluir && status === 'em_construcao'}
-            />
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      <AnimatePresence initial={false}>
-        {(mostrarTudo || blocoAtual >= 4) && (
           <motion.div
             key="rotina"
             initial={semMovimento ? false : { opacity: 0, y: 8 }}

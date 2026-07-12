@@ -16,6 +16,36 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [v3.11.16] - 2026-07-12 - 🥾 "A Caminhada" — plano do Lab em fases (ISSUE-314B v2)
+
+### 🎨 Melhorado
+- **Plano do projeto redesenhado como jornada em fases (ISSUE-314B v2, "A Caminhada").** A v1
+  (v3.11.15) foi vetada pelo dono no teste manual — só decorava a lista com destaque e um botão
+  que rolava de volta pro checklist ("é só um volta pro checklist, eu queria senso de jornada").
+  A v2 refez a estrutura: cada etapa é uma **fase sequencial** que abre (card grande com
+  instrução densa + o guia/prompt da fase quando é a de executar com IA), fecha com o gate
+  **"fechei essa fase"**, e a **próxima abre sozinha** com o beat do consultor. Fases feitas
+  colapsam (toque pra reler + reabrir); fases futuras aparecem como mapa da trilha (toque pra
+  espiar). A revisita abre já na fase em que a pessoa parou, com cartão de retomada.
+
+### ✅ Adicionado
+- **`src/components/lab/projeto/BlocoCaminhada.tsx`** — o novo bloco de execução em fases, que
+  fundiu os antigos `BlocoPlano` (checklist) e `BlocoMaoNaMassa` (guia+prompt no fim da página).
+- **`faseDoMaterial()`** em `continuidade.ts` — decide em qual fase o material (guia + prompt)
+  mora: a primeira que fala de prompt/IA, com fallback na primeira fase.
+
+### 🔧 Removido
+- `BlocoPlano.tsx` e `BlocoMaoNaMassa.tsx` — substituídos pela Caminhada.
+
+### 📊 Técnico
+- 287 testes verdes (eram 282) · `tsc --noEmit`/`lint`/`build` limpos · smoke test de produção ok
+  (públicas 200, gate do Lab 307 pra anônimo, API 401 sem sessão).
+- Zero SQL, zero mudança de API — a jornada é derivada do checklist, e o gate/reabertura usam o
+  PATCH `checklistItem` que já existia. Decisões em `docs/revamp/00b_open_questions.md` (pergunta
+  18, revisada). O gate "fechei essa fase" é o encaixe natural da futura ISSUE-314D (evidência).
+
+---
+
 ## [v3.11.15] - 2026-07-11 - 🧭 Continuidade entre etapas do plano (ISSUE-314B) + spec de infra de IA (ISSUE-320)
 
 ### ✅ Adicionado

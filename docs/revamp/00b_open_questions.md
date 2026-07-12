@@ -458,43 +458,56 @@ leitura em prosa → plano vivo → mão na massa → rotina" vira o padrão de 
 
 ---
 
-## Pergunta pendente 18 — ✅ RESPONDIDA PELO DONO (2026-07-11) — continuidade entre etapas do plano (ISSUE-314B)
+## Pergunta pendente 18 — ✅ RESPONDIDA PELO DONO (2026-07-11/12) — continuidade entre etapas do plano (ISSUE-314B)
 
 **Contexto:** no roteiro manual da 313+314 o dono sentiu a jornada quebrar depois de copiar o
 primeiro prompt: "terminei e não tinha onde continuar — tinha que voltar pra tela de cima pra
-clicar no checklist". Virou a ISSUE-314B; a sessão de design (Fable 5, mesma data) fechou as
-decisões abaixo. Sem spec em arquivo separado — o volume coube nesta pergunta + comentários no
-código (`src/lib/lab/continuidade.ts`).
+clicar no checklist". Virou a ISSUE-314B. Sem spec em arquivo separado — o volume coube nesta
+pergunta + comentários no código (`src/lib/lab/continuidade.ts`, `BlocoCaminhada.tsx`).
 
-**Decisões fechadas:**
-1. **"Onde parei" é derivado do checklist** (primeira etapa não marcada) — o checklist já
-   persiste no banco, então a posição sobrevive a sessão/dispositivo sem SQL novo e sem estado
-   paralelo pra dessincronizar. Decisão técnica invisível, tomada sem gastar rodada do dono.
-2. **Etapa atual destacada no plano** — moldura + eyebrow "você tá aqui"; etapas feitas
-   compactam (título riscado, descrição recolhida); etapas futuras seguem legíveis por inteiro
-   (ler adiante nunca é punido — coerente com o modo documento da 314).
-3. **Beat do consultor a cada marcação** — uma linha apresentando a próxima etapa ("Fechamos
-   essa. A próxima da fila é X — tá destacada aí no plano") ou o fechamento quando era a
-   última. O texto já foi desenhado pra receber os minutos estimados da 314C sem reescrever.
-4. **Fechar o ciclo no bloco Mão na massa** — a etapa atual aparece com botão "fiz essa etapa"
-   logo abaixo do prompt copiável; marcar dali rola a página de volta pra próxima etapa no
-   plano. É o loop "copia → executa do outro lado → volta → marca → próxima" que o dono
-   descreveu como "esse auxiliar que eu quero".
-5. **Cartão de retomada na revisita** — modo documento com caminhada real (≥1 feita, ≥1
-   pendente): "Da última vez você parou na etapa N de M" + botão "continuar de onde parei"
-   (scroll até a etapa). Some assim que a pessoa interage — daí o beat assume a condução.
+**⚠️ v1 (2026-07-11) VETADA pelo dono no teste manual.** A primeira implementação manteve o
+plano como lista com checkbox e só adicionou por cima: destaque "você tá aqui" + um botão que
+rolava de volta pro checklist + botão "fiz essa etapa" no bloco Mão na massa. O dono rejeitou:
+*"você colocou um 'continuar', aí ele volta pra cima na seção 2. Ele não continua em outra
+janela… é só um volta pro checklist. Eu queria algo mais complexo, que desse esse senso de
+jornada."* Lição registrada: a visão dele era **redesenhar a estrutura do plano**, não decorar a
+lista com navegação. (Ver [[padrao-contexto-preparatorio-fable]]: comprimir visão de jornada em
+remendos é o erro a evitar.)
+
+**Decisões fechadas na v2 (2026-07-12) — "A Caminhada":**
+1. **O plano vira uma jornada em fases, não uma lista.** Os antigos blocos "plano" (checklist) e
+   "mão na massa" (guia+prompt no fim da página) foram FUNDIDOS num único bloco de execução
+   (`BlocoCaminhada`). Cada etapa é uma fase sequencial que abre → executa → fecha.
+2. **Fase atual = card grande** com instrução densa (título + descrição completa) e, quando é a
+   fase de executar com IA, o material (guia do ofício + prompt copiável) mora ali dentro. Fecha
+   com o gate **"fechei essa fase"**.
+3. **Ao fechar o gate, a próxima fase abre sozinha** (sem scroll manual pra lugar nenhum), com o
+   beat do consultor no topo ("Fechamos essa. A próxima já tá aberta aqui embaixo — segue no teu
+   ritmo"). Quando a última fecha, vem a cerimônia de conclusão que já existia.
+4. **Fases feitas colapsam** (título riscado, toque pra reler, com "reabrir essa fase" pra
+   desfazer marcação sem querer). **Fases futuras mostram só o título** como mapa da trilha
+   (a pessoa vê o tamanho da jornada) — **toque pra espiar** o conteúdo antes de chegar lá
+   (curiosidade permitida, decisão do dono 2026-07-12).
+5. **Material mora na fase certa** (`faseDoMaterial`: primeira etapa que fala de prompt/IA;
+   fallback = primeira fase) — não num bloco separado. É o que fecha o buraco original: a
+   ferramenta está na fase onde ela é usada, "do lado do computador, trocando de tela".
+6. **Onde parei derivado do checklist** (primeira fase não marcada) — zero SQL, zero estado
+   paralelo. Na revisita, a Caminhada já abre na fase atual + cartão de retomada opcional no
+   topo ("você parou na fase N de M").
 
 **Visão maior do dono roteada (não perdida, não implementada de contrabando):**
-- **Mini-gate com evidência por etapa** ("a pessoa traz o que fez na fase 1, tipo um exemplo,
-  mini questionário") + **compartilhar resultados ao concluir** → **ISSUE-314D nova** — pede
-  persistência nova e decisões de produto (evidência obrigatória tensiona o guardrail
-  "checklist simples, não task manager" do handoff §9); merece sessão de spec própria.
-- **Minutos estimados por etapa** (citados de novo nesta sessão) → confirma a **ISSUE-314C**
-  já registrada.
+- **Mini-gate com evidência por fase** ("a pessoa traz o que fez na fase 1, tipo um exemplo,
+  mini questionário") + **compartilhar resultados ao concluir** → **ISSUE-314D** — o gate
+  "fechei essa fase" da v2 é o encaixe natural pra isso; a 314D decide se pede evidência ali.
+  Pede persistência nova; evidência obrigatória tensiona o guardrail "checklist simples, não
+  task manager" (handoff §9); merece sessão de spec própria.
+- **Minutos estimados por fase** (citados de novo) → confirma a **ISSUE-314C**; o cabeçalho da
+  fase já tem onde recebê-los.
 
-**Consequências:** módulo puro novo `src/lib/lab/continuidade.ts` (+11 testes); nenhum SQL,
-nenhuma mudança de API (o PATCH `checklistItem` existente já cobre tudo).
-**Bloqueia implementação?** Não — implementada na mesma sessão (v3.11.15).
+**Consequências:** módulo puro `src/lib/lab/continuidade.ts` (+16 testes); componente novo
+`BlocoCaminhada.tsx`; removidos `BlocoPlano.tsx` e `BlocoMaoNaMassa.tsx`. Nenhum SQL, nenhuma
+mudança de API (o PATCH `checklistItem` existente cobre gate e reabertura).
+**Bloqueia implementação?** Não — v2 implementada na mesma sessão (v3.11.16).
 
 ---
 

@@ -1170,17 +1170,22 @@ Classificação + plano com checklist persistido + materiais recomendados; proje
 > fora do escopo) grounded no handoff estratégico e no código real do motor/plano. Não repita
 > a descoberta — comece a sessão de design a partir dali.
 
-## ISSUE-314B — Continuidade entre blocos do plano (retomar de onde parei)
-**Status:** ✅ concluída em 2026-07-11 (v3.11.15, Fable 5 — design + implementação na mesma
-sessão). Decisões registradas na **pergunta 18 do `00b_open_questions.md`**: etapa atual
-derivada do checklist (zero SQL novo), moldura "você tá aqui" + etapas feitas compactadas,
-beat do consultor a cada marcação (com espaço reservado pros minutos da 314C), "fiz essa
-etapa" direto do bloco Mão na massa (com scroll de volta pro plano) e cartão de retomada na
-revisita. Módulo puro `src/lib/lab/continuidade.ts` (+11 testes, 282 verdes no total);
-tsc/lint/build limpos; smoke test de produção ok (públicas 200, gate 307, API 401). A visão
-maior do dono (gate com evidência por etapa + compartilhar ao concluir) virou a **ISSUE-314D**.
-**Falta pra fechar de vez:** roteiro manual do dono (celular): copiar prompt → marcar do bloco
-Mão na massa → ver o beat + destaque na próxima → sair e revisitar → cartão de retomada.
+## ISSUE-314B — Continuidade entre etapas do plano ("A Caminhada")
+**Status:** ✅ concluída em 2026-07-12 (v3.11.16). **v1 (v3.11.15) VETADA pelo dono no teste
+manual** — só decorava a lista com destaque + scroll de volta pro checklist ("é só um volta pro
+checklist, eu queria senso de jornada"). **v2 redesenhou a estrutura:** o plano virou uma
+jornada em fases (`BlocoCaminhada`, funde os antigos BlocoPlano + BlocoMaoNaMassa). Cada etapa é
+uma fase que abre (card grande com instrução densa + o material da fase quando é a de executar
+com IA), fecha com o gate "fechei essa fase", e a próxima abre sozinha com o beat do consultor.
+Fases feitas colapsam (toque pra reler + reabrir); futuras mostram só o título como mapa da
+trilha (toque pra espiar). Onde parei derivado do checklist (zero SQL). Decisões completas na
+**pergunta 18 do `00b_open_questions.md`**. Módulo `src/lib/lab/continuidade.ts` (+16 testes,
+287 verdes); removidos BlocoPlano/BlocoMaoNaMassa; tsc/lint/build limpos; smoke test de produção
+ok (públicas 200, gate 307, API 401). O gate "fechei essa fase" é o encaixe natural da
+**ISSUE-314D** (evidência por fase).
+**Falta pra fechar de vez:** roteiro manual do dono (celular): abrir fase → copiar/executar →
+"fechei essa fase" → ver a próxima abrir com o beat → espiar uma fase futura → sair e revisitar
+(abre na fase certa + cartão de retomada).
 **Tipo:** Frontend · **Prioridade:** Alta · **Complexidade:** Média
 **Modelo:** Fable 5 escreve a transição entre blocos (é interação/voz — "não pode virar task
 manager frio", mesmo critério da 313/314) → Sonnet implementa sob a spec fechada.
