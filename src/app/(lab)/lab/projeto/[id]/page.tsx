@@ -88,6 +88,9 @@ export default async function ProjetoPage({
         prompt={prompt}
         linhaEvolucao={evolucao}
         modoInicial={leitura === '1' ? 'guiado' : 'documento'}
+        duracaoTotalMin={plan.duracao_total_min ?? null}
+        resultadoInicial={plan.resultado ?? null}
+        artefatoSugerido={plan.artefato_sugerido}
       />
     </div>
   )

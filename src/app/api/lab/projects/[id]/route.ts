@@ -10,9 +10,13 @@
 //                              Primeira marcação vira `em_construcao` sozinha;
 //                              status nunca regride. Vocabulário fechado: só
 //                              ids que já existem no checklist do projeto.
-//   { concluir: true }       → `em_construcao` → `concluido`, só com TODAS as
-//                              etapas marcadas (servidor recalcula, nunca
+//   { concluir: true,        → `em_construcao` → `concluido`, só com TODAS as
+//     resultado?: {...} }      etapas marcadas (servidor recalcula, nunca
 //                              confia no que o cliente disse que está feito).
+//                              `resultado` (opcional, ISSUE-314D): o check-up de
+//                              conclusão — 3 respostas fechadas validadas e
+//                              gravadas em `plan.resultado`. Inválido/ausente =
+//                              conclui sem check-up (a pessoa pulou).
 // Mesmas camadas de segurança em todos os modos: sessão + gate + RLS via
 // cliente da própria sessão (nunca service role). Motor/plano NUNCA re-rodam
 // fora do modo `finalizar`.
@@ -22,6 +26,7 @@ import { NextResponse } from 'next/server'
 
 import { ajustarDiagnosticoParaTipo, diagnosticarV2 } from '@/lib/lab/engine'
 import { gerarPlano } from '@/lib/lab/plan-generator'
+import { validarResultado } from '@/lib/lab/resultado'
 import type { LabPlan } from '@/lib/lab/types'
 import { sanitizarRascunho, validarCompleto } from '@/lib/lab/validacao'
 import { sugerirTitulo } from '@/lib/lab/wizard-flow'
@@ -62,6 +67,7 @@ export async function PATCH(
     finalizar?: unknown
     checklistItem?: unknown
     concluir?: unknown
+    resultado?: unknown
   }
   try {
     body = await request.json()
@@ -210,16 +216,21 @@ export async function PATCH(
       return NextResponse.json({ error: 'ainda tem etapa pendente' }, { status: 409 })
     }
 
+    // Check-up de resultado (ISSUE-314D): opcional — inválido/ausente conclui
+    // sem check-up (a pessoa pulou). Só as respostas fechadas entram no plano.
+    const resultado = validarResultado(body.resultado)
+    const planoAtualizado = resultado ? { ...plan, resultado } : plan
+
     const { error } = await supabase
       .from('lab_projects')
-      .update({ status: 'concluido' })
+      .update({ status: 'concluido', plan: planoAtualizado })
       .eq('id', id)
 
     if (error) {
       console.error('[lab/projects PATCH concluir]', error.message)
       return NextResponse.json({ error: 'não consegui concluir o projeto' }, { status: 500 })
     }
-    return NextResponse.json({ id, status: 'concluido' })
+    return NextResponse.json({ id, status: 'concluido', resultado: resultado ?? null })
   }
 
   return NextResponse.json(

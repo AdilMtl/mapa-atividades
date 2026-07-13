@@ -7,7 +7,14 @@
 
 import { describe, expect, it } from 'vitest'
 
-import { beatTransicao, etapaAtual, faseDoMaterial, textoRetomada } from './continuidade'
+import {
+  beatTransicao,
+  etapaAtual,
+  faseDoMaterial,
+  formatarDuracaoMin,
+  minutosRestantes,
+  textoRetomada,
+} from './continuidade'
 import type { LabChecklistItem, LabPlanEtapa } from './types'
 
 const ETAPAS: LabPlanEtapa[] = [
@@ -15,6 +22,16 @@ const ETAPAS: LabPlanEtapa[] = [
   { id: 'e2', titulo: 'Estruture o prompt em quatro partes', descricao: 'd2' },
   { id: 'e3', titulo: 'Teste na tarefa real', descricao: 'd3' },
 ]
+
+const ETAPAS_COM_DURACAO: LabPlanEtapa[] = [
+  { id: 'e1', titulo: 'Descreva a tarefa', descricao: 'd1', duracao_min: 10 },
+  { id: 'e2', titulo: 'Estruture o prompt', descricao: 'd2', duracao_min: 20 },
+  { id: 'e3', titulo: 'Teste na tarefa real', descricao: 'd3', duracao_min: 15 },
+]
+
+function checklistDe(etapas: LabPlanEtapa[], done: Record<string, boolean>): LabChecklistItem[] {
+  return etapas.map((e) => ({ id: e.id, label: e.titulo, done: done[e.id] ?? false }))
+}
 
 function checklist(done: Record<string, boolean>): LabChecklistItem[] {
   return ETAPAS.map((e) => ({ id: e.id, label: e.titulo, done: done[e.id] ?? false }))
@@ -81,6 +98,54 @@ describe('beatTransicao', () => {
     expect(beatTransicao(ETAPAS, checklist({ e1: true, e2: true, e3: true }))).toBe(
       'Essa era a última — agora é só apertar o botão de concluir aqui embaixo.',
     )
+  })
+
+  it('plano com estimativa (ISSUE-314C) → soma os minutos que faltam', () => {
+    expect(
+      beatTransicao(ETAPAS_COM_DURACAO, checklistDe(ETAPAS_COM_DURACAO, { e1: true })),
+    ).toBe(
+      'Fechamos essa. A próxima já tá aberta aqui embaixo — segue no teu ritmo ' +
+        '(~35min até fechar o plano).',
+    )
+  })
+})
+
+describe('formatarDuracaoMin', () => {
+  it('menos de 1h → minutos', () => {
+    expect(formatarDuracaoMin(15)).toBe('~15min')
+    expect(formatarDuracaoMin(59)).toBe('~59min')
+  })
+
+  it('hora cheia → sem minutos', () => {
+    expect(formatarDuracaoMin(60)).toBe('~1h')
+    expect(formatarDuracaoMin(120)).toBe('~2h')
+  })
+
+  it('hora quebrada → hXX', () => {
+    expect(formatarDuracaoMin(90)).toBe('~1h30')
+    expect(formatarDuracaoMin(65)).toBe('~1h05')
+  })
+})
+
+describe('minutosRestantes', () => {
+  it('soma só as etapas pendentes', () => {
+    expect(minutosRestantes(ETAPAS_COM_DURACAO, checklistDe(ETAPAS_COM_DURACAO, {}))).toBe(45)
+    expect(
+      minutosRestantes(ETAPAS_COM_DURACAO, checklistDe(ETAPAS_COM_DURACAO, { e1: true })),
+    ).toBe(35)
+  })
+
+  it('tudo feito → null (nada restando pra somar)', () => {
+    expect(
+      minutosRestantes(
+        ETAPAS_COM_DURACAO,
+        checklistDe(ETAPAS_COM_DURACAO, { e1: true, e2: true, e3: true }),
+      ),
+    ).toBeNull()
+  })
+
+  it('etapa pendente sem duracao_min (plano pré-314C) → null', () => {
+    expect(minutosRestantes(ETAPAS, checklist({}))).toBeNull()
   })
 })
 

@@ -1203,9 +1203,17 @@ bloco 2"; (3) CTA de retomada visível quando a pessoa reabre o projeto no meio 
 > entre os blocos do mesmo plano.
 
 ## ISSUE-314D — Gate de evidência por etapa + compartilhar ao concluir
+**Status:** ⚠️ v1 concluída em 2026-07-12 (v3.11.17) — **redefinida com o dono** de "evidência
+por fase" para **mini-diagnóstico de RESULTADO na conclusão**. Heurística determinística agora
+(3 perguntas de clique → devolutiva por composição + resumo copiável, `plan.resultado` em JSONB,
+zero SQL), com a costura pronta pra IA (320/321) trocar a composição sem tocar UI/persistência.
+Check-up nunca obrigatório ("fechar sem responder" conclui sem ele). Decisões completas na
+**pergunta 19** do `00b_open_questions.md`. **Falta:** veto de leitura do dono na copy (enunciados
++ devolutiva). **Fast-follow registrado (fora da v1):** evidência opcional por fase; a versão COM
+IA do mini-diagnóstico (depende da 320); refino das perguntas por tipo de solução.
 **Tipo:** Frontend/Produto · **Prioridade:** Média · **Complexidade:** Média
-**Modelo:** Fable 5 pra spec (decisão de produto delicada — ver risco abaixo) → Sonnet
-implementa.
+**Modelo:** ~~Fable 5 pra spec~~ Opus fechou a decisão de produto + Sonnet-equivalente implementou
+na mesma sessão (o dono aposentou o Fable em 2026-07-12).
 Visão do dono (sessão de design da 314B, 2026-07-11): ao marcar uma etapa, a pessoa pode
 registrar uma evidência do que fez ("um exemplo, mini questionário, alguma coisa assim") —
 um mini-gate entre as fases, "como se fosse um desenvolvimento mesmo". E ao concluir o
@@ -1216,8 +1224,20 @@ por etapa em `lab_projects` ou tabela própria) e novos modos no PATCH.
 convite e onde é gate de verdade. Sinergia natural com a Fase 2 de acompanhamento (check-up)
 que o dono já adiou uma vez — avaliar se esta issue é o começo dela.
 **Dep.:** 314B. Compartilhamento pode se apoiar no export Markdown da 322 (avaliar ordem).
+> 📋 **Antes de começar a spec, leia `docs/revamp/ISSUE-314D-contexto-preparatorio.md`**
+> (Sonnet, 2026-07-12) — grounding técnico (onde o gate "fechei essa fase" mora, como a API
+> PATCH funciona hoje, onde a evidência persistiria em JSONB × tabela nova) + as 5 perguntas
+> que a sessão de design com o dono precisa cobrir do zero (diferente da 314, aqui só existe
+> uma frase do dono registrada, não uma visão completa).
 
 ## ISSUE-314C — Estimativa de tempo por etapa do plano
+**Status:** ✅ concluída em 2026-07-12. `duracao_min` (minutos de foco ativo, não tempo de
+calendário) em todas as etapas dos 9 templates + diligência + "um nível acima", calibrado como
+um especialista faria (decisão do dono: sem sessão de Fable separada). `duracao_total_min`
+agregado no `LabPlan`. UI: total no topo da Caminhada, duração na fase atual e nas futuras,
+`beatTransicao` soma os minutos restantes na fala de transição. Retrocompatível — planos
+persistidos antes desta issue não têm os campos, e a UI tolera `undefined`. 294 testes verdes
+(eram 287) · tsc/lint/build limpos.
 **Tipo:** Frontend/Conteúdo · **Prioridade:** Média · **Complexidade:** Baixa
 **Modelo:** Sonnet no código (campo novo + render é mecânico) + Fable 5 calibra os números de
 duração (evita chute não confiável — mesma lógica de conteúdo da ISSUE-316).

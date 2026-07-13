@@ -8,7 +8,97 @@
 
 ---
 
-## 🎯 SESSÃO ATUAL: "A Caminhada" — plano do Lab em fases (ISSUE-314B v2) + spec de infra de IA (ISSUE-320)
+## 🎯 SESSÃO ATUAL: Estimativa de tempo (ISSUE-314C) + mini-diagnóstico de resultado (ISSUE-314D)
+**Data:** 12 de julho de 2026
+**Versão:** v3.11.17
+**Status:** ✅ ISSUE-314C concluída e validada; ⚠️ ISSUE-314D v1 (heurística) implementada e
+validada tecnicamente — **falta o teste manual do dono e o veto de leitura da copy**
+
+### **🚀 O QUE FOI FEITO:**
+
+1. **ISSUE-314C — Estimativa de tempo por etapa.** `duracao_min` (minutos de foco ATIVO, não
+   tempo de calendário — ex.: "use por uma semana" estima o esforço de acompanhar, não os 7 dias)
+   em todas as etapas dos 9 templates + diligência + "um nível acima" (`plan-generator.ts`),
+   calibrados por mim como especialista, a pedido explícito do dono ("pode estimar os tempos como
+   um expert faria") — sem sessão de Fable separada, diferente do que o backlog previa
+   originalmente. `duracao_total_min` agregado no `LabPlan`. UI (`BlocoCaminhada`): total no topo,
+   duração na fase atual e nas futuras; `beatTransicao` (`continuidade.ts`) passou a somar os
+   minutos que faltam na fala de transição. Retrocompatível — planos persistidos antes desta issue
+   não têm os campos, e a UI tolera `undefined` sem quebrar.
+2. **ISSUE-314D — redefinida com o dono, de "evidência por fase" para "mini-diagnóstico de
+   RESULTADO na conclusão".** A visão original (registrada na sessão anterior) era um gate de
+   evidência a cada fase — o dono, ao decidir nesta sessão, trouxe a ideia de um check-up com IA
+   que lê o que a pessoa fez e devolve correção/melhora. Reconheceu que essa versão com IA
+   depende da ISSUE-320 (infra de IA, hoje só spec, zero código) e escolheu **heurística
+   determinística agora, com a costura pronta pra IA depois** — mesmo padrão que a 314 já usou
+   pros materiais mínimos. Implementado:
+   - Ao fechar a última fase, 3 perguntas de clique (`chegou`/`comparado`/`proximo` —
+     `src/lib/lab/resultado.ts`) substituem o antigo botão seco "Concluir projeto"
+     (`BlocoResultado.tsx`).
+   - Devolutiva composta por eixo (não combinatória) + resumo copiável pra compartilhar (texto
+     puro, sem link público, sem dependência externa).
+   - Check-up **nunca obrigatório** — "fechar sem responder" conclui sem ele (fallback gracioso).
+   - Persistência em `plan.resultado` (JSONB existente, **zero SQL**), só as 3 respostas fechadas
+     — a devolutiva é recomposta na leitura, servidor como autoridade (nunca confia no cliente).
+   - `BlocoRotina` ganhou `temResultado` pra não duplicar o texto de fechamento quando já existe
+     devolutiva personalizada.
+   - Contrato de entrada/saída isolado — a variante com IA (ISSUE-320/321) troca a composição sem
+     tocar UI nem persistência.
+3. **Fable aposentado nesta sessão — modelo trocado por Opus** pra decisões de produto/spec. Os
+   campos `**Modelo:**` da 314C e 314D no backlog foram atualizados; **`05_model_execution_strategy.md`
+   e o restante do backlog ainda citam Fable 5** como padrão — não mexido ainda, fica para quando
+   o dono confirmar se é troca definitiva em todo o projeto.
+4. **Material preparatório da 314D** (`docs/revamp/ISSUE-314D-contexto-preparatorio.md`, mesmo
+   padrão da 314) ficou registrado mesmo após a decisão ter sido tomada direto na conversa — vale
+   como grounding técnico se a 314D v2 (evidência por fase, ou a versão com IA) precisar de sessão
+   de spec própria no futuro.
+
+### **📊 TÉCNICO:**
+- 306 testes verdes (eram 287) · `tsc --noEmit`/`lint`/`build` limpos · smoke test do servidor de
+  produção validado (rotas públicas 200, gate do Lab 307 pra anônimo, API PATCH 401 sem sessão).
+- Novos: `src/lib/lab/resultado.ts` (+test), `src/components/lab/projeto/BlocoResultado.tsx`,
+  `docs/revamp/ISSUE-314D-contexto-preparatorio.md`. Alterados: `src/lib/lab/{types,
+  plan-generator,continuidade}.ts` (+tests), `src/app/api/lab/projects/[id]/route.ts`,
+  `src/components/lab/projeto/{BlocoCaminhada,BlocoRotina,PaginaProjeto}.tsx`,
+  `src/app/(lab)/lab/projeto/[id]/page.tsx`, `docs/revamp/{00b_open_questions.md,
+  04_issue_backlog.md}`.
+- Decisões completas: **pergunta 19** do `00b_open_questions.md` (314D) — a 314C não gerou
+  pergunta nova (calibração direta, sem tensão de produto).
+
+### **🎯 PRÓXIMA SESSÃO — o dono vai testar e dar feedback; pontos específicos a observar:**
+
+**ISSUE-314C (estimativa de tempo):**
+1. Os números "soam certos"? Foram estimados por mim sem calibração externa — se algum bloco
+   parecer muito rápido/devagar comparado à experiência real de construir, é sinal pra ajustar
+   (arquivo único: `TEMPLATES` em `src/lib/lab/plan-generator.ts`, campo `duracao_min`).
+2. O total no topo da Caminhada e a duração por fase aparecem discretos o bastante, ou competem
+   visualmente com o conteúdo da fase?
+3. A frase de transição com minutos ("segue no teu ritmo (~35min até fechar o plano)") soa
+   natural ou mecânica?
+
+**ISSUE-314D (mini-diagnóstico de resultado) — esta é a que mais precisa do teu olhar:**
+1. **Roteiro completo:** abrir um projeto, fechar todas as fases da Caminhada, responder (e
+   depois, num projeto separado, testar "fechar sem responder") — confirmar que os dois caminhos
+   concluem certo.
+2. **As 3 perguntas fazem sentido** pra descrever o que realmente aconteceu com o projeto? Estão
+   genéricas por decisão da v1 (mesmas 3 perguntas pra qualquer tipo de solução) — se ficar raso
+   pra tipos muito diferentes (ex. "automação" vs. "app orquestrado"), é candidato a refino por
+   tipo, registrado como fast-follow.
+3. **A devolutiva** (headline + nuance + próximo passo) soa como o consultor da marca, ou
+   genérica/robótica em algum cruzamento de respostas? São 36 combinações
+   (`src/lib/lab/resultado.ts`, funções `HEADLINE_POR_CHEGOU`/`NUANCE_POR_COMPARADO`/
+   `PROXIMO_PASSO_POR_PROXIMO`) — vale ler mais de uma combinação, não só a primeira que aparecer.
+   ⚠️ Copy 100% pendente de veto — nada disso passou pelos teus guias de voz oficiais.
+4. **O resumo compartilhável** (texto copiável) tem a informação certa? Falta alguma coisa
+   (ex. link de volta pro projeto, teu nome, data)?
+5. **Decisão em aberto pra próxima sessão:** confirmar se "Fable aposentado → Opus" é definitivo
+   em todo o projeto (afeta `05_model_execution_strategy.md` + o campo `Modelo:` de várias issues
+   futuras no backlog) — ainda não atualizei esses documentos, só as duas issues desta sessão.
+6. Mapa visual do backlog (`roadmap-backlog.html`) segue desatualizado (não reflete 314C/314D).
+
+---
+
+## 📋 SESSÃO ANTERIOR: "A Caminhada" — plano do Lab em fases (ISSUE-314B v2) + spec de infra de IA (ISSUE-320)
 **Data:** 11–12 de julho de 2026
 **Versão:** v3.11.16
 **Status:** ✅ ISSUE-314B v2 ("A Caminhada") implementada e validada; ✅ spec da ISSUE-320 fechada

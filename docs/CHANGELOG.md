@@ -16,6 +16,31 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [v3.11.17] - 2026-07-12 - ⏱️ Estimativa de tempo (ISSUE-314C) + mini-diagnóstico de resultado (ISSUE-314D)
+
+### ✅ Adicionado
+- **Estimativa de tempo por etapa (ISSUE-314C):** `duracao_min` (minutos de foco ativo) em toda
+  etapa do plano + `duracao_total_min` agregado. UI mostra o total no topo da Caminhada, a
+  duração da fase atual e das futuras; a fala de transição entre fases soma os minutos restantes.
+  Retrocompatível com planos gerados antes desta issue.
+- **Mini-diagnóstico de resultado na conclusão (ISSUE-314D, v1 heurística):** ao fechar a última
+  fase da Caminhada, 3 perguntas de clique substituem o botão seco "Concluir projeto" — a pessoa
+  recebe uma devolutiva de resultado personalizada + um resumo copiável pra compartilhar. Check-up
+  nunca obrigatório ("fechar sem responder" conclui igual). `src/lib/lab/resultado.ts` isola o
+  contrato de entrada/saída para a ISSUE-320/321 (infra de IA) trocar a heurística por uma
+  chamada real sem tocar UI nem persistência.
+
+### 📊 Técnico
+- 306 testes verdes (eram 287) · `tsc --noEmit`/`lint`/`build` limpos · smoke test de produção ok
+  (públicas 200, gate do Lab 307 pra anônimo, API 401 sem sessão).
+- Zero SQL nas duas issues — tudo em JSONB existente (`lab_projects.plan`), retrocompatível.
+- ISSUE-314D redefinida em sessão com o dono: de "evidência obrigatória por fase" (tensionava o
+  guardrail "checklist simples, não task manager") para "check-up opcional na conclusão". Decisão
+  completa: pergunta 19 do `docs/revamp/00b_open_questions.md`.
+- ⚠️ Copy da 314D (perguntas + devolutiva) ainda sem veto de leitura do dono.
+
+---
+
 ## [v3.11.16] - 2026-07-12 - 🥾 "A Caminhada" — plano do Lab em fases (ISSUE-314B v2)
 
 ### 🎨 Melhorado

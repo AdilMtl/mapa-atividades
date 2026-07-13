@@ -178,6 +178,13 @@ export interface LabPlanEtapa {
   id: string
   titulo: string
   descricao: string
+  /**
+   * Estimativa de foco ativo em minutos (ISSUE-314C) — não é tempo de calendário
+   * (ex.: "use por uma semana" estima o esforço de acompanhar, não os 7 dias).
+   * Opcional: planos gerados antes da 314C (persistidos em `lab_projects.plan`)
+   * não têm este campo — a UI precisa tolerar `undefined`.
+   */
+  duracao_min?: number
 }
 
 export interface LabChecklistItem {
@@ -198,6 +205,47 @@ export interface LabPlan {
   /** Slugs de `lab_assets` — registro canônico em plan-generator.ts (a 316 semeia a partir dele). */
   materiais_slugs: string[]
   generator_version: string
+  /** Soma de `etapas[].duracao_min` (ISSUE-314C) — `undefined` em planos pré-314C. */
+  duracao_total_min?: number
+  /**
+   * Mini-diagnóstico de resultado preenchido na conclusão (ISSUE-314D).
+   * `undefined` enquanto o projeto não foi concluído, ou quando a pessoa pulou
+   * o check-up. Mora no JSONB do plano (zero SQL) — só as respostas fechadas
+   * são persistidas; a devolutiva é recomposta na leitura (mesma regra da
+   * Caminhada: derivar, não guardar texto derivado).
+   */
+  resultado?: LabResultado
+}
+
+// ----------------------------------------------------------------------------
+// Mini-diagnóstico de resultado (ISSUE-314D) — check-up de conclusão
+// Perguntas fechadas (como a abertura do wizard), heurística determinística.
+// A costura pra IA (ISSUE-320/321) troca a composição da devolutiva sem mexer
+// no formato persistido nem na UI.
+// ----------------------------------------------------------------------------
+
+/** Chegou a rodar? (eixo principal da devolutiva de resultado). */
+export type ResultadoChegouId = 'chegou_usei' | 'chegou_montei' | 'chegou_meio'
+/** Comparado ao manual (nuance). */
+export type ResultadoComparadoId =
+  | 'comp_melhor'
+  | 'comp_consistente'
+  | 'comp_ainda_nao'
+  | 'comp_sem_base'
+/** Próximo movimento (orienta o next step). */
+export type ResultadoProximoId = 'prox_rotina' | 'prox_ajustar' | 'prox_mostrar' | 'prox_proximo'
+
+export interface ResultadoRespostas {
+  chegou: ResultadoChegouId
+  comparado: ResultadoComparadoId
+  proximo: ResultadoProximoId
+}
+
+export interface LabResultado {
+  /** As 3 respostas fechadas — única coisa persistida (vocabulário fechado). */
+  respostas: ResultadoRespostas
+  /** Versão da heurística que compôs a devolutiva (troca quando a IA entrar). */
+  versao: string
 }
 
 /** Parâmetros de personalização do plano (perfil é opcional — o motor tem fallback). */

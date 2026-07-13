@@ -69,6 +69,7 @@ const TEMPLATES: Record<SolutionTypeId, TemplatePlano> = {
           'Anote quem recebe a entrega, o que precisa sair e como você avalia se ficou bom. ' +
           'Sem isso, qualquer prompt é chute — o problema nunca foi o prompt, foi o que você ' +
           'não disse nele.',
+        duracao_min: 10,
       },
       {
         id: 'prompt_2',
@@ -76,6 +77,7 @@ const TEMPLATES: Record<SolutionTypeId, TemplatePlano> = {
         descricao:
           'Contexto (quem você é, para quem é a entrega), objetivo, formato de saída e ' +
           'critérios de revisão — num bloco de notas, não na memória.',
+        duracao_min: 20,
       },
       {
         id: 'prompt_3',
@@ -83,6 +85,7 @@ const TEMPLATES: Record<SolutionTypeId, TemplatePlano> = {
         descricao:
           'O teste só vale com trabalho de verdade em jogo: rode na tarefa real e compare ' +
           'com a sua versão manual.',
+        duracao_min: 15,
       },
       {
         id: 'prompt_4',
@@ -90,6 +93,7 @@ const TEMPLATES: Record<SolutionTypeId, TemplatePlano> = {
         descricao:
           'O que você corrigiu na mão vira instrução nova no prompt. Duas execuções boas ' +
           'seguidas = padrão.',
+        duracao_min: 20,
       },
       {
         id: 'prompt_5',
@@ -97,6 +101,7 @@ const TEMPLATES: Record<SolutionTypeId, TemplatePlano> = {
         descricao:
           'Guarde a versão que funciona. É ela que amanhã vira template ou Gem/GPT ' +
           'personalizado — sem nunca mais explicar tudo do zero.',
+        duracao_min: 10,
       },
     ],
     artefato: 'Prompt de quatro partes salvo e testado na tarefa real',
@@ -114,6 +119,7 @@ const TEMPLATES: Record<SolutionTypeId, TemplatePlano> = {
         descricao:
           'Pegue as três últimas entregas dessa tarefa e marque o que sempre se repete e o ' +
           'que muda a cada caso.',
+        duracao_min: 20,
       },
       {
         id: 'template_2',
@@ -121,6 +127,7 @@ const TEMPLATES: Record<SolutionTypeId, TemplatePlano> = {
         descricao:
           'O que se repete vira estrutura fixa; o que muda vira campo entre colchetes ' +
           '([nome], [situação], [prazo]).',
+        duracao_min: 20,
       },
       {
         id: 'template_3',
@@ -129,6 +136,7 @@ const TEMPLATES: Record<SolutionTypeId, TemplatePlano> = {
           'Dê o modelo + o caso concreto e avalie o resultado contra a última versão que ' +
           'você fez na mão. Acerte a estrutura antes de congelar — template de processo ruim ' +
           'só produz erro mais rápido.',
+        duracao_min: 15,
       },
       {
         id: 'template_4',
@@ -136,6 +144,7 @@ const TEMPLATES: Record<SolutionTypeId, TemplatePlano> = {
         descricao:
           'Toda entrega dessa tarefa passa pelo template. O que travar vira ajuste no molde, ' +
           'não gambiarra no dia.',
+        duracao_min: 15,
       },
       {
         id: 'template_5',
@@ -143,6 +152,7 @@ const TEMPLATES: Record<SolutionTypeId, TemplatePlano> = {
         descricao:
           'Template estável é ativo: salve, dê nome e considere empacotar num Gem/GPT para o ' +
           'time usar sem nem ver o molde.',
+        duracao_min: 10,
       },
     ],
     artefato: 'Documento-modelo com campos fixos que a IA preenche',
@@ -160,6 +170,7 @@ const TEMPLATES: Record<SolutionTypeId, TemplatePlano> = {
         descricao:
           'Numere as etapas: o que entra e o que sai em cada uma. Se não cabe em seis ' +
           'passos, o recorte está grande demais.',
+        duracao_min: 25,
       },
       {
         id: 'workflow_2',
@@ -167,6 +178,7 @@ const TEMPLATES: Record<SolutionTypeId, TemplatePlano> = {
         descricao:
           'Faça o fluxo inteiro uma vez com a IA em cada etapa, validando entre uma e outra. ' +
           'Sem passos claros vira conversa infinita — e você não confia no resultado.',
+        duracao_min: 30,
       },
       {
         id: 'workflow_3',
@@ -174,6 +186,7 @@ const TEMPLATES: Record<SolutionTypeId, TemplatePlano> = {
         descricao:
           'Onde funcionou, congele o pedido. Cada etapa com prompt fixo é uma etapa que sai ' +
           'igual toda vez.',
+        duracao_min: 25,
       },
       {
         id: 'workflow_4',
@@ -181,6 +194,7 @@ const TEMPLATES: Record<SolutionTypeId, TemplatePlano> = {
         descricao:
           'Compare tempo e qualidade com a versão de antes. O fluxo precisa ganhar nos dois ' +
           'para merecer existir.',
+        duracao_min: 15,
       },
       {
         id: 'workflow_5',
@@ -188,6 +202,7 @@ const TEMPLATES: Record<SolutionTypeId, TemplatePlano> = {
         descricao:
           'Passos numerados + prompts salvos num documento. É esse desenho que amanhã vira ' +
           'automação.',
+        duracao_min: 15,
       },
     ],
     artefato: 'Desenho do fluxo em etapas com os prompts de cada passo',
@@ -205,6 +220,7 @@ const TEMPLATES: Record<SolutionTypeId, TemplatePlano> = {
         descricao:
           '"Quando X acontecer, faça Y." Se a frase não sai, o processo ainda não está ' +
           'pronto para automatizar — volte um passo e padronize antes.',
+        duracao_min: 10,
       },
       {
         id: 'automacao_2',
@@ -212,6 +228,7 @@ const TEMPLATES: Record<SolutionTypeId, TemplatePlano> = {
         descricao:
           'Só o primeiro passo do processo: o evento que dispara e a ação que responde. O ' +
           'resto fica para depois — automação amplifica o que existe, inclusive o erro.',
+        duracao_min: 15,
       },
       {
         id: 'automacao_3',
@@ -219,6 +236,7 @@ const TEMPLATES: Record<SolutionTypeId, TemplatePlano> = {
         descricao:
           'n8n, Make ou Zapier no plano gratuito. Não pedem código — pedem clareza sobre a ' +
           'regra.',
+        duracao_min: 40,
       },
       {
         id: 'automacao_4',
@@ -226,6 +244,7 @@ const TEMPLATES: Record<SolutionTypeId, TemplatePlano> = {
         descricao:
           'Automação nova trabalha em dupla com o manual até provar que não erra. Confiança ' +
           'se constrói com amostra.',
+        duracao_min: 15,
       },
       {
         id: 'automacao_5',
@@ -233,6 +252,7 @@ const TEMPLATES: Record<SolutionTypeId, TemplatePlano> = {
         descricao:
           'Cada nova etapa automatizada passa pelo mesmo ritual: regra numa frase, teste em ' +
           'paralelo, aí assume.',
+        duracao_min: 20,
       },
     ],
     artefato: 'Regra "quando X, faça Y" + primeiro fluxo rodando no n8n/Make',
@@ -250,6 +270,7 @@ const TEMPLATES: Record<SolutionTypeId, TemplatePlano> = {
         descricao:
           'O que a liderança (ou você) pergunta toda semana sobre esse dado? O painel nasce ' +
           'para responder essas 3 — o resto é tentação a resistir.',
+        duracao_min: 15,
       },
       {
         id: 'dashboard_2',
@@ -257,6 +278,7 @@ const TEMPLATES: Record<SolutionTypeId, TemplatePlano> = {
         descricao:
           'A planilha que você já atualiza, com colunas limpas e nomes claros. Painel bom ' +
           'nasce de fonte arrumada.',
+        duracao_min: 30,
       },
       {
         id: 'dashboard_3',
@@ -264,6 +286,7 @@ const TEMPLATES: Record<SolutionTypeId, TemplatePlano> = {
         descricao:
           'Peça à IA o painel das 3 perguntas (Gemini conectado à planilha, ou Looker Studio ' +
           'grátis). Feio e útil ganha de bonito e parado.',
+        duracao_min: 25,
       },
       {
         id: 'dashboard_4',
@@ -271,6 +294,7 @@ const TEMPLATES: Record<SolutionTypeId, TemplatePlano> = {
         descricao:
           'Mostre para quem faz as perguntas: alguma decisão mudou? Painel que não muda ' +
           'comportamento é decoração.',
+        duracao_min: 20,
       },
       {
         id: 'dashboard_5',
@@ -278,6 +302,7 @@ const TEMPLATES: Record<SolutionTypeId, TemplatePlano> = {
         descricao:
           'Defina quando e como a fonte atualiza. O próximo nível é conectar direto no ' +
           'sistema — aí ninguém mais pergunta se o número está atualizado.',
+        duracao_min: 15,
       },
     ],
     artefato: 'Painel v1 respondendo às 3 perguntas da semana',
@@ -295,6 +320,7 @@ const TEMPLATES: Record<SolutionTypeId, TemplatePlano> = {
         descricao:
           'Usuário, dor, dados de entrada, resultado esperado e a primeira tela. A clareza ' +
           'do problema importa mais que o código — que a IA escreve para você.',
+        duracao_min: 20,
       },
       {
         id: 'app_offline_2',
@@ -302,6 +328,7 @@ const TEMPLATES: Record<SolutionTypeId, TemplatePlano> = {
         descricao:
           'Cole a descrição no Claude (artefatos) ou no Google AI Studio. A primeira sai ' +
           'torta — a segunda já vai te surpreender.',
+        duracao_min: 20,
       },
       {
         id: 'app_offline_3',
@@ -309,6 +336,7 @@ const TEMPLATES: Record<SolutionTypeId, TemplatePlano> = {
         descricao:
           'Corrija pelo uso: o que confundiu vira ajuste na descrição, não desculpa para ' +
           'desistir.',
+        duracao_min: 30,
       },
       {
         id: 'app_offline_4',
@@ -316,6 +344,7 @@ const TEMPLATES: Record<SolutionTypeId, TemplatePlano> = {
         descricao:
           'Rode o app na próxima ocorrência de verdade da tarefa. Ferramenta que não entra ' +
           'na rotina é demo.',
+        duracao_min: 15,
       },
       {
         id: 'app_offline_5',
@@ -323,6 +352,7 @@ const TEMPLATES: Record<SolutionTypeId, TemplatePlano> = {
         descricao:
           'Se outra pessoa usa sem você explicar, você construiu certo. O que ela pedir a ' +
           'mais é o seu roadmap.',
+        duracao_min: 15,
       },
     ],
     artefato: 'Descrição de uma página + app v1 rodando no navegador',
@@ -340,6 +370,7 @@ const TEMPLATES: Record<SolutionTypeId, TemplatePlano> = {
         descricao:
           'Google Sheets ou Airtable, dados de verdade. Nada de interface ainda — o risco é ' +
           'construir demais antes de validar o uso real.',
+        duracao_min: 25,
       },
       {
         id: 'app_tabela_2',
@@ -347,6 +378,7 @@ const TEMPLATES: Record<SolutionTypeId, TemplatePlano> = {
         descricao:
           'O que as pessoas pedirem que a planilha não dá conta — ISSO é a primeira tela do ' +
           'app.',
+        duracao_min: 15,
       },
       {
         id: 'app_tabela_3',
@@ -354,6 +386,7 @@ const TEMPLATES: Record<SolutionTypeId, TemplatePlano> = {
         descricao:
           'Usuário, dor, o que entra, o que sai e a primeira tela — agora com a tabela real ' +
           'como base.',
+        duracao_min: 20,
       },
       {
         id: 'app_tabela_4',
@@ -361,6 +394,7 @@ const TEMPLATES: Record<SolutionTypeId, TemplatePlano> = {
         descricao:
           'Lovable, v0 ou um Apps Script gerado por IA em cima do seu Sheets — dias, não ' +
           'meses.',
+        duracao_min: 30,
       },
       {
         id: 'app_tabela_5',
@@ -368,6 +402,7 @@ const TEMPLATES: Record<SolutionTypeId, TemplatePlano> = {
         descricao:
           'O app vive se a tabela vive: defina quem registra o quê. Duas semanas de uso real ' +
           'antes de qualquer feature nova.',
+        duracao_min: 20,
       },
     ],
     artefato: 'Tabela com registros reais + primeira tela do app em cima dela',
@@ -386,6 +421,7 @@ const TEMPLATES: Record<SolutionTypeId, TemplatePlano> = {
         descricao:
           'Não o sistema inteiro: UMA tela, UM perfil de usuário, UMA integração. O resto ' +
           'espera a primeira parte provar valor.',
+        duracao_min: 20,
       },
       {
         id: 'orquestrado_2',
@@ -393,6 +429,7 @@ const TEMPLATES: Record<SolutionTypeId, TemplatePlano> = {
         descricao:
           'Quem entra, o que faz, o que sai. Se precisa de mais que cinco frases, o recorte ' +
           'ainda está grande.',
+        duracao_min: 15,
       },
       {
         id: 'orquestrado_3',
@@ -400,6 +437,7 @@ const TEMPLATES: Record<SolutionTypeId, TemplatePlano> = {
         descricao:
           'Ferramentas de vibe coding como Lovable ou v0 levantam a primeira versão — com ' +
           'login e banco — num fim de semana.',
+        duracao_min: 45,
       },
       {
         id: 'orquestrado_4',
@@ -407,6 +445,7 @@ const TEMPLATES: Record<SolutionTypeId, TemplatePlano> = {
         descricao:
           'Antes da segunda tela. O feedback delas decide o que entra — não a sua ' +
           'empolgação.',
+        duracao_min: 25,
       },
       {
         id: 'orquestrado_5',
@@ -414,6 +453,7 @@ const TEMPLATES: Record<SolutionTypeId, TemplatePlano> = {
         descricao:
           'Cada parte nova só entra depois que a anterior rodou de verdade. A versão de ' +
           'teste feia que resolve UM fluxo vale mais que a arquitetura perfeita no papel.',
+        duracao_min: 20,
       },
     ],
     artefato: 'Protótipo do fluxo principal (uma tela, um perfil, uma integração)',
@@ -432,6 +472,7 @@ const TEMPLATES: Record<SolutionTypeId, TemplatePlano> = {
         descricao:
           'Liste as etapas que o agente faria e marque a que mais dói hoje — geralmente a ' +
           'busca/consulta na base de conhecimento.',
+        duracao_min: 20,
       },
       {
         id: 'agentico_2',
@@ -439,6 +480,7 @@ const TEMPLATES: Record<SolutionTypeId, TemplatePlano> = {
         descricao:
           'Um fluxo simples que responde a partir da sua base, com dados controlados. Sem ' +
           'ação, sem autonomia — ainda.',
+        duracao_min: 40,
       },
       {
         id: 'agentico_3',
@@ -446,6 +488,7 @@ const TEMPLATES: Record<SolutionTypeId, TemplatePlano> = {
         descricao:
           'Amostra real: as respostas prestam? Autonomia em cima de resposta ruim é erro em ' +
           'escala.',
+        duracao_min: 20,
       },
       {
         id: 'agentico_4',
@@ -453,6 +496,7 @@ const TEMPLATES: Record<SolutionTypeId, TemplatePlano> = {
         descricao:
           'Classificação de intenção, roteamento, ação — uma camada por vez, cada uma ' +
           'auditada antes da próxima entrar.',
+        duracao_min: 35,
       },
       {
         id: 'agentico_5',
@@ -460,6 +504,7 @@ const TEMPLATES: Record<SolutionTypeId, TemplatePlano> = {
         descricao:
           'Mesmo os melhores times do mundo põem gente nos pontos críticos. Supervisão não é ' +
           'falta de ambição — é engenharia.',
+        duracao_min: 15,
       },
     ],
     artefato: 'Fluxo de consulta à base validado (antes de qualquer autonomia)',
@@ -576,6 +621,7 @@ export function gerarPlano(diagnostico: LabDiagnosis, opcoes: PlanoOpcoes = {}):
         'fale com quem cuida disso na sua empresa antes de subir qualquer coisa — existir ' +
         'essa conversa já te coloca na frente da maioria.' +
         (usaShadow ? DILIGENCIA_SHADOW : ''),
+      duracao_min: 10,
     })
   }
   if (temFluenciaAlta(diagnostico, opcoes.fluencia)) {
@@ -583,6 +629,7 @@ export function gerarPlano(diagnostico: LabDiagnosis, opcoes: PlanoOpcoes = {}):
       id: 'um_nivel_acima',
       titulo: 'Um nível acima',
       descricao: conteudo.naPratica.umNivelAcima,
+      duracao_min: 15,
     })
   }
 
@@ -596,6 +643,11 @@ export function gerarPlano(diagnostico: LabDiagnosis, opcoes: PlanoOpcoes = {}):
     artefato_sugerido: template.artefato,
     materiais_slugs: materiais,
     generator_version: GENERATOR_VERSION,
+    // Soma só quando todas as etapas têm estimativa (ISSUE-314C) — hoje sempre
+    // o caso (todo template + as duas etapas dinâmicas têm duracao_min).
+    duracao_total_min: etapas.every((e) => e.duracao_min !== undefined)
+      ? etapas.reduce((soma, e) => soma + (e.duracao_min ?? 0), 0)
+      : undefined,
   }
 }
 

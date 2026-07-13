@@ -27,11 +27,19 @@ import {
   textoRetomada,
 } from '@/lib/lab/continuidade'
 import type { Devolutiva, Guia } from '@/lib/lab/materiais'
-import type { LabChecklistItem, LabDiagnosis, LabPlanEtapa } from '@/lib/lab/types'
+import { montarCompartilhavel, montarDevolutivaResultado } from '@/lib/lab/resultado'
+import type {
+  LabChecklistItem,
+  LabDiagnosis,
+  LabPlanEtapa,
+  LabResultado,
+  ResultadoRespostas,
+} from '@/lib/lab/types'
 
 import { BlocoCaminhada } from './BlocoCaminhada'
 import { BlocoDevolutiva } from './BlocoDevolutiva'
 import { BlocoLeitura } from './BlocoLeitura'
+import { BlocoResultado } from './BlocoResultado'
 import { BlocoRotina } from './BlocoRotina'
 
 export interface PaginaProjetoProps {
@@ -46,6 +54,12 @@ export interface PaginaProjetoProps {
   prompt: string
   linhaEvolucao: string | null
   modoInicial: 'guiado' | 'documento'
+  /** Soma de `etapas[].duracao_min` (ISSUE-314C) — null em planos sem estimativa. */
+  duracaoTotalMin: number | null
+  /** Check-up de resultado já preenchido (ISSUE-314D) — null se ainda não concluiu ou pulou. */
+  resultadoInicial: LabResultado | null
+  /** Artefato-alvo do plano — entra no resumo compartilhável (ISSUE-314D). */
+  artefatoSugerido: string
 }
 
 const TOTAL_BLOCOS = 4
@@ -68,6 +82,9 @@ export function PaginaProjeto({
   prompt,
   linhaEvolucao,
   modoInicial,
+  duracaoTotalMin,
+  resultadoInicial,
+  artefatoSugerido,
 }: PaginaProjetoProps) {
   const semMovimento = useReducedMotion()
   const guiado = modoInicial === 'guiado'
@@ -77,6 +94,7 @@ export function PaginaProjeto({
   const [status, setStatus] = React.useState(statusInicial)
   const [pendentes, setPendentes] = React.useState<Set<string>>(new Set())
   const [concluindo, setConcluindo] = React.useState(false)
+  const [resultado, setResultado] = React.useState<LabResultado | null>(resultadoInicial)
   const [erro, setErro] = React.useState<string | null>(null)
   // Beat do consultor no topo da fase recém-aberta — limpa ao reabrir/errar.
   const [beat, setBeat] = React.useState<string | null>(null)
@@ -154,24 +172,32 @@ export function PaginaProjeto({
     [onToggle],
   )
 
-  const onConcluir = React.useCallback(async () => {
-    setErro(null)
-    setConcluindo(true)
-    try {
-      const res = await fetch(`/api/lab/projects/${id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ concluir: true }),
-      })
-      if (!res.ok) throw new Error('falhou')
-      setStatus('concluido')
-      setBeat(null)
-    } catch {
-      setErro('Não consegui concluir o projeto agora — tenta de novo.')
-    } finally {
-      setConcluindo(false)
-    }
-  }, [id])
+  // Conclusão + check-up de resultado (ISSUE-314D): `respostas` opcional — sem
+  // elas, a pessoa fechou sem responder (o gate nunca é obrigatório). O servidor
+  // valida e recalcula; o cliente só reflete o que voltou.
+  const onConcluir = React.useCallback(
+    async (respostas?: ResultadoRespostas) => {
+      setErro(null)
+      setConcluindo(true)
+      try {
+        const res = await fetch(`/api/lab/projects/${id}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ concluir: true, resultado: respostas }),
+        })
+        if (!res.ok) throw new Error('falhou')
+        const data = (await res.json()) as { resultado: LabResultado | null }
+        setStatus('concluido')
+        setResultado(data.resultado)
+        setBeat(null)
+      } catch {
+        setErro('Não consegui concluir o projeto agora — tenta de novo.')
+      } finally {
+        setConcluindo(false)
+      }
+    },
+    [id],
+  )
 
   const podeConcluir = checklist.length > 0 && checklist.every((c) => c.done)
   const transicao = semMovimento
@@ -223,19 +249,40 @@ export function PaginaProjeto({
               pendentes={pendentes}
               onFecharFase={onFecharFase}
               onReabrirFase={onReabrirFase}
-              podeConcluir={podeConcluir && status === 'em_construcao'}
-              concluindo={concluindo}
-              onConcluir={onConcluir}
               jaConcluido={status === 'concluido'}
               etapaAtualId={atual?.id ?? null}
               beat={beat}
               guia={guia}
               prompt={prompt}
               faseMaterialId={faseMaterialId}
+              duracaoTotalMin={duracaoTotalMin}
             />
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Check-up de resultado (ISSUE-314D): pergunta na hora de concluir; na
+          revisita de um projeto concluído, mostra a devolutiva + compartilhar. */}
+      {(mostrarTudo || blocoAtual >= 2) &&
+        ((podeConcluir && status === 'em_construcao') ||
+          (status === 'concluido' && resultado)) && (
+          <BlocoResultado
+            modo={status === 'concluido' ? 'resultado' : 'perguntando'}
+            onConcluir={onConcluir}
+            onPular={() => onConcluir()}
+            concluindo={concluindo}
+            devolutiva={resultado ? montarDevolutivaResultado(resultado.respostas) : null}
+            compartilhavel={
+              resultado
+                ? montarCompartilhavel({
+                    titulo,
+                    artefato: artefatoSugerido,
+                    devolutiva: montarDevolutivaResultado(resultado.respostas),
+                  })
+                : null
+            }
+          />
+        )}
 
       <AnimatePresence initial={false}>
         {(mostrarTudo || blocoAtual >= 3) && (
@@ -245,7 +292,11 @@ export function PaginaProjeto({
             animate={{ opacity: 1, y: 0 }}
             transition={transicao}
           >
-            <BlocoRotina linhaEvolucao={linhaEvolucao} concluido={status === 'concluido'} />
+            <BlocoRotina
+              linhaEvolucao={linhaEvolucao}
+              concluido={status === 'concluido'}
+              temResultado={resultado !== null}
+            />
           </motion.div>
         )}
       </AnimatePresence>

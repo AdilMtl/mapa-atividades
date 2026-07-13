@@ -57,11 +57,38 @@ export function textoRetomada(
 }
 
 /**
+ * Formata minutos de foco em texto curto ("~15min", "~1h30") — mesma
+ * convenção sem espaço entre número e unidade já usada no resumo do plano
+ * ("~6h da tua semana", plan-generator.ts).
+ */
+export function formatarDuracaoMin(min: number): string {
+  if (min < 60) return `~${min}min`
+  const horas = Math.floor(min / 60)
+  const resto = min % 60
+  return resto === 0 ? `~${horas}h` : `~${horas}h${String(resto).padStart(2, '0')}`
+}
+
+/**
+ * Soma de `duracao_min` das etapas ainda não marcadas — `null` se alguma
+ * etapa pendente não tem estimativa (plano gerado antes da ISSUE-314C).
+ */
+export function minutosRestantes(
+  etapas: LabPlanEtapa[],
+  checklist: LabChecklistItem[],
+): number | null {
+  const doneById = new Map(checklist.map((c) => [c.id, c.done]))
+  const pendentes = etapas.filter((e) => doneById.get(e.id) === false)
+  if (pendentes.length === 0) return null
+  if (pendentes.some((e) => e.duracao_min === undefined)) return null
+  return pendentes.reduce((soma, e) => soma + (e.duracao_min ?? 0), 0)
+}
+
+/**
  * A fala do consultor no topo da fase recém-aberta, logo depois de um gate
  * fechado. Chamar com o checklist JÁ atualizado. Sem número da fase fechada
- * de propósito: marcar fora de ordem não pode gerar contagem errada. A 314C
- * vai somar os minutos estimados aqui — o texto já recebe o acréscimo sem
- * reescrever.
+ * de propósito: marcar fora de ordem não pode gerar contagem errada. Soma os
+ * minutos das etapas que ainda faltam (ISSUE-314C) quando o plano tem
+ * estimativa — planos antigos (sem `duracao_min`) mantêm o texto original.
  */
 export function beatTransicao(
   etapas: LabPlanEtapa[],
@@ -71,7 +98,14 @@ export function beatTransicao(
   if (!proxima) {
     return 'Essa era a última — agora é só apertar o botão de concluir aqui embaixo.'
   }
-  return 'Fechamos essa. A próxima já tá aberta aqui embaixo — segue no teu ritmo.'
+  const restante = minutosRestantes(etapas, checklist)
+  if (restante === null) {
+    return 'Fechamos essa. A próxima já tá aberta aqui embaixo — segue no teu ritmo.'
+  }
+  return (
+    'Fechamos essa. A próxima já tá aberta aqui embaixo — segue no teu ritmo ' +
+    `(${formatarDuracaoMin(restante)} até fechar o plano).`
+  )
 }
 
 /**

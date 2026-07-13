@@ -500,14 +500,60 @@ remendos é o erro a evitar.)
   mini questionário") + **compartilhar resultados ao concluir** → **ISSUE-314D** — o gate
   "fechei essa fase" da v2 é o encaixe natural pra isso; a 314D decide se pede evidência ali.
   Pede persistência nova; evidência obrigatória tensiona o guardrail "checklist simples, não
-  task manager" (handoff §9); merece sessão de spec própria.
+  task manager" (handoff §9); merece sessão de spec própria. Grounding técnico + as perguntas
+  que essa sessão precisa cobrir: `docs/revamp/ISSUE-314D-contexto-preparatorio.md` (2026-07-12).
 - **Minutos estimados por fase** (citados de novo) → confirma a **ISSUE-314C**; o cabeçalho da
-  fase já tem onde recebê-los.
+  fase já tem onde recebê-los. ✅ Implementado em 2026-07-12 (`duracao_min`/`duracao_total_min`,
+  estimativas calibradas diretamente pelo Sonnet a pedido do dono, sem sessão de Fable separada).
 
 **Consequências:** módulo puro `src/lib/lab/continuidade.ts` (+16 testes); componente novo
 `BlocoCaminhada.tsx`; removidos `BlocoPlano.tsx` e `BlocoMaoNaMassa.tsx`. Nenhum SQL, nenhuma
 mudança de API (o PATCH `checklistItem` existente cobre gate e reabertura).
 **Bloqueia implementação?** Não — v2 implementada na mesma sessão (v3.11.16).
+
+---
+
+## 19. ISSUE-314D — mini-diagnóstico de resultado na conclusão (heurística agora, IA depois)
+
+**Data:** 2026-07-12 · **Modelo:** Opus (o dono aposentou o Fable nesta sessão) · decisão do dono
+tomada na conversa, sem sessão de spec separada (delegou os pontos em aberto ao modelo).
+
+**A tensão que estava registrada** (pergunta 18 + backlog): a visão do dono era "evidência por
+fase" + "compartilhar ao concluir"; evidência OBRIGATÓRIA por fase bate no guardrail "checklist
+simples, não task manager" (handoff §9) e desfaz o gate limpo de 1 clique que a Caminhada acabou
+de conquistar.
+
+**Decisão do dono nesta sessão:** o valor está num **mini-diagnóstico de RESULTADO** (não "evidência
+crua"). Ele pesou duas formas — (a) chamada de IA que lê o que a pessoa fez e devolve correção/
+melhora, (b) heurística determinística — e reconheceu que a IA é o caminho de maior valor MAS
+depende da ISSUE-320 (infra de IA), que é só spec. Escolheu **heurística agora, com costura pra
+IA depois** (mesmo padrão da 314: determinístico já, slot pra IA na 320/321).
+
+**Forma implementada (v1, v3.11.17):**
+1. **Momento = conclusão, não por fase.** Preserva o gate de 1 clique da Caminhada; evidência
+   opcional por fase fica registrada como fast-follow, não entrou.
+2. **3 perguntas de clique** (fechadas, como a abertura do wizard — texto livre nunca classifica):
+   `chegou` (rodou?), `comparado` (vs. manual), `proximo` (próximo movimento).
+3. **Devolutiva determinística por composição** (headline por `chegou` + nuance por `comparado` +
+   próximo passo por `proximo` — não combinatória 3×4×4).
+4. **Compartilhar = resumo copiável** (o que construí + resultado), sem link público nem
+   dependência externa.
+5. **Persistência = `plan.resultado` no JSONB** (zero SQL, retrocompatível); só as 3 respostas
+   fechadas entram, a devolutiva é recomposta na leitura (deriva, não guarda texto derivado).
+6. **Check-up nunca é obrigatório:** "fechar sem responder" conclui sem resultado (fallback
+   gracioso — mostra o texto genérico de conclusão que já existia).
+7. **Costura pra IA (320/321):** contrato de entrada (`ResultadoRespostas`) e saída
+   (`DevolutivaResultado`) isolado em `src/lib/lab/resultado.ts` — a variante com IA devolve o
+   mesmo shape, sem tocar UI nem persistência.
+
+**Consequências:** módulo puro `src/lib/lab/resultado.ts` (+testes); componente novo
+`BlocoResultado.tsx`; `BlocoCaminhada` perdeu o botão seco "Concluir" (a conclusão virou o
+BlocoResultado); `BlocoRotina` ganhou `temResultado` (suprime o texto genérico quando há
+devolutiva personalizada); PATCH `concluir` ganhou `resultado?` opcional (validado, servidor como
+autoridade). **Copy (enunciados + devolutiva) PENDENTE DE VETO do dono** — norma da casa.
+**Fica de fora (fast-follow registrado):** evidência opcional por fase; mini-diagnóstico COM IA
+(ISSUE-320/321); refino das perguntas por tipo de solução (genéricas na v1).
+**Bloqueia implementação?** Não — v1 implementada na mesma sessão (v3.11.17).
 
 ---
 

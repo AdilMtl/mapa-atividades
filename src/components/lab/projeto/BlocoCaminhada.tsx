@@ -20,6 +20,7 @@ import { Check, Copy } from 'lucide-react'
 
 import { Button, Card } from '@/components/ds2'
 import { CheckDesenhado } from '@/components/lab/wizard/IconesAnimados'
+import { formatarDuracaoMin } from '@/lib/lab/continuidade'
 import type { Guia } from '@/lib/lab/materiais'
 import type { LabChecklistItem, LabPlanEtapa } from '@/lib/lab/types'
 import { cn } from '@/lib/utils'
@@ -32,9 +33,6 @@ interface BlocoCaminhadaProps {
   onFecharFase: (id: string) => void
   /** Desfaz uma marcação (fase feita reaberta pelo "marquei sem querer"). */
   onReabrirFase: (id: string) => void
-  podeConcluir: boolean
-  concluindo: boolean
-  onConcluir: () => void
   jaConcluido: boolean
   etapaAtualId: string | null
   /** Fala do consultor no topo da fase recém-aberta (null = sem beat agora). */
@@ -43,6 +41,8 @@ interface BlocoCaminhadaProps {
   prompt: string
   /** Fase em que o material (guia + prompt) mora — faseDoMaterial(). */
   faseMaterialId: string | null
+  /** Soma de `etapas[].duracao_min` (ISSUE-314C) — null em planos sem estimativa. */
+  duracaoTotalMin: number | null
 }
 
 /** O prompt copiável — o mesmo do antigo Mão na massa, agora dentro da fase. */
@@ -117,15 +117,13 @@ export function BlocoCaminhada({
   pendentes,
   onFecharFase,
   onReabrirFase,
-  podeConcluir,
-  concluindo,
-  onConcluir,
   jaConcluido,
   etapaAtualId,
   beat,
   guia,
   prompt,
   faseMaterialId,
+  duracaoTotalMin,
 }: BlocoCaminhadaProps) {
   const semMovimento = useReducedMotion()
   const doneById = new Map(checklist.map((c) => [c.id, c.done]))
@@ -147,9 +145,16 @@ export function BlocoCaminhada({
 
   return (
     <section className="space-y-4" aria-label="A caminhada">
-      <p className="text-base text-ds2-text-secondary">
-        O caminho, do jeito que eu desenharia contigo numa folha — uma fase de cada vez.
-      </p>
+      <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+        <p className="text-base text-ds2-text-secondary">
+          O caminho, do jeito que eu desenharia contigo numa folha — uma fase de cada vez.
+        </p>
+        {duracaoTotalMin !== null && (
+          <p className="font-ds2-mono text-[11px] tracking-[0.1em] text-ds2-text-muted uppercase">
+            {formatarDuracaoMin(duracaoTotalMin)} de foco real · {etapas.length} fases
+          </p>
+        )}
+      </div>
 
       <ol className="max-w-3xl space-y-3">
         {etapas.map((etapa, idx) => {
@@ -184,7 +189,10 @@ export function BlocoCaminhada({
                       )}
                     </AnimatePresence>
                     <p className="font-ds2-mono text-[11px] tracking-[0.13em] text-ds2-amber-soft uppercase">
-                      fase {idx + 1} de {etapas.length} · você tá aqui
+                      fase {idx + 1} de {etapas.length}
+                      {etapa.duracao_min !== undefined &&
+                        ` · ${formatarDuracaoMin(etapa.duracao_min)}`}{' '}
+                      · você tá aqui
                     </p>
                     <h3 className="font-ds2-serif text-xl font-medium text-ds2-text-primary">
                       {etapa.titulo}
@@ -266,6 +274,11 @@ export function BlocoCaminhada({
                 <span className="font-ds2-sans text-sm font-semibold text-ds2-text-muted">
                   {etapa.titulo}
                 </span>
+                {etapa.duracao_min !== undefined && (
+                  <span className="ml-auto shrink-0 font-ds2-mono text-[10px] text-ds2-text-subtle">
+                    {formatarDuracaoMin(etapa.duracao_min)}
+                  </span>
+                )}
               </button>
               <AnimatePresence initial={false}>
                 {aberta && (
@@ -292,7 +305,8 @@ export function BlocoCaminhada({
         })}
       </ol>
 
-      {/* Fechamento: tudo marcado → beat final + o gate cerimonial do projeto. */}
+      {/* Fechamento: tudo marcado → beat final. A conclusão em si (com o
+          check-up de resultado da ISSUE-314D) é o BlocoResultado, logo abaixo. */}
       <AnimatePresence initial={false}>
         {beat && etapaAtualId === null && !jaConcluido && (
           <motion.p
@@ -306,12 +320,6 @@ export function BlocoCaminhada({
           </motion.p>
         )}
       </AnimatePresence>
-
-      {!jaConcluido && podeConcluir && (
-        <Button onClick={onConcluir} disabled={concluindo}>
-          {concluindo ? 'Concluindo…' : 'Concluir projeto'}
-        </Button>
-      )}
     </section>
   )
 }

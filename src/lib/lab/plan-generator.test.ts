@@ -66,6 +66,14 @@ describe('estrutura do plano para os 9 tipos', () => {
       for (const slug of plano.materiais_slugs) {
         expect(SLUGS_CANONICOS).toContain(slug)
       }
+
+      // ISSUE-314C: toda etapa tem estimativa, e o total é a soma exata delas.
+      for (const etapa of plano.etapas) {
+        expect(etapa.duracao_min).toBeGreaterThan(0)
+      }
+      expect(plano.duracao_total_min).toBe(
+        plano.etapas.reduce((soma, e) => soma + (e.duracao_min ?? 0), 0),
+      )
     })
   }
 
@@ -85,6 +93,7 @@ describe('personalização', () => {
     expect(plano.checklist[0].id).toBe('diligencia')
     expect(plano.materiais_slugs).toContain(SLUG_DILIGENCIA)
     expect(plano.etapas.length).toBe(6) // 5 base + diligência
+    expect(plano.etapas[0].duracao_min).toBeGreaterThan(0) // ISSUE-314C
   })
 
   it('sem diligência não há etapa nem material de dado sensível', () => {
@@ -98,6 +107,7 @@ describe('personalização', () => {
     const ultima = plano.etapas[plano.etapas.length - 1]
     expect(ultima.id).toBe('um_nivel_acima')
     expect(ultima.descricao).toBe(CONTEUDO_OPORTUNIDADES.workflow.naPratica.umNivelAcima)
+    expect(ultima.duracao_min).toBeGreaterThan(0) // ISSUE-314C
   })
 
   it('fluência real baixa (usuario) não ganha a etapa extra', () => {
