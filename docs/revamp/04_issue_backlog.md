@@ -1261,11 +1261,13 @@ Estados vazio / 1 projeto / vários; "continue de onde parou" com progresso. **D
 > histórico de projetos (e o link de volta pra cada um), fechando o "não consigo voltar nele".
 
 ## ISSUE-316 — Biblioteca `/lab/biblioteca` (sistema de progressão desbloqueável)
-**Status:** ⚠️ parcial em 2026-07-14 (v3.11.20) — **Fatia A entregue** (trilha visual + 4 estados +
-leitura dos 10 guias + nav ativa; `src/lib/lab/trilha.ts` +8 testes; página server + `Trilha.tsx`
-client; placeholder do andar de Valor). **Fatia B pendente** = conteúdo dos ramos de Valor &
-Carreira (kit + toques específicos + marco de trajetória) — sessão de conteúdo própria, aterrada
-na teoria de carreira (§5 da spec de tela). Seed em `lab_assets` adiado (leitura vem de `materiais.ts`).
+**Status:** ✅ concluída em 2026-07-14 (v3.11.23) — **Fatia A** (trilha visual + 4 estados + leitura
+dos 10 guias, v3.11.20→22) **+ Fatia B** (ramos de Valor & Carreira contextualizados por dados reais,
+marco de trajetória com 3 conclusões, Estante de "livros", camada de profundidade nos 10 guias,
+página-livro, caixas "pra copiar"). `src/lib/lab/valor.ts` (+15 testes); zero tabela nova/API.
+Anti-manipulação mantida (ramo/marco não abrem por URL). **Copy foi pra produção sem veto final por
+decisão do dono → validação de leitura vira ISSUE-316B.** Fonte editorial: `ISSUE-316-copy-para-aprovacao.md` (v2).
+Seed em `lab_assets` segue adiado (leitura vem de `materiais.ts`).
 **Tipo:** Frontend/Conteúdo · **Prioridade:** Alta · **Complexidade:** Alta (subiu — ver abaixo)
 **⚠️ CONCEPÇÃO REDEFINIDA (2026-07-13):** deixou de ser "listar 10 guias + filtro". Virou um
 **sistema de progressão desbloqueado pela jornada real**: uma **trilha** (🔧 Construção = os 10 guias
@@ -1284,6 +1286,16 @@ Construção já existem/aprovados (`materiais.ts`).
 temporária do Fable 5, ver `[[padrao-contexto-preparatorio-fable]]`).
 **Dep.:** 310, 311, 314 (conclusão/status). **Risco:** escopo maior que o previsto — considerar
 fatiar a execução (trilha + seed dos 10 primeiro; Valor + ritual depois).
+
+## ISSUE-316B — Validação de leitura da copy da biblioteca
+**Status:** ⬜ aberta em 2026-07-14 — a copy da 316 (tela + 9 descritores + 10 guias com profundidade
++ 5 blocos de valor + marco) foi pra produção **sem o veto final de leitura**, por decisão do dono
+(priorizou subir). Esta issue é a leitura crítica dessa copy no ar, no celular, com a régua da voz.
+**Tipo:** Conteúdo/QA · **Prioridade:** Média · **Complexidade:** Baixa
+**Modelo:** dono lê + Fable 5/Opus ajusta os trechos vetados (é veto de voz, não implementação).
+**Onde mexer:** `src/lib/lab/valor.ts` (ramos+marco), `src/lib/lab/trilha.ts` (`DESCRICAO_TIPO`/
+`COMO_AJUDA_TIPO`), `src/lib/lab/materiais.ts` (`SECOES_POR_SLUG`), textos das páginas da biblioteca.
+Fonte editorial de referência: `ISSUE-316-copy-para-aprovacao.md` (v2). **Dep.:** 316.
 
 ## ISSUE-317 — Perfil do Builder `/lab/perfil`
 **Tipo:** Frontend · **Prioridade:** Média · **Complexidade:** Baixa · **Modelo:** Sonnet — form simples, spec fechada.

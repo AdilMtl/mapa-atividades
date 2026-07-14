@@ -23,6 +23,7 @@ import { COMPLEXIDADE } from '../radar/oportunidades'
 import type { SolutionTypeId } from '../radar/types'
 import { guiaAncora } from './materiais'
 import type { LabDiagnosis } from './types'
+import { montarMarcoTrajetoria, slugRamo, type MarcoView } from './valor'
 
 /** Versão do motor — mesma convenção de rastreabilidade dos outros módulos. */
 export const TRILHA_VERSION = 'lab-trilha-1.0.0'
@@ -58,20 +59,43 @@ export const NOME_TIPO: Record<SolutionTypeId, string> = {
 }
 
 /**
- * Descritor curto de "o que é isso" — alimenta o painel de orientação quando a
- * pessoa toca num nó (resolve o "o que é aquilo?" do feedback). Factual, na voz
- * da casa. ⚠️ COPY pendente de veto do dono (norma da casa).
+ * "O que é isso" — 1ª pergunta do detalhe do nó (ISSUE-316 Fatia B).
+ * Copy aprovada pelo dono em 2026-07-14 (`ISSUE-316-copy-para-aprovacao.md` §3).
  */
 export const DESCRICAO_TIPO: Record<SolutionTypeId, string> = {
-  prompt: 'Resolver com um pedido bem-feito — sem construir ferramenta nenhuma.',
-  template: 'Um molde reutilizável pra uma entrega que se repete toda semana.',
-  workflow: 'Uma sequência de passos que você roda com a IA ajudando em cada um.',
-  automacao: 'Uma tarefa repetitiva rodando sozinha, disparada por um gatilho.',
-  dashboard: 'Um painel que responde as perguntas certas sobre os teus dados.',
-  app_offline: 'Uma ferramenta tua, no navegador, sem servidor e sem TI.',
-  app_tabela: 'Um app com memória, construído em cima de uma planilha.',
-  orquestrado: 'Um sistema de verdade — começando por um recorte pequeno.',
-  agentico: 'Um sistema que consulta, decide e age. O topo da escada.',
+  prompt: 'Um pedido bem-feito, salvo e reutilizável — sem construir ferramenta nenhuma.',
+  template: 'Um molde: a estrutura da entrega congelada, com os campos que mudam marcados.',
+  workflow: 'Uma sequência de passos, cada um com o seu material, o seu resultado e o seu pedido pra IA.',
+  automacao: 'Uma regra rodando sozinha: quando tal coisa acontece, tal coisa é feita. Sem você no meio.',
+  dashboard: 'Uma tela que responde sozinha as três perguntas que te fazem toda semana.',
+  app_offline: 'Uma ferramenta que roda no navegador, sem servidor, sem login, sem pedir permissão a ninguém.',
+  app_tabela: 'Um app com memória: uma tabela viva por baixo, uma tela por cima.',
+  orquestrado: 'Um sistema de verdade, nascido de um recorte pequeno o bastante pra existir.',
+  agentico: 'Um sistema que consulta, decide e age — com você definindo onde ele NÃO pode agir sozinho.',
+}
+
+/**
+ * "Como isso te ajuda" — 2ª pergunta do detalhe do nó. É a pergunta que a pessoa
+ * realmente tem ("isso serve pro meu caso?"), e que a Fatia A não respondia.
+ */
+export const COMO_AJUDA_TIPO: Record<SolutionTypeId, string> = {
+  prompt:
+    'Quando a tarefa é sempre a mesma e só o conteúdo muda, você para de explicar tudo de novo pra IA a cada rodada.',
+  template:
+    'Se a entrega tem sempre a mesma cara e você já sabe como ela fica boa, você deixa de montar do zero toda vez.',
+  workflow:
+    'Quando não é uma tarefa, são cinco disfarçadas de uma — aqui você para de jogar tudo num pedido só e deixar a IA adivinhar.',
+  automacao: 'Tira do teu colo a tarefa que chega sempre igual e sempre na hora errada.',
+  dashboard:
+    'Você para de remontar o mesmo relatório — e a pessoa que pergunta passa a se servir sozinha.',
+  app_offline:
+    'Quando a tarefa precisa de uma tela de verdade e o dado não precisa ser guardado, você resolve sem depender de TI.',
+  app_tabela:
+    'Serve quando o problema não é fazer a conta — é que a informação some, se perde ou vive em quinze lugares.',
+  orquestrado:
+    'Quando tem mais de um tipo de usuário e mais de um fluxo, é o que te impede de passar seis meses desenhando e zero construindo.',
+  agentico:
+    'Só faz sentido quando as respostas da tua base já são confiáveis. Enquanto forem "mais ou menos", ele espera.',
 }
 
 export type EstadoNo = 'conquistado' | 'em_construcao' | 'ao_alcance' | 'horizonte'
@@ -87,24 +111,30 @@ export interface TrilhaProjectRow {
 export interface NoTrilha {
   tipo: SolutionTypeId
   nome: string
-  /** "O que é isso" — 1 linha pro painel de orientação. */
+  /** "O que é isso" — 1ª pergunta do detalhe. */
   descricao: string
+  /** "Como isso te ajuda" — 2ª pergunta do detalhe (Fatia B). */
+  comoAjuda: string
   /** Nível de complexidade 1–5 (do motor) — a UI pode mostrar como "degrau". */
   complexidade: number
   estado: EstadoNo
-  /** Slug do guia âncora do tipo — só o nó conquistado navega pra leitura. */
+  /** Slug do guia âncora do tipo — só o nó desbloqueado navega pra leitura. */
   slug: string
-  /** true nos nós conquistados: é onde o ramo de valor brota (conteúdo = Fatia B). */
+  /** true nos nós desbloqueados: é onde o ramo de valor brota. */
   temRamoValor: boolean
+  /** Slug do ramo de valor (`valor-<tipo>`) — só faz sentido com `temRamoValor`. */
+  slugRamo: string
 }
 
 export interface TrilhaView {
   nos: NoTrilha[]
-  /** Nós conquistados (a barra de progresso: conquistados / total). */
+  /** Nós desbloqueados (a barra de progresso: desbloqueados / total). */
   conquistados: number
   total: number
   /** Índice do próximo degrau (o nó a desbloquear em seguida) — null se já chegou ao topo. */
   proximoPassoIndice: number | null
+  /** Marco de trajetória (Fatia B) — abre com 3 projetos TERMINADOS, não com 3 tipos. */
+  marco: MarcoView
 }
 
 const STATUS_CONCLUIDO = 'concluido'
@@ -122,12 +152,19 @@ const STATUS_CONCLUIDO = 'concluido'
 export function montarTrilha(rows: TrilhaProjectRow[]): TrilhaView {
   const concluido = new Set<SolutionTypeId>()
   const emConstrucao = new Set<SolutionTypeId>()
+  /** Marco conta PROJETOS terminados (não tipos distintos): três projetos do
+   *  mesmo tipo também viram hábito. É o que a copy promete. */
+  let projetosTerminados = 0
 
   for (const row of rows) {
     const tipo = row.diagnosis?.tipo
     if (!tipo) continue // rascunho / sem diagnóstico não posiciona nada na trilha
-    if (row.status === STATUS_CONCLUIDO) concluido.add(tipo)
-    else emConstrucao.add(tipo)
+    if (row.status === STATUS_CONCLUIDO) {
+      concluido.add(tipo)
+      projetosTerminados += 1
+    } else {
+      emConstrucao.add(tipo)
+    }
   }
 
   // Fronteira = índice mais alto alcançado (conquistado OU em construção).
@@ -147,10 +184,12 @@ export function montarTrilha(rows: TrilhaProjectRow[]): TrilhaView {
       tipo,
       nome: NOME_TIPO[tipo],
       descricao: DESCRICAO_TIPO[tipo],
+      comoAjuda: COMO_AJUDA_TIPO[tipo],
       complexidade: COMPLEXIDADE[tipo],
       estado,
       slug: guiaAncora(tipo).slug,
       temRamoValor: concluido.has(tipo),
+      slugRamo: slugRamo(tipo),
     }
   })
 
@@ -164,5 +203,6 @@ export function montarTrilha(rows: TrilhaProjectRow[]): TrilhaView {
     conquistados: concluido.size,
     total: ORDEM_TRILHA.length,
     proximoPassoIndice,
+    marco: montarMarcoTrajetoria(projetosTerminados),
   }
 }

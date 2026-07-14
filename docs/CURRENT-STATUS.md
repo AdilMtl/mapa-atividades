@@ -8,7 +8,47 @@
 
 ---
 
-## 🎯 SESSÃO ATUAL: Biblioteca do Lab — a Trilha (ISSUE-316, Fatia A + reforma visual)
+## 🎯 SESSÃO ATUAL: Biblioteca do Lab — Estante + ramos de Valor & Carreira (ISSUE-316 Fatia B)
+**Data:** 14 de julho de 2026
+**Versão:** v3.11.23
+**Status:** ✅ no ar (deploy). **Copy foi pra produção sem veto final, por decisão do dono** — a
+validação de leitura da copy fica para a **ISSUE-316B** (sessão própria, aberta no backlog).
+
+### **🚀 O QUE FOI FEITO:**
+
+1. **Sessão de conteúdo + código da Fatia B.** O andar de Valor & Carreira, que era placeholder,
+   virou conteúdo real: cada projeto concluído abre um **ramo** `/lab/biblioteca/valor-<tipo>` com 5
+   blocos (número medido → caderninho → quem precisa ver → conversa de escopo → toque do tipo),
+   **preenchidos com os dados reais do projeto** (horas/semana, público, entrega, título). Cada bloco
+   de ação tem **caixa "pra copiar"** com botão real. Fecha com "o combinado" (prazo + CTA de voltar).
+2. **Marco de trajetória** — capital de carreira, **abre com 3 projetos concluídos** (não 3 tipos,
+   nunca pelo wizard). Acima da trilha; trancado mostra a contagem real.
+3. **A Estante** — fileira de "livros" com lombada do que já foi desbloqueado (torna o valor
+   evidente; não renderiza vazia). Pedido explícito do dono de "caprichar na UX/UI, aspecto de livro".
+4. **Camada de profundidade nos 10 guias** (*Como fazer · Onde costuma travar · Como saber se deu
+   certo*) — só na biblioteca; a Caminhada (314) fica intacta.
+5. **Página de leitura vira "página de livro"**: lombada, seções numeradas, tempo de leitura.
+6. **2 rodadas de feedback de copy do dono aplicadas** antes de codar: reescrita completa na voz real
+   da newsletter, ancorada em `CONTEXTO_EDITORIAL.md` + referência de Notes (cena antes do conceito,
+   sem aforismo sem âncora — o anti-padrão nº 1 do feed dele). "Aceso" → "desbloqueado".
+
+### **📊 TÉCNICO:**
+- **Zero tabela nova, zero API** — deriva de `lab_projects`. Novo `src/lib/lab/valor.ts` (+15 testes);
+  `trilha.ts` liga marco+ramo; `materiais.ts` ganha `secoes?` (Caminhada não muda). Componentes novos:
+  `Estante`, `MarcoTrajetoria`, `BlocoCopiar`.
+- **364 testes verdes** (eram 349) · tsc/lint(tocados)/build limpos · rotas dinâmicas.
+- **Anti-manipulação:** ramo e marco não abrem por URL (404 sem projeto concluído real).
+- Fontes de carreira **verificadas na web** (Coleman/Newport/Leslie John-HBR 2021/Hewlett/Julia Evans);
+  onde o número é chute do autor (P.I.E.), o texto diz na cara. Máx. 3 fontes por texto.
+
+### **🎯 PRÓXIMA SESSÃO:**
+1. **ISSUE-316B — validação de leitura da copy** da biblioteca (o veto que o dono adiou).
+2. Testes manuais acumulados: 315 item 7, 314C, 314D (vetos de copy).
+3. Próxima issue elegível do revamp após 316: **ISSUE-317** (perfil do builder, Sonnet).
+
+---
+
+## 🎯 SESSÃO ANTERIOR: Biblioteca do Lab — a Trilha (ISSUE-316, Fatia A + reforma visual)
 **Data:** 14 de julho de 2026
 **Versão:** v3.11.22
 **Status:** ✅ no ar. Duas rodadas de feedback do dono em produção já endereçadas:

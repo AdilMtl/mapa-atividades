@@ -22,11 +22,25 @@ export const MATERIAIS_VERSION = 'lab-materiais-1.0.0'
 // 1. Guias dos materiais (10 slugs — §4 do doc de conteúdo)
 // ----------------------------------------------------------------------------
 
+/** Seção da camada de profundidade (ISSUE-316 Fatia B) — só a biblioteca renderiza. */
+export interface SecaoGuia {
+  titulo: string
+  paragrafos: string[]
+}
+
 export interface Guia {
   slug: string
   titulo: string
   /** Parágrafos já quebrados — a UI decide a renderização (nunca uma string com \n\n crua). */
   paragrafos: string[]
+  /**
+   * Camada de PROFUNDIDADE (ISSUE-316 Fatia B): "Como fazer / Onde costuma travar /
+   * Como saber se deu certo". Só a página de leitura da biblioteca renderiza isto —
+   * a Caminhada (BlocoCaminhada, ISSUE-314B) segue lendo apenas `paragrafos`, que
+   * continuam sendo o núcleo curto aprovado na 314. Engordar a Caminhada seria
+   * quebrar uma tela que o dono já vetou uma vez por excesso.
+   */
+  secoes?: SecaoGuia[]
 }
 
 const GUIAS: Record<string, Guia> = {
@@ -122,16 +136,252 @@ const GUIAS: Record<string, Guia> = {
   },
 }
 
+// ----------------------------------------------------------------------------
+// 1b. Camada de PROFUNDIDADE dos guias (ISSUE-316 Fatia B)
+// Fonte editorial: docs/revamp/ISSUE-316-copy-para-aprovacao.md §4 (v2, aprovada
+// pelo dono em 2026-07-14). Só a biblioteca renderiza — a Caminhada usa só o
+// núcleo (`paragrafos`). ⚠️ Validação final da copy: issue própria (ISSUE-316B).
+// ----------------------------------------------------------------------------
+
+const SECOES_POR_SLUG: Record<string, SecaoGuia[]> = {
+  'prompt-de-quatro-partes': [
+    {
+      titulo: 'Como fazer',
+      paragrafos: [
+        'Abre um bloco de notas e escreve as quatro partes na ordem, como quem explica a tarefa pro analista que entrou ontem: inteligente, mas sem contexto nenhum. Quem você é e pra quem vai a entrega. O que precisa sair. Em que formato. E as regras que você usaria pra dizer "tá bom" ou "tá ruim".',
+        'Roda com um caso real, não com um exemplo bonitinho que você inventou (é aí que todo mundo se engana, porque o exemplo inventado sempre funciona). A primeira resposta vem meia-boca, e tudo bem. Aí vem a parte que quase ninguém faz: em vez de sair reescrevendo o resultado na mão, você anota o que corrigiria e vira cada correção numa regra nova. "Tirei os adjetivos de vendedor" vira "sem adjetivo de venda". Duas ou três rodadas e ele para de errar naquilo.',
+      ],
+    },
+    {
+      titulo: 'Onde costuma travar',
+      paragrafos: [
+        'O prompt engorda até virar um texto de duas páginas. Se passou de meia página, provavelmente você está contando a tarefa em vez de dar regra — e texto longo não deixa a IA mais esperta, deixa ela confusa. Corta tudo que não seja uma regra que você usaria numa revisão de verdade.',
+      ],
+    },
+    {
+      titulo: 'Como saber se deu certo',
+      paragrafos: [
+        'Você parou de reescrever o resultado na mão. E aí tem o teste que dói: manda o prompt pro colega do lado e não explica nada. Se funciona na mão dele, você não economizou tempo — você transformou o teu julgamento em algo que outra pessoa consegue usar. É outro patamar, e é isso que você conta depois.',
+      ],
+    },
+  ],
+
+  'template-de-campos-fixos': [
+    {
+      titulo: 'Como fazer',
+      paragrafos: [
+        'Abre as três últimas versões dessa entrega, lado a lado na tela. Passa o olho e marca duas coisas: o que aparece nas três (isso é a estrutura) e o que muda de uma pra outra (isso são os campos). A estrutura é sempre mais parecida do que a gente lembra — é meio decepcionante, na verdade.',
+        'Congela a estrutura e troca o que muda por marcador: [nome], [situação], [prazo]. Depois escreve o pedido de preenchimento — aquela instrução que você vai colar todo dia pedindo pra IA preencher o molde com o caso novo. O molde é o ativo; o pedido é a chave que liga ele.',
+      ],
+    },
+    {
+      titulo: 'Onde costuma travar',
+      paragrafos: [
+        'Padronizar bagunça. Se a última versão da entrega ainda te incomoda, arruma ela antes de virar molde — senão você só vai errar mais rápido, e com mais confiança. E cuidado com campo demais: molde com vinte marcadores virou formulário, e formulário ninguém preenche.',
+      ],
+    },
+    {
+      titulo: 'Como saber se deu certo',
+      paragrafos: [
+        'Usa numa entrega real esta semana e olha uma coisa só: quanto você teve que reescrever. Se reescreveu quase tudo, o molde falhou — e o conserto é no molde, não no texto do dia. Quando ele estabiliza, para de ser um documento teu e vira ferramenta do time (e aí o mérito é outro).',
+      ],
+    },
+  ],
+
+  'fluxo-em-etapas': [
+    {
+      titulo: 'Como fazer',
+      paragrafos: [
+        'Escreve a sequência em 4 a 6 passos numerados. Pra cada um, responde duas perguntas: o que eu preciso ter na mão pra fazer essa parte, e o que ela deixa pronto pra próxima? Se não coube em seis, o recorte tá grande — corta, não espreme.',
+        'Depois roda a sequência inteira uma vez, do começo ao fim, com a IA em cada etapa e você conferindo no meio. Onde funcionar, congela o pedido daquele passo. No fim você não tem "um prompt bom" — tem um processo com as peças separadas e nomeadas.',
+      ],
+    },
+    {
+      titulo: 'Onde costuma travar',
+      paragrafos: [
+        'O passo gigante que esconde três passos dentro. O sintoma é fácil de reconhecer: você não consegue dizer o que aquele passo deixa pronto. E tem a pressa de automatizar antes de rodar na mão — automatizar um fluxo que você nunca executou inteiro é chute, só que com ferramenta cara.',
+      ],
+    },
+    {
+      titulo: 'Como saber se deu certo',
+      paragrafos: [
+        'No dia em que der ruim (e vai dar), você sabe em qual passo deu. Essa é a prova de que o fluxo existe fora da tua cabeça. De brinde, esse desenho é literalmente a planta da automação que isso pode virar depois.',
+      ],
+    },
+  ],
+
+  'regra-quando-x-faca-y': [
+    {
+      titulo: 'Como fazer',
+      paragrafos: [
+        'Escreve a frase antes de abrir ferramenta nenhuma: "quando chegar e-mail com anexo do fornecedor, salva na pasta e me avisa." Não fechou numa frase clara? Então o processo ainda não tá pronto pra automatizar — volta um passo e padroniza. A frase é o teste, não a burocracia.',
+        'Com a frase na mão, monta só o gatilho e a primeira ação. Só isso, não o processo inteiro. n8n, Make ou Zapier fazem isso no plano gratuito, e o que eles pedem de você não é técnica — é clareza. Depois ela roda junto com o processo manual por uma semana, você conferindo. Só então você entrega a chave.',
+      ],
+    },
+    {
+      titulo: 'Onde costuma travar',
+      paragrafos: [
+        'O erro silencioso. Automação que quebra e não avisa é pior que tarefa manual, porque você descobre quando alguém reclama — três semanas depois, na frente de todo mundo. Configura o aviso de falha no mesmo dia em que configura o sucesso.',
+      ],
+    },
+    {
+      titulo: 'Como saber se deu certo',
+      paragrafos: [
+        'Uma semana rodando em paralelo com o manual, sem diferença entre os dois. Aí você desliga o manual. E a partir dali muda o teu papel: você para de ser quem faz e vira quem confere — que é a graça toda dessa história.',
+      ],
+    },
+  ],
+
+  'painel-das-tres-perguntas': [
+    {
+      titulo: 'Como fazer',
+      paragrafos: [
+        'Antes de qualquer gráfico, escreve as três perguntas que te fazem toda semana sobre esse dado. "Como a gente tá contra a meta?" "O que travou?" "O que mudou desde ontem?" O painel existe pra responder essas três. Cada gráfico a mais é um lugar pro olho se perder.',
+        'Depois arruma a fonte: a planilha que você já atualiza, com coluna limpa e nome que qualquer pessoa entende. Com a fonte em pé, a primeira versão sai numa sentada — Gemini ligado na planilha, ou Looker Studio no plano grátis. Feio e útil ganha de bonito e parado, sempre.',
+      ],
+    },
+    {
+      titulo: 'Onde costuma travar',
+      paragrafos: [
+        'Naquela pergunta: "esse número tá atualizado?". É ela que mata painel, e mata calado — a pessoa pergunta uma vez, ouve "ah, acho que sim", e nunca mais abre. Combina no primeiro dia quem atualiza e quando, e deixa isso escrito na própria tela.',
+      ],
+    },
+    {
+      titulo: 'Como saber se deu certo',
+      paragrafos: [
+        'Não é a beleza, é o comportamento: alguém decidiu alguma coisa diferente depois de olhar aquilo? Se ninguém mudou nada, você fez decoração. Se mudou, você tem uma história pra contar — e tem uma coisa tua sendo vista por várias pessoas toda semana, sem você precisar pedir nada.',
+      ],
+    },
+  ],
+
+  'descricao-de-uma-pagina': [
+    {
+      titulo: 'Como fazer',
+      paragrafos: [
+        'Uma página, cinco blocos, antes de qualquer código: quem usa (de verdade, com nome se der), o que acontece hoje sem a ferramenta, o que a pessoa coloca ali, o que ela recebe de volta, e o que aparece quando ela abre.',
+        'Cola essa página no Claude, no Google AI Studio, na ferramenta de construção que estiver à mão, e pede a primeira versão. Ela vem torta — a segunda te surpreende. E cada coisa que te confundir no uso vira ajuste na descrição, não gambiarra no código.',
+      ],
+    },
+    {
+      titulo: 'Onde costuma travar',
+      paragrafos: [
+        'A ambição que não cabe na página. Uma página é o tamanho certo de propósito: se não coube, o recorte tá grande, e recorte grande é onde projeto de gente ocupada vai morrer. E tem a armadilha silenciosa — mexer no código sem atualizar a descrição. Duas semanas assim e o documento virou mentira.',
+      ],
+    },
+    {
+      titulo: 'Como saber se deu certo',
+      paragrafos: [
+        'Alguém usa a ferramenta sem você do lado. É o único teste que vale. Ferramenta que só funciona com o criador junto não é ferramenta, é apresentação.',
+      ],
+    },
+  ],
+
+  'tabela-de-dez-registros': [
+    {
+      titulo: 'Como fazer',
+      paragrafos: [
+        'Começa pela tabela, não pela tela. Google Sheets ou Airtable, com dez registros reais do teu trabalho — reais mesmo. Dado inventado valida ferramenta inventada; dez linhas de verdade te contam na hora qual coluna falta, qual sobra e qual nome de campo ninguém entende.',
+        'Roda uma semana só com a planilha, sem app nenhum. O que as pessoas pedirem que a planilha não dá conta — isso é a primeira tela do teu app, definida por demanda real e não por achismo. É o jeito mais barato que existe de descobrir o que construir.',
+      ],
+    },
+    {
+      titulo: 'Onde costuma travar',
+      paragrafos: [
+        'A pressa de fazer a tela. Interface bonita em cima de tabela errada é o jeito mais caro de descobrir que você modelou o dado errado — porque agora tem tela pra refazer também.',
+      ],
+    },
+    {
+      titulo: 'Como saber se deu certo',
+      paragrafos: [
+        'Duas semanas depois, o dado continua vivo: as pessoas ainda estão registrando, sem você cobrando no grupo. Se o dado morreu, o app ia morrer junto — você só descobriu isso de graça, o que é uma sorte danada.',
+      ],
+    },
+  ],
+
+  'recorte-do-fluxo-principal': [
+    {
+      titulo: 'Como fazer',
+      paragrafos: [
+        'Descreve o fluxo principal em cinco frases: quem usa, o que a pessoa faz, o que ela leva pronto no fim. Precisou da sexta frase? O recorte ainda tá grande. Corta de novo — e de novo, se precisar.',
+        'A primeira versão tem exatamente uma tela, um tipo de usuário e uma integração (ou entrada manual, se a integração puder esperar — e quase sempre pode). Escreve também a lista do que fica de fora. Essa lista é tão importante quanto a de dentro, porque é ela que você vai reler quando a empolgação bater.',
+      ],
+    },
+    {
+      titulo: 'Onde costuma travar',
+      paragrafos: [
+        'O escopo que volta a crescer pela porta dos fundos: "só mais uma telinha". Quem decide o que entra na segunda versão não é a tua empolgação — são as três pessoas que usaram a primeira. E tem o clássico: começar pela integração e passar duas semanas sem nada pra mostrar.',
+      ],
+    },
+    {
+      titulo: 'Como saber se deu certo',
+      paragrafos: [
+        'A primeira versão existe e três pessoas usaram. Só isso. A versão feia que resolve um fluxo real vale mais que o diagrama perfeito do sistema inteiro, porque ela existe — e o diagrama não.',
+      ],
+    },
+  ],
+
+  'consulta-a-base-antes-do-agente': [
+    {
+      titulo: 'Como fazer',
+      paragrafos: [
+        'Primeiro o inventário: onde vive hoje o conhecimento que esse agente usaria? Documento, planilha, histórico de conversa, cabeça de alguém? Escreve isso sem romantizar — a base é sempre mais bagunçada do que a gente lembra.',
+        'Depois vem o teste que decide tudo: monta só a consulta — um fluxo que responde perguntas a partir dessa base, sem agir sobre nada. Roda dez perguntas reais, das que as pessoas fazem de verdade, e olha cada resposta com três perguntas na mão: tá certa? tá completa? tá na voz certa? Enquanto for "mais ou menos", o agente espera.',
+      ],
+    },
+    {
+      titulo: 'Onde costuma travar',
+      paragrafos: [
+        'A vontade de pular direto pro agente que age. Só que autonomia em cima de resposta ruim não é inteligência — é errar mais rápido, com a tua assinatura embaixo. A ordem não se negocia: primeiro consultar, depois decidir, por último agir.',
+      ],
+    },
+    {
+      titulo: 'Como saber se deu certo',
+      paragrafos: [
+        'Você consegue dizer, em voz alta e com número, quantas das dez perguntas ele acertou. E consegue dizer o que o agente não pode fazer sozinho, e quem aprova. Quem responde essas duas coisas tá fazendo engenharia. Quem não responde tá brincando com uma coisa que vai te chamar na sala depois.',
+      ],
+    },
+  ],
+
+  [SLUG_DILIGENCIA]: [
+    {
+      titulo: 'Como fazer',
+      paragrafos: [
+        'A regra que resolve a maioria dos casos: a IA trabalha na estrutura (modelo, padrão, esqueleto, rascunho com exemplo fictício) e o dado real fica onde já está. Você monta o molde com a IA e preenche com o dado de verdade do lado de cá.',
+        'Antes de colar qualquer coisa, o teste de cinco segundos: "se isso vazasse com meu nome junto, seria um problema?" Nome de cliente, salário, dado de saúde, informação estratégica — tudo isso responde sim. Anonimiza, troca por marcador, ou simplesmente não sobe.',
+      ],
+    },
+    {
+      titulo: 'Onde costuma travar',
+      paragrafos: [
+        'No "é só um nome". Nunca é só um nome. E no silêncio: usar IA escondido porque perguntar dá trabalho — o que transforma um projeto bom num problema no dia em que alguém descobre (e alguém sempre descobre).',
+      ],
+    },
+    {
+      titulo: 'Como saber se deu certo',
+      paragrafos: [
+        'Você consegue explicar, em voz alta e sem gaguejar, o que subiu pra IA e o que não subiu. Se consegue, já tá na frente da maioria — e aquela conversa com quem cuida disso na empresa te diferencia em vez de te atrasar.',
+      ],
+    },
+  ],
+}
+
+/** Junta o núcleo (aprovado na 314) com a camada de profundidade (316 Fatia B). */
+function comProfundidade(guia: Guia): Guia {
+  const secoes = SECOES_POR_SLUG[guia.slug]
+  return secoes ? { ...guia, secoes } : guia
+}
+
 /** Guia do slug âncora do tipo (primeiro de `SLUGS_POR_TIPO`). Lança se o registro sumir — falha alto, é contrato interno. */
 export function guiaAncora(tipo: SolutionTypeId): Guia {
   const slug = SLUGS_POR_TIPO[tipo][0]
   const guia = GUIAS[slug]
   if (!guia) throw new Error(`guia ausente para o slug âncora "${slug}" (tipo ${tipo})`)
-  return guia
+  return comProfundidade(guia)
 }
 
 export function guiaPorSlug(slug: string): Guia | undefined {
-  return GUIAS[slug]
+  const guia = GUIAS[slug]
+  return guia ? comProfundidade(guia) : undefined
 }
 
 // ----------------------------------------------------------------------------

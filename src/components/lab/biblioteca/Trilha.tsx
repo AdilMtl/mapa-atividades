@@ -58,9 +58,9 @@ interface EstadoMeta {
 }
 
 const ESTADO_META: Record<EstadoNo, EstadoMeta> = {
-  conquistado: { rotulo: 'conquistado', dot: 'bg-ds2-orange', texto: 'text-ds2-orange' },
+  conquistado: { rotulo: 'desbloqueado', dot: 'bg-ds2-orange', texto: 'text-ds2-orange' },
   em_construcao: { rotulo: 'construindo', dot: 'bg-ds2-orange/50 ring-1 ring-ds2-orange', texto: 'text-ds2-orange' },
-  ao_alcance: { rotulo: 'a desbloquear', dot: 'bg-ds2-amber-soft', texto: 'text-ds2-amber-soft' },
+  ao_alcance: { rotulo: 'ao alcance', dot: 'bg-ds2-amber-soft', texto: 'text-ds2-amber-soft' },
   horizonte: { rotulo: 'no horizonte', dot: 'bg-ds2-text-subtle', texto: 'text-ds2-text-subtle' },
 }
 
@@ -78,7 +78,7 @@ export function Trilha({ view }: { view: TrilhaView }) {
       <div className="space-y-3">
         <div className="flex items-center justify-between gap-3">
           <span className="font-ds2-mono text-[11px] tracking-[0.08em] text-ds2-text-muted uppercase">
-            {view.conquistados} de {view.total} conquistados
+            você já desbloqueou {view.conquistados} de {view.total}
           </span>
         </div>
         <Progress value={ratio} />
@@ -259,27 +259,76 @@ function Legenda() {
 // ----------------------------------------------------------------------------
 
 function DetalheNo({ no, ehProximo }: { no: NoTrilha; ehProximo: boolean }) {
-  return (
-    <div className="ml-[72px] mt-3 space-y-3 rounded-2xl border border-ds2-border-subtle bg-white/[0.03] p-4">
-      <p className="text-sm leading-relaxed text-ds2-text-secondary">{no.descricao}</p>
+  const abre = NO_ABRE_GUIA.has(no.estado)
 
-      {NO_ABRE_GUIA.has(no.estado) ? (
-        <Link
-          href={`/lab/biblioteca/${no.slug}`}
-          className="inline-flex min-h-11 items-center gap-1.5 rounded-full bg-ds2-orange px-4 py-2 font-ds2-sans text-sm font-bold text-[#1E1005] transition-colors hover:bg-[linear-gradient(90deg,#D97706,#D34C75)]"
-        >
-          Ler o guia <ArrowRight className="h-4 w-4" />
-        </Link>
-      ) : (
-        <div className="flex items-start gap-2">
-          <Lock className="mt-0.5 h-3.5 w-3.5 shrink-0 text-ds2-amber-soft" />
-          <p className="font-ds2-mono text-[11px] leading-relaxed text-ds2-text-muted">
-            {no.estado === 'ao_alcance'
-              ? `Este guia abre quando você construir um ${no.nome.toLowerCase()} de verdade${ehProximo ? ' — é teu próximo passo natural' : ''}. Conclua um projeto desse tipo pra desbloquear.`
-              : 'Continue subindo a trilha: este degrau entra no teu alcance quando você chegar perto dele.'}
-          </p>
-        </div>
-      )}
+  return (
+    <div className="ml-[72px] mt-3 space-y-4 rounded-2xl border border-ds2-border-subtle bg-white/[0.03] p-4">
+      {/* 1. O que é isso */}
+      <Campo titulo="O que é isso">{no.descricao}</Campo>
+
+      {/* 2. Como isso te ajuda — a pergunta que a pessoa realmente tem */}
+      <Campo titulo="Como isso te ajuda">{no.comoAjuda}</Campo>
+
+      {/* 3. O que fazer agora */}
+      <div className="space-y-2">
+        <p className="font-ds2-mono text-[10px] tracking-[0.1em] text-ds2-text-muted uppercase">
+          O que fazer agora
+        </p>
+
+        {abre ? (
+          <div className="flex flex-wrap items-center gap-2">
+            <Link
+              href={`/lab/biblioteca/${no.slug}`}
+              className="inline-flex min-h-11 items-center gap-1.5 rounded-full bg-ds2-orange px-4 py-2 font-ds2-sans text-sm font-bold text-[#1E1005] transition-colors hover:bg-[linear-gradient(90deg,#D97706,#D34C75)]"
+            >
+              Ler o guia <ArrowRight className="h-4 w-4" />
+            </Link>
+
+            {/* O ramo de valor brota do nó desbloqueado (conclusão real) */}
+            {no.temRamoValor && (
+              <Link
+                href={`/lab/biblioteca/${no.slugRamo}`}
+                className="inline-flex min-h-11 items-center gap-1.5 rounded-full border border-ds2-magenta/35 px-4 py-2 font-ds2-sans text-sm font-semibold text-ds2-text-primary transition-colors hover:bg-ds2-magenta/10"
+              >
+                <Sprout className="h-4 w-4 text-ds2-magenta" /> Colher o retorno
+              </Link>
+            )}
+          </div>
+        ) : (
+          <div className="space-y-3">
+            <div className="flex items-start gap-2">
+              <Lock className="mt-0.5 h-3.5 w-3.5 shrink-0 text-ds2-amber-soft" />
+              <p className="text-[13px] leading-relaxed text-ds2-text-muted">
+                {no.estado === 'ao_alcance'
+                  ? `Ainda tá trancado. Esse abre quando você terminar um projeto de ${no.nome.toLowerCase()} — terminar mesmo, não só começar. Chato? É. Mas guia de coisa que a gente nunca fez vira teoria, e teoria some da cabeça na semana seguinte.`
+                  : 'Esse aqui tá longe ainda — e é de propósito. Pular etapa é o jeito mais rápido de travar num projeto que você não tem repertório pra terminar, e aí o que sobra é aquela sensação de "acho que isso não é pra mim" — quando, na real, era só ordem errada. Ele aparece quando você chegar perto.'}
+              </p>
+            </div>
+
+            {/* Sem isto, o nó trancado é beco sem saída: explica o que falta e não dá o caminho. */}
+            {no.estado === 'ao_alcance' && (
+              <Link
+                href="/lab/novo-projeto"
+                className="inline-flex min-h-11 items-center gap-1.5 rounded-full border border-ds2-border-medium px-4 py-2 font-ds2-sans text-sm font-semibold text-ds2-text-primary transition-colors hover:bg-ds2-surface-glass-hover"
+              >
+                {ehProximo ? 'Começar um projeto' : 'Começar um projeto assim'}{' '}
+                <ArrowRight className="h-4 w-4" />
+              </Link>
+            )}
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+
+function Campo({ titulo, children }: { titulo: string; children: React.ReactNode }) {
+  return (
+    <div className="space-y-1">
+      <p className="font-ds2-mono text-[10px] tracking-[0.1em] text-ds2-text-muted uppercase">
+        {titulo}
+      </p>
+      <p className="text-sm leading-relaxed text-ds2-text-secondary">{children}</p>
     </div>
   )
 }

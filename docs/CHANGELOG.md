@@ -16,6 +16,55 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [v3.11.23] - 2026-07-14 - 📚 Biblioteca do Lab: a Estante + ramos de Valor & Carreira (ISSUE-316 Fatia B)
+
+### ✨ Adicionado
+- **Ramos de Valor & Carreira** (o andar que era só placeholder virou conteúdo real). Cada projeto
+  concluído abre um ramo `/lab/biblioteca/valor-<tipo>` com 5 blocos na voz da newsletter, **preenchidos
+  com os dados reais daquele projeto** (horas/semana, público, entrega, título) — o oposto de um chat
+  genérico. Tese-espinha do dono: *"você construiu, agora vem a parte que ninguém te ensina — coletar
+  o retorno"*. Cada bloco de ação traz uma **caixa "pra copiar"** (antes/depois medido, caderninho de
+  gabolice, mensagem pro chefe, pergunta que vira escopo) com botão de copiar de verdade. Fecha com
+  "o combinado": escolhe uma, faz até sexta, volta pra contar.
+- **Marco de trajetória** (`/lab/biblioteca/marco-trajetoria`) — capital de carreira, **abre com 3
+  projetos concluídos** (não com 3 tipos; nunca pelo wizard). Fica acima da trilha, trancado mostra a
+  contagem real. Três movimentos: junta os projetos, escolhe o patrocinador, pede escopo — com a régua
+  honesta de que o capital é da pessoa, não da empresa.
+- **A Estante** — a fileira de "livros" (com lombada) do que a pessoa já desbloqueou, tornando o valor
+  evidente. Não renderiza vazia.
+- **Camada de profundidade nos 10 guias de Construção** — cada guia ganhou *Como fazer · Onde costuma
+  travar · Como saber se deu certo*, visível **só na biblioteca**. O núcleo de 3 parágrafos da
+  Caminhada (ISSUE-314) fica intacto — a profundidade não incha a tela onde a pessoa está construindo.
+- **Página de leitura vira "página de livro"**: lombada colorida, seções numeradas em mono, tempo de
+  leitura honesto. Guias, ramos e marco compartilham a mesma casca.
+
+### 🎨 Melhorado
+- **Detalhe do nó agora responde 3 perguntas** na linguagem que a pessoa faria: *o que é isso · como
+  isso te ajuda · o que fazer agora* (antes era só "o que é isso").
+- **Nó trancado deixou de ser beco sem saída** — ganhou CTA `Começar um projeto →` (correção de
+  produto: antes explicava o que faltava e não dava caminho).
+- Vocabulário: "conquistado/aceso" → **"desbloqueado"** (feedback do dono: "aceso não faz sentido em
+  português"). Copy de toda a biblioteca reescrita na voz real da newsletter (ancorada em
+  `CONTEXTO_EDITORIAL.md` + referência de Notes — cena antes do conceito, sem aforismo sem âncora).
+
+### 🔒 Anti-manipulação (mantida)
+- Ramo e marco **não abrem por URL** — exigem projeto(s) concluído(s) de verdade (404 caso contrário).
+  Mesmo cadeado da trilha, valendo na rota de leitura.
+
+### 📊 Técnico
+- **Zero tabela nova, zero rota de API** — tudo deriva de `lab_projects` (padrão do hub/trilha). Novo
+  motor puro `src/lib/lab/valor.ts` (+ `valor.test.ts`, 15 testes); `trilha.ts` liga ao marco e ao slug
+  do ramo; `materiais.ts` ganha `secoes?` opcional (Caminhada não muda). Novos componentes:
+  `Estante.tsx`, `MarcoTrajetoria.tsx`, `BlocoCopiar.tsx`; `Trilha.tsx` e as 2 páginas atualizadas.
+- **364 testes verdes** (eram 349, +15) · `tsc --noEmit` limpo · lint dos arquivos tocados sem erro/
+  warning · build de produção verde (rotas `/lab/biblioteca` e `/lab/biblioteca/[slug]` dinâmicas).
+- **Fontes de carreira verificadas na web, não inventadas** (Coleman/P.I.E. com ressalva de que os %
+  são chute do autor, Newport, Leslie John/HBR 2021, Hewlett, Julia Evans). Máx. 3 por texto.
+- ⚠️ **Copy vai pra produção sem veto final** (decisão do dono) — a validação de leitura fica para a
+  **ISSUE-316B** (sessão própria). Fonte editorial: `docs/revamp/ISSUE-316-copy-para-aprovacao.md` (v2).
+
+---
+
 ## [v3.11.22] - 2026-07-14 - 🎨 Trilha do Lab: detalhe abre inline (navegação fluida) (ISSUE-316)
 
 ### 🎨 Melhorado
