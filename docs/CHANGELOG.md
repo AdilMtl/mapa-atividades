@@ -16,6 +16,30 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [v3.11.21] - 2026-07-14 - 🎨 Trilha do Lab: reforma visual pós-teste do dono (ISSUE-316)
+
+### 🎨 Melhorado
+- **Trilha reformada de "blocos empilhados" para roadmap com espinha conectada.** Feedback do dono
+  no teste em produção: no celular ficava linear/empilhado, os estados não distinguiam desbloqueado
+  de bloqueado, e faltava instrução ("o que é aquilo?"). Agora cada degrau é um nó numa espinha que
+  **acende no trecho já percorrido**, com estado inequívoco (cor + selo + legenda).
+- **Painel de orientação reativo** (a instrução que faltava): toca num degrau e o painel explica o
+  que é aquele tipo de solução, o estado, e a ação — abrir o guia (se conquistado) ou o que falta
+  pra desbloquear (se trancado). Traz progresso, legenda dos 4 estados e o "próximo passo".
+
+### 🔧 Corrigido
+- **Cadeado agora trava de verdade.** Antes, nós "ao alcance" abriam o guia mesmo com cadeado
+  (abria tudo). Agora **só o nó conquistado** (projeto concluído) abre o guia; nó trancado explica o
+  que falta, não abre — coerente com o modelo de desbloqueio por conclusão real.
+
+### 📊 Técnico
+- 349 testes verdes (eram 347, +2 do próximo-passo) · `tsc`/`lint`/`build` limpos.
+- `trilha.ts` ganhou descritor por tipo (`DESCRICAO_TIPO`) + `proximoPassoIndice`; `Trilha.tsx`
+  reescrito (roadmap + painel + trava); página integra o painel. Conteúdo dos guias/ramos de Valor
+  segue Fatia B. ⚠️ Copy pendente de veto do dono.
+
+---
+
 ## [v3.11.20] - 2026-07-14 - 🧭 Biblioteca do Lab: a Trilha (ISSUE-316, Fatia A)
 
 ### ✅ Adicionado

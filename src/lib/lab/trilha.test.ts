@@ -87,14 +87,25 @@ describe('montarTrilha', () => {
     expect(view.nos.every((n) => n.estado === 'ao_alcance' || n.estado === 'horizonte')).toBe(true)
   })
 
-  it('cada nó carrega nome, slug e complexidade coerentes', () => {
+  it('cada nó carrega nome, descrição, slug e complexidade coerentes', () => {
     const view = montarTrilha([])
     for (const no of view.nos) {
       expect(no.nome).toBe(NOME_TIPO[no.tipo])
+      expect(no.descricao.length).toBeGreaterThan(0)
       expect(no.slug.length).toBeGreaterThan(0)
       expect(no.complexidade).toBeGreaterThanOrEqual(1)
       expect(no.complexidade).toBeLessThanOrEqual(5)
     }
     expect(view.nos.map((n) => n.tipo)).toEqual(ORDEM_TRILHA)
+  })
+
+  it('próximo passo aponta pro degrau logo acima da fronteira', () => {
+    expect(montarTrilha([]).proximoPassoIndice).toBe(0) // trilha vazia → prompt (índice 0)
+    expect(montarTrilha([proj('prompt', 'concluido')]).proximoPassoIndice).toBe(1) // → template
+    expect(montarTrilha([proj('workflow', 'concluido')]).proximoPassoIndice).toBe(3) // → automação
+  })
+
+  it('no topo da trilha não há próximo passo', () => {
+    expect(montarTrilha([proj('agentico', 'concluido')]).proximoPassoIndice).toBeNull()
   })
 })

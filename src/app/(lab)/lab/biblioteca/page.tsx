@@ -1,6 +1,6 @@
 import { Hammer, Lock, TrendingUp } from 'lucide-react'
 
-import { Eyebrow, Progress } from '@/components/ds2'
+import { Eyebrow } from '@/components/ds2'
 import { Trilha } from '@/components/lab/biblioteca/Trilha'
 import { montarTrilha, type TrilhaProjectRow } from '@/lib/lab/trilha'
 import { criarClienteServidor } from '@/lib/supabase-server'
@@ -27,7 +27,6 @@ export default async function BibliotecaPage() {
     .order('updated_at', { ascending: false })
 
   const trilha = montarTrilha((data ?? []) as TrilhaProjectRow[])
-  const ratio = trilha.total > 0 ? (trilha.conquistados / trilha.total) * 100 : 0
 
   return (
     <div className="space-y-10">
@@ -37,26 +36,19 @@ export default async function BibliotecaPage() {
           O mapa do que você sabe construir
         </h1>
         <p className="mt-3 max-w-2xl text-sm leading-relaxed text-ds2-text-secondary">
-          Cada projeto teu acende um pedaço desta trilha. Constrói um tipo de solução e ele acende;
-          conclui e ele vira teu — e o próximo passo natural aparece brilhando. O resto fica no
-          horizonte, esperando você chegar lá.
+          Cada projeto teu acende um degrau desta trilha. Toca num degrau pra ver o que é; conclui um
+          projeto do tipo e o guia daquele degrau abre pra você. O que ainda tá trancado mostra o que
+          falta — e o horizonte espera você chegar perto.
         </p>
       </div>
 
       {/* Trilha de Construção */}
-      <section className="space-y-6">
-        <div className="flex items-center justify-between gap-4">
-          <p className="flex items-center gap-2 font-ds2-mono text-xs tracking-[0.13em] text-ds2-amber-soft uppercase">
-            <Hammer className="h-3.5 w-3.5" /> construção
-          </p>
-          <p className="font-ds2-mono text-[11px] tracking-[0.08em] text-ds2-text-muted uppercase">
-            {trilha.conquistados} de {trilha.total} conquistados
-          </p>
-        </div>
-        <Progress value={ratio} />
-
-        <div className="rounded-ds2-hero border border-ds2-border-subtle p-6 md:p-8">
-          <Trilha nos={trilha.nos} />
+      <section className="space-y-5">
+        <p className="flex items-center gap-2 font-ds2-mono text-xs tracking-[0.13em] text-ds2-amber-soft uppercase">
+          <Hammer className="h-3.5 w-3.5" /> construção
+        </p>
+        <div className="rounded-ds2-hero border border-ds2-border-subtle p-5 md:p-8">
+          <Trilha view={trilha} />
         </div>
       </section>
 

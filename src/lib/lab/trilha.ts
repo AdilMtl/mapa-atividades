@@ -57,6 +57,23 @@ export const NOME_TIPO: Record<SolutionTypeId, string> = {
   agentico: 'Agente',
 }
 
+/**
+ * Descritor curto de "o que é isso" — alimenta o painel de orientação quando a
+ * pessoa toca num nó (resolve o "o que é aquilo?" do feedback). Factual, na voz
+ * da casa. ⚠️ COPY pendente de veto do dono (norma da casa).
+ */
+export const DESCRICAO_TIPO: Record<SolutionTypeId, string> = {
+  prompt: 'Resolver com um pedido bem-feito — sem construir ferramenta nenhuma.',
+  template: 'Um molde reutilizável pra uma entrega que se repete toda semana.',
+  workflow: 'Uma sequência de passos que você roda com a IA ajudando em cada um.',
+  automacao: 'Uma tarefa repetitiva rodando sozinha, disparada por um gatilho.',
+  dashboard: 'Um painel que responde as perguntas certas sobre os teus dados.',
+  app_offline: 'Uma ferramenta tua, no navegador, sem servidor e sem TI.',
+  app_tabela: 'Um app com memória, construído em cima de uma planilha.',
+  orquestrado: 'Um sistema de verdade — começando por um recorte pequeno.',
+  agentico: 'Um sistema que consulta, decide e age. O topo da escada.',
+}
+
 export type EstadoNo = 'conquistado' | 'em_construcao' | 'ao_alcance' | 'horizonte'
 
 /** O que a página lê de `lab_projects` (Server Component, RLS filtra pelo dono). */
@@ -70,10 +87,12 @@ export interface TrilhaProjectRow {
 export interface NoTrilha {
   tipo: SolutionTypeId
   nome: string
+  /** "O que é isso" — 1 linha pro painel de orientação. */
+  descricao: string
   /** Nível de complexidade 1–5 (do motor) — a UI pode mostrar como "degrau". */
   complexidade: number
   estado: EstadoNo
-  /** Slug do guia âncora do tipo — pra onde o clique leva (/lab/biblioteca/[slug]). */
+  /** Slug do guia âncora do tipo — só o nó conquistado navega pra leitura. */
   slug: string
   /** true nos nós conquistados: é onde o ramo de valor brota (conteúdo = Fatia B). */
   temRamoValor: boolean
@@ -84,6 +103,8 @@ export interface TrilhaView {
   /** Nós conquistados (a barra de progresso: conquistados / total). */
   conquistados: number
   total: number
+  /** Índice do próximo degrau (o nó a desbloquear em seguida) — null se já chegou ao topo. */
+  proximoPassoIndice: number | null
 }
 
 const STATUS_CONCLUIDO = 'concluido'
@@ -125,6 +146,7 @@ export function montarTrilha(rows: TrilhaProjectRow[]): TrilhaView {
     return {
       tipo,
       nome: NOME_TIPO[tipo],
+      descricao: DESCRICAO_TIPO[tipo],
       complexidade: COMPLEXIDADE[tipo],
       estado,
       slug: guiaAncora(tipo).slug,
@@ -132,5 +154,15 @@ export function montarTrilha(rows: TrilhaProjectRow[]): TrilhaView {
     }
   })
 
-  return { nos, conquistados: concluido.size, total: ORDEM_TRILHA.length }
+  // Próximo degrau = o nó logo acima da fronteira, se ainda existir e não estiver alcançado.
+  const proxIdx = fronteira + 1
+  const proximoPassoIndice =
+    proxIdx < ORDEM_TRILHA.length && nos[proxIdx]!.estado === 'ao_alcance' ? proxIdx : null
+
+  return {
+    nos,
+    conquistados: concluido.size,
+    total: ORDEM_TRILHA.length,
+    proximoPassoIndice,
+  }
 }

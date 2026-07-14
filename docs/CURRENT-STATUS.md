@@ -8,10 +8,15 @@
 
 ---
 
-## 🎯 SESSÃO ATUAL: Biblioteca do Lab — a Trilha (ISSUE-316, Fatia A)
+## 🎯 SESSÃO ATUAL: Biblioteca do Lab — a Trilha (ISSUE-316, Fatia A + reforma visual)
 **Data:** 14 de julho de 2026
-**Versão:** v3.11.20
-**Status:** ✅ Fatia A no ar (deploy em produção). Sessão longa de **concepção + spec + código**:
+**Versão:** v3.11.21
+**Status:** ✅ no ar. Após o **teste do dono em produção**, a trilha foi **reformada** (v3.11.21):
+roadmap com espinha conectada + painel de orientação reativo + estados inequívocos + **cadeado que
+trava de verdade** (só nó conquistado abre guia). Feedback endereçado: mobile linear, estados
+confusos, "abria tudo", faltava instrução. **Novo teste do dono pendente.**
+
+**Contexto (v3.11.20):** Sessão longa de **concepção + spec + código**:
 a biblioteca deixou de ser "prateleira de guias" e virou um **sistema de progressão desbloqueável
 pela jornada** (decisão de produto do dono, abre eixo novo de gamificação com julgamento).
 **Teste manual do dono em produção pendente** (ele testa direto no ar e traz feedback).
