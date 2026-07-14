@@ -1250,8 +1250,9 @@ Reaproveitável na transição guiada da ISSUE-314B ("bloco 2, ~15 min").
 > projeto completo."
 
 ## ISSUE-315 — Hub `/lab/inicio` com estados reais
-**Status:** ⚠️ implementada e validada tecnicamente em 2026-07-13 (v3.11.18) — falta o roteiro
-manual do dono (login real) + veto de copy. Spec: `docs/revamp/ISSUE-315-spec-hub.md`.
+**Status:** ✅ testada pelo dono em produção (celular, login real) em 2026-07-13 — recuperou
+corretamente os projetos abertos. 1 bug achado e corrigido no mesmo dia (cache de navegação
+stale após concluir — v3.11.19). Falta só o veto de copy. Spec: `docs/revamp/ISSUE-315-spec-hub.md`.
 **Tipo:** Frontend · **Prioridade:** Alta · **Complexidade:** Baixa
 **Modelo:** Opus fechou spec (copy + design + algoritmo do topo); Sonnet executou.
 Estados vazio / 1 projeto / vários; "continue de onde parou" com progresso. **Dep.:** 311, 313, 314.

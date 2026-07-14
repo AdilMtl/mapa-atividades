@@ -22,6 +22,7 @@
 // fora do modo `finalizar`.
 // =============================================================================
 
+import { revalidatePath } from 'next/cache'
 import { NextResponse } from 'next/server'
 
 import { ajustarDiagnosticoParaTipo, diagnosticarV2 } from '@/lib/lab/engine'
@@ -164,6 +165,9 @@ export async function PATCH(
       console.error('[lab/projects PATCH finalizar]', error.message)
       return NextResponse.json({ error: 'não consegui criar o projeto' }, { status: 500 })
     }
+    // ISSUE-315: sem isso, o hub (visitado antes desta mutação) fica com o
+    // cache de navegação do Next e não reflete o status novo até um reload manual.
+    revalidatePath('/lab/inicio')
     return NextResponse.json({ id, status: 'planejado' })
   }
 
@@ -200,6 +204,9 @@ export async function PATCH(
       console.error('[lab/projects PATCH checklistItem]', error.message)
       return NextResponse.json({ error: 'não consegui salvar a etapa' }, { status: 500 })
     }
+    // ISSUE-315: o hub mostra progresso/tempo restante — sem revalidar, uma
+    // visita anterior ao hub fica com o cache de navegação do Next desatualizado.
+    revalidatePath('/lab/inicio')
     return NextResponse.json({ id, status: novoStatus, checklist })
   }
 
@@ -230,6 +237,9 @@ export async function PATCH(
       console.error('[lab/projects PATCH concluir]', error.message)
       return NextResponse.json({ error: 'não consegui concluir o projeto' }, { status: 500 })
     }
+    // ISSUE-315: mesma razão dos outros modos — o hub precisa saber que o
+    // destaque "continue de onde parou" mudou (ou sumiu, se era o único em andamento).
+    revalidatePath('/lab/inicio')
     return NextResponse.json({ id, status: 'concluido', resultado: resultado ?? null })
   }
 

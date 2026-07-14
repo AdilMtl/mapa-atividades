@@ -16,6 +16,20 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [v3.11.19] - 2026-07-13 - 🔧 Hub do Lab não atualizava após concluir projeto
+
+### 🔧 Corrigido
+- **`/lab/inicio` podia mostrar dado desatualizado** ao voltar pra tela inicial logo depois de
+  concluir um projeto (ou marcar etapa, ou finalizar o wizard) — só um reload manual da página
+  atualizava o "continue de onde parou". Achado pelo dono no teste manual em produção.
+- **Causa raiz:** `/lab/inicio` é dinâmica no servidor (busca dado fresco a cada request), mas o
+  Router Cache do lado do cliente do Next.js guarda a versão da rota já visitada na sessão e não
+  sabia que devia descartá-la depois de uma mutação feita em outra tela (`/lab/projeto/[id]`).
+- **Solução:** `revalidatePath('/lab/inicio')` em `api/lab/projects/[id]/route.ts`, nos 3 modos
+  que mudam o que o hub mostra (`finalizar`, `checklistItem`, `concluir`).
+
+---
+
 ## [v3.11.18] - 2026-07-13 - 🧭 Hub `/lab/inicio` com estados reais (ISSUE-315)
 
 ### ✅ Adicionado
