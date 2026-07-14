@@ -1,75 +1,242 @@
 import Link from 'next/link'
+import { ChevronRight } from 'lucide-react'
 
-import { Button, Card, Eyebrow, GridSection } from '@/components/ds2'
+import { Badge, Button, Card, Eyebrow, GridSection, Progress } from '@/components/ds2'
+import {
+  badgeStatus,
+  metaLinha,
+  montarHub,
+  montarTopo,
+  primeiroNome,
+  saudacaoTudoConcluido,
+  saudacaoVazia,
+  type LabProjectRow,
+  type ProjetoResumo,
+  type TopoContent,
+} from '@/lib/lab/hub'
+import { criarClienteServidor, obterUsuarioSessao } from '@/lib/supabase-server'
 
 // =============================================================================
-// /lab/inicio — ESQUELETO (ISSUE-311). O hub real, com estados vazio/1/N
-// projetos e "continue de onde parou", é a ISSUE-315 — aqui só se prova que o
-// gate + shell funcionam, já na voz e no visual certos.
-// ISSUE-313: o wizard existe — o card de novo projeto agora leva até ele.
+// /lab/inicio — HUB COM ESTADOS REAIS (ISSUE-315)
+// Server Component: lê os projetos do dono (RLS já filtra por auth.uid()),
+// deriva o view-model no motor puro `lib/lab/hub.ts` e renderiza os 4 estados
+// (vazio / retomar_rascunho / em_andamento / tudo_concluido). Zero lógica de
+// negócio aqui — a página só monta JSX a partir do que o motor já decidiu.
+// Substitui o esqueleto estático da ISSUE-311 (o gate/shell continuam intocados).
+// Spec completa: docs/revamp/ISSUE-315-spec-hub.md
+// ⚠️ Copy pendente de veto do dono (norma da casa).
 // =============================================================================
 
-export default function LabInicioPage() {
+export default async function LabInicioPage() {
+  const supabase = await criarClienteServidor()
+  const user = await obterUsuarioSessao()
+
+  const { data } = await supabase
+    .from('lab_projects')
+    .select('id, title, status, plan')
+    .order('updated_at', { ascending: false })
+
+  const hub = montarHub((data ?? []) as LabProjectRow[])
+  const nome = primeiroNome(user)
+
+  if (hub.estado === 'vazio') {
+    return <EstadoVazio nome={nome} />
+  }
+
+  if (hub.estado === 'tudo_concluido') {
+    const saudacao = saudacaoTudoConcluido(nome, hub.projetos.length)
+    return (
+      <div className="space-y-8">
+        <div>
+          <Eyebrow>teu laboratório de construção</Eyebrow>
+          <h1 className="mt-3 font-ds2-serif text-4xl font-medium tracking-[-0.045em] text-ds2-text-primary">
+            {saudacao.headline}
+          </h1>
+          <p className="mt-3 max-w-2xl text-sm leading-relaxed text-ds2-text-secondary">
+            {saudacao.linha}
+          </p>
+        </div>
+
+        <CardNovoProjeto
+          label="módulo 01 / novo projeto"
+          titulo="Transformar um problema em projeto"
+          linha="Você conta o problema, o Lab lê, você confirma — e sai com um diagnóstico e um plano de construção. Leva uns 3 minutos."
+          cta="Começar um novo projeto"
+        />
+
+        <ListaProjetos projetos={hub.projetos} />
+      </div>
+    )
+  }
+
+  return (
+    <div className="space-y-8">
+      {hub.destaque && (
+        <TopoContinuar destaque={hub.destaque} topo={montarTopo(hub.destaque, nome)} />
+      )}
+
+      <CardNovoProjetoSecundario />
+
+      <ListaProjetos projetos={hub.projetos} />
+    </div>
+  )
+}
+
+// ----------------------------------------------------------------------------
+// Estado vazio — primeiro acesso (§5.5 da spec)
+// ----------------------------------------------------------------------------
+
+function EstadoVazio({ nome }: { nome: string | null }) {
   return (
     <div className="space-y-6">
       <div>
-        <Eyebrow>jornada guiada de construção</Eyebrow>
-        <h1 className="mt-3 font-ds2-serif text-4xl font-medium tracking-[-0.045em]">
-          Bem-vindo ao Lab.
+        <Eyebrow>teu laboratório de construção</Eyebrow>
+        <h1 className="mt-3 font-ds2-serif text-4xl font-medium tracking-[-0.045em] text-ds2-text-primary">
+          {saudacaoVazia(nome)}
         </h1>
         <p className="mt-3 max-w-2xl text-sm leading-relaxed text-ds2-text-secondary">
-          Aqui um problema do teu trabalho vira um projeto com plano — do jeito
-          que a gente faz nos workshops: começa menor que a ambição, prova valor,
-          amplia.
+          Aqui um problema chato do teu trabalho — daquele que volta toda semana e come teu tempo
+          — vira um projeto com plano de construção. Do jeito que a gente faz nos workshops:
+          começa menor que a ambição, prova que funciona e só depois amplia.
         </p>
       </div>
 
-      <GridSection className="rounded-ds2-hero border border-ds2-border-subtle p-7">
-        <div className="flex flex-wrap items-center justify-between gap-4">
-          <div>
-            <p className="font-ds2-mono text-xs text-ds2-text-secondary">
-              módulo 01 / novo projeto
-            </p>
-            <h2 className="mt-2 font-ds2-sans text-lg font-semibold tracking-[-0.03em]">
-              Transformar um problema em projeto
-            </h2>
-            <p className="mt-1 max-w-md text-sm text-ds2-text-secondary">
-              Uma conversa de ~3 minutos: você conta, o Lab lê, você confirma — e
-              sai com diagnóstico e plano de construção.
-            </p>
-          </div>
-          <Button asChild>
-            <Link href="/lab/novo-projeto">Quero começar meu projeto</Link>
-          </Button>
-        </div>
-      </GridSection>
+      <CardNovoProjeto
+        label="módulo 01 / primeiro projeto"
+        titulo="Transformar um problema em projeto"
+        linha="Você conta o problema, o Lab lê, você confirma — e sai com um diagnóstico e um plano de construção. Leva uns 3 minutos."
+        cta="Quero começar meu primeiro projeto"
+      />
 
-      <div className="grid gap-4 sm:grid-cols-2">
-        <Card>
-          <p className="mb-8 font-ds2-mono text-[11px] tracking-[0.08em] text-ds2-text-muted">
-            02 / BIBLIOTECA
-          </p>
-          <h3 className="font-ds2-sans text-lg font-semibold tracking-[-0.03em]">
-            Materiais que conversam com teu projeto
-          </h3>
-          <p className="mt-2 text-sm text-ds2-text-secondary">
-            Guias, canvas e checklists conectados ao plano — não uma pilha
-            genérica de PDFs.
-          </p>
-        </Card>
-        <Card>
-          <p className="mb-8 font-ds2-mono text-[11px] tracking-[0.08em] text-ds2-text-muted">
-            03 / PERFIL
-          </p>
-          <h3 className="font-ds2-sans text-lg font-semibold tracking-[-0.03em]">
-            O Lab aprende teu contexto
-          </h3>
-          <p className="mt-2 text-sm text-ds2-text-secondary">
-            Área, fluência e arsenal de ferramentas — pra cada plano caber na tua
-            realidade, não numa ideal.
-          </p>
-        </Card>
-      </div>
+      <p className="font-ds2-mono text-[11px] tracking-[0.08em] text-ds2-text-subtle uppercase">
+        Biblioteca e Perfil chegam em breve — por ora, o caminho começa pelo teu primeiro projeto.
+      </p>
     </div>
+  )
+}
+
+// ----------------------------------------------------------------------------
+// Topo "continue de onde parou" (§5.1/§5.2)
+// ----------------------------------------------------------------------------
+
+function TopoContinuar({ destaque, topo }: { destaque: ProjetoResumo; topo: TopoContent }) {
+  const ratio = destaque.total > 0 ? (destaque.feitas / destaque.total) * 100 : 0
+
+  return (
+    <Card className="max-w-3xl space-y-4 border-ds2-orange/35 bg-[rgba(217,119,6,0.05)]">
+      <Eyebrow>{topo.eyebrow}</Eyebrow>
+      <h1 className="font-ds2-serif text-2xl font-medium tracking-[-0.03em] text-ds2-text-primary md:text-3xl">
+        {topo.headline}
+      </h1>
+      <p className="text-sm leading-relaxed text-ds2-text-secondary">{topo.subtexto}</p>
+
+      {topo.metaProgresso && (
+        <div className="space-y-2">
+          <p className="font-ds2-mono text-[11px] tracking-[0.08em] text-ds2-text-muted uppercase">
+            {topo.metaProgresso}
+          </p>
+          <Progress value={ratio} />
+        </div>
+      )}
+
+      <Button asChild>
+        <Link href={topo.href}>{topo.ctaLabel}</Link>
+      </Button>
+    </Card>
+  )
+}
+
+// ----------------------------------------------------------------------------
+// Card "novo projeto" — destaque (vazio/tudo_concluido) ou secundário (o resto)
+// ----------------------------------------------------------------------------
+
+function CardNovoProjeto({
+  label,
+  titulo,
+  linha,
+  cta,
+}: {
+  label: string
+  titulo: string
+  linha: string
+  cta: string
+}) {
+  return (
+    <GridSection className="rounded-ds2-hero border border-ds2-border-subtle p-7">
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <p className="font-ds2-mono text-xs text-ds2-text-secondary">{label}</p>
+          <h2 className="mt-2 font-ds2-sans text-lg font-semibold tracking-[-0.03em] text-ds2-text-primary">
+            {titulo}
+          </h2>
+          <p className="mt-1 max-w-md text-sm text-ds2-text-secondary">{linha}</p>
+        </div>
+        <Button asChild>
+          <Link href="/lab/novo-projeto">{cta} →</Link>
+        </Button>
+      </div>
+    </GridSection>
+  )
+}
+
+function CardNovoProjetoSecundario() {
+  return (
+    <Card className="flex flex-wrap items-center justify-between gap-4">
+      <div>
+        <p className="font-ds2-mono text-[11px] tracking-[0.08em] text-ds2-text-muted uppercase">
+          novo projeto
+        </p>
+        <h3 className="mt-2 font-ds2-sans text-lg font-semibold tracking-[-0.03em] text-ds2-text-primary">
+          Pegar outro problema
+        </h3>
+        <p className="mt-1 max-w-md text-sm text-ds2-text-secondary">
+          Outra dor do teu trabalho que dá pra transformar em projeto? Começa aqui.
+        </p>
+      </div>
+      <Button asChild variant="secondary">
+        <Link href="/lab/novo-projeto">Começar um novo projeto →</Link>
+      </Button>
+    </Card>
+  )
+}
+
+// ----------------------------------------------------------------------------
+// Lista "Teus projetos" (§5.4)
+// ----------------------------------------------------------------------------
+
+function ListaProjetos({ projetos }: { projetos: ProjetoResumo[] }) {
+  return (
+    <div className="space-y-3">
+      <p className="font-ds2-mono text-xs tracking-[0.08em] text-ds2-text-muted uppercase">
+        teus projetos
+      </p>
+      <ul className="space-y-2">
+        {projetos.map((p) => (
+          <LinhaProjeto key={p.id} p={p} />
+        ))}
+      </ul>
+    </div>
+  )
+}
+
+function LinhaProjeto({ p }: { p: ProjetoResumo }) {
+  return (
+    <li>
+      <Link
+        href={p.href}
+        className="flex min-h-11 flex-wrap items-center justify-between gap-3 rounded-[14px] border border-ds2-border-subtle bg-white/[0.03] px-4 py-3 transition-colors hover:bg-white/[0.06]"
+      >
+        <span className="flex flex-wrap items-center gap-3">
+          <span className="font-ds2-sans text-sm font-semibold text-ds2-text-primary">
+            {p.titulo}
+          </span>
+          <Badge>{badgeStatus(p.status)}</Badge>
+        </span>
+        <span className="flex shrink-0 items-center gap-2">
+          <span className="font-ds2-mono text-[11px] text-ds2-text-muted">{metaLinha(p)}</span>
+          <ChevronRight className="h-4 w-4 text-ds2-text-muted" />
+        </span>
+      </Link>
+    </li>
   )
 }

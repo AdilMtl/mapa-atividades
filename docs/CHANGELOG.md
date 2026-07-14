@@ -16,6 +16,31 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [v3.11.18] - 2026-07-13 - 🧭 Hub `/lab/inicio` com estados reais (ISSUE-315)
+
+### ✅ Adicionado
+- **Hub do Lab lê os projetos de verdade.** `/lab/inicio` deixa de ser esqueleto estático e passa
+  a listar o histórico real da pessoa, com 4 estados: vazio (primeiro acesso), rascunho pela
+  metade (retomar diagnóstico), projeto em andamento (progresso + tempo restante) e tudo
+  concluído. Resolve a queixa "terminei o wizard e não consigo mais achar o projeto".
+- **Topo "continue de onde parou"** em destaque, com headline adaptativa por progresso (plano
+  pronto → começando → falta pouco → fechou as fases, falta concluir), barra de progresso e
+  tempo restante estimado (reaproveita o motor de duração da ISSUE-314C).
+- **`src/lib/lab/hub.ts`** (novo, motor puro + 33 testes) — deriva estado, progresso e toda a
+  copy do hub a partir de `lab_projects`, sem rota de API nova (Server Component + RLS).
+- **`/lab/novo-projeto?id=`** — cada rascunho na lista agora retoma o rascunho específico
+  clicado, não sempre o mais recente (correção aditiva, sem regressão no fluxo sem `id`).
+
+### 📊 Técnico
+- 339 testes verdes (eram 306) · `tsc --noEmit`/`lint`/`build` limpos · smoke test de produção ok
+  (`/lab/inicio` e `/lab/novo-projeto` protegidos pelo gate, 401 sem sessão na API).
+- Zero SQL, zero rota de API nova — leitura direta via RLS, mesmo padrão de `novo-projeto/page.tsx`.
+- Spec (copy + design + decisões): `docs/revamp/ISSUE-315-spec-hub.md`.
+- ⚠️ Copy da 315 (e a pendente da 314C/314D) ainda sem veto de leitura do dono — teste manual
+  (celular, login real) fica pra próxima sessão.
+
+---
+
 ## [v3.11.17] - 2026-07-12 - ⏱️ Estimativa de tempo (ISSUE-314C) + mini-diagnóstico de resultado (ISSUE-314D)
 
 ### ✅ Adicionado

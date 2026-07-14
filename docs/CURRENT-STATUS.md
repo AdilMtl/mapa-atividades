@@ -8,7 +8,70 @@
 
 ---
 
-## 🎯 SESSÃO ATUAL: Estimativa de tempo (ISSUE-314C) + mini-diagnóstico de resultado (ISSUE-314D)
+## 🎯 SESSÃO ATUAL: Hub `/lab/inicio` com estados reais (ISSUE-315)
+**Data:** 13 de julho de 2026
+**Versão:** v3.11.18
+**Status:** ⚠️ implementada e validada tecnicamente — **falta o teste manual do dono (celular,
+login real) e o veto de leitura da copy**. Junta-se às pendências de teste já registradas da
+ISSUE-314C/314D (ver sessão anterior) — o dono vai rodar tudo numa passada só.
+
+### **🚀 O QUE FOI FEITO:**
+
+1. **O problema:** `/lab/inicio` era esqueleto estático (ISSUE-311) — não lia o banco. Projeto
+   mapeado não aparecia na volta, então reabrir o Lab empurrava a pessoa de novo pro wizard e
+   ela refazia o diagnóstico do zero. Queixa direta do dono nesta sessão.
+2. **Spec fechada por Opus** (copy + design + algoritmo do topo) antes da execução:
+   `docs/revamp/ISSUE-315-spec-hub.md`. Decisão de UX validada com o dono via preview: no topo
+   do hub, **"continue de onde parou" domina** quando há projeto em andamento — "novo projeto"
+   desce a card secundário (era a alternativa vetada: manter "novo projeto" sempre em destaque).
+3. **Motor puro novo `src/lib/lab/hub.ts`** (+ `hub.test.ts`, 33 testes): deriva os 4 estados do
+   hub (vazio / retomar rascunho / em andamento / tudo concluído), o "empurrão" adaptativo do
+   topo por tier de progresso (plano pronto → começando → falta pouco → fechou as fases, falta
+   concluir) e toda a copy — reaproveitando o motor de tempo da ISSUE-314C
+   (`minutosRestantes`/`formatarDuracaoMin`) pra mostrar **progresso + quanto falta em horas**,
+   pedido explícito do dono ("quero facilitar pra quem não tem essa dinâmica de gestão de
+   projetos").
+4. **`/lab/inicio/page.tsx` reescrita** como Server Component: lê `lab_projects` de verdade (RLS
+   já filtra pelo dono), zero rota de API nova, 100% DS2.
+5. **Correção de escopo aditiva no wizard** (decisão do dono: "se for fácil, já fixa"):
+   `/lab/novo-projeto?id=` agora retoma o rascunho ESPECÍFICO clicado na lista, não sempre o mais
+   recente. Sem `id` = comportamento de antes (nenhuma regressão). Implementada sem atrito.
+6. **Ajuste de copy feito durante a execução** (registrado no §5.1/§13 da spec): o rascunho da
+   spec previa só 2 variantes de texto pro topo (com/sem tempo); na prática o tier "plano recém-
+   gerado" e o tier "tudo marcado, falta concluir" quebravam a frase única "parou na fase X de
+   Y" — viraram 3 variantes coerentes com cada situação.
+
+### **📊 TÉCNICO:**
+- 339 testes verdes (eram 306) · `tsc --noEmit`/`lint`/`build` limpos nos arquivos da sessão
+  (débito pré-existente de arquivos legados intocado) · smoke test do servidor de produção
+  validado (`/lab/inicio` e `/lab/novo-projeto?id=` → 307 pra `/auth` sem sessão; rotas públicas
+  200; `PATCH /api/lab/projects/[id]` → 401 sem sessão).
+- Novos: `src/lib/lab/hub.ts` (+test), `docs/revamp/ISSUE-315-spec-hub.md`. Alterados:
+  `src/app/(lab)/lab/inicio/page.tsx` (reescrita), `src/app/(lab)/lab/novo-projeto/page.tsx`
+  (`?id=`), `docs/revamp/04_issue_backlog.md`.
+- Zero SQL, zero rota de API nova, zero mudança de lógica no motor/plano — hub é leitura.
+- **Decisão de processo registrada nesta sessão:** Fable segue ativo (retoma quarta-feira,
+  2026-07-15) — a ponte pro Opus em specs de produto/arquitetura é temporária, não substituição
+  definitiva. `05_model_execution_strategy.md` e os campos `Modelo:` do backlog **não foram
+  mexidos** por causa disso.
+
+### **🎯 PRÓXIMA SESSÃO — testes manuais acumulados pro dono (celular):**
+
+1. **ISSUE-315 (este hub):** os 4 estados renderizam certo? O "continue de onde parou" no topo
+   soa natural, com o progresso e o tempo que falta? O card "novo projeto" secundário não some
+   nem compete visualmente com o topo? Clicar num projeto da lista abre a página certa?
+2. **ISSUE-314C (estimativa de tempo — arrastada de sessões anteriores):** os números de duração
+   "soam certos" comparados à experiência real de construir?
+3. **ISSUE-314D (mini-diagnóstico de resultado — arrastada de sessões anteriores):** roteiro
+   completo (concluir com e sem responder o check-up) + veto da devolutiva/perguntas.
+4. **Veto de copy consolidado:** três issues (314C parcialmente, 314D, 315) têm copy nova
+   pendente de leitura final — vale revisar tudo numa passada só, já que são telas vizinhas na
+   mesma jornada (wizard → plano → hub).
+5. Mapa visual do backlog (`roadmap-backlog.html`) segue desatualizado (não reflete 314C/314D/315).
+
+---
+
+## 📋 SESSÃO ANTERIOR: Estimativa de tempo (ISSUE-314C) + mini-diagnóstico de resultado (ISSUE-314D)
 **Data:** 12 de julho de 2026
 **Versão:** v3.11.17
 **Status:** ✅ ISSUE-314C concluída e validada; ⚠️ ISSUE-314D v1 (heurística) implementada e

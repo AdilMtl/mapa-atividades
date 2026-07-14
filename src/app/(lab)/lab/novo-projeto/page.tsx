@@ -9,7 +9,10 @@ import { criarClienteServidor, obterUsuarioSessao } from '@/lib/supabase-server'
 // /lab/novo-projeto — WIZARD "CONVERSA DE CONSULTOR" (ISSUE-313)
 // Server Component: o gate de sessão/autorização já rodou no layout do (lab).
 // Aqui se resolve o que precisa do servidor ANTES da conversa começar:
-//   1. o rascunho mais recente (retomada volta ao ponto certo — aceite da spec);
+//   1. o rascunho a retomar — ISSUE-315: `?id=` aponta pra UM rascunho
+//      específico (o hub linka cada rascunho pelo próprio id); sem `id` ou
+//      id não encontrado (rascunho de outra conta — RLS — ou já finalizado),
+//      cai no comportamento original: o rascunho mais recente;
 //   2. a sugestão de fluência do perfil, quando existir (1.1 — sempre editável).
 // A fonte manuscrita das notas do consultor (Caveat) carrega SÓ nesta rota —
 // nada de tocar no layout raiz (trava de tracking do CLAUDE.md).
@@ -30,19 +33,37 @@ const CONFORTO_POR_MATURIDADE: Record<string, string> = {
   referencia: 'conf_muito_alto',
 }
 
-export default async function NovoProjetoPage() {
+export default async function NovoProjetoPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ id?: string }>
+}) {
   const supabase = await criarClienteServidor()
   const user = await obterUsuarioSessao()
+  const { id } = await searchParams
 
-  // Rascunho mais recente (RLS já limita ao dono da sessão).
-  const { data: rascunhos } = await supabase
-    .from('lab_projects')
-    .select('id, wizard_answers')
-    .eq('status', 'rascunho')
-    .order('updated_at', { ascending: false })
-    .limit(1)
+  // ISSUE-315: `?id=` retoma ESTE rascunho (RLS + status garantem que só um
+  // rascunho seu entra aqui — de outra conta ou já finalizado não bate).
+  const porId = id
+    ? await supabase
+        .from('lab_projects')
+        .select('id, wizard_answers')
+        .eq('id', id)
+        .eq('status', 'rascunho')
+        .maybeSingle()
+    : null
 
-  const rascunho = rascunhos?.[0]
+  // Sem `id`, ou `id` não encontrado: o rascunho mais recente (comportamento original).
+  const maisRecente = !porId?.data
+    ? await supabase
+        .from('lab_projects')
+        .select('id, wizard_answers')
+        .eq('status', 'rascunho')
+        .order('updated_at', { ascending: false })
+        .limit(1)
+    : null
+
+  const rascunho = porId?.data ?? maisRecente?.data?.[0]
   const respostas =
     rascunho?.wizard_answers?.schema_version === WIZARD_SCHEMA_VERSION_V2
       ? sanitizarRascunho(rascunho.wizard_answers)
