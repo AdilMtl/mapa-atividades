@@ -1260,13 +1260,30 @@ Estados vazio / 1 projeto / vários; "continue de onde parou" com progresso. **D
 > projeto depois — o hub é esqueleto e não lista nada. É esta issue que precisa mostrar o
 > histórico de projetos (e o link de volta pra cada um), fechando o "não consigo voltar nele".
 
-## ISSUE-316 — Biblioteca `/lab/biblioteca` + seed dos primeiros 6–10 ativos
-**Tipo:** Frontend/Conteúdo · **Prioridade:** Alta · **Complexidade:** Média
-**Modelo:** Sonnet no código (filtro/render é trivial) + **Fable 5 rascunha o conteúdo dos
-ativos, dono aprova** (decisão pergunta 14) — o gargalo desta issue é conteúdo, não código.
-Filtros por tipo/formato, leitura markdown; ativos rascunhados pelo Claude a partir do
-`content.ts`, **publicação só com aprovação do dono**; zero slug quebrado nos planos.
-**Dep.:** 310, 311. **Risco:** gargalo é conteúdo.
+## ISSUE-316 — Biblioteca `/lab/biblioteca` (sistema de progressão desbloqueável)
+**Status:** ⚠️ parcial em 2026-07-14 (v3.11.20) — **Fatia A entregue** (trilha visual + 4 estados +
+leitura dos 10 guias + nav ativa; `src/lib/lab/trilha.ts` +8 testes; página server + `Trilha.tsx`
+client; placeholder do andar de Valor). **Fatia B pendente** = conteúdo dos ramos de Valor &
+Carreira (kit + toques específicos + marco de trajetória) — sessão de conteúdo própria, aterrada
+na teoria de carreira (§5 da spec de tela). Seed em `lab_assets` adiado (leitura vem de `materiais.ts`).
+**Tipo:** Frontend/Conteúdo · **Prioridade:** Alta · **Complexidade:** Alta (subiu — ver abaixo)
+**⚠️ CONCEPÇÃO REDEFINIDA (2026-07-13):** deixou de ser "listar 10 guias + filtro". Virou um
+**sistema de progressão desbloqueado pela jornada real**: uma **trilha** (🔧 Construção = os 10 guias
+canônicos) com **ramos de Valor & Carreira brotando dos nós concluídos** (kit transversal
+contextualizado + toques específicos + marco de trajetória de capital de carreira). Trilha serpente
+com mapa de calor por adjacência (metáfora Yoshi's Story, curadoria pelo motor; desktop horizontal/
+mobile vertical), desbloqueio anti-manipulação (gated por conclusão real, não pelo wizard), leitura
+em página própria, ritual de confete na 1ª conclusão. **Sem tabela nova** (unlock deriva de
+`lab_projects`). **Antes de codar, leia a spec de tela `ISSUE-316-spec-tela-trilha.md`** + concepção
+em `ISSUE-316-contexto-preparatorio.md` §6/§6.8 + pergunta 20 do `00b_open_questions.md`.
+**Falta antes de executar:** (1) sessão de conteúdo — kit de valor + toques específicos + marco de
+trajetória (Opus, voz da newsletter, aterrado em teoria de carreira real); (2) fatiamento (fatia A =
+trilha+seed dos 10, já speccada; fatia B = ramos+ritual, dependem do conteúdo). Os 10 guias de
+Construção já existem/aprovados (`materiais.ts`).
+**Modelo:** Sonnet no código + **Opus rascunha o conteúdo dos ativos, dono aprova** (Opus é ponte
+temporária do Fable 5, ver `[[padrao-contexto-preparatorio-fable]]`).
+**Dep.:** 310, 311, 314 (conclusão/status). **Risco:** escopo maior que o previsto — considerar
+fatiar a execução (trilha + seed dos 10 primeiro; Valor + ritual depois).
 
 ## ISSUE-317 — Perfil do Builder `/lab/perfil`
 **Tipo:** Frontend · **Prioridade:** Média · **Complexidade:** Baixa · **Modelo:** Sonnet — form simples, spec fechada.

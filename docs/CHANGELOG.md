@@ -16,6 +16,34 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [v3.11.20] - 2026-07-14 - 🧭 Biblioteca do Lab: a Trilha (ISSUE-316, Fatia A)
+
+### ✅ Adicionado
+- **Biblioteca do Lab como sistema de progressão** (`/lab/biblioteca`). Deixa de ser "prateleira de
+  guias" e vira uma **trilha** dos 9 tipos de solução (escada de complexidade) que **acende conforme
+  a pessoa constrói**: 4 estados por nó — conquistado (projeto concluído), em construção, ao alcance
+  (o próximo degrau, brilhando) e horizonte (fosco, sem spoiler — quem só fez prompt não vê o agente).
+- **Mapa de calor por adjacência** curado pelo motor que já existe (`COMPLEXIDADE`/`vencedor_bruto`):
+  um degrau por vez, metáfora de trilha de jogo (Yoshi's Story). Desktop = varredura horizontal
+  (mapa inteiro num relance); mobile = coluna vertical ("escalando").
+- **Leitura dos 10 guias de construção** em `/lab/biblioteca/[slug]` (conteúdo aprovado na ISSUE-314,
+  lido direto de `materiais.ts` — deep-link do plano funciona, "zero slug quebrado").
+- **`src/lib/lab/trilha.ts`** (motor puro + 8 testes) — deriva os nós, estados e progresso de
+  `lab_projects`. **Zero tabela nova, zero rota de API** (mesmo padrão do hub). Desbloqueio gated por
+  **conclusão real** (anti-manipulação: nada de gamear o wizard pra liberar conteúdo).
+- **Placeholder do andar de Valor & Carreira** — o slot dos "ramos" que brotam dos nós concluídos
+  (conteúdo é a Fatia B, sessão própria). Nav "Biblioteca" ativada no `LabShell`.
+
+### 📊 Técnico
+- 347 testes verdes (eram 339) · `tsc --noEmit`/`lint`/`build` limpos · rotas novas compiladas.
+- Trilha visual: client component com framer-motion + `prefers-reduced-motion`, ícones lucide (sem
+  emoji), 100% DS2 (sem neon/circuito/robô — proibições doc 08). `public/sw.js` regenerado (precache).
+- Concepção + spec: `docs/revamp/ISSUE-316-{contexto-preparatorio,spec-tela-trilha}.md` + pergunta 20
+  do `00b_open_questions.md`. **Fatia B (conteúdo dos ramos de Valor, aterrado em teoria de carreira)
+  fica pra sessão própria.** ⚠️ Copy da trilha pendente de veto do dono (norma da casa).
+
+---
+
 ## [v3.11.19] - 2026-07-13 - 🔧 Hub do Lab não atualizava após concluir projeto
 
 ### 🔧 Corrigido

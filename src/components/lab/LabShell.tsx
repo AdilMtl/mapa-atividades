@@ -39,9 +39,12 @@ export function LabShell({ email, mostrarLegado, children }: LabShellProps) {
             >
               Início
             </Link>
-            <span className="flex min-h-11 items-center gap-2 text-ds2-text-subtle">
-              Biblioteca <Badge className="px-2 py-0.5 text-[10px]">em breve</Badge>
-            </span>
+            <Link
+              href="/lab/biblioteca"
+              className="flex min-h-11 items-center text-ds2-text-primary"
+            >
+              Biblioteca
+            </Link>
             <span className="flex min-h-11 items-center gap-2 text-ds2-text-subtle">
               Perfil <Badge className="px-2 py-0.5 text-[10px]">em breve</Badge>
             </span>

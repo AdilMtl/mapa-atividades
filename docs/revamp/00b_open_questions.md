@@ -557,6 +557,55 @@ autoridade). **Copy (enunciados + devolutiva) PENDENTE DE VETO do dono** — nor
 
 ---
 
+## 20. ISSUE-316 — a biblioteca vira sistema de progressão desbloqueável (não prateleira estática)
+
+**Data:** 2026-07-13 · **Modelo:** Opus (ponte do Fable 5, que volta 2026-07-15) · sessão de
+concepção colaborativa com o dono. **Concepção completa:** `ISSUE-316-contexto-preparatorio.md` §6.
+
+**O ponto de partida** (o que o backlog previa): biblioteca = listar os 10 guias já escritos
+(reaproveitados da 314) com filtros + leitura markdown; "gargalo é conteúdo, não código".
+
+**A virada do dono nesta sessão:** rejeitou a "biblioteca à toa" (prateleira aberta que parece
+mais um chat). Quis **dois andares** (🔧 Construção = os 10 guias · 📈 Valor & Carreira = 3 guias
+novos sobre transformar o que se constrói em retorno — político/promoção/bônus/referência) e um
+**desbloqueio pela jornada real** (metáfora Yoshi's Story: mapa de calor por adjacência, próximo
+degrau curado pelo motor, horizonte fosco que entra no alcance conforme avança). Trilha visual
+como hero (Q1); ritual de confete na conclusão do 1º projeto (Q4).
+
+**A tensão resolvida (incerteza real do dono na Q2 — anti-manipulação):** desbloqueio visível
+poderia incentivar gamear o wizard (Lei de Goodhart). Resolução **estrutural**: o wizard nunca
+desbloqueia sozinho (só revela direção); o guia que a pessoa precisa já vive na Caminhada dela
+(logo, acender o nó no mapa não é loot farmável); o único prêmio real (andar de Valor) é gated
+por **conclusão real** — que é o comportamento que a métrica-norte quer. Não há atalho pra farmar.
+Detalhe + referências (Duolingo, Yoshi, efeito IKEA) na §6.3 do preparatório.
+
+**Consequências:**
+- Escopo da 316 cresce muito além de "grid + markdown" (trilha 4 estados + curadoria de adjacência
+  reusando o motor + andar de Valor com 3 guias novos teoria+preenchimento + ritual). **Continua
+  sem tabela nova** — unlock deriva de `lab_projects` (padrão do hub).
+- Abre um **eixo novo no projeto**: progressão com julgamento (gamificação amarrada à métrica-norte,
+  sem hype/manipulação), com mapa de crescimento registrado (§6.6: premium via mesmo mecanismo,
+  novos andares, coleções/selos, quest log).
+- Conteúdo dos 3 guias de Valor ainda **não escrito** — é o próximo trabalho de conteúdo (Opus,
+  aprovação do dono), na voz da newsletter.
+- Pode valer **fatiar a execução** (trilha + seed dos 10 primeiro; Valor + ritual depois).
+
+**Refinamento (mesma sessão) — trilha única com ramos, não "dois andares":** o dono rejeitou o
+"Valor no cume" (a trilha não fecha linear; chegaria ao fim com vãos em branco). Modelo vigente:
+**uma trilha só**, e os **ramos de valor brotam de cada nó concluído** (contextualizados com os
+dados daquele projeto + 1-2 toques específicos por tipo — modelo híbrido). "Virar referência" virou
+a **espinha teórica** do eixo de Valor: *fez a entrega → colhe os benefícios* (meta, horas, renome
+político, aumento/escopo), com frente de teoria a plugar (capital de carreira: gestão de pessoas,
+evolução de carreira, liderança — tipo Harvard, aterrando em fonte real, sem inventar citação).
+Decisões de tela fechadas e detalhadas em **`ISSUE-316-spec-tela-trilha.md`** (serpente; desktop
+horizontal/mobile vertical; 4 estados; leitura em página própria; ritual de confete).
+
+**Bloqueia implementação?** Não — concepção + spec de tela fechadas e registradas; falta a **sessão
+de conteúdo** (kit de valor + toques específicos + marco de trajetória, aterrados na teoria) e o
+fatiamento na abertura da execução. Os 10 guias de Construção já existem/aprovados.
+
+---
+
 ## Resumo executivo das premissas assumidas
 
 | # | Premissa (segue valendo salvo veto do dono) | Bloqueio |

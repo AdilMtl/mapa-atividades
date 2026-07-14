@@ -109,7 +109,7 @@ function EstadoVazio({ nome }: { nome: string | null }) {
       />
 
       <p className="font-ds2-mono text-[11px] tracking-[0.08em] text-ds2-text-subtle uppercase">
-        Biblioteca e Perfil chegam em breve — por ora, o caminho começa pelo teu primeiro projeto.
+        O Perfil chega em breve — por ora, o caminho começa pelo teu primeiro projeto.
       </p>
     </div>
   )

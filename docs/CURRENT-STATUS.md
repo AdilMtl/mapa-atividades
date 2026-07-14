@@ -8,7 +8,57 @@
 
 ---
 
-## 🎯 SESSÃO ATUAL: Hub `/lab/inicio` com estados reais (ISSUE-315)
+## 🎯 SESSÃO ATUAL: Biblioteca do Lab — a Trilha (ISSUE-316, Fatia A)
+**Data:** 14 de julho de 2026
+**Versão:** v3.11.20
+**Status:** ✅ Fatia A no ar (deploy em produção). Sessão longa de **concepção + spec + código**:
+a biblioteca deixou de ser "prateleira de guias" e virou um **sistema de progressão desbloqueável
+pela jornada** (decisão de produto do dono, abre eixo novo de gamificação com julgamento).
+**Teste manual do dono em produção pendente** (ele testa direto no ar e traz feedback).
+
+### **🚀 O QUE FOI FEITO:**
+
+1. **Concepção redefinida com o dono (Opus como ponte do Fable, que volta 2026-07-15).** A
+   biblioteca vira uma **trilha** de 9 tipos de solução (escada de complexidade) que **acende
+   conforme a pessoa constrói**, com **ramos de Valor & Carreira brotando dos nós concluídos**.
+   Metáfora Yoshi's Story: mapa de calor por adjacência (próximo degrau brilha, horizonte distante
+   fica fosco — prompt nunca revela agente). Decisões completas: `ISSUE-316-contexto-preparatorio.md`
+   §6/§6.8 + `ISSUE-316-spec-tela-trilha.md` + pergunta 20 do `00b_open_questions.md`.
+2. **Anti-manipulação resolvida (incerteza real do dono):** desbloqueio gated por **conclusão real**,
+   não pelo wizard (Lei de Goodhart evitada estruturalmente — o guia que a pessoa precisa já vive na
+   Caminhada; o prêmio de verdade, o ramo de valor, exige concluir). Sem loot farmável.
+3. **FATIA A codada e no ar:** `src/lib/lab/trilha.ts` (motor puro, deriva 9 nós × 4 estados +
+   progresso + adjacência a partir de `lab_projects`; **zero tabela nova, zero API**) + `trilha.test.ts`
+   (8 testes). `/lab/biblioteca` (Server Component) + `Trilha.tsx` (client, serpente cara-de-jogo,
+   **desktop horizontal / mobile vertical**, framer-motion com `prefers-reduced-motion`, ícones lucide).
+   `/lab/biblioteca/[slug]` lê os 10 guias direto de `materiais.ts` (aprovados na 314 — sem depender
+   de banco). Nav "Biblioteca" ativada no `LabShell`. Placeholder do andar de Valor com a tese do dono.
+4. **FATIA B mapeada pra sessão própria:** escrever o conteúdo dos ramos de Valor & Carreira (kit
+   transversal contextualizado + 1-2 toques específicos por tipo + marco de trajetória "capital de
+   carreira"), aterrado em teoria real (gestão de pessoas, evolução de carreira, liderança — sem
+   inventar citação). Tese-espinha: *fez a entrega → colhe os benefícios* (meta, horas, renome
+   político, aumento/escopo).
+
+### **📊 TÉCNICO:**
+- 347 testes verdes (eram 339, +8 da trilha) · `tsc --noEmit`/`lint`/`build` limpos · rotas
+  `/lab/biblioteca` e `/lab/biblioteca/[slug]` compiladas (dinâmicas). `public/sw.js` regenerado
+  pelo build (precache das rotas novas).
+- Novos: `src/lib/lab/trilha.ts` (+test), `src/components/lab/biblioteca/Trilha.tsx`,
+  `src/app/(lab)/lab/biblioteca/{page,[slug]/page}.tsx`, `docs/revamp/ISSUE-316-{contexto-preparatorio,
+  spec-tela-trilha}.md`. Alterados: `LabShell.tsx`, `(lab)/lab/inicio/page.tsx` (nota "em breve"),
+  `04_issue_backlog.md`, `00b_open_questions.md`.
+- **Desbloqueio deriva de `lab_projects`** (status + `diagnosis.tipo`) — nó só vira "conquistado"
+  com projeto `concluido`. Leitura dos guias sai de `materiais.ts` (seed em `lab_assets` adiado).
+
+### **🎯 PRÓXIMA SESSÃO:**
+1. **Feedback do dono** do teste em produção da trilha (visual, jornada, o que já dá pra fazer).
+2. **Fatia B — sessão de conteúdo** dos ramos de Valor & Carreira (Opus, voz da newsletter, teoria
+   de carreira aterrada em fonte real).
+3. Testes manuais acumulados seguem pendentes (315 item 7, 314C, 314D — veto de copy).
+
+---
+
+## 📋 SESSÃO ANTERIOR: Hub `/lab/inicio` com estados reais (ISSUE-315)
 **Data:** 13 de julho de 2026
 **Versão:** v3.11.19
 **Status:** ✅ testada pelo dono no celular, com login real — **recuperou corretamente todos os
