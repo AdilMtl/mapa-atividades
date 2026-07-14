@@ -16,6 +16,23 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [v3.11.22] - 2026-07-14 - 🎨 Trilha do Lab: detalhe abre inline (navegação fluida) (ISSUE-316)
+
+### 🎨 Melhorado
+- **O detalhe do degrau agora abre INLINE, no próprio nó tocado** (estilo Duolingo), com expand
+  animado. Feedback do dono no 2º teste: o painel de orientação tinha ficado EMBAIXO da trilha no
+  mobile — tocar num degrau atualizava algo fora da tela e "parecia que não teve efeito, tinha que
+  rolar pra achar". Agora o efeito acontece onde o dedo está: toca no degrau → o "o que é isso" +
+  a ação (abrir guia / hint de trava) expandem ali mesmo. Legenda e progresso ficam num cabeçalho
+  compacto no topo. O próximo passo já abre expandido (orientação imediata).
+
+### 📊 Técnico
+- `Trilha.tsx` reescrito pra expansão inline (AnimatePresence + height animado, `prefers-reduced-motion`
+  respeitado); painel lateral/inferior removido. Motor (`trilha.ts`) e testes inalterados (349 verdes).
+  `tsc`/`lint`/`build` limpos. ⚠️ Copy pendente de veto do dono.
+
+---
+
 ## [v3.11.21] - 2026-07-14 - 🎨 Trilha do Lab: reforma visual pós-teste do dono (ISSUE-316)
 
 ### 🎨 Melhorado

@@ -10,11 +10,14 @@
 
 ## 🎯 SESSÃO ATUAL: Biblioteca do Lab — a Trilha (ISSUE-316, Fatia A + reforma visual)
 **Data:** 14 de julho de 2026
-**Versão:** v3.11.21
-**Status:** ✅ no ar. Após o **teste do dono em produção**, a trilha foi **reformada** (v3.11.21):
-roadmap com espinha conectada + painel de orientação reativo + estados inequívocos + **cadeado que
-trava de verdade** (só nó conquistado abre guia). Feedback endereçado: mobile linear, estados
-confusos, "abria tudo", faltava instrução. **Novo teste do dono pendente.**
+**Versão:** v3.11.22
+**Status:** ✅ no ar. Duas rodadas de feedback do dono em produção já endereçadas:
+- **v3.11.21** — trilha virou roadmap com espinha + estados inequívocos + **cadeado que trava**
+  (só nó conquistado abre guia). Resolveu: mobile linear, estados confusos, "abria tudo".
+- **v3.11.22** — detalhe do degrau agora **abre inline** no próprio nó (estilo Duolingo), com
+  expand animado. Resolveu: painel ficava embaixo, tocar "parecia sem efeito, tinha que rolar".
+
+**Novo teste do dono pendente.**
 
 **Contexto (v3.11.20):** Sessão longa de **concepção + spec + código**:
 a biblioteca deixou de ser "prateleira de guias" e virou um **sistema de progressão desbloqueável
