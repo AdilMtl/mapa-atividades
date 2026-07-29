@@ -34,6 +34,8 @@ interface WizardNovoProjetoProps {
   rascunhoInicial: { id: string; respostas: RespostasParciais } | null
   /** Pré-preenchimento da fluência (perfil/radar) — sempre editável. */
   sugestaoConforto: string | null
+  /** Pré-preenchimento da área (perfil da 317) — sempre editável. */
+  sugestaoArea: string | null
 }
 
 /** Trilha que o roteiro segue: `arq_outro` desvia pro caminho DOR (spec 2.I1). */
@@ -84,13 +86,17 @@ type StatusRascunho = 'novo' | 'salvando' | 'salvo' | 'erro'
 export function WizardNovoProjeto({
   rascunhoInicial,
   sugestaoConforto,
+  sugestaoArea,
 }: WizardNovoProjetoProps) {
   const router = useRouter()
   const semMovimento = useReducedMotion()
 
   const [respostas, setRespostas] = React.useState<RespostasParciais>(() => {
     if (rascunhoInicial) return rascunhoInicial.respostas
-    return sugestaoConforto ? { conforto: sugestaoConforto } : {}
+    return {
+      ...(sugestaoConforto ? { conforto: sugestaoConforto } : {}),
+      ...(sugestaoArea ? { area: sugestaoArea } : {}),
+    }
   })
   const [etapaIdx, setEtapaIdx] = React.useState(() =>
     rascunhoInicial ? etapaInicial(rascunhoInicial.respostas) : 0,

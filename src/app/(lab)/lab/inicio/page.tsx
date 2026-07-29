@@ -107,10 +107,6 @@ function EstadoVazio({ nome }: { nome: string | null }) {
         linha="Você conta o problema, o Lab lê, você confirma — e sai com um diagnóstico e um plano de construção. Leva uns 3 minutos."
         cta="Quero começar meu primeiro projeto"
       />
-
-      <p className="font-ds2-mono text-[11px] tracking-[0.08em] text-ds2-text-subtle uppercase">
-        O Perfil chega em breve — por ora, o caminho começa pelo teu primeiro projeto.
-      </p>
     </div>
   )
 }

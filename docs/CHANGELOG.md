@@ -16,6 +16,40 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [v3.11.24] - 2026-07-29 - 👤 Perfil do Builder `/lab/perfil` (ISSUE-317) + 316B fechada
+
+### ✨ Adicionado
+- **Perfil do Builder (`/lab/perfil`)** — form único, tudo opcional, sempre editável: área de
+  atuação, senioridade, fluência em IA, ferramentas que já usa, objetivo e maior gargalo. Grava
+  em `lab_profiles` via `POST /api/lab/profile` (upsert; sessão + gate + RLS `auth.uid()`, mesma
+  camada de segurança das outras rotas do Lab).
+- **Fluência pré-preenche do radar de maturidade** (sessionStorage) quando o perfil ainda não
+  tem nível salvo — nunca sobrepõe o que a pessoa já escolheu no próprio Perfil.
+- **`ferramentas` espelha o `ambiente[]` do wizard** (decisão da pergunta 16 do
+  `00b_open_questions.md`) — mesmo vocabulário, nada duplicado à mão.
+
+### 🎨 Melhorado
+- **Wizard (`/lab/novo-projeto`) usa a área do perfil como default**, além da fluência —
+  critério de aceite explícito da ISSUE-317.
+- Nav do `LabShell` ativada: "Perfil" deixa de ser "em breve". Removida a linha órfã "Perfil
+  chega em breve" do hub vazio (`/lab/inicio`).
+
+### 🔒 Segurança/Dados
+- `origin` (workshop/radar/direto) só é gravado na CRIAÇÃO do perfil — edições subsequentes
+  nunca sobrescrevem o caminho de chegada original.
+
+### 📊 Técnico
+- Novo `src/lib/lab/perfil.ts` (+ `perfil.test.ts`, 8 testes) — vocabulário fechado (área reusa
+  o radar, fluência reusa `MaturityLevelId`, senioridade é vocabulário novo desta issue).
+- Novos: `(lab)/lab/perfil/page.tsx`, `components/lab/perfil/PerfilForm.tsx`,
+  `api/lab/profile/route.ts`. Alterados: `LabShell.tsx`, `(lab)/lab/inicio/page.tsx`,
+  `(lab)/lab/novo-projeto/page.tsx`, `WizardNovoProjeto.tsx`.
+- **372 testes verdes** (eram 364, +8) · `tsc --noEmit` limpo · lint dos arquivos tocados sem
+  erro/warning · build de produção verde (`/lab/perfil`, `/api/lab/profile` dinâmicas).
+- **ISSUE-316B fechada sem código:** o dono leu a copy da biblioteca no ar e aprovou sem vetos.
+
+---
+
 ## [v3.11.23] - 2026-07-14 - 📚 Biblioteca do Lab: a Estante + ramos de Valor & Carreira (ISSUE-316 Fatia B)
 
 ### ✨ Adicionado

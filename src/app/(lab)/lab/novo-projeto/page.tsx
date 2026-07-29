@@ -69,17 +69,19 @@ export default async function NovoProjetoPage({
       ? sanitizarRascunho(rascunho.wizard_answers)
       : null
 
-  // Pré-preenchimento de fluência (perfil da 317, quando existir) — editável.
+  // Pré-preenchimento de fluência + área (perfil da 317, quando existir) — editável.
   let sugestaoConforto: string | null = null
+  let sugestaoArea: string | null = null
   if (user) {
     const { data: perfil } = await supabase
       .from('lab_profiles')
-      .select('ai_fluency_level')
+      .select('ai_fluency_level, role_area')
       .eq('user_id', user.id)
       .maybeSingle()
     sugestaoConforto = perfil?.ai_fluency_level
       ? (CONFORTO_POR_MATURIDADE[perfil.ai_fluency_level] ?? null)
       : null
+    sugestaoArea = perfil?.role_area ?? null
   }
 
   return (
@@ -87,6 +89,7 @@ export default async function NovoProjetoPage({
       <WizardNovoProjeto
         rascunhoInicial={rascunho && respostas ? { id: rascunho.id, respostas } : null}
         sugestaoConforto={sugestaoConforto}
+        sugestaoArea={sugestaoArea}
       />
     </div>
   )

@@ -1,14 +1,13 @@
 import Link from 'next/link'
 
-import { Badge, PageContainer } from '@/components/ds2'
+import { PageContainer } from '@/components/ds2'
 
 import { LabLogout } from './LabLogout'
 
 // =============================================================================
 // LabShell (ISSUE-311) — casca da área logada do Lab, 100% DS2 (doc 08).
 // Server Component: a sessão já foi validada pelo layout; aqui é só visual.
-// Navegação: Início (única rota viva na 1A) · Biblioteca/Perfil nascem com a
-// 316/317 — até lá aparecem como "em breve", sem link (nada de 404).
+// Navegação: Início · Biblioteca (316) · Perfil (317) — todas rotas vivas.
 // Link discreto pro legado SÓ para assinante antigo (plan_type ≠ 'lab_beta',
 // decisão da pergunta 14). PROIBIDO tocar no AppShell/(app) legado.
 // =============================================================================
@@ -45,9 +44,9 @@ export function LabShell({ email, mostrarLegado, children }: LabShellProps) {
             >
               Biblioteca
             </Link>
-            <span className="flex min-h-11 items-center gap-2 text-ds2-text-subtle">
-              Perfil <Badge className="px-2 py-0.5 text-[10px]">em breve</Badge>
-            </span>
+            <Link href="/lab/perfil" className="flex min-h-11 items-center text-ds2-text-primary">
+              Perfil
+            </Link>
           </nav>
 
           <div className="ml-auto flex items-center gap-4">

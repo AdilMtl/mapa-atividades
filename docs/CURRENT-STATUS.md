@@ -8,7 +8,53 @@
 
 ---
 
-## 🎯 SESSÃO ATUAL: Biblioteca do Lab — Estante + ramos de Valor & Carreira (ISSUE-316 Fatia B)
+## 🎯 SESSÃO ATUAL: Perfil do Builder `/lab/perfil` (ISSUE-317) + 316B fechada
+**Data:** 29 de julho de 2026
+**Versão:** v3.11.24
+**Status:** ⚠️ código completo e validado (tsc/lint/build limpos, 372 testes verdes — eram 364).
+Falta o roteiro manual do dono (login real, mobile) — a testar após o deploy desta sessão.
+
+### **🚀 O QUE FOI FEITO:**
+
+1. **ISSUE-316B fechada sem código:** o dono leu a copy da biblioteca no ar (tela + 9
+   descritores + 10 guias com profundidade + 5 blocos de valor + marco) e aprovou sem vetos.
+2. **ISSUE-317 — Perfil do Builder `/lab/perfil`.** Form único, tudo opcional, sempre editável:
+   área de atuação, senioridade, fluência em IA, ferramentas que já usa, objetivo e maior
+   gargalo. Grava em `lab_profiles` via `POST /api/lab/profile` (upsert — sessão + gate +
+   RLS `auth.uid()`, mesma camada de segurança das outras rotas do Lab).
+3. **Fluência pré-preenche do radar de maturidade** (sessionStorage) quando o perfil ainda não
+   tem nível salvo — nunca sobrepõe o que a pessoa já escolheu no próprio Perfil.
+4. **`ferramentas` espelha o `ambiente[]` do wizard** (decisão já registrada na pergunta 16 do
+   `00b_open_questions.md`) — mesmo vocabulário, nada duplicado.
+5. **Wizard (`/lab/novo-projeto`) passa a usar a área do perfil como default**, além da
+   fluência — critério de aceite explícito da própria issue.
+6. **`origin`** (workshop/radar/direto) só é gravado na CRIAÇÃO do perfil — edições
+   subsequentes nunca sobrescrevem o caminho de chegada original.
+7. Nav do `LabShell` ativada ("Perfil" deixa de ser "em breve"); removida a linha órfã "Perfil
+   chega em breve" do hub vazio (`/lab/inicio`).
+
+### **📊 TÉCNICO:**
+- Novo `src/lib/lab/perfil.ts` (+ `perfil.test.ts`, 8 testes) — vocabulário fechado (área
+  reusa o radar, fluência reusa `MaturityLevelId`, senioridade é vocabulário novo desta issue).
+- Novos: `src/app/(lab)/lab/perfil/page.tsx`, `src/components/lab/perfil/PerfilForm.tsx`,
+  `src/app/api/lab/profile/route.ts`. Alterados: `LabShell.tsx`, `(lab)/lab/inicio/page.tsx`,
+  `(lab)/lab/novo-projeto/page.tsx`, `WizardNovoProjeto.tsx` (prop `sugestaoArea`).
+- **372 testes verdes** (eram 364, +8) · `tsc --noEmit` limpo · lint dos arquivos tocados sem
+  erro/warning (lint integral do projeto segue com débito pré-existente, fora de arquivos desta
+  sessão — decisão já registrada de deixar para depois) · build de produção verde (`/lab/perfil`
+  e `/api/lab/profile` compiladas, rotas dinâmicas).
+
+### **🎯 PRÓXIMA SESSÃO:**
+1. **ISSUE-318** — Analytics do Lab + vitrine `/lab` em modo beta + rotina de convites. O
+   backlog marca **Fable 5 (persona Analytics & Ads) sem exceção** por tocar tracking público —
+   o dono vai trocar de modelo antes de retomar.
+2. Roteiro manual do dono da 317 (salvar/editar com conta real, wizard puxando a área do
+   perfil, mobile).
+3. Testes manuais acumulados seguem pendentes (315 item 7, 314C, 314D — vetos de copy).
+
+---
+
+## 🎯 SESSÃO ANTERIOR: Biblioteca do Lab — Estante + ramos de Valor & Carreira (ISSUE-316 Fatia B)
 **Data:** 14 de julho de 2026
 **Versão:** v3.11.23
 **Status:** ✅ no ar (deploy). **Copy foi pra produção sem veto final, por decisão do dono** — a
@@ -48,7 +94,7 @@ validação de leitura da copy fica para a **ISSUE-316B** (sessão própria, abe
 
 ---
 
-## 🎯 SESSÃO ANTERIOR: Biblioteca do Lab — a Trilha (ISSUE-316, Fatia A + reforma visual)
+## 📋 SESSÃO ANTERIOR: Biblioteca do Lab — a Trilha (ISSUE-316, Fatia A + reforma visual)
 **Data:** 14 de julho de 2026
 **Versão:** v3.11.22
 **Status:** ✅ no ar. Duas rodadas de feedback do dono em produção já endereçadas:
