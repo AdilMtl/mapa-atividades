@@ -10,10 +10,20 @@
 
 ## 🎯 SESSÃO ATUAL: Analytics do Lab + vitrine beta + painel de convites (ISSUE-318)
 **Data:** 29 de julho de 2026
-**Versão:** v3.11.25
+**Versão:** v3.11.26 (v3.11.25 + correção pós-teste)
 **Status:** ✅ código completo e validado (tsc/lint tocados/build 45 rotas/372 testes) —
 **⚠️ issue parcial**: faltam as validações do dono em produção (GTM Preview, convite real,
 Tag Assistant no funil legado).
+
+### **🔧 v3.11.26 (mesma sessão, após 1º teste do dono):**
+- **Dono testou o painel em produção: funcionou** — mas o e-mail do convite não chegou e a
+  tela disse "enviado". **Causa raiz achada:** o SDK do Resend devolve `{ error }` em vez de
+  lançar exceção; o código só tratava exceção → recusa passava como sucesso. Corrigido: o
+  painel agora mostra o **motivo literal do Resend** quando falha.
+- **Botão "Reenviar e-mail"** pra convidado sem conta (o reteste do `adilson.matioli1` usa
+  ele — o acesso já estava liberado e o convite manual devolvia 409).
+- **Link "Admin" na nav do Lab** (pedido do dono): só pro login dele, visível no celular —
+  acesso ao painel sem digitar URL.
 
 ### **🚀 O QUE FOI FEITO:**
 

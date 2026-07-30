@@ -125,6 +125,9 @@ export async function POST(request: NextRequest) {
     const email = String(body?.email ?? '').toLowerCase().trim()
     const nome = typeof body?.nome === 'string' && body.nome.trim() ? body.nome.trim() : null
     const expiraEm = typeof body?.expiraEm === 'string' && body.expiraEm ? body.expiraEm : VALIDADE_PADRAO
+    // reenviar=true: convidado do beta que não recebeu o e-mail — só reenvia,
+    // sem tocar na autorização que já existe.
+    const reenviar = body?.reenviar === true
 
     if (!emailValido(email)) {
       return NextResponse.json({ error: 'E-mail inválido' }, { status: 400 })
@@ -138,46 +141,59 @@ export async function POST(request: NextRequest) {
       .eq('email', email)
       .maybeSingle()
 
-    if (existente) {
+    if (existente && !(reenviar && existente.plan_type === PLAN_LAB_BETA)) {
       const motivo =
         existente.plan_type === PLAN_LAB_BETA
-          ? 'Já foi convidado pro beta'
+          ? 'Já foi convidado pro beta (usa o Reenviar e-mail na lista de convidados)'
           : 'Já tem acesso como assinante (não mexo no plano dele)'
       return NextResponse.json({ error: motivo }, { status: 409 })
     }
 
-    const { error: insertError } = await supabaseAdmin.from('authorized_emails').insert({
-      email,
-      expires_at: expiraEm,
-      plan_type: PLAN_LAB_BETA,
-      notes: `convite beta Lab — via painel admin (${new Date().toISOString().slice(0, 10)})`,
-    })
+    if (!existente) {
+      const { error: insertError } = await supabaseAdmin.from('authorized_emails').insert({
+        email,
+        expires_at: expiraEm,
+        plan_type: PLAN_LAB_BETA,
+        notes: `convite beta Lab — via painel admin (${new Date().toISOString().slice(0, 10)})`,
+      })
 
-    if (insertError) {
-      console.error('Erro ao autorizar convite:', insertError)
-      return NextResponse.json({ error: 'Não consegui liberar o acesso' }, { status: 500 })
+      if (insertError) {
+        console.error('Erro ao autorizar convite:', insertError)
+        return NextResponse.json({ error: 'Não consegui liberar o acesso' }, { status: 500 })
+      }
     }
 
     // E-mail de convite: se o Resend falhar, o acesso JÁ está liberado — o painel
-    // avisa e o dono manda manualmente (template no doc da rotina).
+    // avisa COM O MOTIVO e o dono manda manualmente (template no doc da rotina).
+    // ⚠️ O SDK do Resend NÃO lança exceção em erro de envio — devolve { error } na
+    // resposta (bug real pego no 1º teste do dono: falha passava como "enviado").
     let emailEnviado = false
+    let motivoEmail: string | null = null
     try {
       const apiKey = process.env.RESEND_API_KEY
-      if (apiKey) {
+      if (!apiKey) {
+        motivoEmail = 'RESEND_API_KEY não configurada no ambiente'
+      } else {
         const resend = new Resend(apiKey)
-        await resend.emails.send({
+        const { error: sendError } = await resend.emails.send({
           from: process.env.EMAIL_FROM_ADDRESS || 'onboarding@resend.dev',
           to: email,
           subject: gerarAssuntoConvite(),
           html: gerarTemplateConvite(nome ? nome.split(' ')[0] : null),
         })
-        emailEnviado = true
+        if (sendError) {
+          motivoEmail = sendError.message ?? 'Resend recusou o envio (sem mensagem)'
+          console.error('Convite autorizado, mas o Resend recusou:', sendError)
+        } else {
+          emailEnviado = true
+        }
       }
     } catch (emailError) {
+      motivoEmail = emailError instanceof Error ? emailError.message : 'erro inesperado no envio'
       console.error('Convite autorizado, mas o e-mail falhou:', emailError)
     }
 
-    return NextResponse.json({ success: true, emailEnviado })
+    return NextResponse.json({ success: true, emailEnviado, motivoEmail })
   } catch (error) {
     console.error('Erro no POST admin/lab-beta:', error)
     return NextResponse.json({ error: 'Erro ao convidar' }, { status: 500 })

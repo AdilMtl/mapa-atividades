@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation'
 
 import { BetaFechado } from '@/components/lab/BetaFechado'
 import { LabShell } from '@/components/lab/LabShell'
+import { ehAdmin } from '@/lib/admin'
 import { obterUsuarioSessao, verificarAutorizacao } from '@/lib/supabase-server'
 
 // =============================================================================
@@ -24,7 +25,11 @@ export default async function LabLayout({ children }: { children: React.ReactNod
   if (!acesso.autorizado) return <BetaFechado email={user.email} />
 
   return (
-    <LabShell email={user.email} mostrarLegado={acesso.planType !== 'lab_beta'}>
+    <LabShell
+      email={user.email}
+      mostrarLegado={acesso.planType !== 'lab_beta'}
+      mostrarAdmin={ehAdmin(user.email)}
+    >
       {children}
     </LabShell>
   )

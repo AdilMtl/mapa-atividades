@@ -16,6 +16,28 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [v3.11.26] - 2026-07-29 - 🔧 Convite do beta: erro do Resend visível + reenviar + Admin na nav do Lab
+
+### 🔧 Corrigido
+- **E-mail de convite falhava em silêncio** (pego no 1º teste do dono: "convite enviado" na
+  tela, nada na caixa). **Causa raiz:** o SDK do Resend não lança exceção em erro de envio —
+  devolve `{ error }` na resposta, e o código só tratava exceção; qualquer recusa do Resend
+  passava como sucesso. **Solução:** o retorno é checado e o painel mostra o motivo literal
+  do Resend na tela ("motivo do Resend: ..."), pra diagnosticar sem abrir log.
+
+### ✨ Adicionado
+- **Reenviar e-mail** no painel: convidado do beta que ainda não criou conta ganha o botão
+  (o convite manual devolvia "já foi convidado" e não tinha como mandar de novo).
+- **Link "Admin" na nav do Lab** (Início · Biblioteca · Perfil · Admin) — só pro login do
+  dono (`ehAdmin` no gate server-side do layout), visível também no celular. Acesso ao
+  painel sem digitar URL.
+
+### 📊 Técnico
+- tsc limpo · lint dos tocados zerado · build verde. Convite real segue pendente de reteste
+  (agora com o motivo do erro na tela se falhar de novo).
+
+---
+
 ## [v3.11.25] - 2026-07-29 - 📊 Analytics do Lab + vitrine beta + painel de convites (ISSUE-318)
 
 ### ✨ Adicionado

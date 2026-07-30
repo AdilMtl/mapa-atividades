@@ -16,10 +16,12 @@ interface LabShellProps {
   email: string
   /** true = assinante antigo (vê o atalho pra plataforma ROI do Foco). */
   mostrarLegado: boolean
+  /** true = dono logado (ISSUE-318): link Admin na nav, inclusive no celular. */
+  mostrarAdmin?: boolean
   children: React.ReactNode
 }
 
-export function LabShell({ email, mostrarLegado, children }: LabShellProps) {
+export function LabShell({ email, mostrarLegado, mostrarAdmin = false, children }: LabShellProps) {
   return (
     <div className="min-h-screen bg-ds2-bg-app text-ds2-text-primary">
       <header className="border-b border-ds2-border-subtle">
@@ -47,6 +49,14 @@ export function LabShell({ email, mostrarLegado, children }: LabShellProps) {
             <Link href="/lab/perfil" className="flex min-h-11 items-center text-ds2-text-primary">
               Perfil
             </Link>
+            {mostrarAdmin && (
+              <Link
+                href="/admin/lab-beta"
+                className="flex min-h-11 items-center text-ds2-amber-soft"
+              >
+                Admin
+              </Link>
+            )}
           </nav>
 
           <div className="ml-auto flex items-center gap-4">

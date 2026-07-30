@@ -72,7 +72,7 @@ export function PainelConvitesLab() {
   }, [carregar])
 
   const convidar = React.useCallback(
-    async (email: string, nome: string | null) => {
+    async (email: string, nome: string | null, reenviar = false) => {
       setEnviando(email)
       setAviso(null)
       setErro(null)
@@ -80,9 +80,14 @@ export function PainelConvitesLab() {
         const res = await fetch('/api/admin/lab-beta', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email, nome, expiraEm: validade }),
+          body: JSON.stringify({ email, nome, expiraEm: validade, reenviar }),
         })
-        const data = (await res.json()) as { success?: boolean; emailEnviado?: boolean; error?: string }
+        const data = (await res.json()) as {
+          success?: boolean
+          emailEnviado?: boolean
+          motivoEmail?: string | null
+          error?: string
+        }
         if (!res.ok || !data.success) {
           setErro(data.error ?? 'Não consegui convidar — tenta de novo.')
           return
@@ -90,7 +95,9 @@ export function PainelConvitesLab() {
         setAviso(
           data.emailEnviado
             ? `Convite enviado pra ${email} — acesso liberado até ${dataCurta(validade)}.`
-            : `Acesso liberado pra ${email}, mas o E-MAIL FALHOU — manda manualmente (template no doc da rotina).`,
+            : `Acesso liberado pra ${email}, mas o E-MAIL FALHOU${
+                data.motivoEmail ? ` — motivo do Resend: "${data.motivoEmail}"` : ''
+              }. Manda manualmente (template no doc da rotina) ou me traz esse motivo.`,
         )
         await carregar()
       } catch {
@@ -282,20 +289,38 @@ export function PainelConvitesLab() {
                     </div>
                   </div>
                   {c.ativo && (
-                    <Button
-                      type="button"
-                      variant="secondary"
-                      className="py-2.5 text-xs"
-                      disabled={enviando !== null}
-                      onClick={() => void revogar(c.email)}
-                    >
-                      {enviando === c.email ? (
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                      ) : (
-                        <UserX className="h-4 w-4" />
+                    <div className="flex flex-wrap gap-2">
+                      {!c.temConta && (
+                        <Button
+                          type="button"
+                          variant="secondary"
+                          className="py-2.5 text-xs"
+                          disabled={enviando !== null}
+                          onClick={() => void convidar(c.email, null, true)}
+                        >
+                          {enviando === c.email ? (
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                          ) : (
+                            <Mail className="h-4 w-4" />
+                          )}
+                          Reenviar e-mail
+                        </Button>
                       )}
-                      Revogar
-                    </Button>
+                      <Button
+                        type="button"
+                        variant="secondary"
+                        className="py-2.5 text-xs"
+                        disabled={enviando !== null}
+                        onClick={() => void revogar(c.email)}
+                      >
+                        {enviando === c.email ? (
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                        ) : (
+                          <UserX className="h-4 w-4" />
+                        )}
+                        Revogar
+                      </Button>
+                    </div>
                   )}
                 </Card>
               ))}
