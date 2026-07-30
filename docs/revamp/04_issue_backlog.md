@@ -1327,11 +1327,11 @@ Resend). **⚠️ Toca página pública — revalidar conversão GTM/Ads antes d
 **Dep.:** 313–315.
 
 ## ISSUE-318A — Painel de Analytics do admin (funil + aquisição) — Fatia A
-**Status:** ✅ código completo em 2026-07-30 (v3.11.27) — `/admin/analytics` no ar, Blocos 1/2/3/7
-implementados, tsc/lint limpos, 398 testes verdes (372 + 26 novos em `analytics.test.ts`), build
-verde (47 rotas), diff zero na trava de tracking (`layout.tsx`/`EmailGate`/`api/prediag/*`/
-`lib/analytics.ts`/`lib/radar-events.ts`/`lib/lab-events.ts`). **Falta só o critério 10:**
-validação do dono no celular, sessão logada, respondendo as 3 perguntas que motivaram a issue.
+**Status:** ✅ concluída em 2026-07-30 (v3.11.27 + v3.11.28) — `/admin/analytics` no ar, Blocos
+1/2/3/7 implementados, tsc/lint limpos, 398 testes verdes (372 + 26 novos em `analytics.test.ts`),
+build verde (47 rotas), diff zero na trava de tracking. **Critério 10 validado pelo dono em
+produção** (celular, sessão logada) — único ajuste pedido: a tabela de origem do tráfego virou
+lista de cards no v3.11.28 (5 colunas não cabiam na tela do celular mesmo com scroll interno).
 **Ler a spec inteira antes de codar** — as 4 decisões do dono estão travadas lá.
 **Tipo:** Analytics/Frontend · **Prioridade:** Alta · **Complexidade:** Média
 **Modelo:** Sonnet com **persona Analytics & Ads**. ⚠️ *Não* é Fable 5, e o motivo importa: a
@@ -1382,8 +1382,15 @@ da próxima conversa da newsletter.
 do Bloco 7 são a mitigação; se o volume não sustentar a matriz, ela some em vez de mentir.
 
 ## ISSUE-318B — Casca admin DS2 mobile + restyle `/admin/assinantes`
-**Status:** ⬜ registrada em 2026-07-29 a pedido do dono ("não consigo acessar a aba de Admin no
-celular direito, está no estilo antigo").
+**Status:** ✅ código completo em 2026-07-30 (v3.11.29) — `AdminShell` novo (abas Assinantes ·
+Convites do Lab · Analytics, DS2, mobile-first) substitui o sidebar legado do `AppShell` só em
+`/admin/*`; `/admin/assinantes` reestilizado (lista de cards em vez de tabela de 6 colunas,
+selects com fundo escuro legível via `colorScheme: dark` + `<option>` explícita). Zero mudança
+de lógica/estado/rotas/CRUD — handlers e fetches copiados byte a byte. tsc limpo, lint dos
+tocados zerado (1 `any` pré-existente e intocado em `AppShell.tsx`, débito já conhecido), 398
+testes verdes, build verde. **Falta:** dono validar no celular (editar/excluir sem zoom/scroll
+lateral) — critério de aceite não verificável sem dispositivo real. Registrada em 2026-07-29 a
+pedido do dono ("não consigo acessar a aba de Admin no celular direito, está no estilo antigo").
 **Tipo:** UI/Frontend · **Prioridade:** Média · **Complexidade:** Média
 **Modelo:** Sonnet — conversão visual mecânica sob o mapa de tokens do `08_diretrizes_visuais_ds2.md`
 §5, com as proibições do §6.

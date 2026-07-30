@@ -9,7 +9,6 @@
 // =============================================================================
 
 import * as React from 'react'
-import Link from 'next/link'
 import { Loader2, Mail, RefreshCw, Send, UserX } from 'lucide-react'
 
 import { Badge, Button, Card, Eyebrow, PageContainer, SectionTitle } from '@/components/ds2'
@@ -141,23 +140,15 @@ export function PainelConvitesLab() {
   return (
     <div className="ds2-bg-ambient min-h-screen">
       <PageContainer className="max-w-4xl space-y-8 pb-16 pt-8">
-        <div className="flex flex-wrap items-start justify-between gap-3">
-          <div>
-            <Eyebrow>admin · lab</Eyebrow>
-            <SectionTitle as="h1" className="mt-2 text-[28px] md:text-[36px]">
-              Convites do beta
-            </SectionTitle>
-            <p className="mt-2 max-w-[640px] font-ds2-sans text-sm leading-relaxed text-ds2-text-secondary">
-              A fila junta quem pediu convite na página do Lab e quem marcou interesse no radar.
-              Convidar libera o acesso (até a validade abaixo) e envia o e-mail na hora.
-            </p>
-          </div>
-          <Link
-            href="/admin/analytics"
-            className="min-h-[44px] rounded-ds2-pill border border-ds2-border-subtle px-4 py-2.5 font-ds2-sans text-xs text-ds2-text-secondary hover:bg-white/5"
-          >
-            ver Analytics →
-          </Link>
+        <div>
+          <Eyebrow>admin · lab</Eyebrow>
+          <SectionTitle as="h1" className="mt-2 text-[28px] md:text-[36px]">
+            Convites do beta
+          </SectionTitle>
+          <p className="mt-2 max-w-[640px] font-ds2-sans text-sm leading-relaxed text-ds2-text-secondary">
+            A fila junta quem pediu convite na página do Lab e quem marcou interesse no radar.
+            Convidar libera o acesso (até a validade abaixo) e envia o e-mail na hora.
+          </p>
         </div>
 
         {(aviso || erro) && (

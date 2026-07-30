@@ -9,7 +9,6 @@
 // =============================================================================
 
 import * as React from 'react'
-import Link from 'next/link'
 import { Loader2, RefreshCw } from 'lucide-react'
 
 import { Button, Card, Eyebrow, PageContainer, SectionTitle } from '@/components/ds2'
@@ -79,31 +78,15 @@ export function PainelAnalytics() {
   return (
     <div className="ds2-bg-ambient min-h-screen">
       <PageContainer className="max-w-5xl space-y-8 pb-16 pt-8">
-        <div className="flex flex-wrap items-start justify-between gap-3">
-          <div>
-            <Eyebrow>admin · analytics</Eyebrow>
-            <SectionTitle as="h1" className="mt-2 text-[28px] md:text-[36px]">
-              De onde vêm, e onde ficam
-            </SectionTitle>
-            <p className="mt-2 max-w-[640px] font-ds2-sans text-sm leading-relaxed text-ds2-text-secondary">
-              Funil dos radares e origem de tráfego, direto do que já é gravado hoje — sem view
-              nova, sem evento novo (ISSUE-318A).
-            </p>
-          </div>
-          <div className="flex flex-wrap gap-2">
-            <Link
-              href="/admin/lab-beta"
-              className="min-h-[44px] rounded-ds2-pill border border-ds2-border-subtle px-4 py-2.5 font-ds2-sans text-xs text-ds2-text-secondary hover:bg-white/5"
-            >
-              convites do Lab
-            </Link>
-            <Link
-              href="/admin/assinantes"
-              className="min-h-[44px] rounded-ds2-pill border border-ds2-border-subtle px-4 py-2.5 font-ds2-sans text-xs text-ds2-text-secondary hover:bg-white/5"
-            >
-              assinantes
-            </Link>
-          </div>
+        <div>
+          <Eyebrow>admin · analytics</Eyebrow>
+          <SectionTitle as="h1" className="mt-2 text-[28px] md:text-[36px]">
+            De onde vêm, e onde ficam
+          </SectionTitle>
+          <p className="mt-2 max-w-[640px] font-ds2-sans text-sm leading-relaxed text-ds2-text-secondary">
+            Funil dos radares e origem de tráfego, direto do que já é gravado hoje — sem view
+            nova, sem evento novo (ISSUE-318A).
+          </p>
         </div>
 
         <Card className="flex flex-wrap items-end gap-4">

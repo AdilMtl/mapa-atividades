@@ -80,9 +80,11 @@ export function AppShell({ children }: AppShellProps) {
     router.push('/')
   }
 
-  // Páginas que não mostram o menu
+  // Páginas que não mostram o menu — /admin/* ganhou casca própria na
+  // ISSUE-318B (AdminShell); o sidebar legado do ROI do Foco não faz mais
+  // sentido lá (era o "estilo antigo" ilegível no celular).
   const authPages = ['/auth', '/', '/pre-diagnostico']
-  const showNavigation = user && !authPages.includes(pathname)
+  const showNavigation = user && !authPages.includes(pathname) && !pathname.startsWith('/admin')
 
   // 🎯 NAVEGAÇÃO CORRIGIDA - Com Fluxo Semanal
   const navigationItems = [

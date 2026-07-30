@@ -8,55 +8,61 @@
 
 ---
 
-## 🎯 SESSÃO ATUAL: Painel de Analytics do admin — Fatia A (ISSUE-318A)
+## 🎯 SESSÃO ATUAL: Casca admin DS2 mobile (ISSUE-318B), sobre a 318A validada
 **Data:** 30 de julho de 2026
-**Versão:** v3.11.27
-**Status:** ✅ código completo e validado — falta só o critério 10 (dono valida no celular,
-sessão logada, respondendo as 3 perguntas que motivaram a issue: de onde vêm as pessoas que
-terminam, sobre o que escrever, onde o Lab trava).
+**Versão:** v3.11.29 (v3.11.27 painel + v3.11.28 ajuste de mobile + v3.11.29 casca admin)
+**Status:** ✅ ISSUE-318A **concluída** (dono validou em produção, celular, sessão logada) ·
+ISSUE-318B código completo, falta o dono validar CRUD de assinantes no celular.
 
-### **🚀 O QUE FOI FEITO:**
+### **318A — validação do dono + 1 ajuste:**
+O dono testou `/admin/analytics` em produção: gráficos gerados, funil e origem do tráfego
+lendo corretamente (249 sessões diretas identificadas, série de barras por dia entendida).
+**Único ajuste pedido:** a tabela de origem do tráfego (5 colunas) ficava "desconfigurada" no
+celular — v3.11.28 trocou a tabela por uma lista de cards empilhados (mesmos dados, sem
+overflow horizontal). Commitado e no ar.
 
-1. **`/admin/analytics` no ar** — Blocos 1 (números da janela), 2 (funil dos radares por
-   `kind`, separando maturidade e oportunidades), 3 (origem do tráfego por UTM + série temporal
-   de sessões/leads) e 7 (notas de leitura, sempre visíveis) da spec `ISSUE-318A-spec-analytics-
-   admin.md`. Blocos 4–6 (segmentação de conteúdo + pipeline do Lab) ficam para a 318A2.
-2. **Zero SQL novo** — agregação inteira em TypeScript (`src/lib/admin/analytics.ts`), puro e
-   testado com vitest (26 testes novos: dedupe de e-mail, exclusão de tráfego de teste, N=0/N=1,
-   cálculo de janela/janela anterior, cap de amostra, funil com topo=0). `radar_events` só é
-   lido por `count` (nunca em bulk) — os outros três (`radar_sessions`, `radar_leads`,
-   `lab_projects`) são lidos com cap de 1000 linhas e sinalizam `amostraTruncada` se estourar.
-3. **Armadilhas metodológicas da spec tratadas:** tráfego de teste do dono
-   (`adilson.matioli@`/`adilson.matioli1@`) excluído de leads e projetos por padrão (toggle
-   liga); leads sempre contados por e-mail distinto; todo número de evento carrega o selo
-   "evento" (direcional); todo percentual sai com o N absoluto ao lado; taxa de variação da
-   janela anterior só aparece com N ≥ 20 dos dois lados.
-4. **Rota `GET /api/admin/analytics`** — gate por sessão do cookie (`exigirAdminSessao`, mesmo
-   padrão da 318), `service_role` local, somente leitura, zero PII (e-mail/nome/IP) na resposta
-   agregada.
-5. **Navegação mínima entre os 3 painéis de admin** (analytics ⇄ convites do Lab ⇄ assinantes) —
-   o restyle de verdade da casca é a 318B.
-6. **`vitest.config.ts` ganhou `src/lib/admin/**/*.test.ts`** no escopo (estava travado só em
-   `radar`/`lab` desde 2026-07-06) — os novos testes precisavam disso pra rodar.
+### **318B — casca admin DS2 + restyle de `/admin/assinantes`:**
+1. **Achado ao abrir a issue:** as 3 telas de admin (`analytics`, `lab-beta`, `assinantes`)
+   herdavam o `AppShell` legado do grupo `(app)` — o sidebar do produto ROI do Foco, o "estilo
+   antigo" que o dono não conseguia usar no celular. `AdminShell` novo (mesmo padrão do
+   `LabShell` do Lab): abas **Assinantes · Convites do Lab · Analytics**, DS2, mobile-first.
+   `AppShell.tsx` ganhou uma condição a mais (`!pathname.startsWith('/admin')`) pra parar de
+   desenhar o próprio chrome nessas rotas — auth/gate do admin (`exigirAdminSessao`,
+   middleware) intactos, isso é só navegação visual.
+2. **`/admin/assinantes` reestilizado** — a tabela CRUD de 6 colunas virou lista de cards (mesmo
+   ajuste da 318A/v3.11.28: colunas não cabem no celular nem com scroll interno). Selects
+   (status/acesso/ordenar) ganharam `colorScheme: 'dark'` + fundo explícito nas `<option>` —
+   mesma técnica do legado, reskinada em tokens DS2, resolvendo a regressão histórica de select
+   ilegível (v3.2.0).
+3. **Zero mudança de lógica:** todos os `useState`, handlers (`handleAdd`/`handleUpdate`/
+   `handleDelete`), filtros/ordenação e chamadas a `/api/admin/assinantes` foram copiados byte a
+   byte — só o JSX de apresentação mudou. O botão "Mapa" de cada página virou o link
+   "← plataforma" único do `AdminShell`.
 
 ### **📊 TÉCNICO:**
-- Novos: `src/lib/admin/analytics.ts` (+ `.test.ts`, 26 testes), `src/app/api/admin/analytics/
-  route.ts`, `src/app/(app)/admin/analytics/page.tsx`, `src/components/admin/PainelAnalytics.tsx`
-  + `src/components/admin/analytics/{BlocoNumeros,BlocoFunil,BlocoOrigem,BlocoNotas}.tsx`.
-- Alterados: `vitest.config.ts` (escopo), `admin/assinantes/page.tsx` e `PainelConvitesLab.tsx`
-  (só o link de navegação).
-- **398 testes verdes** (372 + 26) · `tsc --noEmit` limpo · lint dos tocados zerado · build verde
-  (47 rotas; `/admin/analytics` e `/api/admin/analytics` dinâmicas) · `git diff --stat` confirma
-  diff **zero** em `layout.tsx`, `EmailGate.tsx`, `api/prediag/*`, `lib/analytics.ts`,
-  `lib/radar-events.ts`, `lib/lab-events.ts` (trava de tracking intocada, critério de aceite 9).
+- 318A — novos: `src/lib/admin/analytics.ts` (+ `.test.ts`, 26 testes), `src/app/api/admin/
+  analytics/route.ts`, `src/app/(app)/admin/analytics/page.tsx`,
+  `src/components/admin/PainelAnalytics.tsx` + `src/components/admin/analytics/
+  {BlocoNumeros,BlocoFunil,BlocoOrigem,BlocoNotas}.tsx`. `vitest.config.ts` ganhou
+  `src/lib/admin/**/*.test.ts` no escopo (estava travado só em radar/lab desde 2026-07-06).
+- 318B — novo: `src/components/admin/AdminShell.tsx`. Alterados: `AppShell.tsx` (1 condição a
+  mais pra pular o chrome legado em `/admin/*`), as 3 `admin/*/page.tsx` (wrap em `AdminShell`),
+  `admin/assinantes/page.tsx` (JSX inteiro reestilizado, lógica intacta), `PainelConvitesLab.tsx`
+  e `PainelAnalytics.tsx` (removidos os links de navegação avulsos da sessão anterior — viraram
+  redundantes com as abas do `AdminShell`).
+- **398 testes verdes** (372 + 26 da 318A) · `tsc --noEmit` limpo em ambas as issues · lint dos
+  tocados zerado (1 `any` pré-existente em `AppShell.tsx`, fora do diff, débito já conhecido) ·
+  build verde (47 rotas) · `git diff --stat` confirma diff **zero** em `layout.tsx`,
+  `EmailGate.tsx`, `api/prediag/*`, `lib/analytics.ts`, `lib/radar-events.ts`,
+  `lib/lab-events.ts` nas duas issues.
 
 ### **🎯 PRÓXIMA SESSÃO:**
-1. **Dono valida a 318A em produção** (celular, sessão logada) — sem essa validação a issue
-   segue "código completo", não "concluída".
-2. **ISSUE-318A2** (Sonnet, mesma persona) — Blocos 4–6: segmentação de conteúdo (área, o que
-   dói, `mat_fronteira`) e pipeline do Lab, reusando a camada de dados desta fatia.
-3. **ISSUE-318B** — casca admin DS2 mobile + restyle do `/admin/assinantes`.
-4. Pendências herdadas: validações da ISSUE-318 em produção (GTM Preview, convite real, Tag
+1. **Dono valida a 318B em produção** (celular): editar/excluir assinante sem zoom nem scroll
+   lateral, selects legíveis, export LGPD (em `/privacidade`, fora do escopo desta issue) segue
+   intacto.
+2. **ISSUE-318A2** (Sonnet, persona Analytics & Ads) — Blocos 4–6: segmentação de conteúdo
+   (área, o que dói, `mat_fronteira`) e pipeline do Lab, reusando a camada de dados da 318A.
+3. Pendências herdadas: validações da ISSUE-318 em produção (GTM Preview, convite real, Tag
    Assistant) e os testes manuais acumulados (315 item 7, 314C, 314D).
 
 ---

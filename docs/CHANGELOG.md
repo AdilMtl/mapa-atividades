@@ -16,6 +16,41 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [v3.11.29] - 2026-07-30 - 🎨 Casca admin DS2 mobile + restyle `/admin/assinantes` (ISSUE-318B)
+
+### ✨ Adicionado
+- **`AdminShell`** — casca de navegação DS2 mobile-first das 3 telas de admin (abas Assinantes ·
+  Convites do Lab · Analytics), no mesmo padrão do `LabShell` do Lab. Substitui o sidebar legado
+  do produto ROI do Foco que essas telas herdavam do `AppShell` — era o "estilo antigo" que o
+  dono não conseguia usar no celular.
+
+### 🎨 Melhorado
+- **`/admin/assinantes` reestilizado para DS2** — a tabela CRUD de 6 colunas virou lista de
+  cards (mesmo ajuste da v3.11.28: colunas não cabem no celular nem com scroll interno); selects
+  de status/acesso/ordenação ganharam `colorScheme: 'dark'` + fundo explícito nas `<option>`,
+  resolvendo a regressão histórica de select ilegível (v3.2.0). **Zero mudança de lógica** —
+  todos os handlers, filtros/ordenação e chamadas à API foram preservados byte a byte; só o JSX
+  de apresentação mudou.
+- `AppShell.tsx` ganhou uma condição a mais para parar de desenhar o próprio chrome em
+  `/admin/*` (auth/gate do admin intactos — isso é só navegação visual).
+
+### 📊 Técnico
+- tsc limpo · lint dos tocados zerado (1 `any` pré-existente em `AppShell.tsx`, fora do diff) ·
+  398 testes verdes · build verde (47 rotas) · diff zero na trava de tracking.
+- **Issue parcial:** falta o dono validar em produção (celular) que dá pra editar/excluir um
+  assinante sem zoom nem scroll lateral.
+
+---
+
+## [v3.11.28] - 2026-07-30 - 🔧 Origem do tráfego em cards no celular (ajuste pós-teste da ISSUE-318A)
+
+### 🔧 Corrigido
+- **Tabela de origem do tráfego ilegível no celular** (achado do dono testando `/admin/analytics`
+  em produção): 5 colunas + UTM comprido não cabiam na tela mesmo com scroll interno próprio.
+  Trocada por uma lista de cards empilhados — mesmos dados, sem overflow horizontal.
+
+---
+
 ## [v3.11.27] - 2026-07-30 - 📊 Painel de Analytics do admin — Fatia A (ISSUE-318A)
 
 ### ✨ Adicionado

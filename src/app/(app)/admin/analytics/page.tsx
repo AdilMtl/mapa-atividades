@@ -1,5 +1,6 @@
 import { redirect } from 'next/navigation'
 
+import { AdminShell } from '@/components/admin/AdminShell'
 import { PainelAnalytics } from '@/components/admin/PainelAnalytics'
 import { exigirAdminSessao } from '@/lib/admin'
 
@@ -10,5 +11,9 @@ export default async function AdminAnalyticsPage() {
   const admin = await exigirAdminSessao()
   if (!admin) redirect('/dashboard')
 
-  return <PainelAnalytics />
+  return (
+    <AdminShell email={admin.email ?? ''}>
+      <PainelAnalytics />
+    </AdminShell>
+  )
 }

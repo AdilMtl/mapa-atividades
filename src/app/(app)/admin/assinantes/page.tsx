@@ -3,12 +3,13 @@ import { useState, useEffect } from 'react'
 import type { User } from '@supabase/supabase-js'
 import { supabase } from '@/lib/supabase'
 import { useRouter } from 'next/navigation'
-import { Input } from '@/components/ui/input'
-import { PageContainer, PageHeader } from '@/components/base'
 import {
   Users, Plus, Trash2, Edit, Check, X,
-  Search, RefreshCw, ArrowLeft
+  Search, RefreshCw
 } from 'lucide-react'
+
+import { AdminShell } from '@/components/admin/AdminShell'
+import { Badge, Button, Card, Eyebrow, PageContainer, SectionTitle } from '@/components/ds2'
 
 interface Assinante {
   id: string
@@ -22,6 +23,15 @@ conta_criada?: string
   tem_conta?: boolean
   total_atividades?: number
 }
+
+// Fundo escuro explícito nas <option> — o navegador renderiza o popup nativo
+// do <select> com o tema do SO por padrão; sem isso, texto claro em fundo
+// claro fica ilegível (regressão histórica conhecida, v3.2.0).
+const OPCAO_ESCURA = { backgroundColor: '#08110F', color: '#F8F0E6' }
+const CLASSE_SELECT =
+  'min-h-[44px] rounded-ds2-card border border-ds2-border-subtle bg-ds2-bg-app px-3 text-sm text-ds2-text-primary outline-none focus:border-ds2-orange/50'
+const CLASSE_INPUT =
+  'min-h-[44px] rounded-ds2-card border border-ds2-border-subtle bg-ds2-surface-glass px-4 text-base text-ds2-text-primary placeholder-ds2-text-muted outline-none focus:border-ds2-orange/50'
 
 export default function AdminAssinantesPage() {
   const [assinantes, setAssinantes] = useState<Assinante[]>([])
@@ -38,7 +48,7 @@ export default function AdminAssinantesPage() {
   const [filterStatus, setFilterStatus] = useState('todos')
   const [filterPeriodo, setFilterPeriodo] = useState('todos')
   const [sortBy, setSortBy] = useState('email')
-  
+
   const router = useRouter()
 
   useEffect(() => {
@@ -50,48 +60,48 @@ export default function AdminAssinantesPage() {
   const checkAdmin = async () => {
     const { data: { user } } = await supabase.auth.getUser()
     setCurrentUser(user)
-    
+
     if (!user || user.email !== 'adilson.matioli@gmail.com') {
       router.push('/dashboard')
       return
     }
-    
+
     setIsAdmin(true)
     loadAssinantes()
   }
 
   const loadAssinantes = async () => {
     setLoading(true)
-    
+
     const response = await fetch('/api/admin/assinantes', {
       headers: {
         'x-user-email': currentUser?.email || ''
       }
     })
     const data = await response.json()
-    
+
     if (data.assinantes) {
       setAssinantes(data.assinantes)
     }
-    
+
     setLoading(false)
   }
 
   const handleAdd = async () => {
     if (!newEmail || !newExpires) return
-    
+
     const response = await fetch('/api/admin/assinantes', {
       method: 'POST',
-      headers: { 
+      headers: {
         'Content-Type': 'application/json',
         'x-user-email': currentUser?.email || ''
       },
-      body: JSON.stringify({ 
+      body: JSON.stringify({
         email: newEmail,
-        expires_at: newExpires 
+        expires_at: newExpires
       })
     })
-    
+
     if (response.ok) {
       setNewEmail('')
       setNewExpires('')
@@ -103,17 +113,17 @@ export default function AdminAssinantesPage() {
   const handleUpdate = async (id: string) => {
   const response = await fetch('/api/admin/assinantes', {
     method: 'PUT',
-    headers: { 
+    headers: {
       'Content-Type': 'application/json',
       'x-user-email': currentUser?.email || ''
     },
-    body: JSON.stringify({ 
+    body: JSON.stringify({
       id,
       email: editEmail,
-      expires_at: editExpires 
+      expires_at: editExpires
     })
   })
-    
+
     if (response.ok) {
       setEditingId(null)
       loadAssinantes()
@@ -124,16 +134,16 @@ export default function AdminAssinantesPage() {
   // Confirmação mais amigável
   const confirmar = window.confirm(`Remover ${email} da lista de assinantes?`)
   if (!confirmar) return
-    
+
     const response = await fetch('/api/admin/assinantes', {
       method: 'DELETE',
-      headers: { 
+      headers: {
         'Content-Type': 'application/json',
         'x-user-email': currentUser?.email || ''
       },
       body: JSON.stringify({ id })
     })
-    
+
     if (response.ok) {
       loadAssinantes()
     }
@@ -142,19 +152,19 @@ export default function AdminAssinantesPage() {
   // Aplicar filtros e ordenação
 const getFilteredAndSorted = () => {
   let filtered = [...assinantes]
-  
+
   // Aplicar busca
   if (search) {
-    filtered = filtered.filter(a => 
+    filtered = filtered.filter(a =>
       a.email.toLowerCase().includes(search.toLowerCase())
     )
   }
-  
+
   // Aplicar filtro de status
   const hoje = new Date()
   switch (filterStatus) {
     case 'ativos':
-      filtered = filtered.filter(a => 
+      filtered = filtered.filter(a =>
         new Date(a.expires_at) >= hoje && a.tem_conta && a.email_confirmado
       )
       break
@@ -171,7 +181,7 @@ const getFilteredAndSorted = () => {
       filtered = filtered.filter(a => a.tem_conta && !a.email_confirmado)
       break
   }
-  
+
   // Aplicar filtro de período
   switch (filterPeriodo) {
     case 'hoje':
@@ -213,7 +223,7 @@ const getFilteredAndSorted = () => {
       filtered = filtered.filter(a => !a.ultimo_acesso)
       break
   }
-  
+
   // Aplicar ordenação
   switch (sortBy) {
     case 'email':
@@ -237,7 +247,7 @@ const getFilteredAndSorted = () => {
       filtered.sort((a, b) => (b.total_atividades || 0) - (a.total_atividades || 0))
       break
   }
-  
+
   return filtered
 }
 
@@ -249,319 +259,298 @@ const filteredAssinantes = getFilteredAndSorted()
 
   if (!isAdmin) return null
 
+  const formatarUltimoAcesso = (ultimoAcesso?: string) => {
+    if (!ultimoAcesso) return 'Nunca'
+    const data = new Date(ultimoAcesso)
+    const agora = new Date()
+    const diffHoras = (agora.getTime() - data.getTime()) / (1000 * 60 * 60)
+
+    if (diffHoras < 1) return 'Agora mesmo'
+    if (diffHoras < 24) return 'Hoje'
+    if (diffHoras < 48) return 'Ontem'
+    if (diffHoras < 168) return `${Math.floor(diffHoras / 24)} dias atrás`
+    return data.toLocaleDateString('pt-BR')
+  }
+
+  const getStatusBadge = (assinante: Assinante, expirado: boolean) => {
+    if (expirado) return <Badge className="border-red-400/30 text-red-400">expirado</Badge>
+    if (!assinante.tem_conta) return <Badge className="border-yellow-400/30 text-yellow-400">sem conta</Badge>
+    if (!assinante.email_confirmado)
+      return <Badge className="border-ds2-orange/30 text-ds2-orange">não confirmado</Badge>
+    return <Badge className="border-green-400/30 text-green-400">ativo</Badge>
+  }
+
   return (
-    <PageContainer>
-      <PageHeader
-        title="Gerenciar Assinantes"
-        subtitle={`${ativos} ativos • ${expirados} expirados • ${assinantes.length} total`}
-        icon={Users}
-        action={
-          <div className="flex gap-2">
-  <button
-    onClick={() => router.push('/dashboard')}
-    className="hidden sm:flex items-center gap-2 px-4 py-2 rounded-lg bg-white/5 border border-white/20 text-white hover:bg-white/10 transition-all"
-  >
-    <ArrowLeft className="w-4 h-4" />
-    Mapa
-  </button>
-  <button
-    onClick={() => router.push('/admin/lab-beta')}
-    className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white/5 border border-white/20 text-white hover:bg-white/10 transition-all"
-  >
-    Convites do Lab
-  </button>
-  <button
-    onClick={() => router.push('/admin/analytics')}
-    className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white/5 border border-white/20 text-white hover:bg-white/10 transition-all"
-  >
-    Analytics
-  </button>
-  <button
-    onClick={() => setShowAddForm(!showAddForm)} 
-    className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[#d97706] text-white hover:bg-[#d97706]/80 transition-all"
-  >
-    <Plus className="w-4 h-4" />
-    Adicionar
-  </button>
-  <button
-    onClick={loadAssinantes}
-    className="p-2 rounded-lg bg-white/5 border border-white/20 text-white hover:bg-white/10 transition-all"
-  >
-    <RefreshCw className="w-4 h-4" />
-  </button>
-</div>
-        }
-      />
-
-      <div className="space-y-6">
-
-       {/* Busca e Filtros */}
-<div className="space-y-4">
-  {/* Linha 1: Busca */}
-  <div className="relative">
-    <Search className="absolute left-3 top-3 w-5 h-5 text-white/40" />
-    <Input
-      placeholder="Buscar email..."
-      value={search}
-      onChange={(e) => setSearch(e.target.value)}
-      className="pl-10 bg-white/5 border-white/10 text-white placeholder-white/40"
-    />
-  </div>
-  
-  {/* Linha 2: Filtros */}
-  <div className="flex flex-wrap gap-3">
-    {/* Filtro Status */}
-<div className="flex items-center gap-2">
-  <label className="text-white/60 text-sm">Status:</label>
-  <select
-    value={filterStatus}
-    onChange={(e) => setFilterStatus(e.target.value)}
-    className="px-3 py-1.5 rounded-lg bg-black/40 border border-white/20 text-white text-sm focus:outline-none focus:border-white/30 hover:bg-black/60 cursor-pointer"
-    style={{ backgroundColor: 'rgba(0,0,0,0.6)' }}
-  >
-    <option value="todos" style={{ backgroundColor: '#1a1a1a' }}>Todos</option>
-    <option value="ativos" style={{ backgroundColor: '#1a1a1a' }}>✅ Ativos</option>
-    <option value="expirados" style={{ backgroundColor: '#1a1a1a' }}>❌ Expirados</option>
-    <option value="sem_conta" style={{ backgroundColor: '#1a1a1a' }}>⏸️ Sem conta</option>
-    <option value="com_conta" style={{ backgroundColor: '#1a1a1a' }}>👤 Com conta</option>
-    <option value="nao_confirmado" style={{ backgroundColor: '#1a1a1a' }}>📧 Não confirmado</option>
-  </select>
-</div>
-
-{/* Filtro Período */}
-<div className="flex items-center gap-2">
-  <label className="text-white/60 text-sm">Acesso:</label>
-  <select
-    value={filterPeriodo}
-    onChange={(e) => setFilterPeriodo(e.target.value)}
-    className="px-3 py-1.5 rounded-lg bg-black/40 border border-white/20 text-white text-sm focus:outline-none focus:border-white/30 hover:bg-black/60 cursor-pointer"
-    style={{ backgroundColor: 'rgba(0,0,0,0.6)' }}
-  >
-    <option value="todos" style={{ backgroundColor: '#1a1a1a' }}>Todos</option>
-    <option value="hoje" style={{ backgroundColor: '#1a1a1a' }}>Hoje</option>
-    <option value="semana" style={{ backgroundColor: '#1a1a1a' }}>Esta semana</option>
-    <option value="mes" style={{ backgroundColor: '#1a1a1a' }}>Este mês</option>
-    <option value="inativo_30" style={{ backgroundColor: '#1a1a1a' }}>Inativo 30+ dias</option>
-    <option value="inativo_60" style={{ backgroundColor: '#1a1a1a' }}>Inativo 60+ dias</option>
-    <option value="nunca" style={{ backgroundColor: '#1a1a1a' }}>Nunca acessou</option>
-  </select>
-</div>
-
-{/* Ordenação */}
-<div className="flex items-center gap-2">
-  <label className="text-white/60 text-sm">Ordenar:</label>
-  <select
-    value={sortBy}
-    onChange={(e) => setSortBy(e.target.value)}
-    className="px-3 py-1.5 rounded-lg bg-black/40 border border-white/20 text-white text-sm focus:outline-none focus:border-white/30 hover:bg-black/60 cursor-pointer"
-    style={{ backgroundColor: 'rgba(0,0,0,0.6)' }}
-  >
-    <option value="email" style={{ backgroundColor: '#1a1a1a' }}>Nome (A-Z)</option>
-    <option value="email_desc" style={{ backgroundColor: '#1a1a1a' }}>Nome (Z-A)</option>
-    <option value="expira" style={{ backgroundColor: '#1a1a1a' }}>Data expiração</option>
-    <option value="acesso" style={{ backgroundColor: '#1a1a1a' }}>Último acesso</option>
-    <option value="atividades" style={{ backgroundColor: '#1a1a1a' }}>Mais ativo</option>
-  </select>
-</div>
-
-{/* Botão limpar filtros */}
-{(filterStatus !== 'todos' || filterPeriodo !== 'todos' || search) && (
-  <button
-    onClick={() => {
-      setFilterStatus('todos')
-      setFilterPeriodo('todos')
-      setSearch('')
-    }}
-    className="px-3 py-1.5 rounded-lg bg-red-500/10 border border-red-500/30 text-red-400 text-sm hover:bg-red-500/20 transition-all flex items-center gap-1"
-  >
-    <X className="w-3 h-3" />
-    Limpar filtros
-  </button>
-)}
-
-    {/* Contador de resultados */}
-    <div className="flex items-center ml-auto">
-      <span className="text-white/40 text-sm">
-        {filteredAssinantes.length} de {assinantes.length} assinantes
-      </span>
-    </div>
-  </div>
-</div>
-
-        {/* Form Adicionar */}
-        {showAddForm && (
-          <div className="bg-white/5 backdrop-blur-lg rounded-xl p-6 border border-white/10">
-            <h3 className="font-semibold text-white mb-4">Adicionar Novo Assinante</h3>
-            <div className="flex gap-2">
-              <Input
-                placeholder="email@exemplo.com"
-                value={newEmail}
-                onChange={(e) => setNewEmail(e.target.value)}
-                className="bg-black/20 border-white/10 text-white"
-              />
-              <Input
-                type="date"
-                value={newExpires}
-                onChange={(e) => setNewExpires(e.target.value)}
-                className="bg-black/20 border-white/10 text-white"
-              />
-              <button
-  onClick={handleAdd} 
-  className="p-2 rounded-lg bg-green-600/20 border border-green-600/50 text-green-400 hover:bg-green-600/30 transition-all"
->
-  <Check className="w-4 h-4" />
-</button>
-<button
-  onClick={() => setShowAddForm(false)}
-  className="p-2 rounded-lg bg-white/5 border border-white/20 text-white hover:bg-white/10 transition-all"
->
-  <X className="w-4 h-4" />
-</button>
-            </div>
-          </div>
-        )}
-
-        {/* Tabela */}
-        <div className="bg-white/5 backdrop-blur-lg rounded-xl overflow-hidden border border-white/10">
-          {loading ? (
-            <div className="p-8 text-center text-white/60">Carregando...</div>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead className="bg-black/20 border-b border-white/10">
-  <tr>
-    <th className="text-left p-4 text-white/80 font-medium">Email</th>
-    <th className="text-left p-4 text-white/80 font-medium">Expira em</th>
-    <th className="text-left p-4 text-white/80 font-medium">Último Acesso</th>
-    <th className="text-left p-4 text-white/80 font-medium">Status</th>
-    <th className="text-left p-4 text-white/80 font-medium">Atividades</th>
-    <th className="text-left p-4 text-white/80 font-medium">Ações</th>
-  </tr>
-</thead>
-<tbody>
-  {filteredAssinantes.map(assinante => {
-    const expirado = new Date(assinante.expires_at) < hoje
-    const [ano, mes, dia] = assinante.expires_at.split('-')
-    const dataFormatada = `${dia}/${mes}/${ano}`
-    
-    // Formatar último acesso
-    const formatarUltimoAcesso = () => {
-      if (!assinante.ultimo_acesso) return 'Nunca'
-      const data = new Date(assinante.ultimo_acesso)
-      const agora = new Date()
-      const diffHoras = (agora.getTime() - data.getTime()) / (1000 * 60 * 60)
-      
-      if (diffHoras < 1) return 'Agora mesmo'
-      if (diffHoras < 24) return 'Hoje'
-      if (diffHoras < 48) return 'Ontem'
-      if (diffHoras < 168) return `${Math.floor(diffHoras / 24)} dias atrás`
-      return data.toLocaleDateString('pt-BR')
-    }
-    
-    // Determinar status
-    const getStatus = () => {
-      if (expirado) return <span className="text-red-400">❌ Expirado</span>
-      if (!assinante.tem_conta) return <span className="text-yellow-400">⏸️ Sem conta</span>
-      if (!assinante.email_confirmado) return <span className="text-orange-400">📧 Não confirmado</span>
-      return <span className="text-green-400">✅ Ativo</span>
-    }
-    
-    return (
-      <tr key={assinante.id} className="border-t border-white/5 hover:bg-white/5">
-        <td className="p-4">
-          {editingId === assinante.id ? (
-            <Input
-              type="email"
-              value={editEmail}
-              onChange={(e) => setEditEmail(e.target.value)}
-              className="bg-black/20 border-white/10 text-white w-full"
-            />
-          ) : (
+    <AdminShell email={currentUser?.email ?? ''}>
+      <div className="ds2-bg-ambient min-h-screen">
+        <PageContainer className="max-w-4xl space-y-8 pb-16 pt-8">
+          <div className="flex flex-wrap items-start justify-between gap-3">
             <div>
-              <span className="text-white/90">{assinante.email}</span>
-              {assinante.notes === 'Admin' && (
-                <span className="ml-2 text-xs px-2 py-0.5 bg-orange-500/20 text-orange-400 rounded">
-                  Admin
-                </span>
-              )}
+              <Eyebrow>admin · assinantes</Eyebrow>
+              <SectionTitle as="h1" className="mt-2 text-[28px] md:text-[36px]">
+                Assinantes
+              </SectionTitle>
+              <p className="mt-2 font-ds2-mono text-xs text-ds2-text-muted">
+                {ativos} ativos · {expirados} expirados · {assinantes.length} total
+              </p>
             </div>
-          )}
-        </td>
-        <td className="p-4">
-          {editingId === assinante.id ? (
-            <Input
-              type="date"
-              value={editExpires}
-              onChange={(e) => setEditExpires(e.target.value)}
-              className="bg-black/20 border-white/10 text-white w-40"
-            />
-          ) : (
-            <span className="text-white/90">{dataFormatada}</span>
-          )}
-        </td>
-        <td className="p-4 text-white/60 text-sm">
-          {formatarUltimoAcesso()}
-        </td>
-        <td className="p-4">
-          {getStatus()}
-        </td>
-        <td className="p-4 text-center">
-          {assinante.tem_conta ? (
-            <span className="text-white/60">{assinante.total_atividades || 0}</span>
-          ) : (
-            <span className="text-white/30">-</span>
-          )}
-        </td>
-        <td className="p-4">
-          <div className="flex gap-2">
-            {editingId === assinante.id ? (
-              <>
-                <button
-                  onClick={() => handleUpdate(assinante.id)}
-                  className="p-1.5 rounded-lg bg-green-600/20 border border-green-600/50 text-green-400 hover:bg-green-600/30 transition-all"
-                >
-                  <Check className="w-4 h-4" />
-                </button>
-                <button
-                  onClick={() => setEditingId(null)}
-                  className="p-1.5 rounded-lg bg-white/5 border border-white/20 text-white/80 hover:bg-white/10 transition-all"
-                >
-                  <X className="w-4 h-4" />
-                </button>
-              </>
-            ) : (
-              <>
-                <button
-                  onClick={() => {
-                    setEditingId(assinante.id)
-                    setEditEmail(assinante.email)
-                    setEditExpires(assinante.expires_at)
-                  }}
-                  className="p-1.5 rounded-lg bg-white/5 border border-white/20 text-white/80 hover:bg-white/10 hover:text-white transition-all"
-                  title="Editar"
-                >
-                  <Edit className="w-4 h-4" />
-                </button>
-                <button
-                  onClick={() => handleDelete(assinante.id, assinante.email)}
-                  className="p-1.5 rounded-lg bg-white/5 border border-red-400/30 text-red-400 hover:bg-red-400/10 hover:border-red-400/50 transition-all"
-                  title="Remover"
-                >
-                  <Trash2 className="w-4 h-4" />
-                </button>
-              </>
-            )}
+            <div className="flex gap-2">
+              <Button
+                type="button"
+                variant="primary"
+                className="py-2.5 text-xs"
+                onClick={() => setShowAddForm(!showAddForm)}
+              >
+                <Plus className="h-4 w-4" />
+                Adicionar
+              </Button>
+              <Button type="button" variant="secondary" className="px-3 py-2.5" onClick={loadAssinantes}>
+                <RefreshCw className="h-4 w-4" />
+              </Button>
+            </div>
           </div>
-        </td>
-      </tr>
-    )
-  })}
-</tbody>
-              </table>
+
+          {/* Busca */}
+          <div className="relative">
+            <Search className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-ds2-text-muted" />
+            <input
+              type="text"
+              placeholder="Buscar email..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              aria-label="Buscar email"
+              className={`${CLASSE_INPUT} w-full pl-10`}
+            />
+          </div>
+
+          {/* Filtros */}
+          <div className="flex flex-wrap items-center gap-3">
+            <label className="flex items-center gap-2 font-ds2-mono text-xs text-ds2-text-muted">
+              status
+              <select
+                value={filterStatus}
+                onChange={(e) => setFilterStatus(e.target.value)}
+                style={{ colorScheme: 'dark' }}
+                className={CLASSE_SELECT}
+              >
+                <option value="todos" style={OPCAO_ESCURA}>Todos</option>
+                <option value="ativos" style={OPCAO_ESCURA}>Ativos</option>
+                <option value="expirados" style={OPCAO_ESCURA}>Expirados</option>
+                <option value="sem_conta" style={OPCAO_ESCURA}>Sem conta</option>
+                <option value="com_conta" style={OPCAO_ESCURA}>Com conta</option>
+                <option value="nao_confirmado" style={OPCAO_ESCURA}>Não confirmado</option>
+              </select>
+            </label>
+
+            <label className="flex items-center gap-2 font-ds2-mono text-xs text-ds2-text-muted">
+              acesso
+              <select
+                value={filterPeriodo}
+                onChange={(e) => setFilterPeriodo(e.target.value)}
+                style={{ colorScheme: 'dark' }}
+                className={CLASSE_SELECT}
+              >
+                <option value="todos" style={OPCAO_ESCURA}>Todos</option>
+                <option value="hoje" style={OPCAO_ESCURA}>Hoje</option>
+                <option value="semana" style={OPCAO_ESCURA}>Esta semana</option>
+                <option value="mes" style={OPCAO_ESCURA}>Este mês</option>
+                <option value="inativo_30" style={OPCAO_ESCURA}>Inativo 30+ dias</option>
+                <option value="inativo_60" style={OPCAO_ESCURA}>Inativo 60+ dias</option>
+                <option value="nunca" style={OPCAO_ESCURA}>Nunca acessou</option>
+              </select>
+            </label>
+
+            <label className="flex items-center gap-2 font-ds2-mono text-xs text-ds2-text-muted">
+              ordenar
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value)}
+                style={{ colorScheme: 'dark' }}
+                className={CLASSE_SELECT}
+              >
+                <option value="email" style={OPCAO_ESCURA}>Nome (A-Z)</option>
+                <option value="email_desc" style={OPCAO_ESCURA}>Nome (Z-A)</option>
+                <option value="expira" style={OPCAO_ESCURA}>Data expiração</option>
+                <option value="acesso" style={OPCAO_ESCURA}>Último acesso</option>
+                <option value="atividades" style={OPCAO_ESCURA}>Mais ativo</option>
+              </select>
+            </label>
+
+            {(filterStatus !== 'todos' || filterPeriodo !== 'todos' || search) && (
+              <button
+                type="button"
+                onClick={() => {
+                  setFilterStatus('todos')
+                  setFilterPeriodo('todos')
+                  setSearch('')
+                }}
+                className="flex min-h-[44px] items-center gap-1.5 rounded-ds2-pill border border-red-400/30 px-3 font-ds2-mono text-xs text-red-400 hover:bg-red-400/10"
+              >
+                <X className="h-3.5 w-3.5" />
+                Limpar filtros
+              </button>
+            )}
+
+            <span className="ml-auto font-ds2-mono text-xs text-ds2-text-muted">
+              {filteredAssinantes.length} de {assinantes.length}
+            </span>
+          </div>
+
+          {/* Form adicionar */}
+          {showAddForm && (
+            <Card className="space-y-3">
+              <p className="font-ds2-sans text-sm font-medium text-ds2-text-primary">
+                Adicionar novo assinante
+              </p>
+              <div className="flex flex-col gap-2 md:flex-row">
+                <input
+                  type="email"
+                  placeholder="email@exemplo.com"
+                  value={newEmail}
+                  onChange={(e) => setNewEmail(e.target.value)}
+                  aria-label="E-mail do novo assinante"
+                  className={`${CLASSE_INPUT} flex-1`}
+                />
+                <input
+                  type="date"
+                  value={newExpires}
+                  onChange={(e) => setNewExpires(e.target.value)}
+                  aria-label="Data de expiração"
+                  className={CLASSE_INPUT}
+                />
+                <div className="flex gap-2">
+                  <Button type="button" variant="primary" className="px-3.5 py-2.5" onClick={handleAdd}>
+                    <Check className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    className="px-3.5 py-2.5"
+                    onClick={() => setShowAddForm(false)}
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+            </Card>
+          )}
+
+          {/* Lista — cards, não tabela (mesmo achado da 318A: 6 colunas não cabem
+              no celular nem com scroll interno; cards empilham sem overflow). */}
+          {loading ? (
+            <Card>
+              <p className="font-ds2-sans text-sm text-ds2-text-muted">Carregando…</p>
+            </Card>
+          ) : filteredAssinantes.length === 0 ? (
+            <Card>
+              <p className="flex items-center gap-2 font-ds2-sans text-sm text-ds2-text-muted">
+                <Users className="h-4 w-4" /> Nenhum assinante encontrado.
+              </p>
+            </Card>
+          ) : (
+            <div className="space-y-2">
+              {filteredAssinantes.map((assinante) => {
+                const expirado = new Date(assinante.expires_at) < hoje
+                const [ano, mes, dia] = assinante.expires_at.split('-')
+                const dataFormatada = `${dia}/${mes}/${ano}`
+                const editando = editingId === assinante.id
+
+                return (
+                  <Card key={assinante.id} className="space-y-2.5">
+                    <div className="flex flex-wrap items-start justify-between gap-2">
+                      <div className="min-w-0 flex-1 space-y-1">
+                        {editando ? (
+                          <input
+                            type="email"
+                            value={editEmail}
+                            onChange={(e) => setEditEmail(e.target.value)}
+                            aria-label="Editar e-mail"
+                            className={`${CLASSE_INPUT} w-full`}
+                          />
+                        ) : (
+                          <p className="flex flex-wrap items-center gap-2 font-ds2-sans text-sm font-medium text-ds2-text-primary">
+                            {assinante.email}
+                            {assinante.notes === 'Admin' && (
+                              <Badge className="border-ds2-orange/30 text-ds2-orange">admin</Badge>
+                            )}
+                          </p>
+                        )}
+                        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 font-ds2-mono text-[11px] text-ds2-text-muted">
+                          {getStatusBadge(assinante, expirado)}
+                          <span>
+                            expira:{' '}
+                            {editando ? (
+                              <input
+                                type="date"
+                                value={editExpires}
+                                onChange={(e) => setEditExpires(e.target.value)}
+                                aria-label="Editar data de expiração"
+                                className="ml-1 min-h-[36px] rounded-ds2-card border border-ds2-border-subtle bg-ds2-surface-glass px-2 text-xs text-ds2-text-primary outline-none"
+                              />
+                            ) : (
+                              dataFormatada
+                            )}
+                          </span>
+                          <span>último acesso: {formatarUltimoAcesso(assinante.ultimo_acesso)}</span>
+                          <span>
+                            atividades: {assinante.tem_conta ? assinante.total_atividades || 0 : '—'}
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="flex gap-1.5">
+                        {editando ? (
+                          <>
+                            <button
+                              type="button"
+                              onClick={() => handleUpdate(assinante.id)}
+                              aria-label="Salvar"
+                              className="flex h-11 w-11 items-center justify-center rounded-ds2-pill border border-green-600/40 text-green-400 hover:bg-green-600/10"
+                            >
+                              <Check className="h-4 w-4" />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => setEditingId(null)}
+                              aria-label="Cancelar edição"
+                              className="flex h-11 w-11 items-center justify-center rounded-ds2-pill border border-ds2-border-subtle text-ds2-text-secondary hover:bg-white/5"
+                            >
+                              <X className="h-4 w-4" />
+                            </button>
+                          </>
+                        ) : (
+                          <>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setEditingId(assinante.id)
+                                setEditEmail(assinante.email)
+                                setEditExpires(assinante.expires_at)
+                              }}
+                              aria-label="Editar assinante"
+                              className="flex h-11 w-11 items-center justify-center rounded-ds2-pill border border-ds2-border-subtle text-ds2-text-secondary hover:bg-white/5"
+                            >
+                              <Edit className="h-4 w-4" />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => handleDelete(assinante.id, assinante.email)}
+                              aria-label="Remover assinante"
+                              className="flex h-11 w-11 items-center justify-center rounded-ds2-pill border border-red-400/30 text-red-400 hover:bg-red-400/10"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </button>
+                          </>
+                        )}
+                      </div>
+                    </div>
+                  </Card>
+                )
+              })}
             </div>
           )}
-        </div>
+        </PageContainer>
       </div>
-    </PageContainer>
+    </AdminShell>
   )
 }

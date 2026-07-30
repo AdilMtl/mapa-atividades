@@ -1,5 +1,6 @@
 import { redirect } from 'next/navigation'
 
+import { AdminShell } from '@/components/admin/AdminShell'
 import { PainelConvitesLab } from '@/components/admin/PainelConvitesLab'
 import { exigirAdminSessao } from '@/lib/admin'
 
@@ -10,5 +11,9 @@ export default async function AdminLabBetaPage() {
   const admin = await exigirAdminSessao()
   if (!admin) redirect('/dashboard')
 
-  return <PainelConvitesLab />
+  return (
+    <AdminShell email={admin.email ?? ''}>
+      <PainelConvitesLab />
+    </AdminShell>
+  )
 }
