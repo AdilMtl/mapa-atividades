@@ -1326,13 +1326,171 @@ ar"; doc da rotina de convite (`lab_leads` → `authorized_emails` `plan_type='l
 Resend). **⚠️ Toca página pública — revalidar conversão GTM/Ads antes de commitar.**
 **Dep.:** 313–315.
 
+## ISSUE-318A — Painel de Analytics do admin (funil + aquisição) — Fatia A
+**Status:** ⬜ spec fechada em 2026-07-29 (`ISSUE-318A-spec-analytics-admin.md`), execução não
+iniciada. **Ler a spec inteira antes de codar** — as 4 decisões do dono estão travadas lá.
+**Tipo:** Analytics/Frontend · **Prioridade:** Alta · **Complexidade:** Média
+**Modelo:** Sonnet com **persona Analytics & Ads**. ⚠️ *Não* é Fable 5, e o motivo importa: a
+regra da 318 ("qualquer issue que mexa em tracking pede a persona dedicada, sem exceção") vale
+para quem **escreve** no tracking. Esta issue só **lê** — diff obrigatoriamente vazio em
+`layout.tsx`, `EmailGate`, `api/prediag/*` e nos módulos de evento (critério de aceite 9, §4.4
+da spec). A spec já fechou as decisões de produto e de método.
+**Objetivo:** o dono passa a ver, no celular, de onde vêm as pessoas que TERMINAM um radar e onde
+o funil vaza — hoje ele não tem estatística nenhuma do próprio funil (e o Grafana provavelmente
+está morto desde a migração do Supabase, ver §3.5 da spec).
+**Escopo incluído:** `/admin/analytics` (Server Component + `exigirAdminSessao`), rota
+`GET /api/admin/analytics` (service_role local, somente leitura, zero PII na resposta), camada
+`src/lib/admin/analytics.ts` com agregações **puras e testadas** (vitest), e os Blocos 1, 2, 3 e 7
+da spec: números da janela · funil dos radares por `kind` · origem do tráfego (UTM × conclusão ×
+lead) · notas de leitura. Controles de janela (7/28/90/tudo), data de corte e exclusão do
+tráfego de teste do dono.
+**Escopo excluído:** SQL/view/tabela nova (decisão §4.1 — agregação em TS, `radar_events` só por
+`count: 'exact', head: true`); qualquer evento novo (decisão 3 do dono); GA4 Data API; restyle do
+`/admin/assinantes` (318B); Blocos 4–6 (318A2).
+**Dependências:** ISSUE-318 (gate admin server-side + `lib/admin.ts` já entregues).
+**Critérios de aceite:** os 10 da §7 da spec. Os que mais pegam: **todo percentual sai com o N
+absoluto ao lado**; número vindo de `radar_events` marcado como direcional; lead contado por
+e-mail distinto (`radar_leads` não tem UNIQUE em email — `COUNT(*)` é bug de análise); API sem
+sessão de admin devolve 401/403 e nunca vaza e-mail/nome/IP.
+**Riscos:** (a) teto de 1000 linhas do client JS subcontando **em silêncio** — mitigação na §4.1
+(cap explícito + flag `amostraTruncada` na resposta); (b) painel bonito que induz decisão de Ads
+com N=3 — mitigação é o Bloco 7 entrar já nesta fatia, não depois.
+
+## ISSUE-318A2 — Painel de Analytics: segmentação de conteúdo + pipeline do Lab — Fatia B
+**Status:** ⬜ speccada junto da 318A (§5, Blocos 4–6). Executar depois da Fatia A.
+**Tipo:** Analytics/Frontend · **Prioridade:** Média · **Complexidade:** Baixa-média
+**Modelo:** Sonnet — reusa a camada de dados e o padrão de UI da Fatia A.
+**Objetivo:** transformar o dado de segmentação em pauta: qual conteúdo escrever e onde o Lab
+trava. **Não temos demografia** (nada de idade/gênero/cidade) — temos segmentação profissional
+autodeclarada, que serve melhor (tabela completa na §2.3 da spec).
+**Escopo incluído:** Bloco 4 (área de atuação · nível de maturidade · tipo recomendado),
+Bloco 5 (top 5 de `op_perda`, `op_entrega` e **`mat_fronteira` — o sinal editorial mais direto do
+banco** + matriz área × tipo com N ≥ 2), Bloco 6 (funil do Lab de interesse até concluído, com
+`lab_plan_generated` como métrica norte, progressão média do checklist, guias mais abertos por
+`slug` e **dropout por fase da Caminhada** via `lab_step_completed.fase_id`).
+**Escopo excluído:** o mesmo da 318A + qualquer texto livre de usuário na tela
+(`biggest_bottleneck` é conteúdo de pessoa identificável em agregado pequeno — fora).
+**Dependências:** 318A (camada de dados e casca).
+**Critérios de aceite:** mesmos princípios da 318A (N ao lado da taxa, exato × direcional);
+matriz área × tipo não renderiza célula com N < 2; dono consegue nomear, olhando a tela, o tema
+da próxima conversa da newsletter.
+**Riscos:** cruzamento com N pequeno virar leitura de borra de café — o corte de N ≥ 2 e as notas
+do Bloco 7 são a mitigação; se o volume não sustentar a matriz, ela some em vez de mentir.
+
+## ISSUE-318B — Casca admin DS2 mobile + restyle `/admin/assinantes`
+**Status:** ⬜ registrada em 2026-07-29 a pedido do dono ("não consigo acessar a aba de Admin no
+celular direito, está no estilo antigo").
+**Tipo:** UI/Frontend · **Prioridade:** Média · **Complexidade:** Média
+**Modelo:** Sonnet — conversão visual mecânica sob o mapa de tokens do `08_diretrizes_visuais_ds2.md`
+§5, com as proibições do §6.
+**Diagnóstico já feito:** `src/app/(app)/admin/assinantes/page.tsx` tem 560 linhas em estilo
+legado (é a tela que o dono não consegue usar no celular), enquanto `PainelConvitesLab` já nasceu
+DS2. As três telas de admin não têm navegação própria — hoje herdam o AppShell legado do grupo
+`(app)`.
+**Escopo incluído:** casca de navegação admin em DS2, mobile-first, com abas
+**Assinantes · Convites do Lab · Analytics**; restyle do `/admin/assinantes` (tabela CRUD com
+scroll interno próprio, touch ≥ 44px); **selects/dropdowns com fundo escuro legível** — regressão
+histórica conhecida (v3.2.0).
+**Escopo excluído:** ⚠️ **restyle é 100% visual** — proibido alterar lógica, estado, rotas de API,
+props ou o CRUD de `authorized_emails`. Se estilizar "exigir" refatorar lógica, PARA e registra
+(mesma regra de ouro das issues 114–120). Nada de mexer no gate de admin já corrigido na 318.
+**Dependências:** 318A (a aba Analytics precisa existir para entrar na casca).
+**Critérios de aceite:** dono edita/exclui um assinante **pelo celular** sem zoom nem scroll
+lateral; export LGPD segue funcionando; selects legíveis; screenshots antes/depois; `tsc`/lint/
+build verdes.
+**Riscos:** tocar sem querer na lógica do CRUD ou no gate de sessão — o diff deve mostrar só
+apresentação.
+
+## ISSUE-318C — Fechar os furos de instrumentação do funil (pageview, dropout, views/Grafana)
+**Status:** ⬜ registrada em 2026-07-29. **Vetada para AGORA pelo dono** (decisão 3 da spec da
+318A: "nada novo agora") — fica mapeada para não se perder.
+**Tipo:** Analytics · **Prioridade:** Média · **Complexidade:** Média
+**Modelo:** **Fable 5 (persona Analytics & Ads) — sem exceção.** Diferente da 318A, esta issue
+**escreve** no tracking e toca página pública: cai integralmente na trava do `CLAUDE.md`.
+**Objetivo:** eliminar os dois pontos cegos que a 318A é obrigada a declarar na tela:
+1. **Sem evento de pageview** no nosso banco → não existe topo de funil in-house; "visitante →
+   começou radar" é incalculável sem o GA4.
+2. **Sem dropout por pergunta no radar** → `radar_sessions.answers` só é gravado no PATCH final,
+   então abandono na pergunta 1 e na pergunta 7 são indistinguíveis. (No Lab isso já é
+   mensurável: `lab_step_completed` carrega `fase_id`.)
+**Escopo a avaliar na abertura:** evento `page_viewed` (ou pageview via GTM espelhado no
+Supabase); evento por pergunta respondida **ou** PATCH incremental de `answers` — decidir qual
+custa menos volume em `radar_events`.
+**Já resolvido fora desta issue (não reabrir):** o **Grafana está morto e será aposentado**
+(confirmado pelo dono em 2026-07-29 — "não vejo nada"; o data source aponta pro ref antigo
+`ghscflemhgrbfflmxqbk`). Não há views `vw_*` novas a criar: o painel da 318A é o substituto, e as
+7 views atuais (só `roi_*`) ficam sem consumidor. Ver §3.5 da spec da 318A.
+**Dependências:** 318A no ar (para saber, com uso real, qual furo dói de verdade).
+**Riscos:** toca o funil que converte — revalidar o disparo de conversão Google Ads antes de
+commitar; volume de linhas em `radar_events` (pageview é o evento mais frequente que existe).
+
+## ISSUE-318D — Captura de feedback (tabela + rota pública + widget)
+**Status:** ⬜ spec fechada em 2026-07-29 (`ISSUE-318D-spec-feedback.md`). **Ler a spec inteira
+antes de codar** — as 4 decisões do dono e a lista de rotas suprimidas estão travadas lá.
+**Tipo:** Backend/Frontend/Segurança · **Prioridade:** Alta · **Complexidade:** Média
+**Modelo:** **Fable 5 revisa o SQL/RLS + Sonnet implementa** — mesmo arranjo da ISSUE-106, e pelo
+mesmo motivo: é uma tabela nova que recebe **texto livre de qualquer visitante da internet** e
+guarda `user_id` + IP. Política mal escrita aqui é a classe do incidente `roi_leads` (v3.5.3) com
+dado pessoal dentro. ⚠️ Injeta componente em página pública → **aciona a trava do `CLAUDE.md`**:
+revalidar o disparo de conversão Ads antes de commitar.
+**Objetivo:** o dono (e qualquer usuário) registra feedback estruturado no momento do achado, com
+**contexto capturado automaticamente** — rota, viewport, device, versão do deploy. É o contexto
+que dá valor, não o formulário: hoje o achado do teste manual dele vira nota solta e chega até
+mim por transcrição.
+**Escopo incluído:** SQL da tabela `feedback` (RLS + zero políticas + `REVOKE ALL`, entregue como
+doc pro dono rodar — padrão da casa); `POST /api/feedback` pública com honeypot, rate limit 5/h/IP,
+validação estrita e vocabulário fechado; widget FAB (tipo → severidade → mensagem → e-mail
+opcional) montado em `(app)/layout.tsx`, `(lab)/lab/layout.tsx` e num
+**`src/app/(publico)/layout.tsx` NOVO** — o grupo não tem layout hoje (verificado), então o FAB
+chega nas páginas públicas com **diff zero no `layout.tsx` raiz**.
+**Escopo excluído:** painel de triagem e export markdown (318E); anexo de screenshot (exige
+Storage); notificação de feedback novo; votação. **`user_id` NUNCA vem do body** — só da sessão
+validada no servidor (é a falha corrigida na 318). Campos de triagem (`status`, `notas_admin`,
+`issue_ref`) são inalcançáveis pela rota pública.
+**Decisão de CRO registrada (§3 da spec):** o FAB **não** aparece no fluxo de pergunta dos
+radares, no gate de e-mail, no `/pre-diagnostico` nem no `/auth` — o dono autorizou "todo lugar" e
+eu suprimi os dois metros quadrados onde o dinheiro do Ads vira lead. Reversível em uma string.
+**Dependências:** nenhuma dura (318 entregou o `lib/admin.ts`).
+**Critérios de aceite:** os 11 da §8 da spec. Os que mais pegam: forjar `user_id` por `curl` é
+ignorado; honeypot grava zero linha; chave `anon` na tabela → `42501`; `git diff --stat` limpo nos
+arquivos da trava; conversão revalidada no Tag Assistant.
+**Riscos:** spam em endpoint público de texto livre; PII escrita na mensagem pela própria pessoa
+(mitigação: tabela travada + linha nova na `/privacidade` declarando a coleta); FAB cobrindo CTA
+no mobile.
+> ⚠️ **Copy pendente de propósito:** label do FAB e textos do formulário são voz de marca e não
+> estão na spec. Escrever só depois de ler os guias de voz do dono (fora do repo) ou submeter ao
+> veto dele. Vetos válidos: sem travessão de aparte ("cara de IA"), sem meta-referência.
+
+## ISSUE-318E — Painel de triagem de feedback + export markdown
+**Status:** ⬜ speccada junto da 318D (§6.2 e §6.3). Executar depois da 318D e da 318B.
+**Tipo:** Frontend/Admin · **Prioridade:** Média · **Complexidade:** Baixa-média
+**Modelo:** Sonnet — spec fechada, inclusive o formato do markdown (contrato, não improviso).
+**Objetivo:** fechar o ciclo que o dono pediu: "eu puxo essa lista e a gente vai executando, em
+paralelo com o plano original". O inbox é a fila **reativa** (achados de uso real); o
+`04_issue_backlog.md` segue sendo a fila **planejada**; o campo `issue_ref` é a costura entre as
+duas — e é o que impede o inbox de virar um segundo backlog concorrente.
+**Escopo incluído:** aba **Feedback** na casca admin; fila por status (default `novo`) com
+contadores por tipo; card com rota/device/viewport/versão do deploy em mono; ações inline de
+status, nota de triagem e `issue_ref`; **botão "copiar como markdown"** (item ou fila inteira) no
+formato exato do §6.2; `GET`/`PATCH /api/admin/feedback` com gate `exigirAdminSessao()`.
+**Escopo excluído:** `DELETE` (descartar é `status='descartado'` — histórico não se apaga);
+edição de `mensagem`/`contexto`/`user_id` (o registro original é evidência, imutável por design);
+GitHub Issues (avaliado e descartado, §2.1 da spec).
+**Dependências:** 318D (dado), 318B (casca de navegação admin).
+**Critérios de aceite:** os 6 da §8 da spec. Destaques: `PATCH` não consegue alterar a mensagem
+original (com teste provando); export bate o formato do §6.2 por **teste de snapshot**; fila
+utilizável no celular.
+**Riscos:** baixo — é leitura + triagem sobre dado já capturado.
+
 ## ISSUE-319 — Gate de QA da Fase 1A
 **Tipo:** QA · **Prioridade:** Alta · **Complexidade:** Média
 **Modelo:** Fable 5 + dono (dispositivos reais) — papel de "QA final cético e gate de launch",
 mesmo critério da ISSUE-112.
 Critérios do §9 do doc 13: jornada completa <10min no celular, RLS com 2 contas, Lighthouse
 ≥85 nas rotas novas, funis públicos revalidados, métrica norte ("projetos que chegam a plano")
-mensurável. **Dep.:** 310–318.
+mensurável. **Dep.:** 310–318 **+ 318A** (decisão do dono em 2026-07-29: o gate roda depois do
+painel de Analytics — o critério "métrica norte mensurável" fica trivial de verificar quando o
+`lab_plan_generated` já aparece contado numa tela, em vez de precisar de SQL manual no gate).
 
 ### Fase 1B — IA controlada (OpenAI, modelo barato — decisão pergunta 14)
 

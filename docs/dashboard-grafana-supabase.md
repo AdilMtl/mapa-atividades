@@ -1,3 +1,17 @@
+> # ⚠️ DOCUMENTO HISTÓRICO — NÃO USAR COMO GUIA
+>
+> **Aposentado em 2026-07-29 por decisão do dono.** Este dashboard **não funciona mais**: o data
+> source abaixo aponta para o projeto Supabase `ghscflemhgrbfflmxqbk`, que foi pausado por
+> inatividade e migrado em julho/2026 (ver `CHANGELOG` v3.5.2). O dono confirmou que não vê
+> nenhum dado no Grafana — "deu trabalho configurar e não me mostra muita coisa".
+>
+> **Substituto:** painel de Analytics dentro do próprio admin (`/admin/analytics`) —
+> ISSUE-318A, spec em `revamp/ISSUE-318A-spec-analytics-admin.md`.
+>
+> **Não reconectar.** As 7 views `vw_*` que alimentavam este dashboard cobrem apenas o funil
+> legado `roi_*` (`/pre-diagnostico`), que o dono também vai aposentar (ISSUE-207). Mantido no
+> repo só como registro do que existiu.
+
 # 📊 Dashboard Grafana - Supabase Analytics
 
 ## 📋 Visão Geral

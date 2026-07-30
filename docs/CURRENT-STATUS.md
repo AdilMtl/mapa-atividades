@@ -8,7 +8,67 @@
 
 ---
 
-## 🎯 SESSÃO ATUAL: Analytics do Lab + vitrine beta + painel de convites (ISSUE-318)
+## 🎯 SESSÃO ATUAL: Spec do painel de Analytics + sistema de feedback (318A–318E)
+**Data:** 30 de julho de 2026
+**Versão:** v3.11.26 (sem bump — sessão de análise e planejamento, zero código)
+**Status:** ✅ specs fechadas e 6 issues registradas no backlog. Execução começa na próxima sessão.
+
+### **🚀 O QUE FOI FEITO:**
+
+1. **Auditoria do que o projeto realmente mede.** Levantamento tabela a tabela no código (não
+   presumido): 3 funis gravando em paralelo (`roi_*` legado, `radar_*` novo, `lab_*`), 29 nomes de
+   evento, e a segmentação disponível. **Correção de premissa:** não temos demografia (idade,
+   gênero, cidade) — temos segmentação profissional autodeclarada (área, entrega, onde perde
+   tempo, fluência, `mat_fronteira`), que serve melhor à decisão de conteúdo.
+2. **Dois pontos cegos confirmados e declarados:** não existe evento de pageview (logo, **não há
+   topo de funil** no nosso banco) e o `answers` só é gravado no PATCH final (logo, **não há
+   dropout por pergunta** no radar). O dono vetou instrumentação nova por ora → registrado como
+   ISSUE-318C. **Achado que compensa:** no Lab o dropout por fase É mensurável hoje —
+   `lab_step_completed` carrega `fase_id`.
+3. **Grafana aposentado.** Confirmado pelo dono que não vê dado nenhum — o data source aponta pro
+   ref antigo `ghscflemhgrbfflmxqbk`, pausado e migrado em julho (v3.5.2). `dashboard-grafana-
+   supabase.md` e `views-analytics-supabase.md` receberam cabeçalho de **documento histórico**.
+4. **Funil legado fora de escopo por decisão do dono** ("nem uso, vou aposentar"). Verificado no
+   código que isso **não derruba a conversão do Ads**: a ISSUE-103 já replicou o disparo no lead
+   do radar de oportunidades, no mesmo label `AW-16601345592/0K0dCMm6oo4bELjckew9`. Reforça a
+   ISSUE-207.
+5. **Spec do painel de Analytics** (`ISSUE-318A-spec-analytics-admin.md`): 7 blocos, agregação em
+   TypeScript sem SQL novo (com o gatilho de migração pra views registrado), funil medido por
+   tabela e não por evento, e as armadilhas metodológicas tratadas — tráfego de teste do dono
+   dentro do dado, `radar_leads` sem UNIQUE em email (`COUNT(*)` é bug de análise), exato ×
+   direcional, taxa sempre com N ao lado.
+6. **Spec do sistema de feedback** (`ISSUE-318D-spec-feedback.md`): captura pública com contexto
+   automático (rota, viewport, device, SHA do deploy), tabela `feedback` travada no padrão
+   106/310, painel de triagem e **export markdown** como ponte até o repo. O `issue_ref` costura o
+   inbox reativo ao `04_issue_backlog.md` planejado.
+
+### **📊 TÉCNICO:**
+- Novos: `docs/revamp/ISSUE-318A-spec-analytics-admin.md`,
+  `docs/revamp/ISSUE-318D-spec-feedback.md`.
+- Alterados: `04_issue_backlog.md` (+6 issues), `dashboard-grafana-supabase.md`,
+  `views-analytics-supabase.md` (cabeçalhos de documento histórico).
+- **Zero arquivo de `src/`** — sessão de análise e spec. Sem bump de versão, sem entrada de
+  CHANGELOG (nada foi entregue ao usuário final).
+
+### **🎯 PRÓXIMA SESSÃO:**
+Começa a execução da série nova. Ordem sugerida e o que cada uma destrava:
+1. **ISSUE-318A** (Sonnet, persona Analytics & Ads) — o painel que substitui o Grafana. É o que
+   destrava a decisão de Ads. **Não é Fable** porque só LÊ tracking; critério de aceite 9 exige
+   `git diff --stat` limpo nos arquivos da trava.
+2. **318A2** → segmentação de conteúdo + pipeline do Lab.
+3. **318B** → casca admin DS2 mobile + restyle do `/admin/assinantes` (a tela que o dono não
+   consegue usar no celular).
+4. **318D** (Fable revisa RLS + Sonnet implementa) → captura de feedback. Toca página pública →
+   revalidar conversão antes de commitar. **Copy do widget pendente** — ler os guias de voz antes.
+5. **318E** → triagem + export markdown.
+6. **319** → gate de QA da Fase 1A, agora depois do painel.
+
+Pendências herdadas: validações da ISSUE-318 em produção (GTM Preview, convite real, Tag
+Assistant) e os testes manuais acumulados (315 item 7, 314C, 314D).
+
+---
+
+## 📋 SESSÃO ANTERIOR: Analytics do Lab + vitrine beta + painel de convites (ISSUE-318)
 **Data:** 29 de julho de 2026
 **Versão:** v3.11.26 (v3.11.25 + correção pós-teste)
 **Status:** ✅ código completo e validado (tsc/lint tocados/build 45 rotas/372 testes) —

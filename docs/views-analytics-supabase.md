@@ -1,3 +1,16 @@
+> # ⚠️ DOCUMENTO HISTÓRICO — sem consumidor desde 2026-07-29
+>
+> As 7 views `vw_*` descritas aqui **continuam existindo no banco**, mas ficaram **sem
+> consumidor**: o dashboard Grafana que as usava foi aposentado
+> (ver `dashboard-grafana-supabase.md`), e elas cobrem **apenas o funil legado**
+> (`roi_prediag_sessions`, `roi_leads`, `roi_events`) — que o dono também vai aposentar
+> (ISSUE-207). Não existe view para os radares nem para o Lab, e **não se deve criar**: o painel
+> `/admin/analytics` (ISSUE-318A) agrega em TypeScript, por decisão registrada na §4.1 da spec.
+>
+> **O que ainda vale deste doc:** a seção sobre `security_invoker = true` documenta uma regra
+> real da casa (toda view nova do projeto precisa dela) e o histórico da falha com
+> `CREATE OR REPLACE VIEW` mantendo `SECURITY DEFINER`. Isso segue válido.
+
 # 📊 Views Analytics - Supabase Dashboard
 
 ## 📋 Visão Geral
