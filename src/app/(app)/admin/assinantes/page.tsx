@@ -5,7 +5,7 @@ import { supabase } from '@/lib/supabase'
 import { useRouter } from 'next/navigation'
 import {
   Users, Plus, Trash2, Edit, Check, X,
-  Search, RefreshCw
+  Search, RefreshCw, SlidersHorizontal
 } from 'lucide-react'
 
 import { AdminShell } from '@/components/admin/AdminShell'
@@ -48,6 +48,9 @@ export default function AdminAssinantesPage() {
   const [filterStatus, setFilterStatus] = useState('todos')
   const [filterPeriodo, setFilterPeriodo] = useState('todos')
   const [sortBy, setSortBy] = useState('email')
+  // Filtros colapsados por padrão: o trabalho real desta tela é achar alguém
+  // pela busca; 3 selects fixos comiam meia tela no celular sem serem usados.
+  const [filtrosAbertos, setFiltrosAbertos] = useState(false)
 
   const router = useRouter()
 
@@ -253,6 +256,12 @@ const getFilteredAndSorted = () => {
 
 const filteredAssinantes = getFilteredAndSorted()
 
+  // Quantos filtros estão de fato estreitando a lista — vira o contador do
+  // botão "Filtros" (a pessoa precisa saber que a lista está filtrada mesmo
+  // com o painel fechado, senão o resultado parcial vira armadilha).
+  const filtrosAtivos =
+    (filterStatus !== 'todos' ? 1 : 0) + (filterPeriodo !== 'todos' ? 1 : 0) + (search ? 1 : 0)
+
   const hoje = new Date()
   const ativos = assinantes.filter(a => new Date(a.expires_at) >= hoje).length
   const expirados = assinantes.length - ativos
@@ -283,118 +292,147 @@ const filteredAssinantes = getFilteredAndSorted()
   return (
     <AdminShell email={currentUser?.email ?? ''}>
       <div className="ds2-bg-ambient min-h-screen">
-        <PageContainer className="max-w-4xl space-y-8 pb-16 pt-8">
-          <div className="flex flex-wrap items-start justify-between gap-3">
-            <div>
-              <Eyebrow>admin · assinantes</Eyebrow>
-              <SectionTitle as="h1" className="mt-2 text-[28px] md:text-[36px]">
+        <PageContainer className="max-w-4xl space-y-5 pb-16 pt-6">
+          {/* Header compacto: título + contexto numérico na mesma respiração,
+              ações à direita. O que antes eram 3 blocos empilhados virou 1. */}
+          <div className="flex items-center justify-between gap-3">
+            <div className="min-w-0">
+              <Eyebrow>admin</Eyebrow>
+              <SectionTitle as="h1" className="mt-1 text-[24px] md:text-[32px]">
                 Assinantes
               </SectionTitle>
-              <p className="mt-2 font-ds2-mono text-xs text-ds2-text-muted">
+              <p className="mt-1 font-ds2-mono text-[11px] text-ds2-text-muted">
                 {ativos} ativos · {expirados} expirados · {assinantes.length} total
               </p>
             </div>
-            <div className="flex gap-2">
+            <div className="flex shrink-0 gap-1.5">
               <Button
                 type="button"
                 variant="primary"
-                className="py-2.5 text-xs"
+                className="px-3.5 py-2.5 text-xs"
                 onClick={() => setShowAddForm(!showAddForm)}
+                aria-label="Adicionar assinante"
               >
                 <Plus className="h-4 w-4" />
-                Adicionar
+                <span className="hidden sm:inline">Adicionar</span>
               </Button>
-              <Button type="button" variant="secondary" className="px-3 py-2.5" onClick={loadAssinantes}>
+              <Button
+                type="button"
+                variant="secondary"
+                className="px-3 py-2.5"
+                onClick={loadAssinantes}
+                aria-label="Recarregar lista"
+              >
                 <RefreshCw className="h-4 w-4" />
               </Button>
             </div>
           </div>
 
-          {/* Busca */}
-          <div className="relative">
-            <Search className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-ds2-text-muted" />
-            <input
-              type="text"
-              placeholder="Buscar email..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              aria-label="Buscar email"
-              className={`${CLASSE_INPUT} w-full pl-10`}
-            />
+          {/* Busca + acesso aos filtros na MESMA linha — busca é a ação real
+              desta tela; filtro é exceção e fica atrás de um toque. */}
+          <div className="flex gap-2">
+            <div className="relative flex-1">
+              <Search className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-ds2-text-muted" />
+              <input
+                type="text"
+                placeholder="Buscar email..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                aria-label="Buscar email"
+                className={`${CLASSE_INPUT} w-full pl-10`}
+              />
+            </div>
+            <button
+              type="button"
+              onClick={() => setFiltrosAbertos(!filtrosAbertos)}
+              aria-expanded={filtrosAbertos}
+              className={`flex min-h-[44px] shrink-0 items-center gap-1.5 rounded-ds2-pill border px-3.5 font-ds2-mono text-xs transition-colors ${
+                filtrosAtivos > 0
+                  ? 'border-ds2-orange/50 bg-ds2-orange/15 text-ds2-text-primary'
+                  : 'border-ds2-border-subtle text-ds2-text-secondary hover:bg-white/5'
+              }`}
+            >
+              <SlidersHorizontal className="h-3.5 w-3.5" />
+              Filtros
+              {filtrosAtivos > 0 && <span>({filtrosAtivos})</span>}
+            </button>
           </div>
 
-          {/* Filtros */}
-          <div className="flex flex-wrap items-center gap-3">
-            <label className="flex items-center gap-2 font-ds2-mono text-xs text-ds2-text-muted">
-              status
-              <select
-                value={filterStatus}
-                onChange={(e) => setFilterStatus(e.target.value)}
-                style={{ colorScheme: 'dark' }}
-                className={CLASSE_SELECT}
-              >
-                <option value="todos" style={OPCAO_ESCURA}>Todos</option>
-                <option value="ativos" style={OPCAO_ESCURA}>Ativos</option>
-                <option value="expirados" style={OPCAO_ESCURA}>Expirados</option>
-                <option value="sem_conta" style={OPCAO_ESCURA}>Sem conta</option>
-                <option value="com_conta" style={OPCAO_ESCURA}>Com conta</option>
-                <option value="nao_confirmado" style={OPCAO_ESCURA}>Não confirmado</option>
-              </select>
-            </label>
+          {filtrosAbertos && (
+            <Card className="flex flex-wrap items-center gap-3 py-3.5">
+              <label className="flex items-center gap-2 font-ds2-mono text-xs text-ds2-text-muted">
+                status
+                <select
+                  value={filterStatus}
+                  onChange={(e) => setFilterStatus(e.target.value)}
+                  style={{ colorScheme: 'dark' }}
+                  className={CLASSE_SELECT}
+                >
+                  <option value="todos" style={OPCAO_ESCURA}>Todos</option>
+                  <option value="ativos" style={OPCAO_ESCURA}>Ativos</option>
+                  <option value="expirados" style={OPCAO_ESCURA}>Expirados</option>
+                  <option value="sem_conta" style={OPCAO_ESCURA}>Sem conta</option>
+                  <option value="com_conta" style={OPCAO_ESCURA}>Com conta</option>
+                  <option value="nao_confirmado" style={OPCAO_ESCURA}>Não confirmado</option>
+                </select>
+              </label>
 
-            <label className="flex items-center gap-2 font-ds2-mono text-xs text-ds2-text-muted">
-              acesso
-              <select
-                value={filterPeriodo}
-                onChange={(e) => setFilterPeriodo(e.target.value)}
-                style={{ colorScheme: 'dark' }}
-                className={CLASSE_SELECT}
-              >
-                <option value="todos" style={OPCAO_ESCURA}>Todos</option>
-                <option value="hoje" style={OPCAO_ESCURA}>Hoje</option>
-                <option value="semana" style={OPCAO_ESCURA}>Esta semana</option>
-                <option value="mes" style={OPCAO_ESCURA}>Este mês</option>
-                <option value="inativo_30" style={OPCAO_ESCURA}>Inativo 30+ dias</option>
-                <option value="inativo_60" style={OPCAO_ESCURA}>Inativo 60+ dias</option>
-                <option value="nunca" style={OPCAO_ESCURA}>Nunca acessou</option>
-              </select>
-            </label>
+              <label className="flex items-center gap-2 font-ds2-mono text-xs text-ds2-text-muted">
+                acesso
+                <select
+                  value={filterPeriodo}
+                  onChange={(e) => setFilterPeriodo(e.target.value)}
+                  style={{ colorScheme: 'dark' }}
+                  className={CLASSE_SELECT}
+                >
+                  <option value="todos" style={OPCAO_ESCURA}>Todos</option>
+                  <option value="hoje" style={OPCAO_ESCURA}>Hoje</option>
+                  <option value="semana" style={OPCAO_ESCURA}>Esta semana</option>
+                  <option value="mes" style={OPCAO_ESCURA}>Este mês</option>
+                  <option value="inativo_30" style={OPCAO_ESCURA}>Inativo 30+ dias</option>
+                  <option value="inativo_60" style={OPCAO_ESCURA}>Inativo 60+ dias</option>
+                  <option value="nunca" style={OPCAO_ESCURA}>Nunca acessou</option>
+                </select>
+              </label>
 
-            <label className="flex items-center gap-2 font-ds2-mono text-xs text-ds2-text-muted">
-              ordenar
-              <select
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value)}
-                style={{ colorScheme: 'dark' }}
-                className={CLASSE_SELECT}
-              >
-                <option value="email" style={OPCAO_ESCURA}>Nome (A-Z)</option>
-                <option value="email_desc" style={OPCAO_ESCURA}>Nome (Z-A)</option>
-                <option value="expira" style={OPCAO_ESCURA}>Data expiração</option>
-                <option value="acesso" style={OPCAO_ESCURA}>Último acesso</option>
-                <option value="atividades" style={OPCAO_ESCURA}>Mais ativo</option>
-              </select>
-            </label>
+              <label className="flex items-center gap-2 font-ds2-mono text-xs text-ds2-text-muted">
+                ordenar
+                <select
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value)}
+                  style={{ colorScheme: 'dark' }}
+                  className={CLASSE_SELECT}
+                >
+                  <option value="email" style={OPCAO_ESCURA}>Nome (A-Z)</option>
+                  <option value="email_desc" style={OPCAO_ESCURA}>Nome (Z-A)</option>
+                  <option value="expira" style={OPCAO_ESCURA}>Data expiração</option>
+                  <option value="acesso" style={OPCAO_ESCURA}>Último acesso</option>
+                  <option value="atividades" style={OPCAO_ESCURA}>Mais ativo</option>
+                </select>
+              </label>
 
-            {(filterStatus !== 'todos' || filterPeriodo !== 'todos' || search) && (
-              <button
-                type="button"
-                onClick={() => {
-                  setFilterStatus('todos')
-                  setFilterPeriodo('todos')
-                  setSearch('')
-                }}
-                className="flex min-h-[44px] items-center gap-1.5 rounded-ds2-pill border border-red-400/30 px-3 font-ds2-mono text-xs text-red-400 hover:bg-red-400/10"
-              >
-                <X className="h-3.5 w-3.5" />
-                Limpar filtros
-              </button>
-            )}
+              {filtrosAtivos > 0 && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setFilterStatus('todos')
+                    setFilterPeriodo('todos')
+                    setSearch('')
+                  }}
+                  className="flex min-h-[44px] items-center gap-1.5 rounded-ds2-pill border border-red-400/30 px-3 font-ds2-mono text-xs text-red-400 hover:bg-red-400/10"
+                >
+                  <X className="h-3.5 w-3.5" />
+                  Limpar
+                </button>
+              )}
+            </Card>
+          )}
 
-            <span className="ml-auto font-ds2-mono text-xs text-ds2-text-muted">
-              {filteredAssinantes.length} de {assinantes.length}
-            </span>
-          </div>
+          {filtrosAtivos > 0 && (
+            <p className="font-ds2-mono text-[11px] text-ds2-text-muted">
+              mostrando {filteredAssinantes.length} de {assinantes.length}
+            </p>
+          )}
 
           {/* Form adicionar */}
           {showAddForm && (

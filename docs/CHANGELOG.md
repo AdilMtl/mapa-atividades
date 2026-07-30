@@ -16,6 +16,39 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [v3.11.30] - 2026-07-30 - 🎨 Visitas × conversão + carrossel no analytics · header compacto em assinantes
+
+Dois feedbacks do dono depois de usar as telas em produção.
+
+### 🎨 Melhorado
+- **Gráfico de visitas × conversão** (substitui a série antiga). O ponto magenta era binário
+  ("teve lead nesse dia") — quase nenhuma informação. Agora a barra codifica duas coisas na
+  mesma marca: **altura = volume de sessões**, **parte laranja preenchida = quanto virou lead**,
+  então a taxa é legível sem número. A **taxa da janela inteira** (único percentual com N que
+  sustenta leitura) vai em destaque no topo; a taxa de um dia só aparece ao **tocar na barra**,
+  com os absolutos ao lado e marcada quando N < 20 (§3.3 da spec: taxa diária com N pequeno
+  mente — "50%" pode ser 1 de 2).
+- **Janelas longas agrupam por semana** — 90 colunas num celular viram 4px cada; acima de 31
+  pontos a série passa a semanal (prática padrão contra over-plotting), com rótulo `06–12/07`.
+- **Carrossel de painéis no analytics** (pedido do dono: "invés de ficar descendo até lá embaixo
+  da tela"): números · funil · visitas × conversão · origem · como ler, com abas de índice.
+  `scroll-snap` nativo (swipe real no celular, zero dependência); no desktop os mesmos painéis
+  continuam empilhados.
+- **Header de `/admin/assinantes` compactado** — ocupava quase meia tela. Título e contadores
+  numa só respiração, busca e filtros na mesma linha, e os **3 selects colapsados atrás de um
+  botão "Filtros"** com contador de filtros ativos (filtrar é exceção; achar alguém pela busca é
+  a tarefa real). Aviso de lista filtrada continua visível com o painel fechado.
+
+### 📊 Técnico
+- `src/lib/admin/analytics.ts` ganhou `resolverGranularidade`, `agregarSerie` e
+  `calcularTaxaConversao` (puras, +10 testes: semana ISO segunda-domingo, domingo caindo na
+  semana anterior, rótulo virando o mês, sessões=0 sem 0/0). **408 testes verdes** (eram 398).
+- Novos componentes: `BlocoVisitasConversao.tsx`, `Carrossel.tsx`. `BlocoOrigem` perdeu a série
+  (virou bloco próprio).
+- tsc limpo · lint dos tocados zerado · build verde.
+
+---
+
 ## [v3.11.29] - 2026-07-30 - 🎨 Casca admin DS2 mobile + restyle `/admin/assinantes` (ISSUE-318B)
 
 ### ✨ Adicionado

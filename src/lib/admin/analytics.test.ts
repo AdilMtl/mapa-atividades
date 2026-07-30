@@ -1,11 +1,14 @@
 import { describe, expect, it } from 'vitest'
 
 import {
+  agregarSerie,
   calcularAmostra,
   calcularDesde,
   calcularJanelaAnterior,
   calcularMetrica,
+  calcularTaxaConversao,
   contarLeadsUnicos,
+  resolverGranularidade,
   excluirLeadsDeTeste,
   excluirProjetosDeTeste,
   montarFunilRadar,
@@ -277,5 +280,88 @@ describe('montarSerieTemporal', () => {
       { data: '2026-07-10', sessoes: 2, leadsUnicos: 1 },
       { data: '2026-07-11', sessoes: 1, leadsUnicos: 0 },
     ])
+  })
+})
+
+describe('calcularTaxaConversao', () => {
+  it('sessões=0 devolve null (0/0 não é 0%)', () => {
+    expect(calcularTaxaConversao(0, 0)).toEqual({ taxaConversaoPct: null, amostraPequena: true })
+  })
+
+  it('marca amostra pequena abaixo de N=20', () => {
+    expect(calcularTaxaConversao(4, 1)).toEqual({ taxaConversaoPct: 25, amostraPequena: true })
+  })
+
+  it('N >= 20 não é amostra pequena', () => {
+    expect(calcularTaxaConversao(40, 6)).toEqual({ taxaConversaoPct: 15, amostraPequena: false })
+  })
+})
+
+describe('resolverGranularidade', () => {
+  it('até 31 pontos fica em dia', () => {
+    const serie = Array.from({ length: 31 }, (_, i) => ({
+      data: `2026-07-${String(i + 1).padStart(2, '0')}`,
+      sessoes: 1,
+      leadsUnicos: 0,
+    }))
+    expect(resolverGranularidade(serie)).toBe('dia')
+  })
+
+  it('acima de 31 pontos agrupa por semana (evita over-plotting)', () => {
+    const serie = Array.from({ length: 45 }, (_, i) => ({
+      data: `2026-0${i < 30 ? '6' : '7'}-${String((i % 30) + 1).padStart(2, '0')}`,
+      sessoes: 1,
+      leadsUnicos: 0,
+    }))
+    expect(resolverGranularidade(serie)).toBe('semana')
+  })
+})
+
+describe('agregarSerie', () => {
+  const serie = [
+    { data: '2026-07-06', sessoes: 10, leadsUnicos: 2 }, // segunda
+    { data: '2026-07-08', sessoes: 20, leadsUnicos: 3 }, // quarta, mesma semana
+    { data: '2026-07-13', sessoes: 5, leadsUnicos: 0 }, // segunda seguinte
+  ]
+
+  it('em dia, preserva cada ponto e calcula a taxa', () => {
+    const pontos = agregarSerie(serie, 'dia')
+    expect(pontos).toHaveLength(3)
+    expect(pontos[0]).toMatchObject({
+      chave: '2026-07-06',
+      rotulo: '06/07',
+      sessoes: 10,
+      leadsUnicos: 2,
+      taxaConversaoPct: 20,
+      amostraPequena: true, // 10 < 20
+    })
+    expect(pontos[1]).toMatchObject({ taxaConversaoPct: 15, amostraPequena: false })
+  })
+
+  it('em semana, soma os dias da mesma semana ISO (segunda a domingo)', () => {
+    const pontos = agregarSerie(serie, 'semana')
+    expect(pontos).toHaveLength(2)
+    expect(pontos[0]).toMatchObject({
+      chave: '2026-07-06',
+      rotulo: '06–12/07',
+      sessoes: 30,
+      leadsUnicos: 5,
+      amostraPequena: false,
+    })
+    expect(pontos[1]).toMatchObject({ chave: '2026-07-13', sessoes: 5 })
+  })
+
+  it('domingo pertence à semana que começou na segunda anterior', () => {
+    const pontos = agregarSerie([{ data: '2026-07-12', sessoes: 3, leadsUnicos: 1 }], 'semana')
+    expect(pontos[0]!.chave).toBe('2026-07-06')
+  })
+
+  it('rótulo de semana que vira o mês mostra os dois meses', () => {
+    const pontos = agregarSerie([{ data: '2026-07-01', sessoes: 1, leadsUnicos: 0 }], 'semana')
+    expect(pontos[0]!.rotulo).toBe('29/06–05/07')
+  })
+
+  it('série vazia não quebra', () => {
+    expect(agregarSerie([], 'dia')).toEqual([])
   })
 })

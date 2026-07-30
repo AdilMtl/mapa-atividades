@@ -10,9 +10,28 @@
 
 ## 🎯 SESSÃO ATUAL: Casca admin DS2 mobile (ISSUE-318B), sobre a 318A validada
 **Data:** 30 de julho de 2026
-**Versão:** v3.11.29 (v3.11.27 painel + v3.11.28 ajuste de mobile + v3.11.29 casca admin)
+**Versão:** v3.11.30 (318A v3.11.27 → ajustes v3.11.28/30 · 318B v3.11.29)
 **Status:** ✅ ISSUE-318A **concluída** (dono validou em produção, celular, sessão logada) ·
 ISSUE-318B código completo, falta o dono validar CRUD de assinantes no celular.
+
+### **v3.11.30 — 2ª rodada de feedback do dono (UI/UX + analytics):**
+1. **Gráfico de visitas × conversão.** O ponto magenta da v1 era binário ("teve lead nesse
+   dia") — informação quase nula, e o dono pediu conversão em percentual. Nova codificação:
+   altura da barra = sessões, fatia laranja preenchida = quanto virou lead (taxa legível sem
+   número). **Guarda metodológica:** taxa diária com N pequeno mente (1 de 2 = "50%"), então a
+   taxa em destaque é a da JANELA (N real, dedupe de e-mail) e a taxa de um período só aparece
+   ao tocar, com absolutos ao lado e marcada quando N < 20.
+2. **Agrupamento por semana acima de 31 pontos** — 90 colunas num celular são ilegíveis e
+   convidam a ler ruído como tendência (over-plotting). Semana ISO, segunda a domingo.
+   ⚠️ Aproximação assumida e documentada: `leadsUnicos` semanal é a soma dos dedupes diários.
+3. **Carrossel de painéis** (números · funil · visitas × conversão · origem · como ler), pedido
+   do dono pra não rolar até o fim da tela. `scroll-snap` nativo, zero dependência; abas de
+   índice acompanham o painel visível via `IntersectionObserver`. No desktop segue empilhado —
+   mesmo DOM, dois layouts.
+4. **Header de `/admin/assinantes` compactado** — ocupava quase meia tela (6 blocos empilhados
+   sem hierarquia). Hierarquia real da tela: achar alguém > agir > filtrar > contexto. Título +
+   contadores numa linha, busca e botão "Filtros" na mesma linha, 3 selects colapsados atrás do
+   botão com contador de filtros ativos.
 
 ### **318A — validação do dono + 1 ajuste:**
 O dono testou `/admin/analytics` em produção: gráficos gerados, funil e origem do tráfego

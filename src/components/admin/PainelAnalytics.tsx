@@ -25,6 +25,8 @@ import { BlocoFunil } from './analytics/BlocoFunil'
 import { BlocoNotas } from './analytics/BlocoNotas'
 import { BlocoNumeros } from './analytics/BlocoNumeros'
 import { BlocoOrigem } from './analytics/BlocoOrigem'
+import { BlocoVisitasConversao } from './analytics/BlocoVisitasConversao'
+import { Carrossel, type PainelCarrossel } from './analytics/Carrossel'
 
 interface RespostaPainel {
   janela: JanelaId
@@ -46,6 +48,53 @@ const JANELA_OPCOES: { id: JanelaId; rotulo: string }[] = [
   { id: '90', rotulo: '90 dias' },
   { id: 'tudo', rotulo: 'tudo' },
 ]
+
+/** Painéis do carrossel — a ordem é a jornada de leitura: quanto → onde vaza → quando → de onde → ressalvas. */
+function montarPaineis(dados: RespostaPainel): PainelCarrossel[] {
+  const sessoesTotal = dados.numeros.sessoes.valor
+
+  return [
+    { id: 'numeros', rotulo: 'números', conteudo: <BlocoNumeros numeros={dados.numeros} /> },
+    {
+      id: 'funil',
+      rotulo: 'funil',
+      conteudo: (
+        <section className="space-y-3">
+          <Eyebrow>funil dos radares</Eyebrow>
+          <div className="grid gap-4 md:grid-cols-2">
+            {dados.funis.map((funil) => (
+              <BlocoFunil key={funil.kind} funil={funil} />
+            ))}
+          </div>
+        </section>
+      ),
+    },
+    {
+      id: 'conversao',
+      rotulo: 'visitas × conversão',
+      conteudo: (
+        <BlocoVisitasConversao
+          serie={dados.serie}
+          sessoesTotal={sessoesTotal}
+          leadsUnicosTotal={dados.leadsUnicosTotal}
+        />
+      ),
+    },
+    { id: 'origem', rotulo: 'origem', conteudo: <BlocoOrigem origem={dados.origem} /> },
+    {
+      id: 'notas',
+      rotulo: 'como ler',
+      conteudo: (
+        <BlocoNotas
+          desde={dados.desde}
+          amostraSessoes={dados.amostra.sessoes}
+          amostraLeads={dados.amostra.leads}
+          incluirTrafegoTeste={dados.incluirTrafegoTeste}
+        />
+      ),
+    },
+  ]
+}
 
 export function PainelAnalytics() {
   const [janela, setJanela] = React.useState<JanelaId>('28')
@@ -158,27 +207,7 @@ export function PainelAnalytics() {
             </p>
           </Card>
         ) : dados ? (
-          <>
-            <BlocoNumeros numeros={dados.numeros} />
-
-            <section className="space-y-3">
-              <Eyebrow>funil dos radares</Eyebrow>
-              <div className="grid gap-4 md:grid-cols-2">
-                {dados.funis.map((funil) => (
-                  <BlocoFunil key={funil.kind} funil={funil} />
-                ))}
-              </div>
-            </section>
-
-            <BlocoOrigem origem={dados.origem} serie={dados.serie} />
-
-            <BlocoNotas
-              desde={dados.desde}
-              amostraSessoes={dados.amostra.sessoes}
-              amostraLeads={dados.amostra.leads}
-              incluirTrafegoTeste={dados.incluirTrafegoTeste}
-            />
-          </>
+          <Carrossel paineis={montarPaineis(dados)} />
         ) : null}
       </PageContainer>
     </div>

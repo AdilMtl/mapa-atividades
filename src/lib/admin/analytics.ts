@@ -317,6 +317,99 @@ export interface PontoSerieTemporal {
   leadsUnicos: number
 }
 
+// ----------------------------------------------------------------------------
+// Granularidade da série + taxa de conversão por período
+// 90 dias viram 90 colunas de ~4px num celular — ilegível e, pior, convida a
+// ler ruído como tendência. Acima de ~1 mês a série agrupa por semana (prática
+// padrão contra over-plotting).
+// ----------------------------------------------------------------------------
+
+export type Granularidade = 'dia' | 'semana'
+
+export function resolverGranularidade(serie: PontoSerieTemporal[]): Granularidade {
+  return serie.length > 31 ? 'semana' : 'dia'
+}
+
+export interface PontoAgregado {
+  /** Chave estável (dia ISO, ou o dia da segunda-feira quando é semana). */
+  chave: string
+  /** Rótulo curto pra UI: `10/07` ou `06–12/07`. */
+  rotulo: string
+  sessoes: number
+  leadsUnicos: number
+  /** `null` quando não houve sessão (evita 0/0 virar 0% e sugerir fracasso). */
+  taxaConversaoPct: number | null
+  /** N baixo demais pra taxa ser conclusiva (§3.3 da spec) — a UI marca. */
+  amostraPequena: boolean
+}
+
+/** Segunda-feira da semana de uma data ISO (`AAAA-MM-DD`). */
+function inicioDaSemana(dataIso: string): string {
+  const d = new Date(`${dataIso}T00:00:00.000Z`)
+  const diaDaSemana = d.getUTCDay() // 0 = domingo
+  const recuo = diaDaSemana === 0 ? 6 : diaDaSemana - 1
+  d.setUTCDate(d.getUTCDate() - recuo)
+  return d.toISOString().slice(0, 10)
+}
+
+function rotuloDia(dataIso: string): string {
+  const [, mes, dia] = dataIso.split('-')
+  return `${dia}/${mes}`
+}
+
+function rotuloSemana(inicioIso: string): string {
+  const fim = new Date(`${inicioIso}T00:00:00.000Z`)
+  fim.setUTCDate(fim.getUTCDate() + 6)
+  const fimIso = fim.toISOString().slice(0, 10)
+  const [, mesInicio, diaInicio] = inicioIso.split('-')
+  const [, mesFim, diaFim] = fimIso.split('-')
+  // Mesma mês: "06–12/07". Vira o mês: "29/06–05/07".
+  return mesInicio === mesFim ? `${diaInicio}–${diaFim}/${mesFim}` : `${diaInicio}/${mesInicio}–${diaFim}/${mesFim}`
+}
+
+export function calcularTaxaConversao(
+  sessoes: number,
+  leadsUnicos: number,
+): { taxaConversaoPct: number | null; amostraPequena: boolean } {
+  if (sessoes <= 0) return { taxaConversaoPct: null, amostraPequena: true }
+  return {
+    taxaConversaoPct: Math.round((leadsUnicos / sessoes) * 1000) / 10,
+    amostraPequena: sessoes < LIMIAR_N_MINIMO,
+  }
+}
+
+/**
+ * Agrega a série na granularidade pedida e calcula a taxa de conversão de cada
+ * ponto. ⚠️ Em `semana`, `leadsUnicos` é a SOMA dos dedupes diários — a mesma
+ * pessoa capturada em dois dias da mesma semana conta duas vezes. É uma
+ * aproximação assumida (o erro é marginal no volume de beta); a taxa da janela
+ * inteira, mostrada em destaque na UI, usa o dedupe real.
+ */
+export function agregarSerie(
+  serie: PontoSerieTemporal[],
+  granularidade: Granularidade,
+): PontoAgregado[] {
+  const baldes = new Map<string, { sessoes: number; leadsUnicos: number }>()
+
+  for (const ponto of serie) {
+    const chave = granularidade === 'semana' ? inicioDaSemana(ponto.data) : ponto.data
+    const atual = baldes.get(chave) ?? { sessoes: 0, leadsUnicos: 0 }
+    atual.sessoes += ponto.sessoes
+    atual.leadsUnicos += ponto.leadsUnicos
+    baldes.set(chave, atual)
+  }
+
+  return [...baldes.entries()]
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([chave, valores]) => ({
+      chave,
+      rotulo: granularidade === 'semana' ? rotuloSemana(chave) : rotuloDia(chave),
+      sessoes: valores.sessoes,
+      leadsUnicos: valores.leadsUnicos,
+      ...calcularTaxaConversao(valores.sessoes, valores.leadsUnicos),
+    }))
+}
+
 export function montarSerieTemporal(sessoes: RadarSessaoLinha[], leads: RadarLeadLinha[]): PontoSerieTemporal[] {
   const sessoesPorDia = new Map<string, number>()
   for (const s of sessoes) {
