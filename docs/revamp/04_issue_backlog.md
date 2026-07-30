@@ -1297,14 +1297,14 @@ profundidade + 5 blocos de valor + marco) e aprovou sem vetos.
 Fonte editorial de referência: `ISSUE-316-copy-para-aprovacao.md` (v2). **Dep.:** 316.
 
 ## ISSUE-317 — Perfil do Builder `/lab/perfil`
-**Status:** ⚠️ implementada em 2026-07-29 (v3.11.24) — form único (área, senioridade, fluência,
+**Status:** ✅ concluída em 2026-07-29 (v3.11.24) — form único (área, senioridade, fluência,
 objetivo, gargalo, ferramentas); grava `lab_profiles` via `POST /api/lab/profile` (upsert,
 `origin` só gravado na criação). Fluência pré-preenche do radar de maturidade (sessionStorage)
 quando o perfil ainda não tem nível salvo. Wizard (`/lab/novo-projeto`) passa a usar a área do
 perfil como default além da fluência (aceite explícito da issue). Nav do LabShell ativada
 ("Perfil" deixa de ser "em breve"); linha "Perfil chega em breve" removida do hub vazio.
-Novo `src/lib/lab/perfil.ts` (+8 testes, 372 no total) · tsc/lint/build limpos.
-**Falta:** roteiro manual do dono (salvar/editar com conta real, mobile).
+Novo `src/lib/lab/perfil.ts` (+8 testes, 372 no total) · tsc/lint/build limpos. Dono testou em
+produção com conta real (login, salvar) — confirmou que funcionou.
 **Tipo:** Frontend · **Prioridade:** Média · **Complexidade:** Baixa · **Modelo:** Sonnet — form simples, spec fechada.
 Form único (área, senioridade, fluência, objetivo, gargalo); alimenta personalização da 1B.
 **Dep.:** 310, 311.

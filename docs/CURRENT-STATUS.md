@@ -11,8 +11,9 @@
 ## 🎯 SESSÃO ATUAL: Perfil do Builder `/lab/perfil` (ISSUE-317) + 316B fechada
 **Data:** 29 de julho de 2026
 **Versão:** v3.11.24
-**Status:** ⚠️ código completo e validado (tsc/lint/build limpos, 372 testes verdes — eram 364).
-Falta o roteiro manual do dono (login real, mobile) — a testar após o deploy desta sessão.
+**Status:** ✅ no ar — código validado (tsc/lint/build limpos, 372 testes verdes — eram 364) e
+testado pelo dono em produção com conta real logo após o deploy (login → Perfil → salvar):
+confirmou que funcionou.
 
 ### **🚀 O QUE FOI FEITO:**
 
@@ -47,10 +48,9 @@ Falta o roteiro manual do dono (login real, mobile) — a testar após o deploy 
 ### **🎯 PRÓXIMA SESSÃO:**
 1. **ISSUE-318** — Analytics do Lab + vitrine `/lab` em modo beta + rotina de convites. O
    backlog marca **Fable 5 (persona Analytics & Ads) sem exceção** por tocar tracking público —
-   o dono vai trocar de modelo antes de retomar.
-2. Roteiro manual do dono da 317 (salvar/editar com conta real, wizard puxando a área do
-   perfil, mobile).
-3. Testes manuais acumulados seguem pendentes (315 item 7, 314C, 314D — vetos de copy).
+   o dono troca de modelo (`/model fable`) antes de retomar; contexto da issue já carregado
+   nesta sessão, é só continuar direto.
+2. Testes manuais acumulados seguem pendentes (315 item 7, 314C, 314D — vetos de copy).
 
 ---
 
