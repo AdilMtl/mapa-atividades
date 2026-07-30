@@ -20,6 +20,7 @@ import * as React from 'react'
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
 
 import { Button, Card } from '@/components/ds2'
+import { track } from '@/lib/analytics'
 import {
   beatTransicao,
   etapaAtual,
@@ -104,6 +105,17 @@ export function PaginaProjeto({
   const mostrarTudo = !guiado || blocoAtual >= TOTAL_BLOCOS - 1
   const podeAvancar = guiado && blocoAtual < TOTAL_BLOCOS - 1
 
+  // ISSUE-318: a página abriu com o diagnóstico visível (1ª visita chega em modo
+  // guiado via ?leitura=1 — a prop distingue estreia de revisita).
+  React.useEffect(() => {
+    track('lab_diagnosis_viewed', {
+      project_id: id,
+      solution_type: diagnosis.tipo,
+      primeira_visita: guiado,
+    })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
   const atual = etapaAtual(etapas, checklist)
   const faseMaterialId = faseDoMaterial(etapas)
   const retomada =
@@ -136,6 +148,9 @@ export function PaginaProjeto({
         if (!res.ok) throw new Error('falhou')
         const data = (await res.json()) as { status: string }
         setStatus(data.status)
+        // ISSUE-318: só marcação persistida conta como fase fechada (desmarcar não
+        // é evento — reabrir faz parte do fluxo normal, não do funil).
+        if (done) track('lab_step_completed', { project_id: id, fase_id: itemId })
       } catch {
         setChecklist(anterior)
         setBeat(null)
@@ -190,13 +205,23 @@ export function PaginaProjeto({
         setStatus('concluido')
         setResultado(data.resultado)
         setBeat(null)
+        // ISSUE-318: conclusão REAL — o gate anti-Goodhart da trilha (só ela abre
+        // ramo de valor). O check-up (314D) é opcional: evento próprio quando veio.
+        track('lab_project_concluded', {
+          project_id: id,
+          solution_type: diagnosis.tipo,
+          com_checkup: respostas !== undefined,
+        })
+        if (respostas) {
+          track('lab_result_submitted', { project_id: id, chegou: respostas.chegou })
+        }
       } catch {
         setErro('Não consegui concluir o projeto agora — tenta de novo.')
       } finally {
         setConcluindo(false)
       }
     },
-    [id],
+    [id, diagnosis.tipo],
   )
 
   const podeConcluir = checklist.length > 0 && checklist.every((c) => c.done)

@@ -1,13 +1,12 @@
 'use client'
 import { useState, useEffect } from 'react'
+import type { User } from '@supabase/supabase-js'
 import { supabase } from '@/lib/supabase'
 import { useRouter } from 'next/navigation'
-import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { PageContainer, PageHeader } from '@/components/base'
-import { DESIGN_TOKENS } from '@/lib/design-system'
-import { 
-  Users, Plus, Trash2, Edit, Check, X, 
+import {
+  Users, Plus, Trash2, Edit, Check, X,
   Search, RefreshCw, ArrowLeft
 } from 'lucide-react'
 
@@ -34,7 +33,7 @@ export default function AdminAssinantesPage() {
   const [newExpires, setNewExpires] = useState('')
   const [editingId, setEditingId] = useState<string | null>(null)
   const [editExpires, setEditExpires] = useState('')
-  const [currentUser, setCurrentUser] = useState<any>(null)
+  const [currentUser, setCurrentUser] = useState<User | null>(null)
   const [editEmail, setEditEmail] = useState('')
   const [filterStatus, setFilterStatus] = useState('todos')
   const [filterPeriodo, setFilterPeriodo] = useState('todos')
@@ -44,6 +43,8 @@ export default function AdminAssinantesPage() {
 
   useEffect(() => {
     checkAdmin()
+    // Roda uma vez na montagem — checkAdmin é estável na prática (legado).
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const checkAdmin = async () => {
@@ -257,11 +258,17 @@ const filteredAssinantes = getFilteredAndSorted()
         action={
           <div className="flex gap-2">
   <button
-    onClick={() => router.push('/dashboard')} 
+    onClick={() => router.push('/dashboard')}
     className="hidden sm:flex items-center gap-2 px-4 py-2 rounded-lg bg-white/5 border border-white/20 text-white hover:bg-white/10 transition-all"
   >
     <ArrowLeft className="w-4 h-4" />
     Mapa
+  </button>
+  <button
+    onClick={() => router.push('/admin/lab-beta')}
+    className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white/5 border border-white/20 text-white hover:bg-white/10 transition-all"
+  >
+    Convites do Lab
   </button>
   <button
     onClick={() => setShowAddForm(!showAddForm)} 

@@ -16,6 +16,45 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [v3.11.25] - 2026-07-29 - 📊 Analytics do Lab + vitrine beta + painel de convites (ISSUE-318)
+
+### ✨ Adicionado
+- **Eventos `lab_*` em duplo trilho (GTM + Supabase)** — 10 eventos (7 do plano da Fase 1A +
+  `lab_project_concluded`/`lab_result_submitted`/`lab_branch_opened` da jornada pós-plano).
+  Vocabulário fechado em `src/lib/lab-events.ts`; reusa `radar_events` + `/api/radar/event`
+  (zero SQL). Métrica norte (`lab_plan_generated`) instrumentada desde o dia 1. Eventos do Lab
+  nunca enviam `session_id` (FK de `radar_events` → `radar_sessions`); `project_id` no payload.
+- **Painel admin `/admin/lab-beta`** — a rotina de convites do beta virou botão (pedido do
+  dono na sessão): fila unificada (`lab_leads` + `radar_leads.lab_interest`), Convidar
+  (libera `authorized_emails` `plan_type='lab_beta'` + envia e-mail Resend no template dark,
+  com a copy aprovada), convite manual, status por convidado (conta criada/último acesso) e
+  Revogar. Validade padrão 2026-12-31, editável no painel.
+- **Spec GTM** (`ISSUE-318-eventos-lab-spec-gtm.md`): 1 trigger novo (`CE - Eventos do Lab`,
+  regex fechada) anexado à tag GA4 existente — zero tag nova, padrão da casa.
+
+### 🎨 Melhorado
+- **Vitrine `/lab` em modo "beta no ar"** — copy v2 na voz do dono, com os vetos aplicados na
+  sessão (sem meta-referência; sem travessão de aparte — "cara de IA"; português com artigos;
+  beta que instiga: "quem entra agora ajuda a construir o que ele vai ser"). CTA de login pra
+  convidados; formulário da lista byte a byte intocado.
+
+### 🔒 Segurança
+- **Falha real corrigida na área admin:** `api/admin/assinantes` autorizava pelo header
+  `x-user-email` enviado pelo cliente — forjável por qualquer curl (leitura/edição/exclusão
+  de `authorized_emails` expostas). Causa raiz: gate no dado errado (header vs. sessão).
+  Solução: autoridade é a sessão do cookie validada no servidor (`getUser` + e-mail admin,
+  centralizado em `src/lib/admin.ts`); middleware cobre `/admin/:path*`.
+
+### 📊 Técnico
+- `plan_type` confirmado em produção (SELECT do dono) — já existia com
+  `stripe_subscription_id`/`updated_at`; `supabase-database-schema.txt` atualizado e
+  contradição com o ISSUE-310 encerrada.
+- 372 testes verdes · tsc limpo · lint dos tocados zerado · build verde (45 rotas).
+- **⚠️ Issue parcial:** faltam validações do dono em produção (GTM Preview, convite real pro
+  `adilson.matioli1@gmail.com`, Tag Assistant no funil legado).
+
+---
+
 ## [v3.11.24] - 2026-07-29 - 👤 Perfil do Builder `/lab/perfil` (ISSUE-317) + 316B fechada
 
 ### ✨ Adicionado

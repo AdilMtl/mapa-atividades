@@ -8,7 +8,67 @@
 
 ---
 
-## 🎯 SESSÃO ATUAL: Perfil do Builder `/lab/perfil` (ISSUE-317) + 316B fechada
+## 🎯 SESSÃO ATUAL: Analytics do Lab + vitrine beta + painel de convites (ISSUE-318)
+**Data:** 29 de julho de 2026
+**Versão:** v3.11.25
+**Status:** ✅ código completo e validado (tsc/lint tocados/build 45 rotas/372 testes) —
+**⚠️ issue parcial**: faltam as validações do dono em produção (GTM Preview, convite real,
+Tag Assistant no funil legado).
+
+### **🚀 O QUE FOI FEITO:**
+
+1. **Eventos `lab_*` em duplo trilho (GTM + Supabase).** 10 eventos — os 7 do doc 13 §8 + 3
+   da jornada pós-plano (`lab_project_concluded`, `lab_result_submitted`, `lab_branch_opened`),
+   decisão do dono "ampliar com cirurgia". Vocabulário fechado em `src/lib/lab-events.ts`;
+   mesma tabela `radar_events` e rota `/api/radar/event` (zero SQL novo). **Eventos do Lab
+   nunca enviam `session_id`** (FK aponta pra `radar_sessions`; `project_id` viaja no payload).
+   Instrumentados: wizard (started/completed/plan_generated), página do projeto
+   (diagnosis_viewed/step_completed/concluded/result_submitted), biblioteca
+   (asset_opened/branch_opened via `LabEventTracker`), perfil (profile_completed).
+2. **Vitrine `/lab` reescrita em modo "beta no ar"** — copy v2 com os vetos do dono aplicados
+   na mesma sessão (sem meta-referência no H1; **travessão de aparte = cara de IA, banido**;
+   português com artigos, fluido; bloco do beta instiga em vez de excluir). CTA de login pra
+   convidados; `LabWaitlistForm` intocado. Doc: `ISSUE-318-copy-vitrine-lab.md`.
+3. **Painel admin `/admin/lab-beta`** (pedido do dono na sessão — substituiu a "rotina por
+   SQL" recém-documentada): fila unificada de interessados (`lab_leads` +
+   `radar_leads.lab_interest`, dedupe), botão **Convidar** (INSERT `authorized_emails`
+   `plan_type='lab_beta'` + e-mail Resend no template dark, na hora), convite manual por
+   e-mail, status por convidado (conta criada/último acesso via RPC `admin_list_users`) e
+   **Revogar**. Validade padrão 2026-12-31, editável.
+4. **🔒 Falha real de segurança corrigida:** a API `api/admin/assinantes` confiava no header
+   `x-user-email` do CLIENTE (forjável por curl — qualquer um lia/editava/apagava
+   `authorized_emails`). Agora toda a área admin valida a **sessão do cookie no servidor**
+   (`getUser` + e-mail do admin, centralizado em `src/lib/admin.ts`, env `ADMIN_EMAIL`
+   opcional); middleware passou a cobrir `/admin/:path*` (refresh de token + anônimo → /auth).
+5. **Spec GTM corrigida ao padrão real da casa:** zero tag nova — 1 trigger novo
+   (`CE - Eventos do Lab`, regex fechada dos 10 nomes) anexado à tag existente
+   `GA4 Event - Eventos dos radares`. Doc: `ISSUE-318-eventos-lab-spec-gtm.md`.
+6. **`plan_type` confirmado em produção** (dono rodou SELECT): a coluna já existia (com
+   `stripe_subscription_id` e `updated_at` não documentados) — schema doc atualizado,
+   contradição com o ISSUE-310 encerrada.
+
+### **📊 TÉCNICO:**
+- Novos: `lib/lab-events.ts`, `lib/admin.ts`, `components/lab/LabEventTracker.tsx`,
+  `components/admin/PainelConvitesLab.tsx`, `(app)/admin/lab-beta/page.tsx`,
+  `api/admin/lab-beta/{route,email-convite}.ts`, 3 docs `ISSUE-318-*.md`.
+- Alterados: `analytics.ts` (tipo união), `api/radar/event` (aceita `lab_*`), 4 telas do Lab
+  instrumentadas, vitrine `/lab`, `middleware.ts`, `api/admin/assinantes` (gate por sessão),
+  página de assinantes (link pro painel + débitos de lint), `supabase-database-schema.txt`.
+- 372 testes verdes · tsc limpo · lint dos tocados zerado · build verde (45 rotas;
+  `/admin/lab-beta` e `/api/admin/lab-beta` dinâmicas). Trava intacta: `layout.tsx`,
+  `EmailGate`, `api/prediag/*` sem nenhum diff.
+
+### **🎯 PRÓXIMA SESSÃO:**
+1. **Fechar a ISSUE-318:** dono valida em produção — painel `/admin/lab-beta` logado (e
+   janela anônima cai no /auth), convite real pro `adilson.matioli1@gmail.com` (celular,
+   conta nova, `/lab/inicio`), trigger GTM + GTM Preview dos eventos, Tag Assistant no funil
+   legado. Roteiro completo: `ISSUE-318-rotina-convites-beta.md` + spec GTM.
+2. Depois: **ISSUE-319** (gate de QA da Fase 1A — Fable 5 + dono em dispositivos reais).
+3. Testes manuais acumulados: 315 item 7, 314C, 314D (vetos de copy).
+
+---
+
+## 📋 SESSÃO ANTERIOR: Perfil do Builder `/lab/perfil` (ISSUE-317) + 316B fechada
 **Data:** 29 de julho de 2026
 **Versão:** v3.11.24
 **Status:** ✅ no ar — código validado (tsc/lint/build limpos, 372 testes verdes — eram 364) e

@@ -125,14 +125,22 @@ CREATE POLICY "atividades_delete" ON atividades
 FOR DELETE USING (auth.uid() = user_id);
 
 4. Tabela: authorized_emails
-Propósito: Lista de emails autorizados a criar conta (assinantes)
+Propósito: Lista de emails autorizados a criar conta (assinantes + beta do Lab)
+-- Schema REAL verificado em produção pelo dono em 29/07/2026 (ISSUE-318):
+-- as colunas plan_type, stripe_subscription_id e updated_at existem e não
+-- estavam registradas aqui. plan_type='lab_beta' marca convidado do beta do
+-- Lab (rotina: docs/revamp/ISSUE-318-rotina-convites-beta.md); NULL = assinante
+-- manual (o código trata como 'manual' — src/lib/supabase-server.ts).
 sqlCREATE TABLE public.authorized_emails (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  email TEXT UNIQUE NOT NULL,
+  email VARCHAR UNIQUE NOT NULL,
   expires_at DATE NOT NULL,
-  notes TEXT,
-  stripe_customer_id TEXT,
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE,
+  stripe_customer_id VARCHAR,
+  stripe_subscription_id VARCHAR,
+  plan_type VARCHAR,
+  notes TEXT
 );
 
 CREATE INDEX idx_authorized_emails_email ON authorized_emails(email);

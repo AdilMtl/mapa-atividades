@@ -3,6 +3,7 @@ import { ArrowLeft } from 'lucide-react'
 import { notFound } from 'next/navigation'
 
 import { Eyebrow } from '@/components/ds2'
+import { LabEventTracker } from '@/components/lab/LabEventTracker'
 import { BlocoCopiar } from '@/components/lab/biblioteca/BlocoCopiar'
 import { guiaPorSlug } from '@/lib/lab/materiais'
 import type { LabDiagnosis } from '@/lib/lab/types'
@@ -57,6 +58,7 @@ export default async function LeituraPage({ params }: { params: Promise<{ slug: 
 
   return (
     <Leitura eyebrow="guia de construção" titulo={guia.titulo} minutos={minutosDeLeitura(corpo)}>
+      <LabEventTracker evento="lab_asset_opened" props={{ slug }} />
       <Corpo paragrafos={guia.paragrafos} destaqueNoPrimeiro />
 
       {guia.secoes?.map((secao, i) => (
@@ -105,6 +107,7 @@ async function PaginaRamoValor({
       tom="valor"
       slugChave={slug}
     >
+      <LabEventTracker evento="lab_branch_opened" props={{ slug, solution_type: tipo }} />
       <Corpo paragrafos={ramo.abertura} destaqueNoPrimeiro />
 
       {ramo.blocos.map((bloco, i) => (
@@ -155,6 +158,7 @@ async function PaginaMarco() {
       tom="valor"
       slugChave={SLUG_MARCO}
     >
+      <LabEventTracker evento="lab_branch_opened" props={{ slug: SLUG_MARCO }} />
       <Corpo paragrafos={marco.paragrafos} destaqueNoPrimeiro />
 
       {marco.movimentos.map((movimento, i) => (

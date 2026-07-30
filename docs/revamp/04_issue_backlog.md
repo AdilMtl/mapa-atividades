@@ -1310,6 +1310,14 @@ Form único (área, senioridade, fluência, objetivo, gargalo); alimenta persona
 **Dep.:** 310, 311.
 
 ## ISSUE-318 — Analytics `lab_*` + vitrine `/lab` em modo beta + rotina de convites
+**Status:** ⚠️ parcial — código no ar em 2026-07-29 (v3.11.25): 10 eventos `lab_*` em duplo
+trilho, vitrine "beta no ar" (copy v2 vetada pelo dono na sessão), e a rotina de convites
+virou **painel admin `/admin/lab-beta`** (decisão do dono na sessão, superando o "doc puro":
+fila `lab_leads`+`radar_leads.lab_interest`, convidar com e-mail Resend, revogar; de quebra
+corrigiu gate forjável da API admin legada — sessão server-side em toda a área admin).
+Falta pra fechar: dono valida GTM Preview (trigger `CE - Eventos do Lab`), convite real
+(`adilson.matioli1@gmail.com`) e Tag Assistant no funil legado. Docs: `ISSUE-318-{copy-vitrine-lab,
+eventos-lab-spec-gtm,rotina-convites-beta}.md`.
 **Tipo:** Analytics/Growth · **Prioridade:** Alta · **Complexidade:** Média
 **Modelo:** Fable 5 (persona Analytics & Ads) — toca tracking público, trava crítica do
 projeto; qualquer issue que mexa nisso pede a persona dedicada, sem exceção.

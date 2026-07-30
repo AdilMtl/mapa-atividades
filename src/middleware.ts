@@ -49,11 +49,15 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   // Rotas logadas do Lab (doc 13 §8) — a vitrine /lab fica FORA de propósito.
+  // /admin entrou na ISSUE-318: o painel de convites usa gate server-side
+  // (sessão do cookie), então precisa do refresh de token do middleware igual
+  // ao Lab. Anônimo em /admin → /auth (antes era só redirect client-side).
   matcher: [
     '/lab/inicio/:path*',
     '/lab/novo-projeto/:path*',
     '/lab/projeto/:path*',
     '/lab/biblioteca/:path*',
     '/lab/perfil/:path*',
+    '/admin/:path*',
   ],
 }

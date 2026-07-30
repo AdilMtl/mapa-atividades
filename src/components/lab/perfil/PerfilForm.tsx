@@ -13,6 +13,7 @@ import * as React from 'react'
 import { Loader2 } from 'lucide-react'
 
 import { Button } from '@/components/ds2'
+import { track } from '@/lib/analytics'
 import type { AmbienteId } from '@/lib/lab/types'
 import type { MaturityLevelId } from '@/lib/radar/types'
 import { OPCOES_AREA, OPCOES_FERRAMENTAS, OPCOES_FLUENCIA, OPCOES_SENIORIDADE } from '@/lib/lab/perfil'
@@ -119,6 +120,9 @@ export function PerfilForm({ perfilInicial }: { perfilInicial: PerfilInicial | n
       })
       if (!res.ok) throw new Error(String(res.status))
       setStatus('salvo')
+      // ISSUE-318: perfil salvo com sucesso — a edição também conta (o funil quer
+      // saber "quem preencheu", e o form é sempre editável por design da 317).
+      track('lab_profile_completed', { tem_area: roleArea !== null, tem_fluencia: fluencia !== null })
     } catch {
       setStatus('erro')
     }

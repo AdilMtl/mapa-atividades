@@ -14,6 +14,7 @@ import { useRouter } from 'next/navigation'
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
 
 import { Eyebrow } from '@/components/ds2'
+import { track } from '@/lib/analytics'
 import type { PortaEntrada } from '@/lib/lab/types'
 import { WIZARD_SCHEMA_VERSION_V2 } from '@/lib/lab/types'
 import type { EtapaWizard } from '@/lib/lab/wizard-flow'
@@ -117,6 +118,12 @@ export function WizardNovoProjeto({
 
   // Evita salvar de novo com as mesmas respostas (voltar/avançar de bloco).
   const ultimoSalvo = React.useRef<string>('')
+
+  // ISSUE-318: início do funil do Lab — mesmo momento do radar (montou = começou).
+  React.useEffect(() => {
+    track('lab_project_started', { retomada: rascunhoInicial !== null })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   const salvarRascunho = React.useCallback(
     async (r: RespostasParciais) => {
@@ -222,6 +229,12 @@ export function WizardNovoProjeto({
           body: JSON.stringify({ finalizar: completo }),
         })
         if (!res.ok) throw new Error('finalizar')
+        // ISSUE-318: o PATCH finalizar roda o motor no servidor — neste momento o
+        // projeto EXISTE com diagnóstico + plano. lab_plan_generated é a métrica
+        // norte da Fase 1A ("projetos que chegam a plano", doc 13 §9.9); disparar
+        // aqui (e não na página seguinte) a torna robusta a redirect perdido.
+        track('lab_wizard_completed', { project_id: id, porta: respostas.porta ?? null })
+        track('lab_plan_generated', { project_id: id })
         // ?leitura=1: sinaliza a 314 pra abrir em modo guiado (só a 1ª visita,
         // spec ISSUE-314 §2) — sem storage, sem SQL.
         router.push(`/lab/projeto/${id}?leitura=1`)

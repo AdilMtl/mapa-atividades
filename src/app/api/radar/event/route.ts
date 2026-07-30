@@ -7,6 +7,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { RADAR_EVENT_NAMES } from '@/lib/radar-events'
+import { LAB_EVENT_NAMES } from '@/lib/lab-events'
 
 // Client de service_role: radar_events só concede acesso a service_role (RLS travada).
 const supabaseAdmin = createClient(
@@ -42,7 +43,8 @@ export async function POST(request: NextRequest) {
 
     // Nomes literais do doc operacional §21 (mesma lista usada pelo client) — evita
     // eventos "quase iguais" poluindo a análise (risco registrado na própria issue).
-    if (!RADAR_EVENT_NAMES.includes(eventName)) {
+    // ISSUE-318: a rota também aceita os eventos lab_* (mesma tabela, mesmo trilho).
+    if (!RADAR_EVENT_NAMES.includes(eventName) && !LAB_EVENT_NAMES.includes(eventName)) {
       return NextResponse.json({ error: 'eventName inválido' }, { status: 400 })
     }
 

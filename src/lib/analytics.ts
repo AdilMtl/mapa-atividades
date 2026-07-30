@@ -16,9 +16,15 @@ declare global {
 }
 
 import { RADAR_EVENT_NAMES, type RadarEventName } from './radar-events'
+import { LAB_EVENT_NAMES, type LabEventName } from './lab-events'
 
-export { RADAR_EVENT_NAMES }
-export type { RadarEventName }
+export { RADAR_EVENT_NAMES, LAB_EVENT_NAMES }
+export type { RadarEventName, LabEventName }
+
+// ISSUE-318: o helper atende os dois vocabulários — funil público (radar_*) e Lab (lab_*).
+// Eventos lab_* nunca passam session_id (FK de radar_events aponta pra radar_sessions);
+// o project_id viaja como propriedade comum do payload.
+export type TrackedEventName = RadarEventName | LabEventName
 
 export type RadarEventProps = Record<string, string | number | boolean | null | undefined>
 
@@ -65,7 +71,7 @@ export function lerUtm(): UtmParams {
  * `session_id` é reservado: só viaja no trilho Supabase (coluna própria em radar_events),
  * nunca vira dimensão do dataLayer/GA4.
  */
-export function track(event: RadarEventName, props: RadarEventProps = {}): void {
+export function track(event: TrackedEventName, props: RadarEventProps = {}): void {
   if (typeof window === 'undefined') return
 
   const { session_id, ...resto } = props as RadarEventProps & { session_id?: string | null }
@@ -82,7 +88,7 @@ export function track(event: RadarEventName, props: RadarEventProps = {}): void 
   enviarParaSupabase(event, payload, sessionId)
 }
 
-function enviarParaSupabase(event: RadarEventName, payload: RadarEventProps, sessionId: string | null): void {
+function enviarParaSupabase(event: TrackedEventName, payload: RadarEventProps, sessionId: string | null): void {
   try {
     const body = JSON.stringify({
       eventName: event,

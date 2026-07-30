@@ -1,21 +1,24 @@
 import { createClient } from '@supabase/supabase-js'
 import { NextRequest, NextResponse } from 'next/server'
 
+import { exigirAdminSessao } from '@/lib/admin'
+
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 )
 
-// Verificar se é admin
-async function isAdmin(email: string | null) {
-  return email === 'adilson.matioli@gmail.com'
+// 🔒 ISSUE-318: o gate antigo confiava no header x-user-email enviado pelo
+// CLIENTE — forjável por qualquer curl. Agora a autoridade é a sessão do
+// cookie, validada no servidor (getUser). O header ficou ignorado de propósito
+// (o front antigo ainda o envia; não faz mal).
+async function isAdmin() {
+  return (await exigirAdminSessao()) !== null
 }
 
 // GET - Listar assinantes com informações de acesso
-export async function GET(request: NextRequest) {
-  const email = request.headers.get('x-user-email')
-  
-  if (!isAdmin(email)) {
+export async function GET() {
+  if (!(await isAdmin())) {
     return NextResponse.json({ error: 'Não autorizado' }, { status: 403 })
   }
 
@@ -88,9 +91,7 @@ if (authError) {
 }
 // POST - Adicionar assinante
 export async function POST(request: NextRequest) {
-  const email = request.headers.get('x-user-email')
-  
-  if (!isAdmin(email)) {
+  if (!(await isAdmin())) {
     return NextResponse.json({ error: 'Não autorizado' }, { status: 403 })
   }
 
@@ -116,16 +117,14 @@ export async function POST(request: NextRequest) {
 
 // PUT - Atualizar assinante
 export async function PUT(request: NextRequest) {
-  const email = request.headers.get('x-user-email')
-  
-  if (!isAdmin(email)) {
+  if (!(await isAdmin())) {
     return NextResponse.json({ error: 'Não autorizado' }, { status: 403 })
   }
 
   const body = await request.json()
   const { id, email: newEmail, expires_at } = body
 
-const updateData: any = { expires_at }
+const updateData: { expires_at: string; email?: string } = { expires_at }
 if (newEmail) {
   updateData.email = newEmail.toLowerCase().trim()
 }
@@ -144,9 +143,7 @@ const { error } = await supabaseAdmin
 
 // DELETE - Remover assinante
 export async function DELETE(request: NextRequest) {
-  const email = request.headers.get('x-user-email')
-  
-  if (!isAdmin(email)) {
+  if (!(await isAdmin())) {
     return NextResponse.json({ error: 'Não autorizado' }, { status: 403 })
   }
 
