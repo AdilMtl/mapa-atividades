@@ -8,11 +8,37 @@
 
 ---
 
-## 🎯 SESSÃO ATUAL: Casca admin DS2 mobile (ISSUE-318B), sobre a 318A validada
+## 🎯 SESSÃO ATUAL: Painel de Analytics (318A) + casca admin DS2 (318B), com 3 rodadas de teste real
 **Data:** 30 de julho de 2026
-**Versão:** v3.11.30 (318A v3.11.27 → ajustes v3.11.28/30 · 318B v3.11.29)
-**Status:** ✅ ISSUE-318A **concluída** (dono validou em produção, celular, sessão logada) ·
-ISSUE-318B código completo, falta o dono validar CRUD de assinantes no celular.
+**Versão:** v3.11.31 (318A v3.11.27 → ajustes v3.11.28/30/31 · 318B v3.11.29)
+**Status:** ✅ **ISSUE-318A concluída** (dono validou em produção, celular, sessão logada) ·
+✅ **ISSUE-318B com o visual aprovado pelo dono** ("ficou com um visual bem bonito") — o CRUD de
+assinantes pelo celular (editar/excluir sem zoom) ainda não foi exercitado numa operação real,
+fica como confirmação de uso.
+
+### **📐 O padrão que se repetiu 3 vezes nesta sessão (vale pra próxima):**
+Cada rodada de teste do dono no CELULAR REAL derrubou uma decisão de layout que parecia certa no
+código. Sempre a mesma família de erro: **tabela ou linha larga demais pra tela de 360px.**
+1. v3.11.28 — tabela de origem do tráfego (5 colunas) → lista de cards.
+2. v3.11.29 — tabela de assinantes (6 colunas) → lista de cards (mesmo remédio, aplicado antes
+   do dono reclamar de novo).
+3. v3.11.31 — **bug de verdade:** `min-w-full` no carrossel é um MÍNIMO, não uma trava; conteúdo
+   maior que a tela (um `utm_campaign` de 60+ chars sem separador) esticava o painel, e com
+   `snap-center` sobrava pros dois lados — título cortado à esquerda, números à direita.
+**Regra a adotar daqui pra frente:** em tela de admin/dado, tabela multi-coluna é o default
+errado no mobile; e todo container de carrossel/flex precisa de trava de largura
+(`basis-full grow-0 shrink-0` + `overflow-hidden`), nunca só `min-w-*`.
+
+### **v3.11.31 — revisão de UI/UX pedida pelo dono ("seja um profissional de UX/UI"):**
+Além do bug acima, a revisão achou o que ele não tinha apontado:
+- **O gráfico não tinha eixo nenhum** — nem data sob as barras, nem referência de escala. Ganhou
+  `pico: N sessões/dia` como unidade da altura + linha de eixo com as datas das pontas.
+- **A legenda descrevia as cores em texto** ("altura = sessões · parte laranja = virou lead") —
+  virou legenda com amostras de cor. Mostrar a cor > descrevê-la.
+- **"amostra insuficiente p/ variação"** quebrava em 3 linhas num tile de 160px e desalinhava a
+  grade → "sem base p/ comparar".
+- `break-words` não quebra dentro de uma palavra única (o UTM gigante) → `break-all`.
+- Gradiente na fatia de lead virou laranja sólido — em traço de poucos pixels, gradiente suja.
 
 ### **v3.11.30 — 2ª rodada de feedback do dono (UI/UX + analytics):**
 1. **Gráfico de visitas × conversão.** O ponto magenta da v1 era binário ("teve lead nesse
@@ -69,20 +95,27 @@ overflow horizontal). Commitado e no ar.
   `admin/assinantes/page.tsx` (JSX inteiro reestilizado, lógica intacta), `PainelConvitesLab.tsx`
   e `PainelAnalytics.tsx` (removidos os links de navegação avulsos da sessão anterior — viraram
   redundantes com as abas do `AdminShell`).
-- **398 testes verdes** (372 + 26 da 318A) · `tsc --noEmit` limpo em ambas as issues · lint dos
-  tocados zerado (1 `any` pré-existente em `AppShell.tsx`, fora do diff, débito já conhecido) ·
-  build verde (47 rotas) · `git diff --stat` confirma diff **zero** em `layout.tsx`,
+- Ajustes v3.11.30/31 — novos: `BlocoVisitasConversao.tsx`, `Carrossel.tsx`;
+  `src/lib/admin/analytics.ts` ganhou `resolverGranularidade`/`agregarSerie`/
+  `calcularTaxaConversao` (puras, +10 testes). `BlocoOrigem` perdeu a série (virou bloco próprio).
+- **408 testes verdes** (372 + 36 de admin/analytics) · `tsc --noEmit` limpo em todas as rodadas ·
+  lint dos tocados zerado (1 `any` pré-existente em `AppShell.tsx`, fora do diff, débito já
+  conhecido) · build verde (47 rotas) · `git diff --stat` confirma diff **zero** em `layout.tsx`,
   `EmailGate.tsx`, `api/prediag/*`, `lib/analytics.ts`, `lib/radar-events.ts`,
-  `lib/lab-events.ts` nas duas issues.
+  `lib/lab-events.ts` em todas as issues desta sessão.
 
 ### **🎯 PRÓXIMA SESSÃO:**
-1. **Dono valida a 318B em produção** (celular): editar/excluir assinante sem zoom nem scroll
-   lateral, selects legíveis, export LGPD (em `/privacidade`, fora do escopo desta issue) segue
-   intacto.
-2. **ISSUE-318A2** (Sonnet, persona Analytics & Ads) — Blocos 4–6: segmentação de conteúdo
-   (área, o que dói, `mat_fronteira`) e pipeline do Lab, reusando a camada de dados da 318A.
+1. **ISSUE-318A2** (Sonnet, persona Analytics & Ads) — Blocos 4–6: segmentação de conteúdo
+   (área de atuação, o que dói, `mat_fronteira`) e pipeline do Lab, reusando a camada de dados
+   da 318A. **Já entra sabendo:** os blocos novos são painéis do `Carrossel` (não empilhar mais
+   nada na vertical), e distribuição/matriz no mobile é lista de barras, nunca tabela.
+2. Confirmação de uso da 318B: numa próxima necessidade real, editar/excluir um assinante pelo
+   celular.
 3. Pendências herdadas: validações da ISSUE-318 em produção (GTM Preview, convite real, Tag
    Assistant) e os testes manuais acumulados (315 item 7, 314C, 314D).
+4. **Dívida registrada, não esquecida:** o Artifact visual do backlog
+   (`docs/revamp/roadmap-backlog.html`) está desatualizado desde 2026-07-11 — as issues 313→318B
+   mudaram de status e não foram refletidas lá. Merece uma sessão curta de resync.
 
 ---
 

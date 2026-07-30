@@ -1388,9 +1388,12 @@ Convites do Lab · Analytics, DS2, mobile-first) substitui o sidebar legado do `
 selects com fundo escuro legível via `colorScheme: dark` + `<option>` explícita). Zero mudança
 de lógica/estado/rotas/CRUD — handlers e fetches copiados byte a byte. tsc limpo, lint dos
 tocados zerado (1 `any` pré-existente e intocado em `AppShell.tsx`, débito já conhecido), 398
-testes verdes, build verde. **Falta:** dono validar no celular (editar/excluir sem zoom/scroll
-lateral) — critério de aceite não verificável sem dispositivo real. Registrada em 2026-07-29 a
-pedido do dono ("não consigo acessar a aba de Admin no celular direito, está no estilo antigo").
+testes verdes, build verde. **Visual aprovado pelo dono em 2026-07-30** ("ficou com um visual bem
+bonito") após 3 rodadas de teste no celular real — a última achou um bug de layout de verdade
+(`min-w-full` no carrossel é mínimo, não trava: conteúdo maior que a tela cortava título e
+números). Falta só a confirmação de uso: editar/excluir um assinante pelo celular numa operação
+real. Registrada em 2026-07-29 a pedido do dono ("não consigo acessar a aba de Admin no celular
+direito, está no estilo antigo").
 **Tipo:** UI/Frontend · **Prioridade:** Média · **Complexidade:** Média
 **Modelo:** Sonnet — conversão visual mecânica sob o mapa de tokens do `08_diretrizes_visuais_ds2.md`
 §5, com as proibições do §6.
