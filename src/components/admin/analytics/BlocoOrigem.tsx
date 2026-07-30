@@ -11,19 +11,24 @@ import type { LinhaOrigem } from '@/lib/admin/analytics'
  */
 function LinhaOrigemCard({ linha }: { linha: LinhaOrigem }) {
   return (
-    <Card className="space-y-2 py-3.5">
-      <p className="break-words font-ds2-sans text-sm font-medium text-ds2-text-primary">{linha.chave}</p>
-      <div className="flex flex-wrap gap-x-4 gap-y-1 font-ds2-mono text-xs text-ds2-text-secondary">
+    <Card className="space-y-2 overflow-hidden py-3.5">
+      {/* `break-all`, não `break-words`: utm_campaign real pode ser uma string
+          única de 60+ chars sem separador — `break-words` não quebra dentro da
+          palavra e o card estourava a largura da tela (achado no teste do dono). */}
+      <p className="break-all font-ds2-sans text-sm font-medium text-ds2-text-primary">{linha.chave}</p>
+      <div className="flex flex-wrap gap-x-3 gap-y-1 font-ds2-mono text-[11px] text-ds2-text-secondary">
         <span>
           <strong className="text-ds2-text-primary">{linha.sessoes}</strong> sessões
         </span>
         <span>
-          {linha.pctConclusao}% conclusão · {linha.conclusoes} de {linha.sessoes}
+          {linha.pctConclusao}% concluiu · {linha.conclusoes} de {linha.sessoes}
         </span>
         <span>
-          <strong className="text-ds2-text-primary">{linha.leadsUnicos}</strong> leads únicos
+          <strong className="text-ds2-text-primary">{linha.leadsUnicos}</strong> leads
         </span>
-        <span>lead/sessão: {linha.leadPorSessaoPct === null ? '—' : `${linha.leadPorSessaoPct}%`}</span>
+        <span>
+          lead/sessão {linha.leadPorSessaoPct === null ? '—' : `${linha.leadPorSessaoPct}%`}
+        </span>
       </div>
     </Card>
   )

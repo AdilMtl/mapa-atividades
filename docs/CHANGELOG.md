@@ -16,6 +16,36 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [v3.11.31] - 2026-07-30 - 🔧 Painéis do analytics vazando da tela + eixos e legenda do gráfico
+
+### 🔧 Corrigido
+- **Conteúdo cortado dos dois lados no celular** (achado no teste do dono, com print): título de
+  painel cortado à esquerda ("ISITAS × CONVERSÃO") e números cortados à direita ("20 leads
+  úni…", "por dia 08/07 —"). **Causa raiz:** o carrossel usava `min-w-full` — que é um MÍNIMO,
+  não uma trava. Conteúdo mais largo que a tela (um `utm_campaign` de 60+ chars sem separador,
+  uma linha mono comprida) fazia o painel crescer, e com `snap-center` ele sobrava pros dois
+  lados. **Solução:** `basis-full grow-0 shrink-0` fixa a largura na do trilho,
+  `overflow-hidden` impede qualquer filho de vazar, e `snap-start` alinha pela borda esquerda.
+  Removida também a sangria por margem negativa, que colava os cards na borda da tela.
+- **UTM longo estourando o card de origem** — `break-words` não quebra dentro de uma palavra
+  única; trocado por `break-all`.
+- **Degraus do funil** ganharam `min-w-0` no rótulo + `shrink-0` no número (o par
+  rótulo-longo/número-`nowrap` empurrava a linha além do card).
+
+### 🎨 Melhorado
+- **Gráfico ganhou eixos** — não tinha nenhum: nem data sob as barras, nem referência de escala.
+  Agora mostra o pico (`pico: 32 sessões/dia`) como unidade da altura, e uma linha de eixo com as
+  datas de início e fim ancoradas nas pontas.
+- **Legenda com amostras de cor** em vez da frase corrida que descrevia as cores ("altura =
+  sessões · parte laranja = virou lead") — mostrar a cor é sempre mais legível que descrevê-la.
+- **Tiles de números:** "amostra insuficiente p/ variação" quebrava em 3 linhas num card de
+  160px e desalinhava a grade; virou "sem base p/ comparar" (a explicação completa já mora no
+  bloco "como ler").
+- Barra de abas com scrollbar escondida; gradiente da fatia de lead trocado por laranja sólido
+  (num traço de poucos pixels o gradiente só sujava a cor).
+
+---
+
 ## [v3.11.30] - 2026-07-30 - 🎨 Visitas × conversão + carrossel no analytics · header compacto em assinantes
 
 Dois feedbacks do dono depois de usar as telas em produção.

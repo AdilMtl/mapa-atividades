@@ -10,15 +10,17 @@ const ROTULO_KIND: Record<FunilRadar['kind'], string> = {
 
 export function BlocoFunil({ funil }: { funil: FunilRadar }) {
   return (
-    <Card className="space-y-3">
+    <Card className="space-y-3 overflow-hidden">
       <p className="font-ds2-mono text-xs uppercase tracking-[0.08em] text-ds2-amber-soft">
         {ROTULO_KIND[funil.kind]}
       </p>
       <div className="space-y-2.5">
         {funil.degraus.map((degrau) => (
           <div key={degrau.id} className="space-y-1">
-            <div className="flex items-center justify-between gap-2">
-              <span className="font-ds2-sans text-sm text-ds2-text-secondary">
+            {/* `min-w-0` no rótulo: sem isso o texto longo + o número
+                `whitespace-nowrap` empurram a linha além da largura do card. */}
+            <div className="flex items-baseline justify-between gap-2">
+              <span className="min-w-0 font-ds2-sans text-sm text-ds2-text-secondary">
                 {degrau.rotulo}
                 {degrau.direcional && (
                   <Badge className="ml-1.5 text-[9px]" title="derivado de evento — pode duplicar ou perder">
@@ -26,8 +28,8 @@ export function BlocoFunil({ funil }: { funil: FunilRadar }) {
                   </Badge>
                 )}
               </span>
-              <span className="whitespace-nowrap font-ds2-mono text-xs text-ds2-text-muted">
-                {degrau.pct}% · {degrau.n} de {funil.topo}
+              <span className="shrink-0 whitespace-nowrap font-ds2-mono text-[11px] text-ds2-text-muted">
+                {degrau.pct}% · {degrau.n}/{funil.topo}
               </span>
             </div>
             <div className="h-2 overflow-hidden rounded-ds2-pill bg-white/[0.08]">
