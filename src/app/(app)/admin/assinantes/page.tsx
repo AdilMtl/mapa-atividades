@@ -271,6 +271,12 @@ const filteredAssinantes = getFilteredAndSorted()
     Convites do Lab
   </button>
   <button
+    onClick={() => router.push('/admin/analytics')}
+    className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white/5 border border-white/20 text-white hover:bg-white/10 transition-all"
+  >
+    Analytics
+  </button>
+  <button
     onClick={() => setShowAddForm(!showAddForm)} 
     className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[#d97706] text-white hover:bg-[#d97706]/80 transition-all"
   >

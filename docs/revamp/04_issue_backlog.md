@@ -1327,8 +1327,12 @@ Resend). **⚠️ Toca página pública — revalidar conversão GTM/Ads antes d
 **Dep.:** 313–315.
 
 ## ISSUE-318A — Painel de Analytics do admin (funil + aquisição) — Fatia A
-**Status:** ⬜ spec fechada em 2026-07-29 (`ISSUE-318A-spec-analytics-admin.md`), execução não
-iniciada. **Ler a spec inteira antes de codar** — as 4 decisões do dono estão travadas lá.
+**Status:** ✅ código completo em 2026-07-30 (v3.11.27) — `/admin/analytics` no ar, Blocos 1/2/3/7
+implementados, tsc/lint limpos, 398 testes verdes (372 + 26 novos em `analytics.test.ts`), build
+verde (47 rotas), diff zero na trava de tracking (`layout.tsx`/`EmailGate`/`api/prediag/*`/
+`lib/analytics.ts`/`lib/radar-events.ts`/`lib/lab-events.ts`). **Falta só o critério 10:**
+validação do dono no celular, sessão logada, respondendo as 3 perguntas que motivaram a issue.
+**Ler a spec inteira antes de codar** — as 4 decisões do dono estão travadas lá.
 **Tipo:** Analytics/Frontend · **Prioridade:** Alta · **Complexidade:** Média
 **Modelo:** Sonnet com **persona Analytics & Ads**. ⚠️ *Não* é Fable 5, e o motivo importa: a
 regra da 318 ("qualquer issue que mexa em tracking pede a persona dedicada, sem exceção") vale

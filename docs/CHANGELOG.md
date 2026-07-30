@@ -16,6 +16,31 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [v3.11.27] - 2026-07-30 - 📊 Painel de Analytics do admin — Fatia A (ISSUE-318A)
+
+### ✨ Adicionado
+- **`/admin/analytics` no ar** — substituto do Grafana morto. Números da janela (sessões,
+  conclusões, leads únicos, projetos do Lab), funil dos radares separado por `kind`
+  (maturidade/oportunidades), origem do tráfego por UTM com série temporal de sessões/leads, e
+  bloco de notas de leitura sempre visível (exato × direcional, sem topo de funil, sem dropout
+  por pergunta, taxa com N baixo é indício).
+- **Zero SQL novo:** agregação inteira em `src/lib/admin/analytics.ts` (puro, testado com
+  vitest — 26 testes novos: dedupe de e-mail, exclusão de tráfego de teste, janela/janela
+  anterior, cap de amostra, funil com topo=0). `radar_events` só é lido por `count`, nunca em
+  bulk; as demais tabelas usam cap de 1000 linhas com sinalização `amostraTruncada`.
+- **Rota `GET /api/admin/analytics`** — gate por sessão do cookie (mesmo padrão da ISSUE-318),
+  `service_role` local, somente leitura, zero PII na resposta.
+
+### 📊 Técnico
+- `vitest.config.ts` ganhou `src/lib/admin/**/*.test.ts` no escopo (estava travado só em
+  radar/lab desde 2026-07-06).
+- 398 testes verdes (372 + 26) · tsc limpo · lint dos tocados zerado · build verde (47 rotas).
+- `git diff --stat` confirma diff zero na trava de tracking (`layout.tsx`, `EmailGate.tsx`,
+  `api/prediag/*`, `lib/analytics.ts`, `lib/radar-events.ts`, `lib/lab-events.ts`).
+- **⚠️ Issue parcial:** falta o dono validar o painel no celular, sessão logada.
+
+---
+
 ## [v3.11.26] - 2026-07-29 - 🔧 Convite do beta: erro do Resend visível + reenviar + Admin na nav do Lab
 
 ### 🔧 Corrigido

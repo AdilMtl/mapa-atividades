@@ -8,7 +8,60 @@
 
 ---
 
-## 🎯 SESSÃO ATUAL: Spec do painel de Analytics + sistema de feedback (318A–318E)
+## 🎯 SESSÃO ATUAL: Painel de Analytics do admin — Fatia A (ISSUE-318A)
+**Data:** 30 de julho de 2026
+**Versão:** v3.11.27
+**Status:** ✅ código completo e validado — falta só o critério 10 (dono valida no celular,
+sessão logada, respondendo as 3 perguntas que motivaram a issue: de onde vêm as pessoas que
+terminam, sobre o que escrever, onde o Lab trava).
+
+### **🚀 O QUE FOI FEITO:**
+
+1. **`/admin/analytics` no ar** — Blocos 1 (números da janela), 2 (funil dos radares por
+   `kind`, separando maturidade e oportunidades), 3 (origem do tráfego por UTM + série temporal
+   de sessões/leads) e 7 (notas de leitura, sempre visíveis) da spec `ISSUE-318A-spec-analytics-
+   admin.md`. Blocos 4–6 (segmentação de conteúdo + pipeline do Lab) ficam para a 318A2.
+2. **Zero SQL novo** — agregação inteira em TypeScript (`src/lib/admin/analytics.ts`), puro e
+   testado com vitest (26 testes novos: dedupe de e-mail, exclusão de tráfego de teste, N=0/N=1,
+   cálculo de janela/janela anterior, cap de amostra, funil com topo=0). `radar_events` só é
+   lido por `count` (nunca em bulk) — os outros três (`radar_sessions`, `radar_leads`,
+   `lab_projects`) são lidos com cap de 1000 linhas e sinalizam `amostraTruncada` se estourar.
+3. **Armadilhas metodológicas da spec tratadas:** tráfego de teste do dono
+   (`adilson.matioli@`/`adilson.matioli1@`) excluído de leads e projetos por padrão (toggle
+   liga); leads sempre contados por e-mail distinto; todo número de evento carrega o selo
+   "evento" (direcional); todo percentual sai com o N absoluto ao lado; taxa de variação da
+   janela anterior só aparece com N ≥ 20 dos dois lados.
+4. **Rota `GET /api/admin/analytics`** — gate por sessão do cookie (`exigirAdminSessao`, mesmo
+   padrão da 318), `service_role` local, somente leitura, zero PII (e-mail/nome/IP) na resposta
+   agregada.
+5. **Navegação mínima entre os 3 painéis de admin** (analytics ⇄ convites do Lab ⇄ assinantes) —
+   o restyle de verdade da casca é a 318B.
+6. **`vitest.config.ts` ganhou `src/lib/admin/**/*.test.ts`** no escopo (estava travado só em
+   `radar`/`lab` desde 2026-07-06) — os novos testes precisavam disso pra rodar.
+
+### **📊 TÉCNICO:**
+- Novos: `src/lib/admin/analytics.ts` (+ `.test.ts`, 26 testes), `src/app/api/admin/analytics/
+  route.ts`, `src/app/(app)/admin/analytics/page.tsx`, `src/components/admin/PainelAnalytics.tsx`
+  + `src/components/admin/analytics/{BlocoNumeros,BlocoFunil,BlocoOrigem,BlocoNotas}.tsx`.
+- Alterados: `vitest.config.ts` (escopo), `admin/assinantes/page.tsx` e `PainelConvitesLab.tsx`
+  (só o link de navegação).
+- **398 testes verdes** (372 + 26) · `tsc --noEmit` limpo · lint dos tocados zerado · build verde
+  (47 rotas; `/admin/analytics` e `/api/admin/analytics` dinâmicas) · `git diff --stat` confirma
+  diff **zero** em `layout.tsx`, `EmailGate.tsx`, `api/prediag/*`, `lib/analytics.ts`,
+  `lib/radar-events.ts`, `lib/lab-events.ts` (trava de tracking intocada, critério de aceite 9).
+
+### **🎯 PRÓXIMA SESSÃO:**
+1. **Dono valida a 318A em produção** (celular, sessão logada) — sem essa validação a issue
+   segue "código completo", não "concluída".
+2. **ISSUE-318A2** (Sonnet, mesma persona) — Blocos 4–6: segmentação de conteúdo (área, o que
+   dói, `mat_fronteira`) e pipeline do Lab, reusando a camada de dados desta fatia.
+3. **ISSUE-318B** — casca admin DS2 mobile + restyle do `/admin/assinantes`.
+4. Pendências herdadas: validações da ISSUE-318 em produção (GTM Preview, convite real, Tag
+   Assistant) e os testes manuais acumulados (315 item 7, 314C, 314D).
+
+---
+
+## 📋 SESSÃO ANTERIOR: Spec do painel de Analytics + sistema de feedback (318A–318E)
 **Data:** 30 de julho de 2026
 **Versão:** v3.11.26 (sem bump — sessão de análise e planejamento, zero código)
 **Status:** ✅ specs fechadas e 6 issues registradas no backlog. Execução começa na próxima sessão.
