@@ -54,10 +54,31 @@ export function BlocoNotas({
           apareceu uma vez só: uma pessoa não é um padrão.
         </p>
         <p>
+          <strong className="text-ds2-text-primary">Concluir o radar não é um clique.</strong> Não
+          existe botão de &quot;terminar&quot;: no instante em que a pessoa responde a última
+          pergunta, o radar calcula o resultado e grava as respostas, o veredito e a conclusão de
+          uma vez só. Responder e concluir são o mesmo evento — não existe uma sem a outra.
+        </p>
+        <p>
           <strong className="text-ds2-text-primary">Segmentação é autodeclarada, não demografia.</strong>{' '}
           &quot;Quem chega&quot; e &quot;o que dói&quot; saem das respostas fechadas dos radares —
-          não temos (nem queremos, por ora) idade, gênero ou cidade. Quem abandonou o radar não
-          deixa resposta, então esses dois painéis contam só quem terminou.
+          não temos (nem queremos, por ora) idade, gênero ou cidade. Como a resposta só é gravada
+          no fim, <strong className="text-ds2-text-primary">a base desses dois painéis é o número
+          de conclusões, não o de sessões</strong> — se a janela tem 60 sessões e 25 conclusões,
+          as barras estão lendo 25.
+        </p>
+        <p>
+          <strong className="text-ds2-text-primary">Ali a contagem é de sessões, não de pessoas.</strong>{' '}
+          Quem refez o radar aparece duas vezes na distribuição. Já o número de{' '}
+          <em>leads únicos</em> é por e-mail distinto: a mesma pessoa nos dois radares gera duas
+          linhas na tabela e conta como um lead só.
+        </p>
+        <p>
+          <strong className="text-ds2-text-primary">Conclusão pode estar subcontada — nunca inflada.</strong>{' '}
+          A gravação do resultado é tolerante a falha de propósito: se a rede cair naquele
+          instante, a pessoa vê o resultado normalmente e a conclusão não fica registrada. Uma
+          diferença pequena entre &quot;concluiu&quot; e &quot;virou lead&quot; pode ser isso, e
+          não comportamento de quem respondeu.
         </p>
         <p>
           <strong className="text-ds2-text-primary">O pipeline do Lab ignora a janela.</strong> É o

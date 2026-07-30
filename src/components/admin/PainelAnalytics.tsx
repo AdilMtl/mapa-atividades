@@ -151,9 +151,20 @@ export function PainelAnalytics() {
           <SectionTitle as="h1" className="mt-2 text-[28px] md:text-[36px]">
             De onde vêm, e onde ficam
           </SectionTitle>
+          {/* Explicação de entrada (pedido do dono, 2026-07-30): a tela precisa
+              dizer o que cada número É antes de ser interpretada. Curta de
+              propósito — header que ocupa meia tela foi problema real na sessão
+              anterior; o detalhe fica no painel "como ler". */}
           <p className="mt-2 max-w-[640px] font-ds2-sans text-sm leading-relaxed text-ds2-text-secondary">
             Três decisões numa tela: onde investir em Ads, sobre o que escrever e onde o Lab trava.
-            Tudo direto do que já é gravado hoje — sem view nova, sem evento novo.
+          </p>
+          <p className="mt-2 max-w-[640px] font-ds2-sans text-sm leading-relaxed text-ds2-text-secondary">
+            A espinha é sempre a mesma:{' '}
+            <strong className="text-ds2-text-primary">sessão</strong> (alguém abriu o radar) →{' '}
+            <strong className="text-ds2-text-primary">conclusão</strong> (respondeu até a última
+            pergunta) → <strong className="text-ds2-text-primary">lead</strong> (deixou o e-mail
+            depois de ver o resultado). Cada painel olha um pedaço dessa linha — e o último,{' '}
+            <em>como ler</em>, guarda as ressalvas que impedem conclusão errada.
           </p>
         </div>
 

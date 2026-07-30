@@ -16,6 +16,32 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [v3.11.33] - 2026-07-30 - 📖 A tela de analytics passa a se explicar sozinha
+
+Feedback do dono depois de usar o painel em produção ("tá bonito, fácil de ver") — a dúvida que
+sobrou não era de layout, era de **significado**: essas seções são o que as pessoas preencheram
+no radar? o lead é quem deixou o e-mail? Um painel que precisa de alguém do lado pra ser lido
+não está pronto.
+
+### ✨ Adicionado
+- **Explicação de entrada no topo da página** — a espinha do funil em uma frase: `sessão` (abriu
+  o radar) → `conclusão` (respondeu até a última pergunta) → `lead` (deixou o e-mail depois do
+  resultado), apontando para o painel "como ler". Curta de propósito: header ocupando meia tela
+  foi problema real na v3.11.30.
+- **Quatro ressalvas novas no painel "como ler"**, todas conferidas no código do funil:
+  - **concluir não é um clique** — não existe botão de "terminar": responder a última pergunta
+    dispara o cálculo e grava respostas + veredito + conclusão de uma vez (`RadarFlow.finalizar`
+    → `PATCH /api/radar/session`). Responder e concluir são o mesmo evento.
+  - **a base dos painéis de segmentação é o número de CONCLUSÕES, não de sessões** — como a
+    resposta só é gravada no fim, 60 sessões com 25 conclusões produzem barras lendo 25.
+  - **segmentação conta sessões, não pessoas** (quem refez o radar aparece duas vezes), ao
+    contrário de "leads únicos", que é por e-mail distinto.
+  - **conclusão pode estar subcontada, nunca inflada** — a persistência do resultado é tolerante
+    a falha por design (a pessoa vê o resultado mesmo se a rede cair), então uma diferença
+    pequena entre "concluiu" e "virou lead" pode ser isso, e não comportamento de quem respondeu.
+
+---
+
 ## [v3.11.32] - 2026-07-30 - 📊 Segmentação de conteúdo + pipeline do Lab no analytics (ISSUE-318A2)
 
 Fatia B do painel de Analytics — fecha as decisões de **conteúdo** e **Lab** (a Fatia A já tinha

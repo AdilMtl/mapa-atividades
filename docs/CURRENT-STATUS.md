@@ -10,9 +10,28 @@
 
 ## 🎯 SESSÃO ATUAL: ISSUE-318A2 — segmentação de conteúdo + pipeline do Lab no analytics
 **Data:** 30 de julho de 2026
-**Versão:** v3.11.32
-**Status:** ✅ **código completo e no ar** — falta a validação do dono no celular (o critério de
-aceite da issue é ele conseguir nomear, olhando a tela, o tema da próxima conversa da newsletter).
+**Versão:** v3.11.33 (318A2 em v3.11.32 · ressalvas de leitura em v3.11.33)
+**Status:** ✅ **ISSUE-318A2 concluída e validada pelo dono em produção** — "tá bonito, fácil de
+ver… dá pra ver como tem sido a conversão, os gráficos de origem também, o que dói, quem chega.
+Nenhum feedback negativo." Ele vai fazer as análises painel a painel com o tempo.
+
+### **📖 O feedback que virou a v3.11.33 (e a lição que vale pra próxima tela de dado):**
+A única dúvida do dono depois de usar a tela não foi de layout — foi de **significado**: "essas
+seções foram o que as pessoas preencheram no radar? aí clicaram pra terminar, e os leads foram
+quem colocou o e-mail?". A leitura dele estava certa, mas a tela não respondia isso sozinha.
+**Um painel de dado que precisa de alguém do lado pra ser interpretado não está pronto** — o
+gráfico bonito é condição necessária, não suficiente. Duas correções: a espinha do funil
+(`sessão → conclusão → lead`) explicada no topo da página, e quatro ressalvas novas no painel
+"como ler", todas conferidas no código do funil em vez de deduzidas:
+1. **Concluir não é um clique** — responder a última pergunta dispara o cálculo e grava
+   respostas + veredito + conclusão de uma vez (`RadarFlow.finalizar` → `PATCH
+   /api/radar/session`). Responder e concluir são o mesmo evento.
+2. **A base dos painéis de segmentação é o número de CONCLUSÕES, não de sessões** — 60 sessões
+   com 25 conclusões produzem barras lendo 25. Era a leitura errada mais provável da tela.
+3. **Segmentação conta sessões, não pessoas** (quem refez o radar aparece 2×), ao contrário de
+   "leads únicos", que é por e-mail distinto.
+4. **Conclusão pode estar subcontada, nunca inflada** — a persistência do resultado é tolerante a
+   falha por design (a pessoa vê o resultado mesmo se a rede cair).
 
 ### **🚀 O QUE FOI FEITO:**
 Fatia B do painel de Analytics — fecha as decisões de **conteúdo** e **Lab** (a Fatia A tinha
@@ -55,8 +74,8 @@ barra ganhou máscara de desbotamento na borda, só no mobile.
   diff **zero** na trava de tracking.
 
 ### **🎯 PRÓXIMA SESSÃO:**
-1. **Teste do dono no celular** (318A2) — o painel `o que dói` é onde o critério de aceite se
-   resolve.
+1. **Abrir a próxima issue do revamp** — a série 318 fecha aqui (318A, 318A2 e 318B entregues e
+   validadas). Escolher a próxima elegível em `docs/revamp/03_implementation_plan.md`.
 2. Confirmação de uso da 318B: editar/excluir um assinante pelo celular numa necessidade real.
 3. Pendências herdadas: validações da ISSUE-318 em produção (GTM Preview, convite real, Tag
    Assistant) e os testes manuais acumulados (315 item 7, 314C, 314D).

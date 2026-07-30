@@ -1361,10 +1361,13 @@ sessão de admin devolve 401/403 e nunca vaza e-mail/nome/IP.
 com N=3 — mitigação é o Bloco 7 entrar já nesta fatia, não depois.
 
 ## ISSUE-318A2 — Painel de Analytics: segmentação de conteúdo + pipeline do Lab — Fatia B
-**Status:** ✅ código completo em 2026-07-30 (v3.11.32) — 3 painéis novos no carrossel de
+**Status:** ✅ **concluída em 2026-07-30** (v3.11.32 + v3.11.33) — 3 painéis novos no carrossel de
 `/admin/analytics` (**quem chega · o que dói · Lab**), 431 testes verdes (eram 408), tsc/lint
-limpos, build verde, diff zero na trava de tracking. **Falta a validação do dono no celular**
-(critério: nomear, olhando a tela, o tema da próxima conversa da newsletter).
+limpos, build verde, diff zero na trava de tracking. **Validada pelo dono em produção:** "tá
+bonito, fácil de ver… nenhum feedback negativo". A v3.11.33 respondeu a única dúvida que sobrou
+(o que cada número significa): espinha `sessão → conclusão → lead` no topo da página + 4
+ressalvas novas no painel "como ler" — a mais importante é que **a base dos painéis de
+segmentação é o número de conclusões, não o de sessões**.
 **Duas decisões de método tomadas na execução, dentro da §4.2 da spec** (registro, não desvio):
 1. **Pipeline do Lab por TABELA, não por evento.** A spec (§5, Bloco 6) citava
    `lab_plan_generated` e `lab_step_completed.fase_id`, mas os dois têm equivalente exato em
