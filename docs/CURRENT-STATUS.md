@@ -8,7 +8,65 @@
 
 ---
 
-## 🎯 SESSÃO ATUAL: Painel de Analytics (318A) + casca admin DS2 (318B), com 3 rodadas de teste real
+## 🎯 SESSÃO ATUAL: ISSUE-318A2 — segmentação de conteúdo + pipeline do Lab no analytics
+**Data:** 30 de julho de 2026
+**Versão:** v3.11.32
+**Status:** ✅ **código completo e no ar** — falta a validação do dono no celular (o critério de
+aceite da issue é ele conseguir nomear, olhando a tela, o tema da próxima conversa da newsletter).
+
+### **🚀 O QUE FOI FEITO:**
+Fatia B do painel de Analytics — fecha as decisões de **conteúdo** e **Lab** (a Fatia A tinha
+fechado a de Ads). Três painéis novos no carrossel de `/admin/analytics`, reusando a camada de
+dados da 318A: **quem chega** (área · nível de fluência · tipo recomendado), **o que dói** (top 5
+de `mat_fronteira`, `op_perda` e `op_entrega` + cruzamento área × tipo) e **Lab** (pipeline,
+progressão do checklist, dropout por fase, guias mais abertos). Zero view, zero tabela, zero
+evento novo — tudo do que já é gravado hoje.
+
+### **📐 As três decisões de método da execução (dentro da §4.2 da spec, registradas no backlog):**
+1. **Funil do Lab partido em duas metades com unidades separadas** — pessoas (interesse →
+   convidado → conta) e projetos (criado → plano → construção → concluído). A spec descrevia um
+   funil só; empilhar as duas unidades passaria de 100% no dia em que alguém criasse o segundo
+   projeto.
+2. **O Bloco 6 ignora a janela de tempo** (acumulado do beta, declarado na tela e nas notas). Os
+   degraus vivem em tabelas de tempos diferentes — convite de 40 dias atrás, conta criada hoje —,
+   então recortar por período faria um degrau ficar maior que o próprio topo.
+3. **Tabela em vez de evento** onde a spec citava `lab_plan_generated` e `lab_step_completed`: os
+   dois têm equivalente exato em `lab_projects.plan`, e a §4.2 manda preferir a tabela sempre que
+   ela existe. Dropout por fase saiu **exato** em vez de direcional; evento sobrou só em "guias
+   mais abertos", com o selo `evento`.
+
+### **🎨 Achado da revisão de UX (não estava no pedido):**
+O carrossel foi de 5 para 8 painéis e a barra de abas parou de caber na tela. Duas falhas reais:
+ao deslizar, o destaque saía de vista e a barra passava a mentir sobre onde a pessoa estava; e,
+com a scrollbar escondida, nada avisava que havia mais abas à direita. A aba ativa agora se
+centraliza sozinha (`block: 'nearest'` — sem isso o scroll da barra arrastaria a página) e a
+barra ganhou máscara de desbotamento na borda, só no mobile.
+
+### **📊 TÉCNICO:**
+- Novos: `src/lib/admin/analytics-rotulos.ts` (id fechado → texto, **só no servidor**: a copy do
+  radar e dos guias não vai pro bundle do painel) + `BarrasDistribuicao`, `BlocoQuemChega`,
+  `BlocoOQueDoi`, `BlocoLab` em `src/components/admin/analytics/`.
+- `src/lib/admin/analytics.ts` ganhou as agregações puras dos 3 blocos; `RadarSessaoLinha` ganhou
+  `resultKey`/`answers` e `LabProjetoLinha` ganhou `status`/`etapasFeitas`/`etapasTotal`.
+- A rota filtra `answers` para deixar passar **só pares string→string** (nenhum texto livre de
+  usuário entra na agregação) e segue sem ler `radar_events` em bulk — guias são 10 contagens
+  `head` por slug canônico.
+- **431 testes verdes** (eram 408) · tsc limpo · lint zerado nos tocados · build verde ·
+  diff **zero** na trava de tracking.
+
+### **🎯 PRÓXIMA SESSÃO:**
+1. **Teste do dono no celular** (318A2) — o painel `o que dói` é onde o critério de aceite se
+   resolve.
+2. Confirmação de uso da 318B: editar/excluir um assinante pelo celular numa necessidade real.
+3. Pendências herdadas: validações da ISSUE-318 em produção (GTM Preview, convite real, Tag
+   Assistant) e os testes manuais acumulados (315 item 7, 314C, 314D).
+4. **Dívida registrada:** o Artifact visual do backlog (`docs/revamp/roadmap-backlog.html`) está
+   desatualizado desde 2026-07-11 — as issues 313→318A2 mudaram de status e não foram refletidas
+   lá. Merece uma sessão curta de resync.
+
+---
+
+## 📋 SESSÃO ANTERIOR: Painel de Analytics (318A) + casca admin DS2 (318B), com 3 rodadas de teste real
 **Data:** 30 de julho de 2026
 **Versão:** v3.11.31 (318A v3.11.27 → ajustes v3.11.28/30/31 · 318B v3.11.29)
 **Status:** ✅ **ISSUE-318A concluída** (dono validou em produção, celular, sessão logada) ·

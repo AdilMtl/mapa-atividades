@@ -27,6 +27,7 @@ export interface PainelCarrossel {
 export function Carrossel({ paineis }: { paineis: PainelCarrossel[] }) {
   const [ativo, setAtivo] = React.useState(paineis[0]?.id ?? '')
   const refs = React.useRef<Record<string, HTMLElement | null>>({})
+  const refsAba = React.useRef<Record<string, HTMLButtonElement | null>>({})
 
   // Aba acompanha o que está visível — no celular conforme desliza, no desktop
   // conforme rola. Sem isso a aba mente sobre onde a pessoa está.
@@ -49,6 +50,14 @@ export function Carrossel({ paineis }: { paineis: PainelCarrossel[] }) {
     return () => observador.disconnect()
   }, [paineis])
 
+  // A barra de abas não cabe inteira na tela (são 8 painéis). Sem isto, quem
+  // desliza os painéis vê o destaque sumir do lado direito e a barra passa a
+  // mentir sobre onde a pessoa está. `block: 'nearest'` é obrigatório: sem ele
+  // o scroll horizontal da barra arrastaria a PÁGINA junto.
+  React.useEffect(() => {
+    refsAba.current[ativo]?.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' })
+  }, [ativo])
+
   const irPara = (id: string) => {
     setAtivo(id)
     refs.current[id]?.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'start' })
@@ -56,11 +65,17 @@ export function Carrossel({ paineis }: { paineis: PainelCarrossel[] }) {
 
   return (
     <div className="space-y-4">
-      <div className="flex gap-1.5 overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+      {/* A máscara desbota a última aba visível em vez de cortá-la seca: é o que
+          avisa que a barra continua pra direita, já que a scrollbar está
+          escondida. Sem afordância, 8 abas viram 3 abas na percepção. */}
+      <div className="flex gap-1.5 overflow-x-auto pb-1 [-ms-overflow-style:none] [mask-image:linear-gradient(90deg,#000_0,#000_calc(100%-28px),transparent_100%)] [scrollbar-width:none] md:[mask-image:none] [&::-webkit-scrollbar]:hidden">
         {paineis.map((painel) => (
           <button
             key={painel.id}
             type="button"
+            ref={(el) => {
+              refsAba.current[painel.id] = el
+            }}
             onClick={() => irPara(painel.id)}
             aria-current={ativo === painel.id}
             className={`flex min-h-[44px] shrink-0 items-center rounded-ds2-pill border px-3.5 font-ds2-mono text-xs transition-colors ${

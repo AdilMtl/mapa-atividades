@@ -1,10 +1,10 @@
 'use client'
 
 // =============================================================================
-// PAINEL DE ANALYTICS DO ADMIN — ISSUE-318A (Fatia A)
-// Blocos 1, 2, 3 e 7 da spec: números da janela, funil dos radares por kind,
-// origem do tráfego (UTM) + série temporal, e notas de leitura. Blocos 4-6
-// (segmentação de conteúdo + pipeline do Lab) são a Fatia B (ISSUE-318A2).
+// PAINEL DE ANALYTICS DO ADMIN — ISSUE-318A (Fatia A) + ISSUE-318A2 (Fatia B)
+// Os 7 blocos da spec: números da janela, funil dos radares por kind, origem do
+// tráfego (UTM) + série temporal, quem chega, o que dói, pipeline do Lab e as
+// notas de leitura.
 // A API valida a sessão de admin no servidor; aqui é só orquestração de tela.
 // =============================================================================
 
@@ -17,14 +17,18 @@ import type {
   FunilRadar,
   JanelaId,
   LinhaOrigem,
+  MatrizRotulada,
   NumerosJanela,
   PontoSerieTemporal,
 } from '@/lib/admin/analytics'
 
 import { BlocoFunil } from './analytics/BlocoFunil'
+import { BlocoLab, type DadosLab } from './analytics/BlocoLab'
 import { BlocoNotas } from './analytics/BlocoNotas'
 import { BlocoNumeros } from './analytics/BlocoNumeros'
+import { BlocoOQueDoi, type OQueDoiRotulado } from './analytics/BlocoOQueDoi'
 import { BlocoOrigem } from './analytics/BlocoOrigem'
+import { BlocoQuemChega, type QuemChegaRotulado } from './analytics/BlocoQuemChega'
 import { BlocoVisitasConversao } from './analytics/BlocoVisitasConversao'
 import { Carrossel, type PainelCarrossel } from './analytics/Carrossel'
 
@@ -39,6 +43,10 @@ interface RespostaPainel {
   origem: LinhaOrigem[]
   serie: PontoSerieTemporal[]
   leadsUnicosTotal: number
+  quemChega: QuemChegaRotulado
+  oQueDoi: OQueDoiRotulado
+  matriz: MatrizRotulada
+  lab: DadosLab
   amostra: { sessoes: AmostraInfo; leads: AmostraInfo }
 }
 
@@ -49,7 +57,11 @@ const JANELA_OPCOES: { id: JanelaId; rotulo: string }[] = [
   { id: 'tudo', rotulo: 'tudo' },
 ]
 
-/** Painéis do carrossel — a ordem é a jornada de leitura: quanto → onde vaza → quando → de onde → ressalvas. */
+/**
+ * Painéis do carrossel. A ordem é a jornada de leitura, agrupada por decisão:
+ * quanto → onde vaza → quando → de onde (Ads) · quem chega → o que dói
+ * (conteúdo) · Lab · ressalvas.
+ */
 function montarPaineis(dados: RespostaPainel): PainelCarrossel[] {
   const sessoesTotal = dados.numeros.sessoes.valor
 
@@ -81,6 +93,13 @@ function montarPaineis(dados: RespostaPainel): PainelCarrossel[] {
       ),
     },
     { id: 'origem', rotulo: 'origem', conteudo: <BlocoOrigem origem={dados.origem} /> },
+    { id: 'quem-chega', rotulo: 'quem chega', conteudo: <BlocoQuemChega quemChega={dados.quemChega} /> },
+    {
+      id: 'o-que-doi',
+      rotulo: 'o que dói',
+      conteudo: <BlocoOQueDoi oQueDoi={dados.oQueDoi} matriz={dados.matriz} />,
+    },
+    { id: 'lab', rotulo: 'Lab', conteudo: <BlocoLab lab={dados.lab} /> },
     {
       id: 'notas',
       rotulo: 'como ler',
@@ -133,8 +152,8 @@ export function PainelAnalytics() {
             De onde vêm, e onde ficam
           </SectionTitle>
           <p className="mt-2 max-w-[640px] font-ds2-sans text-sm leading-relaxed text-ds2-text-secondary">
-            Funil dos radares e origem de tráfego, direto do que já é gravado hoje — sem view
-            nova, sem evento novo (ISSUE-318A).
+            Três decisões numa tela: onde investir em Ads, sobre o que escrever e onde o Lab trava.
+            Tudo direto do que já é gravado hoje — sem view nova, sem evento novo.
           </p>
         </div>
 

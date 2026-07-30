@@ -11,11 +11,19 @@ import {
   resolverGranularidade,
   excluirLeadsDeTeste,
   excluirProjetosDeTeste,
+  calcularProgressaoChecklist,
+  montarDistribuicao,
+  montarDropoutFases,
   montarFunilRadar,
+  montarMatrizAreaTipo,
   montarNumerosJanela,
+  montarOQueDoi,
   montarOrigemTrafego,
+  montarPipelineLab,
+  montarQuemChega,
   montarSerieTemporal,
   normalizarEmail,
+  ordenarAberturasGuias,
   resolverEmailsExcluidos,
   type LabProjetoLinha,
   type RadarLeadLinha,
@@ -31,6 +39,20 @@ function sessao(overrides: Partial<RadarSessaoLinha> = {}): RadarSessaoLinha {
     utmSource: null,
     utmMedium: null,
     utmCampaign: null,
+    resultKey: null,
+    answers: null,
+    ...overrides,
+  }
+}
+
+function projeto(overrides: Partial<LabProjetoLinha> = {}): LabProjetoLinha {
+  return {
+    id: 'projeto-1',
+    userId: 'outro-uuid',
+    createdAt: '2026-07-10T00:00:00.000Z',
+    status: 'em_construcao',
+    etapasFeitas: 0,
+    etapasTotal: 5,
     ...overrides,
   }
 }
@@ -93,8 +115,8 @@ describe('excluirLeadsDeTeste / excluirProjetosDeTeste', () => {
 
   it('remove projetos do dono por user_id', () => {
     const projetos: LabProjetoLinha[] = [
-      { id: 'p1', userId: 'dono-uuid', createdAt: '2026-07-10T00:00:00.000Z' },
-      { id: 'p2', userId: 'outro-uuid', createdAt: '2026-07-10T00:00:00.000Z' },
+      projeto({ id: 'p1', userId: 'dono-uuid' }),
+      projeto({ id: 'p2', userId: 'outro-uuid' }),
     ]
     const resultado = excluirProjetosDeTeste(projetos, ['dono-uuid'])
     expect(resultado).toEqual([projetos[1]])
@@ -176,7 +198,7 @@ describe('montarNumerosJanela', () => {
       sessoesAnterior: [],
       leadsAtual: [lead({ email: 'a@x.com' }), lead({ email: 'a@x.com' })],
       leadsAnterior: [],
-      projetosAtual: [{ id: 'p1', userId: 'u1', createdAt: '2026-07-10T00:00:00.000Z' }],
+      projetosAtual: [projeto({ id: 'p1', userId: 'u1' })],
       projetosAnterior: [],
     })
     expect(numeros.sessoes.valor).toBe(2)
@@ -363,5 +385,238 @@ describe('agregarSerie', () => {
 
   it('série vazia não quebra', () => {
     expect(agregarSerie([], 'dia')).toEqual([])
+  })
+})
+
+// =============================================================================
+// ISSUE-318A2 — Blocos 4, 5 e 6
+// =============================================================================
+
+describe('montarDistribuicao', () => {
+  it('ordena por frequência e calcula o pct sobre as respostas válidas', () => {
+    const d = montarDistribuicao(['a', 'b', 'a', 'c', 'a', 'b'])
+    expect(d.total).toBe(6)
+    expect(d.itens.map((i) => i.id)).toEqual(['a', 'b', 'c'])
+    expect(d.itens[0]).toEqual({ id: 'a', n: 3, pct: 50 })
+  })
+
+  it('nulo/vazio sai do numerador E do denominador — "não respondeu" não é categoria', () => {
+    const d = montarDistribuicao(['a', null, undefined, '  ', 'b'])
+    expect(d.total).toBe(2)
+    expect(d.itens).toHaveLength(2)
+  })
+
+  it('empate desempata por id (ordem estável entre carregamentos)', () => {
+    expect(montarDistribuicao(['z', 'a']).itens.map((i) => i.id)).toEqual(['a', 'z'])
+  })
+
+  it('limite corta no top N e informa quantos ficaram de fora', () => {
+    const d = montarDistribuicao(['a', 'a', 'b', 'b', 'c', 'd'], 2)
+    expect(d.itens.map((i) => i.id)).toEqual(['a', 'b'])
+    expect(d.ocultados).toBe(2)
+    expect(d.total).toBe(6)
+  })
+
+  it('N=0 não quebra nem divide por zero', () => {
+    expect(montarDistribuicao([])).toEqual({ total: 0, itens: [], ocultados: 0 })
+  })
+})
+
+describe('montarQuemChega (Bloco 4)', () => {
+  const sessoes = [
+    sessao({ id: 's1', kind: 'oportunidades', answers: { op_area: 'area_rh' }, resultKey: 'dashboard' }),
+    sessao({ id: 's2', kind: 'oportunidades', answers: { op_area: 'area_rh' }, resultKey: 'prompt' }),
+    sessao({
+      id: 's3',
+      kind: 'maturidade',
+      answers: { mat_fronteira: 'mat_fronteira_comecar' },
+      resultKey: 'curioso',
+    }),
+    sessao({ id: 's4', kind: 'oportunidades', answers: null, resultKey: null }),
+  ]
+
+  it('área sai só do radar de oportunidades', () => {
+    expect(montarQuemChega(sessoes).area.itens).toEqual([{ id: 'area_rh', n: 2, pct: 100 }])
+  })
+
+  it('nível e tipo não se misturam — result_key significa coisas diferentes por radar', () => {
+    const q = montarQuemChega(sessoes)
+    expect(q.nivelMaturidade.itens.map((i) => i.id)).toEqual(['curioso'])
+    expect(q.tipoRecomendado.itens.map((i) => i.id)).toEqual(['dashboard', 'prompt'])
+  })
+
+  it('sessão abandonada (answers null) não conta em lugar nenhum', () => {
+    expect(montarQuemChega(sessoes).area.total).toBe(2)
+  })
+})
+
+describe('montarOQueDoi (Bloco 5)', () => {
+  it('mat_fronteira vem da maturidade; perda e entrega, de oportunidades', () => {
+    const doi = montarOQueDoi([
+      sessao({
+        kind: 'oportunidades',
+        answers: { op_perda: 'perda_consolidando', op_entrega: 'entrega_relatorios' },
+      }),
+      sessao({ kind: 'maturidade', answers: { mat_fronteira: 'mat_fronteira_solucoes' } }),
+    ])
+    expect(doi.perda.itens.map((i) => i.id)).toEqual(['perda_consolidando'])
+    expect(doi.entrega.itens.map((i) => i.id)).toEqual(['entrega_relatorios'])
+    expect(doi.fronteira.itens.map((i) => i.id)).toEqual(['mat_fronteira_solucoes'])
+  })
+
+  it('corta no top 5 por padrão', () => {
+    const sessoes = ['a', 'b', 'c', 'd', 'e', 'f'].map((id) =>
+      sessao({ kind: 'oportunidades', answers: { op_perda: id } }),
+    )
+    expect(montarOQueDoi(sessoes).perda.itens).toHaveLength(5)
+    expect(montarOQueDoi(sessoes).perda.ocultados).toBe(1)
+  })
+})
+
+describe('montarMatrizAreaTipo (Bloco 5)', () => {
+  function par(area: string, tipo: string) {
+    return sessao({ kind: 'oportunidades', answers: { op_area: area }, resultKey: tipo })
+  }
+
+  it('célula com N=1 não renderiza — anedota não é padrão', () => {
+    const m = montarMatrizAreaTipo([
+      par('area_rh', 'prompt'),
+      par('area_rh', 'prompt'),
+      par('area_financas', 'dashboard'),
+    ])
+    expect(m.celulas).toEqual([{ area: 'area_rh', tipo: 'prompt', n: 2 }])
+    expect(m.celulasOcultas).toBe(1)
+    expect(m.pares).toBe(3)
+  })
+
+  it('sessão sem área ou sem result_key não entra nos pares', () => {
+    const m = montarMatrizAreaTipo([
+      par('area_rh', 'prompt'),
+      sessao({ kind: 'oportunidades', answers: { op_area: 'area_rh' }, resultKey: null }),
+      sessao({ kind: 'oportunidades', answers: null, resultKey: 'prompt' }),
+    ])
+    expect(m.pares).toBe(1)
+  })
+
+  it('sessão de maturidade nunca entra (ali result_key é nível, não tipo)', () => {
+    const m = montarMatrizAreaTipo([
+      sessao({ kind: 'maturidade', answers: { op_area: 'area_rh' }, resultKey: 'curioso' }),
+    ])
+    expect(m.pares).toBe(0)
+  })
+})
+
+describe('montarPipelineLab (Bloco 6)', () => {
+  it('separa pessoas de projetos — unidades diferentes, topos diferentes', () => {
+    const p = montarPipelineLab({
+      emailsInteresse: ['a@x.com', 'b@x.com', 'c@x.com'],
+      emailsConvidados: ['a@x.com', 'b@x.com'],
+      emailsComConta: ['a@x.com'],
+      projetos: [
+        projeto({ id: 'p1', status: 'concluido', etapasFeitas: 5, etapasTotal: 5 }),
+        projeto({ id: 'p2', status: 'em_construcao', etapasFeitas: 2, etapasTotal: 5 }),
+        projeto({ id: 'p3', status: 'rascunho', etapasFeitas: 0, etapasTotal: 0 }),
+      ],
+    })
+    expect(p.pessoas.topo).toBe(3)
+    expect(p.pessoas.degraus.map((d) => d.n)).toEqual([3, 2, 1])
+    expect(p.projetos.topo).toBe(3)
+    // criados · com plano · em construção (inclui concluído) · concluídos
+    expect(p.projetos.degraus.map((d) => d.n)).toEqual([3, 2, 2, 1])
+  })
+
+  it('convidado que nunca esteve na lista entra no topo — degrau não pode passar de 100%', () => {
+    const p = montarPipelineLab({
+      emailsInteresse: ['a@x.com'],
+      emailsConvidados: ['fora-da-lista@x.com'],
+      emailsComConta: [],
+      projetos: [],
+    })
+    expect(p.pessoas.topo).toBe(2)
+    expect(p.pessoas.degraus[1]!.pct).toBe(50)
+  })
+
+  it('e-mail com caixa diferente é a mesma pessoa', () => {
+    const p = montarPipelineLab({
+      emailsInteresse: ['A@x.com'],
+      emailsConvidados: ['a@X.com'],
+      emailsComConta: ['a@x.com '],
+      projetos: [],
+    })
+    expect(p.pessoas.topo).toBe(1)
+    expect(p.pessoas.degraus.map((d) => d.n)).toEqual([1, 1, 1])
+  })
+
+  it('tudo vazio devolve 0 sem NaN', () => {
+    const p = montarPipelineLab({
+      emailsInteresse: [],
+      emailsConvidados: [],
+      emailsComConta: [],
+      projetos: [],
+    })
+    expect(p.pessoas.degraus.every((d) => d.pct === 0)).toBe(true)
+    expect(p.projetos.degraus.every((d) => d.pct === 0)).toBe(true)
+  })
+})
+
+describe('calcularProgressaoChecklist', () => {
+  it('média entre os projetos COM plano (rascunho não entra na conta)', () => {
+    const r = calcularProgressaoChecklist([
+      projeto({ etapasFeitas: 5, etapasTotal: 5 }),
+      projeto({ etapasFeitas: 0, etapasTotal: 5 }),
+      projeto({ etapasFeitas: 0, etapasTotal: 0 }),
+    ])
+    expect(r).toEqual({ mediaPct: 50, base: 2 })
+  })
+
+  it('sem nenhum plano devolve null em vez de 0% (0% sugeriria fracasso)', () => {
+    expect(calcularProgressaoChecklist([projeto({ etapasTotal: 0 })])).toEqual({
+      mediaPct: null,
+      base: 0,
+    })
+  })
+})
+
+describe('montarDropoutFases (Bloco 6)', () => {
+  it('conta quem fechou cada fase e onde cada projeto parou', () => {
+    const { topo, fases } = montarDropoutFases([
+      projeto({ id: 'a', etapasFeitas: 3, etapasTotal: 5, status: 'em_construcao' }),
+      projeto({ id: 'b', etapasFeitas: 1, etapasTotal: 5, status: 'em_construcao' }),
+      projeto({ id: 'c', etapasFeitas: 5, etapasTotal: 5, status: 'concluido' }),
+    ])
+    expect(topo).toBe(3)
+    expect(fases.map((f) => f.fecharam)).toEqual([3, 2, 2, 1, 1])
+    expect(fases[0]!.pararamAqui).toBe(1) // o projeto b
+    expect(fases[2]!.pararamAqui).toBe(1) // o projeto a
+    expect(fases[4]!.pararamAqui).toBe(0) // o c concluiu — não travou
+  })
+
+  it('planos de tamanhos diferentes: cada fase só divide por quem tem essa fase', () => {
+    const { fases } = montarDropoutFases([
+      projeto({ id: 'a', etapasFeitas: 2, etapasTotal: 2 }),
+      projeto({ id: 'b', etapasFeitas: 2, etapasTotal: 4 }),
+    ])
+    expect(fases).toHaveLength(4)
+    expect(fases[3]!.elegiveis).toBe(1)
+    expect(fases[3]!.pct).toBe(0)
+  })
+
+  it('sem projeto com plano não inventa fase', () => {
+    expect(montarDropoutFases([projeto({ etapasTotal: 0 })])).toEqual({ topo: 0, fases: [] })
+  })
+})
+
+describe('ordenarAberturasGuias', () => {
+  it('esconde guia com zero abertura e ordena por volume', () => {
+    expect(
+      ordenarAberturasGuias([
+        { slug: 'b', n: 0 },
+        { slug: 'a', n: 2 },
+        { slug: 'c', n: 7 },
+      ]),
+    ).toEqual([
+      { slug: 'c', n: 7 },
+      { slug: 'a', n: 2 },
+    ])
   })
 })

@@ -50,7 +50,20 @@ export function BlocoNotas({
         <p>
           <strong className="text-ds2-text-primary">Taxa com N baixo é indício, não conclusão.</strong>{' '}
           Todo percentual nesta tela vem com o número absoluto ao lado — decisão de mídia com N
-          pequeno é aposta, não dado.
+          pequeno é aposta, não dado. Por isso o cruzamento área × tipo esconde combinação que
+          apareceu uma vez só: uma pessoa não é um padrão.
+        </p>
+        <p>
+          <strong className="text-ds2-text-primary">Segmentação é autodeclarada, não demografia.</strong>{' '}
+          &quot;Quem chega&quot; e &quot;o que dói&quot; saem das respostas fechadas dos radares —
+          não temos (nem queremos, por ora) idade, gênero ou cidade. Quem abandonou o radar não
+          deixa resposta, então esses dois painéis contam só quem terminou.
+        </p>
+        <p>
+          <strong className="text-ds2-text-primary">O pipeline do Lab ignora a janela.</strong> É o
+          acumulado do beta: os degraus vivem em tabelas de tempos diferentes (convite de 40 dias
+          atrás, conta criada hoje), e recortar por período faria um degrau ficar maior que o topo.
+          Ele também separa pessoas de projetos — são unidades diferentes e não se somam.
         </p>
         {truncado && (
           <p className="text-ds2-amber-soft">

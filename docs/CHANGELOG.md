@@ -16,6 +16,64 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [v3.11.32] - 2026-07-30 - 📊 Segmentação de conteúdo + pipeline do Lab no analytics (ISSUE-318A2)
+
+Fatia B do painel de Analytics — fecha as decisões de **conteúdo** e **Lab** (a Fatia A já tinha
+fechado a de Ads). Três painéis novos no carrossel de `/admin/analytics`, reusando a camada de
+dados da 318A. Zero view, zero tabela, zero evento novo.
+
+### ✨ Adicionado
+- **Painel "quem chega"** (Bloco 4) — área de atuação, nível de fluência e tipo de solução
+  recomendado em barras horizontais. Não é demografia (não temos, e geo por IP segue bloqueada
+  até a ISSUE-209): é segmentação profissional autodeclarada, que serve melhor à pauta.
+- **Painel "o que dói"** (Bloco 5) — top 5 de **o que quer evoluir** (`mat_fronteira`, o sinal
+  editorial mais direto do banco), onde perde tempo e entrega principal, mais o cruzamento
+  **área × tipo recomendado**. A matriz só renderiza combinação que apareceu 2+ vezes; abaixo
+  disso ela some e explica por quê — uma pessoa não é um padrão.
+- **Painel "Lab"** (Bloco 6) — pipeline em duas metades, progressão média do checklist,
+  **dropout por fase da Caminhada** (o dado que o radar não tem), guias mais abertos e status
+  dos projetos.
+- Notas de leitura ganharam três parágrafos novos: o corte de N da matriz, o aviso de que a
+  segmentação é autodeclarada e só conta quem terminou o radar, e a ressalva da janela do Lab.
+
+### 📐 Decisões de método (registradas no backlog, dentro da §4.2 da spec)
+- **Funil do Lab partido em duas metades com unidades separadas** — pessoas (interesse →
+  convidado → conta) e projetos (criado → plano → construção → concluído). A spec descrevia um
+  funil só; empilhar as duas unidades passaria de 100% no dia em que alguém criasse o segundo
+  projeto.
+- **O Bloco 6 ignora a janela de tempo** (acumulado do beta, declarado na tela). Os degraus vivem
+  em tabelas de tempos diferentes — convite de 40 dias atrás, conta criada hoje —, então recortar
+  por período faria um degrau ficar maior que o próprio topo.
+- **Tabela em vez de evento** onde a spec citava `lab_plan_generated` e `lab_step_completed`:
+  os dois têm equivalente exato em `lab_projects.plan`, e a §4.2 manda preferir a tabela sempre
+  que ela existe. Dropout por fase saiu **exato** em vez de direcional. Evento sobrou só em
+  "guias mais abertos", com o selo `evento`.
+
+### 🔧 Corrigido
+- **Barra de abas do carrossel mentia com 8 painéis** (eram 5). Ao deslizar, o destaque saía da
+  tela e a barra parava de indicar onde a pessoa estava — a aba ativa agora se centraliza
+  sozinha. E, sem scrollbar visível, nada avisava que havia mais abas à direita: a barra ganhou
+  máscara de desbotamento na borda (só no mobile).
+
+### 📊 Técnico
+- Novos: `src/lib/admin/analytics-rotulos.ts` (traduz id fechado → texto, **só no servidor** —
+  a copy do radar e dos guias não vai pro bundle do painel) e 4 componentes em
+  `src/components/admin/analytics/` (`BarrasDistribuicao`, `BlocoQuemChega`, `BlocoOQueDoi`,
+  `BlocoLab`).
+- `src/lib/admin/analytics.ts` ganhou as agregações puras dos 3 blocos (`montarDistribuicao`,
+  `montarQuemChega`, `montarOQueDoi`, `montarMatrizAreaTipo`, `montarPipelineLab`,
+  `calcularProgressaoChecklist`, `montarDropoutFases`, `ordenarAberturasGuias` + os
+  rotuladores). `RadarSessaoLinha` ganhou `resultKey`/`answers`; `LabProjetoLinha` ganhou
+  `status`/`etapasFeitas`/`etapasTotal`.
+- A rota filtra `answers` para deixar passar **só pares string→string** — nenhum texto livre de
+  usuário atravessa a agregação, e a resposta da API continua 100% agregada (zero PII).
+  `radar_events` segue sem leitura em bulk: guias são 10 contagens `head` por slug canônico.
+- **431 testes verdes** (eram 408) · tsc limpo · lint zerado nos tocados · build verde ·
+  `git diff --stat` confirma diff **zero** em `layout.tsx`, `EmailGate.tsx`, `api/prediag/*`,
+  `lib/analytics.ts`, `lib/radar-events.ts`, `lib/lab-events.ts`.
+
+---
+
 ## [v3.11.31] - 2026-07-30 - 🔧 Painéis do analytics vazando da tela + eixos e legenda do gráfico
 
 ### 🔧 Corrigido

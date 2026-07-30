@@ -1361,7 +1361,23 @@ sessão de admin devolve 401/403 e nunca vaza e-mail/nome/IP.
 com N=3 — mitigação é o Bloco 7 entrar já nesta fatia, não depois.
 
 ## ISSUE-318A2 — Painel de Analytics: segmentação de conteúdo + pipeline do Lab — Fatia B
-**Status:** ⬜ speccada junto da 318A (§5, Blocos 4–6). Executar depois da Fatia A.
+**Status:** ✅ código completo em 2026-07-30 (v3.11.32) — 3 painéis novos no carrossel de
+`/admin/analytics` (**quem chega · o que dói · Lab**), 431 testes verdes (eram 408), tsc/lint
+limpos, build verde, diff zero na trava de tracking. **Falta a validação do dono no celular**
+(critério: nomear, olhando a tela, o tema da próxima conversa da newsletter).
+**Duas decisões de método tomadas na execução, dentro da §4.2 da spec** (registro, não desvio):
+1. **Pipeline do Lab por TABELA, não por evento.** A spec (§5, Bloco 6) citava
+   `lab_plan_generated` e `lab_step_completed.fase_id`, mas os dois têm equivalente exato em
+   tabela (`lab_projects.plan` e o checklist dentro dele) — e a §4.2 manda usar a tabela sempre
+   que ela existir. Evento sobrou só em "guias mais abertos" (`lab_asset_opened.slug`), que é o
+   único sem tabela, e vai marcado como direcional. Bônus: dropout por fase saiu exato por
+   projeto, em vez de direcional por disparo.
+2. **O Bloco 6 ignora a janela de tempo** (é o acumulado do beta, declarado na tela e nas notas).
+   Os degraus vivem em tabelas de tempos diferentes — alguém convidado há 40 dias cria conta
+   hoje —, então recortar por janela faria um degrau ficar maior que o próprio topo. Pelo mesmo
+   motivo o funil foi partido em **duas metades com unidades separadas** (pessoas × projetos):
+   somar as duas passaria de 100% no dia em que alguém criar o segundo projeto.
+**Antes:** ⬜ speccada junto da 318A (§5, Blocos 4–6). Executar depois da Fatia A.
 **Tipo:** Analytics/Frontend · **Prioridade:** Média · **Complexidade:** Baixa-média
 **Modelo:** Sonnet — reusa a camada de dados e o padrão de UI da Fatia A.
 **Objetivo:** transformar o dado de segmentação em pauta: qual conteúdo escrever e onde o Lab
