@@ -16,6 +16,49 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [v3.11.36] - 2026-07-31 - 🎨 Polish de UX do admin: abas de verdade + hierarquia visual na fila
+
+Revisão pedida pelo dono depois do primeiro uso no celular ("o header não está no melhor formato,
+não parece aba" · "a fila podia ter símbolos pra marcar o que é crítico"). A auditoria da tela
+inteira achou mais do que os dois pontos.
+
+### 🎨 Melhorado — a casca do admin (`AdminShell`)
+- **O diagnóstico do "não parece aba":** o pill laranja da aba ativa era **exatamente** o
+  tratamento dos pills de filtro de dentro das páginas (janela 7/28/90 dias no analytics).
+  Navegação e filtro falando a mesma língua visual é o que tira a leitura de "aba". Agora
+  **sublinhado laranja** marca a aba ativa e o **pill fica reservado pra filtro** — dois papéis,
+  dois vocabulários.
+- **O header ocupava quase 1/3 da tela.** Com a 4ª aba (Feedback), os pills quebravam em duas
+  linhas e o "Sair" caía sozinho numa terceira, porque `ml-auto` + `flex-wrap` empurram o item
+  pra linha nova quando o e-mail e o "← plataforma" somem no mobile. Reestruturado em duas
+  linhas fixas: identidade + ações numa, faixa de abas na outra. **~460px → ~110px.**
+- **Faixa de abas com scroll horizontal**, máscara de desbotamento na borda e auto-centragem da
+  aba ativa (`block: 'nearest'`, senão o scroll da barra arrasta a página) — o mesmo padrão já
+  resolvido no carrossel do analytics na v3.11.32. Escala pra 5+ abas sem quebrar linha.
+- **Header fixo no topo** (`sticky`) e "Sair" rebaixado a ícone: era a ação mais destacada da
+  casca sendo a menos frequente.
+
+### 🎨 Melhorado — a fila de feedback
+- **Cor = quanto o item cobra ação; ícone = categoria.** Três níveis em vez de arco-íris: magenta
+  (bug, precisa de conserto), âmbar (confuso/melhoria/ideia, melhora o produto) e apagado
+  (elogio, só registro). Ícones `lucide`, nunca emoji (§6 do DS2).
+- **Faixa lateral por severidade** — magenta sólido em `trava`, 40% em `incomoda`, neutro em
+  `cosmetico`. Dá pra varrer a fila e achar o que está quebrado sem ler uma palavra.
+- **A mensagem virou o maior elemento do card** (15px, medium). Na v1 ela tinha o mesmo peso dos
+  metadados; numa fila de triagem, ela é o conteúdo e o resto é apoio.
+- **Os contadores por tipo viraram o filtro por tipo.** Ocupavam um card inteiro só informando, e
+  a rota já aceitava `?tipo=` desde o primeiro dia — agora clicar filtra.
+- Chips de status em **linha única com scroll** (quebravam em duas); `resolvido`/`descartado`
+  ficam esmaecidos; "nota e ref" ganhou borda e chevron (era texto cinza sem affordance, não
+  parecia clicável); explicação longa do ciclo recolhida atrás de "como isso vira trabalho".
+- **`pb-28` na página:** o FAB de feedback flutua no canto e tapava o último card da fila.
+
+### 📊 Técnico
+- Só apresentação: zero mudança de rota, contrato de API, formato do markdown ou lógica de
+  triagem. 452 testes seguem verdes · tsc limpo · lint zerado nos tocados · build verde.
+
+---
+
 ## [v3.11.35] - 2026-07-31 - 🗂️ Painel de triagem de feedback + export markdown (ISSUE-318E)
 
 Fecha o ciclo que a 318D abriu de manhã: o feedback que entra pelo widget agora sai daqui como

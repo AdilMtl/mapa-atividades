@@ -6,14 +6,35 @@
 // "copiar como markdown", cola em docs/revamp/feedback-inbox.md, e eu leio
 // nativamente na sessão. O `issue_ref` é a costura com o 04_issue_backlog.md —
 // é o que impede este inbox de virar um segundo backlog concorrente.
+//
+// Revisão de UX (mesma issue, depois do 1º uso no celular): a v1 dava o MESMO
+// peso visual pra um bug que trava e pra um elogio. Numa fila de triagem, a
+// primeira coisa que o olho precisa achar é o que está quebrado. Agora:
+//   · COR = quanto o item cobra ação (magenta = conserto · âmbar = melhora o
+//     produto · apagado = só registro). Três níveis, não um arco-íris.
+//   · ÍCONE = categoria dentro do nível (lucide, nunca emoji — §6 do DS2).
+//   · FAIXA LATERAL = severidade do bug, escaneável sem ler nada.
+// A mensagem virou o maior elemento do card: é o conteúdo, o resto é apoio.
 // Lista de cards, nunca tabela: multi-coluna no celular já foi problema real
 // duas vezes (v3.11.28 e v3.11.29).
 // =============================================================================
 
 import * as React from 'react'
-import { Check, ClipboardCopy, Loader2, RefreshCw } from 'lucide-react'
+import {
+  Bug,
+  Check,
+  ChevronDown,
+  ClipboardCopy,
+  Heart,
+  HelpCircle,
+  Lightbulb,
+  Loader2,
+  RefreshCw,
+  Wrench,
+  type LucideIcon,
+} from 'lucide-react'
 
-import { Badge, Button, Card, Eyebrow, PageContainer, SectionTitle } from '@/components/ds2'
+import { Button, Card, Eyebrow, PageContainer, SectionTitle } from '@/components/ds2'
 import {
   dataLegivel,
   dispositivoDoUserAgent,
@@ -24,6 +45,7 @@ import {
 import {
   STATUS_FEEDBACK,
   TIPOS_FEEDBACK,
+  type SeveridadeFeedback,
   type StatusFeedback,
   type TipoFeedback,
 } from '@/lib/feedback/tipos'
@@ -36,12 +58,20 @@ const ROTULO_STATUS: Record<StatusFeedback, string> = {
   descartado: 'descartado',
 }
 
-const ROTULO_TIPO: Record<TipoFeedback, string> = {
-  bug: 'bug',
-  melhoria: 'melhoria',
-  ideia: 'ideia',
-  confuso: 'confuso',
-  elogio: 'elogio',
+/** Cor = grau de cobrança. Ícone = categoria. Paleta DS2, sem cor inventada. */
+const VISUAL_TIPO: Record<TipoFeedback, { rotulo: string; Icone: LucideIcon; cor: string }> = {
+  bug: { rotulo: 'bug', Icone: Bug, cor: 'text-ds2-magenta' },
+  confuso: { rotulo: 'confuso', Icone: HelpCircle, cor: 'text-ds2-amber-soft' },
+  melhoria: { rotulo: 'melhoria', Icone: Wrench, cor: 'text-ds2-amber-soft' },
+  ideia: { rotulo: 'ideia', Icone: Lightbulb, cor: 'text-ds2-amber-soft' },
+  elogio: { rotulo: 'elogio', Icone: Heart, cor: 'text-ds2-text-muted' },
+}
+
+/** A faixa na lateral do card: dá pra varrer a fila sem ler uma palavra. */
+const FAIXA_SEVERIDADE: Record<SeveridadeFeedback, string> = {
+  trava: 'border-l-ds2-magenta',
+  incomoda: 'border-l-ds2-magenta/40',
+  cosmetico: 'border-l-ds2-border-medium',
 }
 
 interface Contadores {
@@ -52,6 +82,17 @@ interface Contadores {
 
 const ESTILO_CAMPO =
   'min-h-[44px] w-full rounded-ds2-card border border-ds2-border-subtle bg-ds2-surface-glass px-3 text-base text-ds2-text-primary placeholder-ds2-text-muted outline-none focus:border-ds2-orange/50'
+
+/** Faixa de filtros: uma linha só, com máscara avisando que continua (318A2). */
+const ESTILO_FAIXA =
+  'flex gap-1.5 overflow-x-auto pb-1 [-ms-overflow-style:none] [mask-image:linear-gradient(90deg,#000_0,#000_calc(100%-28px),transparent_100%)] [scrollbar-width:none] md:[mask-image:none] [&::-webkit-scrollbar]:hidden'
+
+const ESTILO_CHIP = (ativo: boolean) =>
+  `flex min-h-11 shrink-0 items-center gap-1.5 rounded-ds2-pill border px-3 font-ds2-mono text-xs transition-colors ${
+    ativo
+      ? 'border-ds2-orange/50 bg-ds2-orange/15 text-ds2-text-primary'
+      : 'border-ds2-border-subtle text-ds2-text-secondary hover:border-ds2-border-medium'
+  }`
 
 async function copiar(texto: string): Promise<boolean> {
   try {
@@ -66,16 +107,21 @@ export function PainelFeedback() {
   const [itens, setItens] = React.useState<FeedbackLinha[]>([])
   const [contadores, setContadores] = React.useState<Contadores | null>(null)
   const [filtroStatus, setFiltroStatus] = React.useState<StatusFeedback | 'todos'>('novo')
+  const [filtroTipo, setFiltroTipo] = React.useState<TipoFeedback | 'todos'>('todos')
   const [carregando, setCarregando] = React.useState(true)
   const [erro, setErro] = React.useState<string | null>(null)
   const [copiado, setCopiado] = React.useState<string | null>(null)
+  const [comoFunciona, setComoFunciona] = React.useState(false)
 
   const carregar = React.useCallback(async () => {
     setCarregando(true)
     setErro(null)
     try {
-      const query = filtroStatus === 'todos' ? '' : `?status=${filtroStatus}`
-      const res = await fetch(`/api/admin/feedback${query}`)
+      const params = new URLSearchParams()
+      if (filtroStatus !== 'todos') params.set('status', filtroStatus)
+      if (filtroTipo !== 'todos') params.set('tipo', filtroTipo)
+      const query = params.toString()
+      const res = await fetch(`/api/admin/feedback${query ? `?${query}` : ''}`)
       if (!res.ok) throw new Error(String(res.status))
       const data = (await res.json()) as { itens: FeedbackLinha[]; contadores: Contadores }
       setItens(data.itens)
@@ -85,7 +131,7 @@ export function PainelFeedback() {
     } finally {
       setCarregando(false)
     }
-  }, [filtroStatus])
+  }, [filtroStatus, filtroTipo])
 
   React.useEffect(() => {
     void carregar()
@@ -104,18 +150,31 @@ export function PainelFeedback() {
 
   return (
     <div className="ds2-bg-ambient min-h-screen">
-      <PageContainer className="max-w-4xl space-y-8 pb-16 pt-8">
+      {/* pb generoso: o FAB de feedback flutua no canto e tapava o último card. */}
+      <PageContainer className="max-w-4xl space-y-6 pb-28 pt-8">
         <div>
           <Eyebrow>admin · feedback</Eyebrow>
           <SectionTitle as="h1" className="mt-2 text-[28px] md:text-[36px]">
             O que chegou do uso real
           </SectionTitle>
-          <p className="mt-2 max-w-[640px] font-ds2-sans text-sm leading-relaxed text-ds2-text-secondary">
-            Cada item veio do botão de feedback, com a rota, o aparelho e a versão do deploy que
-            estava no ar na hora. Tria aqui, copia como markdown e cola no{' '}
-            <span className="font-ds2-mono text-xs">feedback-inbox.md</span>. Quando virar trabalho,
-            preenche a ref da issue: é o que costura esta fila com o backlog planejado.
-          </p>
+          <button
+            type="button"
+            onClick={() => setComoFunciona((atual) => !atual)}
+            className="mt-2 flex min-h-11 items-center gap-1.5 font-ds2-mono text-[11px] text-ds2-text-muted transition-colors hover:text-ds2-text-primary"
+          >
+            como isso vira trabalho
+            <ChevronDown
+              className={`h-3.5 w-3.5 transition-transform ${comoFunciona ? 'rotate-180' : ''}`}
+            />
+          </button>
+          {comoFunciona && (
+            <p className="mt-1 max-w-[640px] font-ds2-sans text-sm leading-relaxed text-ds2-text-secondary">
+              Cada item veio do botão de feedback, com a rota, o aparelho e a versão do deploy que
+              estava no ar na hora. Tria aqui, copia como markdown e cola no{' '}
+              <span className="font-ds2-mono text-xs">feedback-inbox.md</span>. Quando virar
+              trabalho, preenche a ref da issue: é o que costura esta fila com o backlog planejado.
+            </p>
+          )}
         </div>
 
         {erro && (
@@ -124,101 +183,115 @@ export function PainelFeedback() {
           </Card>
         )}
 
-        {contadores && (
-          <Card className="space-y-3">
-            <Eyebrow>a base inteira ({contadores.total})</Eyebrow>
-            <div className="flex flex-wrap gap-x-4 gap-y-1.5 font-ds2-mono text-[11px] text-ds2-text-muted">
-              {TIPOS_FEEDBACK.map((tipo) => (
-                <span key={tipo}>
-                  {ROTULO_TIPO[tipo]}{' '}
-                  <span className="text-ds2-text-primary">{contadores.porTipo[tipo]}</span>
-                </span>
-              ))}
-            </div>
-          </Card>
-        )}
+        <section className="space-y-2">
+          {/* Os contadores por tipo VIRARAM o filtro por tipo: na v1 eles
+              ocupavam um card inteiro só informando, e a rota já aceitava ?tipo. */}
+          <div className={ESTILO_FAIXA}>
+            <button
+              type="button"
+              onClick={() => setFiltroTipo('todos')}
+              aria-pressed={filtroTipo === 'todos'}
+              className={ESTILO_CHIP(filtroTipo === 'todos')}
+            >
+              tudo
+              <span className="text-ds2-text-muted">{contadores?.total ?? 0}</span>
+            </button>
+            {TIPOS_FEEDBACK.map((tipo) => {
+              const { rotulo, Icone, cor } = VISUAL_TIPO[tipo]
+              const ativo = filtroTipo === tipo
+              return (
+                <button
+                  key={tipo}
+                  type="button"
+                  onClick={() => setFiltroTipo(ativo ? 'todos' : tipo)}
+                  aria-pressed={ativo}
+                  className={ESTILO_CHIP(ativo)}
+                >
+                  <Icone className={`h-3.5 w-3.5 ${cor}`} />
+                  {rotulo}
+                  <span className="text-ds2-text-muted">{contadores?.porTipo[tipo] ?? 0}</span>
+                </button>
+              )
+            })}
+          </div>
 
-        <section className="space-y-3">
-          <div className="flex flex-wrap items-center gap-2">
+          <div className={ESTILO_FAIXA}>
             {(['todos', ...STATUS_FEEDBACK] as const).map((opcao) => {
               const ativo = filtroStatus === opcao
-              const quantidade =
-                opcao === 'todos' ? contadores?.total : contadores?.porStatus[opcao]
+              const quantidade = opcao === 'todos' ? contadores?.total : contadores?.porStatus[opcao]
               return (
                 <button
                   key={opcao}
                   type="button"
                   onClick={() => setFiltroStatus(opcao)}
                   aria-pressed={ativo}
-                  className={`flex min-h-11 items-center rounded-ds2-pill border px-3 font-ds2-mono text-xs transition-colors ${
-                    ativo
-                      ? 'border-ds2-orange/50 bg-ds2-orange/15 text-ds2-text-primary'
-                      : 'border-ds2-border-subtle text-ds2-text-secondary hover:border-ds2-border-medium'
-                  }`}
+                  className={ESTILO_CHIP(ativo)}
                 >
-                  {opcao === 'todos' ? 'todos' : ROTULO_STATUS[opcao]}
+                  {opcao === 'todos' ? 'todos os status' : ROTULO_STATUS[opcao]}
                   {typeof quantidade === 'number' && (
-                    <span className="ml-1.5 text-ds2-text-muted">{quantidade}</span>
+                    <span className="text-ds2-text-muted">{quantidade}</span>
                   )}
                 </button>
               )
             })}
-
-            <div className="ml-auto flex gap-2">
-              <Button
-                type="button"
-                variant="secondary"
-                className="py-2 text-xs"
-                onClick={() => void carregar()}
-              >
-                <RefreshCw className={`h-3.5 w-3.5 ${carregando ? 'animate-spin' : ''}`} /> atualizar
-              </Button>
-              <Button
-                type="button"
-                variant="secondary"
-                className="py-2 text-xs"
-                disabled={itens.length === 0}
-                onClick={() => void copiarFila()}
-              >
-                {copiado === 'fila' ? (
-                  <Check className="h-3.5 w-3.5 text-ds2-orange" />
-                ) : (
-                  <ClipboardCopy className="h-3.5 w-3.5" />
-                )}
-                copiar a fila
-              </Button>
-            </div>
           </div>
 
-          {carregando && itens.length === 0 ? (
-            <Card>
-              <p className="font-ds2-sans text-sm text-ds2-text-muted">Carregando…</p>
-            </Card>
-          ) : itens.length === 0 ? (
-            <Card>
-              <p className="font-ds2-sans text-sm text-ds2-text-muted">
-                {filtroStatus === 'novo'
-                  ? 'Nada novo na fila. O que chegar pelo botão de feedback aparece aqui.'
-                  : 'Nenhum item com esse status.'}
-              </p>
-            </Card>
-          ) : (
-            <div className="space-y-3">
-              {itens.map((item) => (
-                <CardFeedback
-                  key={item.id}
-                  item={item}
-                  copiado={copiado === item.id}
-                  onCopiar={async () => avisarCopia(item.id, await copiar(formatarFeedbackMarkdown(item)))}
-                  onSalvo={(atualizado) =>
-                    setItens((atuais) => atuais.map((i) => (i.id === atualizado.id ? atualizado : i)))
-                  }
-                  onErro={setErro}
-                />
-              ))}
-            </div>
-          )}
+          <div className="flex justify-end gap-2 pt-1">
+            <Button
+              type="button"
+              variant="secondary"
+              className="py-2 text-xs"
+              onClick={() => void carregar()}
+            >
+              <RefreshCw className={`h-3.5 w-3.5 ${carregando ? 'animate-spin' : ''}`} /> atualizar
+            </Button>
+            <Button
+              type="button"
+              variant="secondary"
+              className="py-2 text-xs"
+              disabled={itens.length === 0}
+              onClick={() => void copiarFila()}
+            >
+              {copiado === 'fila' ? (
+                <Check className="h-3.5 w-3.5 text-ds2-orange" />
+              ) : (
+                <ClipboardCopy className="h-3.5 w-3.5" />
+              )}
+              copiar a fila
+            </Button>
+          </div>
         </section>
+
+        {carregando && itens.length === 0 ? (
+          <Card>
+            <p className="font-ds2-sans text-sm text-ds2-text-muted">Carregando…</p>
+          </Card>
+        ) : itens.length === 0 ? (
+          <Card>
+            <p className="font-ds2-sans text-sm text-ds2-text-muted">
+              {filtroStatus === 'novo' && filtroTipo === 'todos'
+                ? 'Nada novo na fila. O que chegar pelo botão de feedback aparece aqui.'
+                : 'Nenhum item com esse filtro.'}
+            </p>
+          </Card>
+        ) : (
+          <div className="space-y-3">
+            {itens.map((item) => (
+              <CardFeedback
+                key={item.id}
+                item={item}
+                copiado={copiado === item.id}
+                onCopiar={async () =>
+                  avisarCopia(item.id, await copiar(formatarFeedbackMarkdown(item)))
+                }
+                onSalvo={(atualizado) =>
+                  setItens((atuais) => atuais.map((i) => (i.id === atualizado.id ? atualizado : i)))
+                }
+                onErro={setErro}
+              />
+            ))}
+          </div>
+        )}
       </PageContainer>
     </div>
   )
@@ -267,6 +340,10 @@ function CardFeedback({
     [item.id, onErro, onSalvo],
   )
 
+  const { rotulo, Icone, cor } = VISUAL_TIPO[item.tipo]
+  const faixa = item.severidade ? FAIXA_SEVERIDADE[item.severidade] : 'border-l-transparent'
+  const resolvido = item.status === 'resolvido' || item.status === 'descartado'
+
   const contexto = item.contexto ?? {}
   const aparelho = [
     dispositivoDoUserAgent(contexto.user_agent),
@@ -277,18 +354,26 @@ function CardFeedback({
     .join(' · ')
 
   return (
-    <Card className="space-y-3">
-      <div className="flex flex-wrap items-center gap-2">
-        <Badge className="text-[10px]">{ROTULO_TIPO[item.tipo]}</Badge>
+    <Card className={`space-y-3 border-l-2 ${faixa} ${resolvido ? 'opacity-60' : ''}`}>
+      <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+        <span className={`flex items-center gap-1.5 font-ds2-mono text-xs ${cor}`}>
+          <Icone className="h-4 w-4" />
+          {rotulo}
+        </span>
         {item.severidade && (
-          <Badge variant="premium" className="text-[10px]">
-            {item.severidade}
-          </Badge>
+          <span
+            className={`font-ds2-mono text-[11px] ${
+              item.severidade === 'trava' ? 'text-ds2-magenta' : 'text-ds2-text-muted'
+            }`}
+          >
+            · {item.severidade}
+          </span>
         )}
         <span className="font-ds2-mono text-[11px] text-ds2-text-subtle">{refCurta(item.id)}</span>
         <button
           type="button"
           onClick={onCopiar}
+          aria-label="Copiar este feedback como markdown"
           className="ml-auto flex min-h-11 items-center gap-1.5 font-ds2-mono text-[11px] text-ds2-text-muted transition-colors hover:text-ds2-text-primary"
         >
           {copiado ? (
@@ -300,17 +385,18 @@ function CardFeedback({
         </button>
       </div>
 
-      <p className="font-ds2-sans text-sm leading-relaxed break-words text-ds2-text-primary">
+      {/* A mensagem é o conteúdo do card — tudo o mais é apoio. */}
+      <p className="font-ds2-sans text-[15px] leading-relaxed font-medium break-words text-ds2-text-primary">
         {item.mensagem}
       </p>
 
-      <div className="space-y-1 font-ds2-mono text-[11px] text-ds2-text-muted">
-        <p className="break-all">{item.rota ?? 'rota não registrada'}</p>
-        <p>
+      <div className="space-y-0.5 font-ds2-mono text-[11px] text-ds2-text-subtle">
+        <p className="break-all text-ds2-text-muted">{item.rota ?? 'rota não registrada'}</p>
+        <p className="break-all">
           {dataLegivel(item.createdAt)} · {item.logado ? 'logado' : 'anônimo'}
           {item.email ? ` · ${item.email}` : ''}
+          {aparelho ? ` · ${aparelho}` : ''}
         </p>
-        {aparelho && <p className="break-all">{aparelho}</p>}
       </div>
 
       <div className="flex flex-wrap items-center gap-2 border-t border-ds2-border-subtle pt-3">
@@ -322,7 +408,7 @@ function CardFeedback({
           value={item.status}
           disabled={salvando}
           onChange={(e) => void salvar({ status: e.target.value })}
-          className="min-h-[44px] rounded-ds2-card border border-ds2-border-subtle bg-ds2-bg-panel px-3 font-ds2-mono text-xs text-ds2-text-primary outline-none focus:border-ds2-orange/50"
+          className="min-h-11 rounded-ds2-pill border border-ds2-border-subtle bg-ds2-bg-panel px-3 font-ds2-mono text-xs text-ds2-text-secondary outline-none focus:border-ds2-orange/50"
         >
           {STATUS_FEEDBACK.map((status) => (
             <option key={status} value={status} className="bg-ds2-bg-panel text-ds2-text-primary">
@@ -338,9 +424,13 @@ function CardFeedback({
         <button
           type="button"
           onClick={() => setAbertoTriagem((atual) => !atual)}
-          className="ml-auto flex min-h-11 items-center font-ds2-mono text-[11px] text-ds2-text-muted transition-colors hover:text-ds2-text-primary"
+          aria-expanded={abertoTriagem}
+          className="ml-auto flex min-h-11 items-center gap-1.5 rounded-ds2-pill border border-ds2-border-subtle px-3 font-ds2-mono text-[11px] text-ds2-text-secondary transition-colors hover:border-ds2-border-medium hover:text-ds2-text-primary"
         >
-          {abertoTriagem ? 'fechar' : 'nota e ref'}
+          {item.notasAdmin ? 'ver a nota' : 'nota e ref'}
+          <ChevronDown
+            className={`h-3.5 w-3.5 transition-transform ${abertoTriagem ? 'rotate-180' : ''}`}
+          />
         </button>
       </div>
 

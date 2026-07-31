@@ -10,7 +10,28 @@
 
 ## 🎯 SESSÃO ATUAL: sistema de feedback ponta a ponta — ISSUE-318D + ISSUE-318E
 **Data:** 31 de julho de 2026
-**Versão:** v3.11.35 (318D em v3.11.34 · 318E em v3.11.35)
+**Versão:** v3.11.36 (318D em v3.11.34 · 318E em v3.11.35 · polish de UX do admin em v3.11.36)
+
+### **🎨 Polish de UX do admin (v3.11.36) — pedido do dono depois do 1º uso no celular**
+Dois apontamentos dele, e o que a auditoria da tela inteira achou junto:
+1. **"O header não parece aba".** A causa não era estética solta: o pill laranja da aba ativa era
+   **o mesmo tratamento dos pills de filtro** de dentro das páginas (janela 7/28/90 dias). Duas
+   hierarquias diferentes com a mesma linguagem visual. Agora **sublinhado = navegação, pill =
+   filtro**. Junto disso, o header ocupava quase 1/3 da tela: com a 4ª aba, os pills quebravam em
+   2 linhas e o "Sair" caía sozinho numa 3ª (`ml-auto` + `flex-wrap`, com e-mail e "← plataforma"
+   escondidos no mobile). Duas linhas fixas, faixa de abas com scroll + máscara + auto-centragem
+   da ativa (padrão da v3.11.32). **~460px → ~110px**, e escala pra 5+ abas.
+2. **"A fila podia ter símbolos".** Virou sistema, não decoração: **cor = quanto o item cobra
+   ação** (magenta = conserto · âmbar = melhora o produto · apagado = só registro) e **ícone =
+   categoria** dentro do nível. Três níveis em vez de arco-íris, tudo na paleta DS2, lucide e
+   nunca emoji. A **severidade virou faixa lateral** no card — dá pra achar o que está quebrado
+   sem ler uma palavra.
+3. **Achados não apontados:** a mensagem tinha o mesmo peso dos metadados (virou o maior elemento
+   do card); os contadores por tipo ocupavam um card inteiro só informando, enquanto a rota já
+   aceitava `?tipo=` (viraram o filtro); chips de status quebravam em 2 linhas; "nota e ref" era
+   texto cinza sem affordance; e o FAB de feedback tapava o último card da fila.
+
+---
 
 ### **🗂️ ISSUE-318E — o painel de triagem (✅ concluída)**
 Fecha o ciclo que a 318D abriu na mesma sessão: o feedback que entra pelo widget sai do painel
