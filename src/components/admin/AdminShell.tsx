@@ -20,6 +20,7 @@ const ABAS = [
   { href: '/admin/assinantes', label: 'Assinantes' },
   { href: '/admin/lab-beta', label: 'Convites do Lab' },
   { href: '/admin/analytics', label: 'Analytics' },
+  { href: '/admin/feedback', label: 'Feedback' },
 ]
 
 export function AdminShell({ email, children }: { email: string; children: React.ReactNode }) {

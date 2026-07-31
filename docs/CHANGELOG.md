@@ -16,6 +16,43 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [v3.11.35] - 2026-07-31 - 🗂️ Painel de triagem de feedback + export markdown (ISSUE-318E)
+
+Fecha o ciclo que a 318D abriu de manhã: o feedback que entra pelo widget agora sai daqui como
+markdown pronto pra colar no repositório. O inbox é a fila **reativa** (achado de uso real) e o
+`04_issue_backlog.md` segue sendo a fila **planejada** — o campo `issue_ref` é a costura entre as
+duas, e é o que impede o inbox de virar um segundo backlog concorrente.
+
+### ✨ Adicionado
+- **Aba Feedback na casca admin** e `/admin/feedback`: fila filtrada por status (abre em `novo`),
+  contadores por tipo sobre a base inteira, e card por item com a mensagem em destaque + rota,
+  aparelho, viewport e versão do deploy em mono.
+- **Triagem inline** — status no `select` (salva na hora), nota de triagem e `issue_ref` atrás de
+  um toque, pra fila continuar escaneável no celular.
+- **"Copiar como markdown"** do item ou da fila inteira, no formato exato do §6.2 da spec.
+- **`GET`/`PATCH /api/admin/feedback`** com `exigirAdminSessao()`. `GET ?formato=markdown` devolve
+  o inbox pronto. **Sem `DELETE`**: descartar é `status='descartado'` — histórico não se apaga.
+
+### 🔐 Segurança
+- O `PATCH` só alcança `status`, `notas_admin` e `issue_ref`, por uma allowlist pura e testada:
+  `mensagem`, `contexto` e `user_id` são **evidência, imutáveis por design**, e são ignorados
+  venham como vierem no body. Sem sessão de admin, `GET` e `PATCH` respondem 403 (verificado por
+  `curl`); anônimo na página cai em `/auth?next=/admin/feedback`.
+
+### 📊 Técnico
+- `src/lib/admin/feedback.ts` — formatador e allowlist puros, **15 testes** (452 no total, eram
+  437). O formato do export é **teste de snapshot**: o texto entra numa issue quase sem edição,
+  então ele é contrato, não render improvisado.
+- **`FB-0042` virou `FB-<8 primeiros do id>`** — a tabela não tem sequência (id é UUID) e criar
+  uma exigiria coluna nova. O prefixo continua achando a linha no banco.
+- **Data do export fixada em `America/Sao_Paulo`** via `Intl`: a Vercel roda em UTC e o dono lê em
+  horário de Brasília. Sem o fuso explícito, o mesmo feedback sairia com hora diferente conforme
+  onde o código rodasse — e o snapshot quebraria por ambiente.
+- Lista de cards, nunca tabela: multi-coluna no celular já foi problema real duas vezes
+  (v3.11.28 e v3.11.29). Zero SQL novo — a 318D já criou a tabela.
+
+---
+
 ## [v3.11.34] - 2026-07-31 - 🗣️ Captura de feedback com contexto automático (ISSUE-318D)
 
 Fatia de **captura** da spec da 318D (o painel de triagem é a 318E). O que faltava não era um

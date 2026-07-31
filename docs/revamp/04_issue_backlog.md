@@ -1522,7 +1522,22 @@ no mobile.
 > veto dele. Vetos válidos: sem travessão de aparte ("cara de IA"), sem meta-referência.
 
 ## ISSUE-318E — Painel de triagem de feedback + export markdown
-**Status:** ⬜ speccada junto da 318D (§6.2 e §6.3). Executar depois da 318D e da 318B.
+**Status:** ✅ **concluída em 2026-07-31** (v3.11.35) — aba **Feedback** na casca admin,
+`/admin/feedback` com fila por status + contadores por tipo, triagem inline (status, nota,
+`issue_ref`) e "copiar como markdown" do item ou da fila inteira. `GET`/`PATCH
+/api/admin/feedback` com `exigirAdminSessao()` (403 sem sessão, verificado por `curl`; anônimo
+na página → `/auth?next=/admin/feedback`). **15 testes novos** em `src/lib/admin/feedback.ts`,
+incluindo o snapshot do formato do §6.2 e a prova de que o `PATCH` não alcança `mensagem`,
+`contexto` nem `user_id`. Zero SQL — a 318D já criou tudo.
+**2 decisões de execução:**
+1. **`FB-0042` virou `FB-<8 primeiros do id>`** — a tabela não tem sequência (o id é UUID) e
+   inventar uma exigiria coluna nova + SQL. O prefixo continua achando a linha no banco
+   (`id::text LIKE 'a1b2c3d4%'`). O resto do formato do §6.2 é literal, travado por snapshot.
+2. **A data do export é fixada em `America/Sao_Paulo`** com `Intl`. A Vercel roda em UTC e o dono
+   lê em horário de Brasília; sem o fuso explícito o mesmo feedback sairia com hora diferente
+   dependendo de onde o código rodasse — e o snapshot quebraria por ambiente.
+**Pendente (só o dono):** usar a fila numa triagem real no celular e colar o primeiro export em
+`docs/revamp/feedback-inbox.md` (o arquivo nasce no primeiro uso, de propósito).
 **Tipo:** Frontend/Admin · **Prioridade:** Média · **Complexidade:** Baixa-média
 **Modelo:** Sonnet — spec fechada, inclusive o formato do markdown (contrato, não improviso).
 **Objetivo:** fechar o ciclo que o dono pediu: "eu puxo essa lista e a gente vai executando, em

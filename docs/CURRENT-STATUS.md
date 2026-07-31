@@ -8,9 +8,31 @@
 
 ---
 
-## 🎯 SESSÃO ATUAL: ISSUE-318D — captura de feedback (tabela + rota pública + widget)
+## 🎯 SESSÃO ATUAL: sistema de feedback ponta a ponta — ISSUE-318D + ISSUE-318E
 **Data:** 31 de julho de 2026
-**Versão:** v3.11.34
+**Versão:** v3.11.35 (318D em v3.11.34 · 318E em v3.11.35)
+
+### **🗂️ ISSUE-318E — o painel de triagem (✅ concluída)**
+Fecha o ciclo que a 318D abriu na mesma sessão: o feedback que entra pelo widget sai do painel
+como markdown pronto pra colar em `docs/revamp/feedback-inbox.md`. **O inbox é a fila reativa; o
+`04_issue_backlog.md` segue sendo a fila planejada** — o `issue_ref` costura as duas, e é isso
+que impede o inbox de virar um segundo backlog concorrente.
+- Aba **Feedback** na casca admin · `/admin/feedback` com fila por status (abre em `novo`),
+  contadores por tipo, triagem inline (status no `select`, nota e `issue_ref` atrás de um toque)
+  e "copiar como markdown" do item ou da fila inteira.
+- `GET`/`PATCH /api/admin/feedback` com `exigirAdminSessao()` — **403 sem sessão** (verificado por
+  `curl`), anônimo na página cai em `/auth?next=/admin/feedback`. **Sem `DELETE`.**
+- O `PATCH` não alcança `mensagem`, `contexto` nem `user_id`: allowlist pura, com teste provando.
+  O registro original é **evidência, imutável por design**.
+- **2 decisões:** `FB-0042` virou `FB-<8 primeiros do id>` (a tabela não tem sequência e criar uma
+  exigiria coluna nova; o prefixo continua achando a linha no banco); e a data do export é fixada
+  em `America/Sao_Paulo` — a Vercel roda em UTC, o dono lê em Brasília, e sem o fuso explícito o
+  snapshot quebraria conforme o ambiente.
+- **452 testes verdes** (eram 437) · tsc limpo · lint zerado nos tocados · build verde · zero SQL.
+
+---
+
+### **🗣️ ISSUE-318D — a captura (⚠️ no ar, não fechada)**
 **Status:** ⚠️ **no ar e funcionando; a issue NÃO fecha ainda.** O dono rodou o SQL, conferiu os
 4 SELECTs de verificação em produção e **mandou um feedback real pelo widget** — "acho que
 concluímos essa etapa". Falta só a revalidação da conversão no Tag Assistant, adiada por decisão
@@ -62,15 +84,18 @@ livre de qualquer visitante da internet com IP junto — mesma classe de dado do
   **diff zero** em `src/app/layout.tsx`, `EmailGate.tsx` e `api/prediag/*`.
 
 ### **🎯 PRÓXIMA SESSÃO:**
-1. 🚨 **Revalidar a conversão no Tag Assistant** (critério 9 + checklist do
+1. 🚨 **Revalidar a conversão no Tag Assistant** (critério 9 da 318D + checklist do
    `07_mapa_tracking_ads.md` §4) — pendência de tracking assumida, não esquecida. **A 318D não
-   vira ✅ sem isso.** Único item que falta da issue.
-2. **ISSUE-318E** (painel de triagem + export markdown) — próxima elegível: depende só da 318D e
-   da 318B, as duas no ar. O dado já começa a entrar agora, então ela nasce com fila real dentro
-   em vez de tela vazia. Modelo: Sonnet (spec fechada, inclusive o formato do markdown).
-3. **ISSUE-319** (gate de QA da Fase 1A) — o fecho da fase, depois que a 318E fechar o ciclo de
-   feedback. Modelo: Fable 5 + dono em dispositivos reais.
-4. Pendências herdadas: validações da ISSUE-318 (GTM Preview, convite real), testes manuais
+   vira ✅ sem isso**, e é o único item que falta dela.
+2. **Usar a fila de verdade** — triar no celular e colar o primeiro export em
+   `docs/revamp/feedback-inbox.md` (o arquivo nasce no primeiro uso, de propósito).
+3. **ISSUE-318C** (pageview + dropout por pergunta) — o dono quis executar em 31/07, mas ela está
+   travada no backlog como **Fable 5, persona Analytics & Ads, "sem exceção"**: escreve no
+   tracking e toca página pública. **Decisão de modelo pendente** antes de abrir. Vale rodar
+   depois do Tag Assistant, pra não empilhar duas mudanças de tracking sem prova.
+4. **ISSUE-319** (gate de QA da Fase 1A) — o fecho da fase. Modelo: Fable 5 + dono em
+   dispositivos reais.
+5. Pendências herdadas: validações da ISSUE-318 (GTM Preview, convite real), testes manuais
    acumulados (315 item 7, 314C, 314D), veto de copy da 314D, confirmação de uso da 318B, e o
    resync do Artifact do backlog (desatualizado desde 2026-07-11).
 
