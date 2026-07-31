@@ -1458,10 +1458,10 @@ custa menos volume em `radar_events`.
 commitar; volume de linhas em `radar_events` (pageview é o evento mais frequente que existe).
 
 ## ISSUE-318D — Captura de feedback (tabela + rota pública + widget)
-**Status:** ⚠️ **código completo em 2026-07-31** (spec: `ISSUE-318D-spec-feedback.md`) — falta o
-que só o dono faz: **rodar o SQL** (`ISSUE-318D-sql-feedback.md`), o teste no celular real e a
-revalidação da conversão no Tag Assistant. Enquanto o SQL não roda, o widget grava 500 (a UI
-agradece mesmo assim, por design).
+**Status:** ⚠️ **no ar e funcionando desde 2026-07-31** (v3.11.34; spec:
+`ISSUE-318D-spec-feedback.md`). SQL rodado e verificado pelo dono em produção (`rowsecurity =
+true`, 0 políticas, 0 grants, trigger ativo) e **widget exercitado por ele com um feedback real**
+na mesma data. **Só não fecha (✅) por uma coisa:** a revalidação da conversão no Tag Assistant.
 > 🚨 **Pendência de tracking ADIADA por decisão do dono (2026-07-31), não esquecida:** a
 > revalidação do disparo de conversão no Tag Assistant (critério de aceite 9 + checklist do
 > `07_mapa_tracking_ads.md` §4) fica para uma sessão própria. O risco é baixo e conhecido — o

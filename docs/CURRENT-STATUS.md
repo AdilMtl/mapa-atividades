@@ -11,9 +11,10 @@
 ## 🎯 SESSÃO ATUAL: ISSUE-318D — captura de feedback (tabela + rota pública + widget)
 **Data:** 31 de julho de 2026
 **Versão:** v3.11.34
-**Status:** ⚠️ **código completo e no ar; a issue NÃO fecha ainda** — falta a revalidação da
-conversão no Tag Assistant, adiada por decisão do dono para uma sessão própria. SQL rodado e
-verificado por ele em produção nesta sessão.
+**Status:** ⚠️ **no ar e funcionando; a issue NÃO fecha ainda.** O dono rodou o SQL, conferiu os
+4 SELECTs de verificação em produção e **mandou um feedback real pelo widget** — "acho que
+concluímos essa etapa". Falta só a revalidação da conversão no Tag Assistant, adiada por decisão
+dele para uma sessão própria.
 
 ### **🚀 O QUE FOI FEITO:**
 A fatia de **captura** da spec `ISSUE-318D-spec-feedback.md` (o painel de triagem é a 318E). O
@@ -63,14 +64,15 @@ livre de qualquer visitante da internet com IP junto — mesma classe de dado do
 ### **🎯 PRÓXIMA SESSÃO:**
 1. 🚨 **Revalidar a conversão no Tag Assistant** (critério 9 + checklist do
    `07_mapa_tracking_ads.md` §4) — pendência de tracking assumida, não esquecida. **A 318D não
-   vira ✅ sem isso.**
-2. Teste do widget no celular real: FAB some no fluxo de pergunta do radar e volta no resultado;
-   não cobre CTA; teclado do iOS não esconde o campo de mensagem.
-3. **ISSUE-318E** (painel de triagem + export markdown) — o dado já começa a entrar agora, então
-   ela nasce com fila real dentro em vez de tela vazia.
+   vira ✅ sem isso.** Único item que falta da issue.
+2. **ISSUE-318E** (painel de triagem + export markdown) — próxima elegível: depende só da 318D e
+   da 318B, as duas no ar. O dado já começa a entrar agora, então ela nasce com fila real dentro
+   em vez de tela vazia. Modelo: Sonnet (spec fechada, inclusive o formato do markdown).
+3. **ISSUE-319** (gate de QA da Fase 1A) — o fecho da fase, depois que a 318E fechar o ciclo de
+   feedback. Modelo: Fable 5 + dono em dispositivos reais.
 4. Pendências herdadas: validações da ISSUE-318 (GTM Preview, convite real), testes manuais
-   acumulados (315 item 7, 314C, 314D), confirmação de uso da 318B, e o resync do Artifact do
-   backlog (desatualizado desde 2026-07-11).
+   acumulados (315 item 7, 314C, 314D), veto de copy da 314D, confirmação de uso da 318B, e o
+   resync do Artifact do backlog (desatualizado desde 2026-07-11).
 
 ---
 
