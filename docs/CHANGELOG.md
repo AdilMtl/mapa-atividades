@@ -16,6 +16,53 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [v3.11.37] - 2026-07-31 - 🎨 Segunda rodada de UX no admin: hierarquia de filtro, select e contraste
+
+O dono voltou da v3.11.36 com "melhorou, mas suspeito que tem mais coisa" e três apontamentos.
+Todos tinham diagnóstico específico, e a auditoria achou mais quatro.
+
+### 🎨 Melhorado — os filtros ("três camadas, falta hierarquia")
+- Eram literalmente três fileiras com a **mesma forma de pill**: tipo, status e — logo abaixo —
+  as **ações** (atualizar / copiar a fila), que nem filtro são. Nada dizia o que cada fileira
+  filtrava. Agora os dois eixos vivem num bloco único **rotulado** (`status` e `tipo`), e as
+  ações saíram dali: viraram o cabeçalho da lista, junto do contador `fila · N itens`.
+- **Status virou o eixo primário** (primeira linha, borda sempre visível) e **tipo o recorte
+  secundário** (chip mais leve, borda só no hover). O alvo de toque segue ≥44px nos dois: a
+  hierarquia vem do peso visual, nunca do tamanho do alvo.
+- **Facet com contagem zero fica esmaecido** — o olho vai pro que tem conteúdo.
+- Chips de status ganharam **ponto colorido** na mesma gramática dos tipos: laranja = pendente,
+  âmbar = andando, apagado = fechado. Três níveis, porque o olho não decora cinco cores.
+
+### 🎨 Melhorado — o select de status ("desformatado")
+- Era o elemento mais pesado do card: verde `--ds2-bg-panel` sólido que **não aparece em nenhum
+  outro lugar da tela**, largura do rótulo mais longo e a setinha do sistema por cima.
+  `appearance-none` + chevron nosso + fundo glass + ponto de status. Enquanto salva, o chevron
+  vira spinner (antes não havia sinal nenhum de que o `PATCH` estava em voo).
+- **"nota e ref" perdeu a borda**: com os dois botões emoldurados, a linha tinha dois pesos
+  iguais e nenhuma ação principal. O chevron já entrega que abre; o status volta a ser o mais
+  forte da linha, que é o que a triagem faz o tempo todo.
+
+### 🎨 Melhorado — a faixa de abas
+- **Máscara agora acompanha o scroll.** A fixa à direita cortava "Assinantes" com **borda dura**
+  à esquerda assim que a aba ativa se centralizava — borda dura parece bug, fade parece
+  continuação. Fade dinâmico dos dois lados, conforme o que existe além da borda.
+- Aba ativa ganhou peso (`font-medium`), e o "Sair" virou só ícone no mobile: estava com texto
+  ao lado de um botão de voltar só-ícone, e era a ação mais destacada da casca sendo a menos
+  frequente. O Lab segue com o rótulo (`compacto` é opt-in).
+
+### ♿ Acessibilidade
+- Metadados do card estavam em `--text-subtle` (#70817B) a 11px, **abaixo do mínimo de contraste**
+  — subiram para `--text-muted`, e a rota (o dado que mais importa pra reproduzir) para
+  `--text-secondary`.
+- Confirmação de cópia era só visual: ganhou região `aria-live`.
+- `aria-label` no botão de atualizar e na faixa de abas.
+
+### 📊 Técnico
+- Só apresentação: zero mudança de rota, contrato de API, formato do markdown ou lógica de
+  triagem. 452 testes verdes · tsc limpo · lint zerado nos tocados · build verde.
+
+---
+
 ## [v3.11.36] - 2026-07-31 - 🎨 Polish de UX do admin: abas de verdade + hierarquia visual na fila
 
 Revisão pedida pelo dono depois do primeiro uso no celular ("o header não está no melhor formato,

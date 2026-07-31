@@ -74,6 +74,19 @@ const FAIXA_SEVERIDADE: Record<SeveridadeFeedback, string> = {
   cosmetico: 'border-l-ds2-border-medium',
 }
 
+/**
+ * Status em 3 níveis, a MESMA gramática de cor dos tipos: pendente (laranja),
+ * andando (âmbar), fechado (apagado). Cinco cores para cinco status seria
+ * granularidade sem leitura — o olho não decora cinco.
+ */
+const PONTO_STATUS: Record<StatusFeedback, string> = {
+  novo: 'bg-ds2-orange',
+  triado: 'bg-ds2-amber-soft',
+  em_execucao: 'bg-ds2-amber-soft',
+  resolvido: 'bg-ds2-text-muted',
+  descartado: 'bg-ds2-text-subtle',
+}
+
 interface Contadores {
   porTipo: Record<TipoFeedback, number>
   porStatus: Record<StatusFeedback, number>
@@ -87,12 +100,25 @@ const ESTILO_CAMPO =
 const ESTILO_FAIXA =
   'flex gap-1.5 overflow-x-auto pb-1 [-ms-overflow-style:none] [mask-image:linear-gradient(90deg,#000_0,#000_calc(100%-28px),transparent_100%)] [scrollbar-width:none] md:[mask-image:none] [&::-webkit-scrollbar]:hidden'
 
-const ESTILO_CHIP = (ativo: boolean) =>
-  `flex min-h-11 shrink-0 items-center gap-1.5 rounded-ds2-pill border px-3 font-ds2-mono text-xs transition-colors ${
+/**
+ * Dois níveis de chip. O alvo de toque é ≥44px nos dois (regra do projeto) —
+ * a hierarquia vem do PESO visual, não do tamanho: status é o eixo principal
+ * da fila (borda sempre visível), tipo é recorte secundário (borda só no
+ * hover/ativo). Facet zerado fica esmaecido: o olho vai pro que tem conteúdo.
+ */
+const ESTILO_CHIP = (ativo: boolean, secundario = false, vazio = false) =>
+  [
+    'flex min-h-11 shrink-0 items-center gap-1.5 rounded-ds2-pill border px-3 font-ds2-mono transition-colors',
+    secundario ? 'text-[11px]' : 'text-xs',
     ativo
       ? 'border-ds2-orange/50 bg-ds2-orange/15 text-ds2-text-primary'
-      : 'border-ds2-border-subtle text-ds2-text-secondary hover:border-ds2-border-medium'
-  }`
+      : secundario
+        ? 'border-transparent text-ds2-text-muted hover:border-ds2-border-subtle hover:text-ds2-text-secondary'
+        : 'border-ds2-border-subtle text-ds2-text-secondary hover:border-ds2-border-medium',
+    vazio && !ativo ? 'opacity-45' : '',
+  ].join(' ')
+
+const ESTILO_ROTULO_FILTRO = 'font-ds2-mono text-[10px] tracking-[0.13em] text-ds2-text-muted uppercase'
 
 async function copiar(texto: string): Promise<boolean> {
   try {
@@ -160,7 +186,7 @@ export function PainelFeedback() {
           <button
             type="button"
             onClick={() => setComoFunciona((atual) => !atual)}
-            className="mt-2 flex min-h-11 items-center gap-1.5 font-ds2-mono text-[11px] text-ds2-text-muted transition-colors hover:text-ds2-text-primary"
+            className="-ml-1 flex min-h-11 items-center gap-1.5 px-1 font-ds2-mono text-[11px] text-ds2-text-muted transition-colors hover:text-ds2-text-primary"
           >
             como isso vira trabalho
             <ChevronDown
@@ -183,68 +209,91 @@ export function PainelFeedback() {
           </Card>
         )}
 
-        <section className="space-y-2">
-          {/* Os contadores por tipo VIRARAM o filtro por tipo: na v1 eles
-              ocupavam um card inteiro só informando, e a rota já aceitava ?tipo. */}
-          <div className={ESTILO_FAIXA}>
+        {/* Um bloco de filtro só, com os dois eixos rotulados. Antes eram duas
+            fileiras idênticas de pill + uma fileira de AÇÕES com a mesma forma
+            logo abaixo: três camadas visualmente iguais, e nenhuma dizia o que
+            filtrava. Rótulo resolve a ambiguidade; tirar as ações daqui mata a
+            terceira camada (elas viraram cabeçalho da lista). */}
+        <Card className="space-y-3 p-4">
+          <div>
+            <span className={ESTILO_ROTULO_FILTRO}>status</span>
+            <div className={`${ESTILO_FAIXA} mt-2`}>
+              {(['todos', ...STATUS_FEEDBACK] as const).map((opcao) => {
+                const ativo = filtroStatus === opcao
+                const quantidade =
+                  opcao === 'todos' ? contadores?.total : contadores?.porStatus[opcao]
+                return (
+                  <button
+                    key={opcao}
+                    type="button"
+                    onClick={() => setFiltroStatus(opcao)}
+                    aria-pressed={ativo}
+                    className={ESTILO_CHIP(ativo, false, quantidade === 0)}
+                  >
+                    {opcao !== 'todos' && (
+                      <span className={`h-1.5 w-1.5 rounded-full ${PONTO_STATUS[opcao]}`} />
+                    )}
+                    {opcao === 'todos' ? 'todos' : ROTULO_STATUS[opcao]}
+                    {typeof quantidade === 'number' && (
+                      <span className="text-ds2-text-muted">{quantidade}</span>
+                    )}
+                  </button>
+                )
+              })}
+            </div>
+          </div>
+
+          <div className="border-t border-ds2-border-subtle pt-3">
+            <span className={ESTILO_ROTULO_FILTRO}>tipo</span>
+            {/* Os contadores por tipo VIRARAM o filtro: na v1 ocupavam um card
+                inteiro só informando, e a rota já aceitava ?tipo desde sempre. */}
+            <div className={`${ESTILO_FAIXA} mt-2`}>
+              <button
+                type="button"
+                onClick={() => setFiltroTipo('todos')}
+                aria-pressed={filtroTipo === 'todos'}
+                className={ESTILO_CHIP(filtroTipo === 'todos', true)}
+              >
+                tudo
+                <span className="text-ds2-text-subtle">{contadores?.total ?? 0}</span>
+              </button>
+              {TIPOS_FEEDBACK.map((tipo) => {
+                const { rotulo, Icone, cor } = VISUAL_TIPO[tipo]
+                const ativo = filtroTipo === tipo
+                const quantidade = contadores?.porTipo[tipo] ?? 0
+                return (
+                  <button
+                    key={tipo}
+                    type="button"
+                    onClick={() => setFiltroTipo(ativo ? 'todos' : tipo)}
+                    aria-pressed={ativo}
+                    className={ESTILO_CHIP(ativo, true, quantidade === 0)}
+                  >
+                    <Icone className={`h-3.5 w-3.5 ${cor}`} />
+                    {rotulo}
+                    <span className="text-ds2-text-subtle">{quantidade}</span>
+                  </button>
+                )
+              })}
+            </div>
+          </div>
+        </Card>
+
+        {/* Cabeçalho da lista: dá um ponto de ancoragem entre o filtro e os
+            cards, e é onde as ações da fila passam a morar. */}
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <Eyebrow>
+            fila · {itens.length} {itens.length === 1 ? 'item' : 'itens'}
+          </Eyebrow>
+          <div className="flex items-center gap-1">
             <button
               type="button"
-              onClick={() => setFiltroTipo('todos')}
-              aria-pressed={filtroTipo === 'todos'}
-              className={ESTILO_CHIP(filtroTipo === 'todos')}
-            >
-              tudo
-              <span className="text-ds2-text-muted">{contadores?.total ?? 0}</span>
-            </button>
-            {TIPOS_FEEDBACK.map((tipo) => {
-              const { rotulo, Icone, cor } = VISUAL_TIPO[tipo]
-              const ativo = filtroTipo === tipo
-              return (
-                <button
-                  key={tipo}
-                  type="button"
-                  onClick={() => setFiltroTipo(ativo ? 'todos' : tipo)}
-                  aria-pressed={ativo}
-                  className={ESTILO_CHIP(ativo)}
-                >
-                  <Icone className={`h-3.5 w-3.5 ${cor}`} />
-                  {rotulo}
-                  <span className="text-ds2-text-muted">{contadores?.porTipo[tipo] ?? 0}</span>
-                </button>
-              )
-            })}
-          </div>
-
-          <div className={ESTILO_FAIXA}>
-            {(['todos', ...STATUS_FEEDBACK] as const).map((opcao) => {
-              const ativo = filtroStatus === opcao
-              const quantidade = opcao === 'todos' ? contadores?.total : contadores?.porStatus[opcao]
-              return (
-                <button
-                  key={opcao}
-                  type="button"
-                  onClick={() => setFiltroStatus(opcao)}
-                  aria-pressed={ativo}
-                  className={ESTILO_CHIP(ativo)}
-                >
-                  {opcao === 'todos' ? 'todos os status' : ROTULO_STATUS[opcao]}
-                  {typeof quantidade === 'number' && (
-                    <span className="text-ds2-text-muted">{quantidade}</span>
-                  )}
-                </button>
-              )
-            })}
-          </div>
-
-          <div className="flex justify-end gap-2 pt-1">
-            <Button
-              type="button"
-              variant="secondary"
-              className="py-2 text-xs"
               onClick={() => void carregar()}
+              aria-label="Atualizar a fila"
+              className="flex min-h-11 min-w-11 items-center justify-center rounded-ds2-pill text-ds2-text-muted transition-colors hover:text-ds2-text-primary"
             >
-              <RefreshCw className={`h-3.5 w-3.5 ${carregando ? 'animate-spin' : ''}`} /> atualizar
-            </Button>
+              <RefreshCw className={`h-4 w-4 ${carregando ? 'animate-spin' : ''}`} />
+            </button>
             <Button
               type="button"
               variant="secondary"
@@ -260,7 +309,12 @@ export function PainelFeedback() {
               copiar a fila
             </Button>
           </div>
-        </section>
+        </div>
+
+        {/* O "copiado" era só visual: leitor de tela não recebia confirmação. */}
+        <p aria-live="polite" className="sr-only">
+          {copiado ? 'Copiado para a área de transferência' : ''}
+        </p>
 
         {carregando && itens.length === 0 ? (
           <Card>
@@ -390,8 +444,9 @@ function CardFeedback({
         {item.mensagem}
       </p>
 
-      <div className="space-y-0.5 font-ds2-mono text-[11px] text-ds2-text-subtle">
-        <p className="break-all text-ds2-text-muted">{item.rota ?? 'rota não registrada'}</p>
+      {/* text-subtle (#70817B) em 11px não passa em contraste; virou muted. */}
+      <div className="space-y-0.5 font-ds2-mono text-[11px] text-ds2-text-muted">
+        <p className="break-all text-ds2-text-secondary">{item.rota ?? 'rota não registrada'}</p>
         <p className="break-all">
           {dataLegivel(item.createdAt)} · {item.logado ? 'logado' : 'anônimo'}
           {item.email ? ` · ${item.email}` : ''}
@@ -400,32 +455,48 @@ function CardFeedback({
       </div>
 
       <div className="flex flex-wrap items-center gap-2 border-t border-ds2-border-subtle pt-3">
+        {/* O select nativo era o elemento mais pesado do card: verde sólido que
+            não aparece em nenhum outro lugar da tela, largura do maior rótulo e
+            a setinha do sistema por cima. `appearance-none` + nosso chevron +
+            ponto de status deixa ele no mesmo vocabulário do resto. */}
         <label className="sr-only" htmlFor={`status-${item.id}`}>
           Status do feedback
         </label>
-        <select
-          id={`status-${item.id}`}
-          value={item.status}
-          disabled={salvando}
-          onChange={(e) => void salvar({ status: e.target.value })}
-          className="min-h-11 rounded-ds2-pill border border-ds2-border-subtle bg-ds2-bg-panel px-3 font-ds2-mono text-xs text-ds2-text-secondary outline-none focus:border-ds2-orange/50"
-        >
-          {STATUS_FEEDBACK.map((status) => (
-            <option key={status} value={status} className="bg-ds2-bg-panel text-ds2-text-primary">
-              {ROTULO_STATUS[status]}
-            </option>
-          ))}
-        </select>
+        <div className="relative">
+          <span
+            className={`pointer-events-none absolute top-1/2 left-3 h-1.5 w-1.5 -translate-y-1/2 rounded-full ${PONTO_STATUS[item.status]}`}
+          />
+          <select
+            id={`status-${item.id}`}
+            value={item.status}
+            disabled={salvando}
+            onChange={(e) => void salvar({ status: e.target.value })}
+            className="min-h-11 appearance-none rounded-ds2-pill border border-ds2-border-subtle bg-ds2-surface-glass pr-9 pl-7 font-ds2-mono text-xs text-ds2-text-primary outline-none focus:border-ds2-orange/50 disabled:opacity-60"
+          >
+            {STATUS_FEEDBACK.map((status) => (
+              <option key={status} value={status} className="bg-ds2-bg-panel text-ds2-text-primary">
+                {ROTULO_STATUS[status]}
+              </option>
+            ))}
+          </select>
+          {salvando ? (
+            <Loader2 className="pointer-events-none absolute top-1/2 right-3 h-3.5 w-3.5 -translate-y-1/2 animate-spin text-ds2-text-muted" />
+          ) : (
+            <ChevronDown className="pointer-events-none absolute top-1/2 right-3 h-3.5 w-3.5 -translate-y-1/2 text-ds2-text-muted" />
+          )}
+        </div>
 
         {item.issueRef && (
           <span className="font-ds2-mono text-[11px] text-ds2-amber-soft">{item.issueRef}</span>
         )}
 
+        {/* Sem borda: o chevron já entrega que abre, e o status precisa ser o
+            elemento mais forte desta linha (é a ação principal da triagem). */}
         <button
           type="button"
           onClick={() => setAbertoTriagem((atual) => !atual)}
           aria-expanded={abertoTriagem}
-          className="ml-auto flex min-h-11 items-center gap-1.5 rounded-ds2-pill border border-ds2-border-subtle px-3 font-ds2-mono text-[11px] text-ds2-text-secondary transition-colors hover:border-ds2-border-medium hover:text-ds2-text-primary"
+          className="ml-auto flex min-h-11 items-center gap-1.5 px-1 font-ds2-mono text-[11px] text-ds2-text-muted transition-colors hover:text-ds2-text-primary"
         >
           {item.notasAdmin ? 'ver a nota' : 'nota e ref'}
           <ChevronDown

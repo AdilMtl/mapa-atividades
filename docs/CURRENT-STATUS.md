@@ -10,7 +10,23 @@
 
 ## 🎯 SESSÃO ATUAL: sistema de feedback ponta a ponta — ISSUE-318D + ISSUE-318E
 **Data:** 31 de julho de 2026
-**Versão:** v3.11.36 (318D em v3.11.34 · 318E em v3.11.35 · polish de UX do admin em v3.11.36)
+**Versão:** v3.11.37 (318D em v3.11.34 · 318E em v3.11.35 · UX do admin em v3.11.36 e v3.11.37)
+
+### **🎨 2ª rodada de UX (v3.11.37) — "melhorou, mas suspeito que tem mais coisa"**
+- **"Três camadas de filtro, falta hierarquia":** eram três fileiras com a MESMA forma de pill —
+  tipo, status e as **ações** (atualizar/copiar), que nem filtro são. Agora os dois eixos vivem
+  num bloco rotulado (`status` primário, `tipo` secundário) e as ações viraram cabeçalho da
+  lista com o contador `fila · N itens`. Facet zerado esmaece.
+- **"O select está desformatado":** era o elemento mais pesado do card — verde `--ds2-bg-panel`
+  sólido que não existe em nenhum outro ponto da tela, largura do rótulo mais longo e a setinha
+  do sistema por cima. `appearance-none` + chevron nosso + glass + ponto de status, e o chevron
+  vira spinner enquanto o PATCH está em voo.
+- **Achados extras:** a máscara fixa da faixa de abas cortava "Assinantes" com borda dura quando
+  a aba ativa se centralizava (virou fade dinâmico dos dois lados); "nota e ref" tinha o mesmo
+  peso do select e a linha ficava sem ação principal; e os metadados em `--text-subtle` a 11px
+  estavam **abaixo do mínimo de contraste** (subiram para `--text-muted`).
+- **A gramática visual da tela, agora explícita:** cor = quanto cobra ação (3 níveis, nunca 5) ·
+  ícone = categoria · faixa lateral = severidade · pill = filtro · sublinhado = navegação.
 
 ### **🎨 Polish de UX do admin (v3.11.36) — pedido do dono depois do 1º uso no celular**
 Dois apontamentos dele, e o que a auditoria da tela inteira achou junto:

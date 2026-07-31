@@ -33,9 +33,39 @@ const ABAS = [
   { href: '/admin/feedback', label: 'Feedback' },
 ]
 
+// A máscara acompanha o scroll: fade só do lado onde REALMENTE tem mais aba.
+// Máscara fixa à direita (v1) cortava "Assinantes" com borda dura à esquerda
+// assim que a aba ativa se centralizava — a borda dura parece bug, o fade
+// parece continuação.
+const MASCARA: Record<string, string> = {
+  nenhuma: '',
+  direita: '[mask-image:linear-gradient(90deg,#000_0,#000_calc(100%-28px),transparent_100%)]',
+  esquerda: '[mask-image:linear-gradient(90deg,transparent_0,#000_28px,#000_100%)]',
+  ambas:
+    '[mask-image:linear-gradient(90deg,transparent_0,#000_28px,#000_calc(100%-28px),transparent_100%)]',
+}
+
 export function AdminShell({ email, children }: { email: string; children: React.ReactNode }) {
   const pathname = usePathname()
   const abaAtiva = React.useRef<HTMLAnchorElement>(null)
+  const barra = React.useRef<HTMLElement>(null)
+  const [mascara, setMascara] = React.useState<keyof typeof MASCARA>('direita')
+
+  const avaliarBordas = React.useCallback(() => {
+    const elemento = barra.current
+    if (!elemento) return
+    const temEsquerda = elemento.scrollLeft > 4
+    const temDireita = elemento.scrollLeft + elemento.clientWidth < elemento.scrollWidth - 4
+    setMascara(
+      temEsquerda && temDireita
+        ? 'ambas'
+        : temEsquerda
+          ? 'esquerda'
+          : temDireita
+            ? 'direita'
+            : 'nenhuma',
+    )
+  }, [])
 
   // Sem isto, entrar direto numa aba do fim da faixa (Feedback, no celular)
   // abre a barra rolada no começo e a aba ativa fica fora de vista — a barra
@@ -43,7 +73,13 @@ export function AdminShell({ email, children }: { email: string; children: React
   // scroll horizontal arraste a página junto.
   React.useEffect(() => {
     abaAtiva.current?.scrollIntoView({ block: 'nearest', inline: 'center' })
-  }, [pathname])
+    avaliarBordas()
+  }, [pathname, avaliarBordas])
+
+  React.useEffect(() => {
+    window.addEventListener('resize', avaliarBordas)
+    return () => window.removeEventListener('resize', avaliarBordas)
+  }, [avaliarBordas])
 
   return (
     <div className="bg-ds2-bg-app text-ds2-text-primary">
@@ -68,14 +104,19 @@ export function AdminShell({ email, children }: { email: string; children: React
             >
               <ArrowLeft className="h-4 w-4" />
             </Link>
-            <LabLogout />
+            <LabLogout compacto />
           </div>
         </PageContainer>
 
         <PageContainer>
-          {/* Faixa de abas: uma linha só. A máscara na borda direita avisa que a
-              barra continua, já que a scrollbar fica escondida (padrão da 318A2). */}
-          <nav className="-mb-px flex gap-1 overflow-x-auto [-ms-overflow-style:none] [mask-image:linear-gradient(90deg,#000_0,#000_calc(100%-28px),transparent_100%)] [scrollbar-width:none] md:[mask-image:none] [&::-webkit-scrollbar]:hidden">
+          {/* Faixa de abas: uma linha só. A máscara avisa de que lado a barra
+              continua, já que a scrollbar fica escondida (padrão da 318A2). */}
+          <nav
+            ref={barra}
+            onScroll={avaliarBordas}
+            aria-label="Seções do admin"
+            className={`-mb-px flex gap-1 overflow-x-auto [-ms-overflow-style:none] [scrollbar-width:none] md:[mask-image:none] [&::-webkit-scrollbar]:hidden ${MASCARA[mascara]}`}
+          >
             {ABAS.map((aba) => {
               const ativo = pathname === aba.href
               return (
@@ -86,7 +127,7 @@ export function AdminShell({ email, children }: { email: string; children: React
                   aria-current={ativo ? 'page' : undefined}
                   className={`relative flex min-h-11 shrink-0 items-center whitespace-nowrap px-3 font-ds2-mono text-xs transition-colors ${
                     ativo
-                      ? 'text-ds2-text-primary'
+                      ? 'font-medium text-ds2-text-primary'
                       : 'text-ds2-text-muted hover:text-ds2-text-secondary'
                   }`}
                 >
