@@ -120,21 +120,37 @@ livre de qualquer visitante da internet com IP junto — mesma classe de dado do
 - **437 testes verdes** (eram 431) · tsc limpo · lint zerado nos tocados · build verde ·
   **diff zero** em `src/app/layout.tsx`, `EmailGate.tsx` e `api/prediag/*`.
 
-### **🎯 PRÓXIMA SESSÃO:**
-1. 🚨 **Revalidar a conversão no Tag Assistant** (critério 9 da 318D + checklist do
-   `07_mapa_tracking_ads.md` §4) — pendência de tracking assumida, não esquecida. **A 318D não
-   vira ✅ sem isso**, e é o único item que falta dela.
-2. **Usar a fila de verdade** — triar no celular e colar o primeiro export em
+### **🎯 PENDÊNCIAS ABERTAS (fechamento da sessão de 2026-07-31)**
+
+**🚨 Bloqueia o ✅ de uma issue:**
+1. **Revalidar a conversão no Tag Assistant** — critério 9 da 318D + checklist do
+   `07_mapa_tracking_ads.md` §4. Adiado por decisão do dono nesta sessão. **É o ÚNICO item que
+   falta pra 318D fechar**, e é pré-requisito natural da 318C (não empilhar duas mudanças de
+   tracking sem prova: se a conversão cair, não dá pra saber qual causou).
+
+**👤 Só o dono consegue fazer (uso e validação reais):**
+2. **Usar a fila de feedback de verdade** — triar no celular e colar o primeiro export em
    `docs/revamp/feedback-inbox.md` (o arquivo nasce no primeiro uso, de propósito).
-3. **ISSUE-318C** (pageview + dropout por pergunta) — o dono quis executar em 31/07, mas ela está
-   travada no backlog como **Fable 5, persona Analytics & Ads, "sem exceção"**: escreve no
-   tracking e toca página pública. **Decisão de modelo pendente** antes de abrir. Vale rodar
-   depois do Tag Assistant, pra não empilhar duas mudanças de tracking sem prova.
-4. **ISSUE-319** (gate de QA da Fase 1A) — o fecho da fase. Modelo: Fable 5 + dono em
-   dispositivos reais.
-5. Pendências herdadas: validações da ISSUE-318 (GTM Preview, convite real), testes manuais
-   acumulados (315 item 7, 314C, 314D), veto de copy da 314D, confirmação de uso da 318B, e o
-   resync do Artifact do backlog (desatualizado desde 2026-07-11).
+3. **Conferir no Android o que a v3.11.37 mexeu:** o `select` de status com `appearance-none`
+   (mudou a caixa, não o menu nativo) e se a faixa de severidade lê à distância de braço.
+4. Testes manuais acumulados: 315 item 7, 314C, 314D · veto de copy da 314D (enunciados +
+   devolutiva do mini-diagnóstico) · confirmação de uso da 318B (editar/excluir assinante pelo
+   celular) · validações da 318 (GTM Preview, convite real).
+
+**⏭️ Próximas issues:**
+5. **ISSUE-318C** (pageview + dropout por pergunta no radar) — o dono quis executar em 31/07, mas
+   ela está travada no backlog como **Fable 5, persona Analytics & Ads, "sem exceção"**: escreve
+   no tracking e toca página pública. **Decisão de modelo pendente antes de abrir.** Rodar depois
+   do item 1.
+6. **ISSUE-319** (gate de QA da Fase 1A) — o fecho da fase. Modelo: Fable 5 + dono em
+   dispositivos reais. Dep.: 310–318 + 318A, todas no ar.
+7. Depois disso abre a **Fase 1B** (IA controlada): ISSUE-320 (infra, spec v2 fechada) → 321
+   (entrevista) → 322 (plano enriquecido) → 323 (medição).
+
+**🧹 Dívida:**
+8. O Artifact visual do backlog (`docs/revamp/roadmap-backlog.html`) está desatualizado desde
+   2026-07-11 — as issues 313→318E mudaram de status e não foram refletidas lá. Sessão curta
+   de resync.
 
 ---
 
