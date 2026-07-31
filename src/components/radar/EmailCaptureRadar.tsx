@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { Loader2, Mail, ShieldCheck } from 'lucide-react'
 
 import { Button } from '@/components/ds2'
+import { SuprimirFeedback } from '@/components/feedback/SuprimirFeedback'
 import { track } from '@/lib/analytics'
 import type { RadarKind } from '@/lib/radar/types'
 import { cn } from '@/lib/utils'
@@ -112,6 +113,10 @@ export function EmailCaptureRadar({
 
   return (
     <form onSubmit={handleSubmit} className={cn('flex flex-col gap-3', className)}>
+      {/* ISSUE-318D §3: com o gate de e-mail aberto, o FAB de feedback some —
+          é o metro quadrado onde o investimento em Ads vira lead. */}
+      <SuprimirFeedback />
+
       <input
         type="text"
         value={website}

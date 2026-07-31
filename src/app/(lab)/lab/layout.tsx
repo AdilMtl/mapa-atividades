@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { redirect } from 'next/navigation'
 
+import { FeedbackWidget } from '@/components/feedback/FeedbackWidget'
 import { BetaFechado } from '@/components/lab/BetaFechado'
 import { LabShell } from '@/components/lab/LabShell'
 import { ehAdmin } from '@/lib/admin'
@@ -25,12 +26,15 @@ export default async function LabLayout({ children }: { children: React.ReactNod
   if (!acesso.autorizado) return <BetaFechado email={user.email} />
 
   return (
-    <LabShell
-      email={user.email}
-      mostrarLegado={acesso.planType !== 'lab_beta'}
-      mostrarAdmin={ehAdmin(user.email)}
-    >
-      {children}
-    </LabShell>
+    <>
+      <LabShell
+        email={user.email}
+        mostrarLegado={acesso.planType !== 'lab_beta'}
+        mostrarAdmin={ehAdmin(user.email)}
+      >
+        {children}
+      </LabShell>
+      <FeedbackWidget />
+    </>
   )
 }

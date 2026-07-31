@@ -1,5 +1,7 @@
 import type { Metadata } from 'next'
 
+import { FeedbackWidget } from '@/components/feedback/FeedbackWidget'
+
 import { AppShell } from './AppShell'
 
 // Camada Server Component só para poder exportar `metadata` (ISSUE-110) — o
@@ -14,5 +16,10 @@ interface LayoutProps {
 }
 
 export default function AppLayout({ children }: LayoutProps) {
-  return <AppShell>{children}</AppShell>
+  return (
+    <>
+      <AppShell>{children}</AppShell>
+      <FeedbackWidget />
+    </>
+  )
 }

@@ -16,6 +16,58 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [v3.11.34] - 2026-07-31 - 🗣️ Captura de feedback com contexto automático (ISSUE-318D)
+
+Fatia de **captura** da spec da 318D (o painel de triagem é a 318E). O que faltava não era um
+formulário: era contexto automático. Uma nota que diz "a tela tá estranha" é inútil; um registro
+que diz `bug · trava · /lab/projeto/[id] · 390×844 · a1b2c3d` é uma issue quase escrita.
+
+### ✨ Adicionado
+- **Tabela `feedback`** (SQL entregue como doc, rodado e verificado pelo dono em produção):
+  RLS ligada, **zero políticas**, `REVOKE ALL` de `anon`/`authenticated`. Todo acesso passa por
+  rota com `service_role`. Não é preferência de estilo — a tabela recebe texto livre de qualquer
+  visitante da internet e guarda `user_id` + IP, mesma classe de dado do incidente `roi_leads`
+  (v3.5.3).
+- **`POST /api/feedback`** pública, com o padrão de proteção do `api/lab/interest`: honeypot que
+  responde sucesso falso sem gravar, rate limit de 5/hora por IP, vocabulário fechado
+  (`tipo`/`severidade`), mensagem de 3 a 2000 chars e `contexto` copiado por allowlist campo a
+  campo. `status` sempre entra como `'novo'`; `notas_admin` e `issue_ref` são inalcançáveis pela
+  rota pública.
+- **Widget FAB "Achou algo?"** — tipo (5 chips) → severidade (só em bug) → mensagem → e-mail
+  opcional. Anônimo envia; quem está logado não digita identificação nenhuma. Foco preso no
+  painel, `Esc` fecha, alvos ≥ 44px, campos em 16px (sem zoom no iOS).
+- **`src/app/(publico)/layout.tsx`** — o grupo não tinha layout, e é exatamente por isso que ele
+  nasceu: o FAB chega nas páginas públicas com **diff zero no `layout.tsx` raiz**, que carrega o
+  GTM e é trava crítica.
+- **Linha na `/privacidade`** declarando a coleta de feedback (mensagem, e-mail opcional e
+  contexto técnico), com o aviso pra pessoa não colocar dado sigiloso na mensagem.
+
+### 🔐 Segurança
+- `user_id` e `logado` vêm **só da sessão validada no servidor**, nunca do body — é a falha do
+  `x-user-email` forjável corrigida na ISSUE-318, e ela não se repete aqui. Forjar `user_id` por
+  `curl` é ignorado em silêncio.
+
+### 📊 Técnico
+- **Supressão do FAB em duas camadas.** A lista de rotas (`/pre-diagnostico`, `/auth`,
+  `/reset-password`) é função pura com 6 testes. Dentro dos radares, porém, pergunta, gate de
+  e-mail e resultado dividem a MESMA URL: nasceu o `<SuprimirFeedback />`, um contador com
+  `useSyncExternalStore` (não booleano — duas telas podem suprimir ao mesmo tempo, e a que
+  desmonta primeiro não pode reacender o FAB da outra).
+- **O FAB só renderiza depois de hidratar** — no HTML do servidor ele apareceria por cima da
+  pergunta do radar antes do efeito de supressão rodar, piscando justamente sobre o funil que
+  vira conversão do Ads.
+- Falha de gravação não quebra a UI: o widget agradece e segue (400 e 429 ainda mostram o motivo
+  pra pessoa). Feedback não é transacional.
+- `vitest.config.ts` passou a cobrir `src/lib/feedback/**` — **437 testes verdes** (eram 431).
+  tsc limpo, lint zerado nos arquivos novos, build verde.
+- 🚨 **Pendente, assumido e não esquecido:** a revalidação do disparo de conversão no Tag
+  Assistant (critério 9 da issue) ficou para uma sessão própria, por decisão do dono. O
+  `git diff --stat` mostra zero alteração em `src/app/layout.tsx`, `EmailGate.tsx` e
+  `api/prediag/*`, mas a trava do `CLAUDE.md` só é cumprida com a prova em runtime — **a
+  ISSUE-318D não fecha até lá.**
+
+---
+
 ## [v3.11.33] - 2026-07-30 - 📖 A tela de analytics passa a se explicar sozinha
 
 Feedback do dono depois de usar o painel em produção ("tá bonito, fácil de ver") — a dúvida que

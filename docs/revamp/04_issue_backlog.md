@@ -1458,8 +1458,35 @@ custa menos volume em `radar_events`.
 commitar; volume de linhas em `radar_events` (pageview é o evento mais frequente que existe).
 
 ## ISSUE-318D — Captura de feedback (tabela + rota pública + widget)
-**Status:** ⬜ spec fechada em 2026-07-29 (`ISSUE-318D-spec-feedback.md`). **Ler a spec inteira
-antes de codar** — as 4 decisões do dono e a lista de rotas suprimidas estão travadas lá.
+**Status:** ⚠️ **código completo em 2026-07-31** (spec: `ISSUE-318D-spec-feedback.md`) — falta o
+que só o dono faz: **rodar o SQL** (`ISSUE-318D-sql-feedback.md`), o teste no celular real e a
+revalidação da conversão no Tag Assistant. Enquanto o SQL não roda, o widget grava 500 (a UI
+agradece mesmo assim, por design).
+> 🚨 **Pendência de tracking ADIADA por decisão do dono (2026-07-31), não esquecida:** a
+> revalidação do disparo de conversão no Tag Assistant (critério de aceite 9 + checklist do
+> `07_mapa_tracking_ads.md` §4) fica para uma sessão própria. O risco é baixo e conhecido — o
+> `git diff --stat` mostra **zero** alteração em `src/app/layout.tsx`, `EmailGate.tsx` e
+> `api/prediag/*`, e o FAB entra por um `(publico)/layout.tsx` novo —, mas a trava do
+> `CLAUDE.md` só é considerada cumprida com a prova em runtime. **A issue não fecha (✅) enquanto
+> isso não for feito.**
+**Entregue:** `feedback` (doc de SQL), `POST /api/feedback` (honeypot · rate limit 5/h/IP ·
+vocabulário fechado · `user_id`/`logado` só da sessão do servidor · status sempre `novo`),
+widget FAB em `src/components/feedback/`, `src/app/(publico)/layout.tsx` **novo** (diff zero no
+layout raiz), linha de coleta de feedback na `/privacidade`, 6 testes da lista de supressão.
+**5 decisões de execução (dentro da spec, registradas aqui):**
+1. **Supressão nos radares é por ESTADO, não por rota** — pergunta, gate de e-mail e resultado
+   dividem a mesma URL. `<SuprimirFeedback />` (contador com `useSyncExternalStore`) monta no
+   `QuestionCard` e no `EmailCaptureRadar`; o FAB volta sozinho na tela de resultado.
+2. **O FAB só renderiza depois de hidratar** — no HTML do servidor ele apareceria por cima da
+   pergunta do radar antes do efeito de supressão rodar. Piscar sobre o funil do Ads é o oposto
+   do que a §3 pede.
+3. **`/reset-password` entrou na lista de supressão** junto de `/auth`, pelo mesmo motivo da
+   spec (tela transacional: quem está entrando quer entrar). Reversível em uma string.
+4. **`email-validator.ts` NÃO serve pra isso** — apesar do nome, ele checa autorização de acesso
+   (`/api/auth/check-authorization`), não formato. O formato do e-mail usa o mesmo regex + teto
+   de 255 do `api/lab/interest`.
+5. **`app_version` cai pra `'local'` fora da Vercel** — o fallback previsto (versão do
+   `package.json`) marca `0.1.0` desde sempre e não identifica deploy nenhum.
 **Tipo:** Backend/Frontend/Segurança · **Prioridade:** Alta · **Complexidade:** Média
 **Modelo:** **Fable 5 revisa o SQL/RLS + Sonnet implementa** — mesmo arranjo da ISSUE-106, e pelo
 mesmo motivo: é uma tabela nova que recebe **texto livre de qualquer visitante da internet** e

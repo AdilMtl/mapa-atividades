@@ -178,6 +178,28 @@ export default function PrivacidadePage() {
           <div className="bg-white/5 border border-white/10 rounded-lg p-4 mt-6">
             <h3 className="font-medium text-white mb-3 flex items-center gap-2">
               <FileText className="w-4 h-4" />
+              Feedback sobre o site
+            </h3>
+            <p className="text-white/80 text-sm mb-2">
+              Se você usar o botão de feedback para contar o que achou de alguma página, guardamos:
+            </p>
+            <ul className="text-white/80 text-sm space-y-2">
+              <li>• A mensagem que você escrever (evite colocar dado pessoal ou sigiloso nela)</li>
+              <li>• O e-mail, só se você informar para receber resposta</li>
+              <li>
+                • O contexto técnico da tela: página, tamanho da tela, navegador, versão do site,
+                origem (UTM) e endereço IP
+              </li>
+            </ul>
+            <p className="text-white/70 text-xs mt-3">
+              O contexto técnico existe para conseguirmos repetir o problema e corrigir. Usamos isso
+              só para melhorar o produto, e nunca compartilhamos com terceiros.
+            </p>
+          </div>
+
+          <div className="bg-white/5 border border-white/10 rounded-lg p-4 mt-6">
+            <h3 className="font-medium text-white mb-3 flex items-center gap-2">
+              <FileText className="w-4 h-4" />
               Cookies
             </h3>
             <ul className="text-white/80 text-sm space-y-2">

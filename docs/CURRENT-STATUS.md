@@ -8,7 +8,73 @@
 
 ---
 
-## 🎯 SESSÃO ATUAL: ISSUE-318A2 — segmentação de conteúdo + pipeline do Lab no analytics
+## 🎯 SESSÃO ATUAL: ISSUE-318D — captura de feedback (tabela + rota pública + widget)
+**Data:** 31 de julho de 2026
+**Versão:** v3.11.34
+**Status:** ⚠️ **código completo e no ar; a issue NÃO fecha ainda** — falta a revalidação da
+conversão no Tag Assistant, adiada por decisão do dono para uma sessão própria. SQL rodado e
+verificado por ele em produção nesta sessão.
+
+### **🚀 O QUE FOI FEITO:**
+A fatia de **captura** da spec `ISSUE-318D-spec-feedback.md` (o painel de triagem é a 318E). O
+problema que isso resolve não é falta de formulário: é que o achado do teste real do dono no
+celular virava nota solta ou parágrafo colado numa sessão. Agora vira registro com **contexto
+automático** — rota, viewport, device, versão do deploy, UTM, rota anterior —, que é o que
+transforma "a tela tá estranha" em issue quase escrita.
+- **Tabela `feedback`** (`docs/revamp/ISSUE-318D-sql-feedback.md`): RLS ligada, **zero políticas**,
+  `REVOKE ALL` de `anon`/`authenticated`. Verificado pelo dono em produção: `rowsecurity = true`,
+  0 políticas, 0 grants, trigger de `updated_at` ativo.
+- **`POST /api/feedback`** pública: honeypot com sucesso falso, rate limit 5/h por IP,
+  vocabulário fechado, mensagem 3–2000 chars, contexto copiado por allowlist (JSONB sem teto é
+  vetor de inchaço — lição do `answers` no radar). `status` sempre `'novo'`; `notas_admin` e
+  `issue_ref` são inalcançáveis pela rota pública.
+- **Widget FAB** ("Achou algo?") em `src/components/feedback/`, montado nos layouts de grupo.
+
+### **🔐 A regra que mais importa aqui (e por quê):**
+`user_id` e `logado` vêm **exclusivamente da sessão validada no servidor**, nunca do body. É
+literalmente a falha do `x-user-email` forjável corrigida na ISSUE-318, e a tabela recebe texto
+livre de qualquer visitante da internet com IP junto — mesma classe de dado do incidente
+`roi_leads` (v3.5.3).
+
+### **📐 As 5 decisões de execução (dentro da spec, registradas no backlog):**
+1. **A supressão dentro dos radares é por ESTADO, não por rota.** Pergunta, gate de e-mail e
+   resultado dividem a MESMA URL — nenhuma lista de rotas distingue os três. Nasceu
+   `<SuprimirFeedback />` (contador com `useSyncExternalStore`, não booleano: duas telas podem
+   suprimir ao mesmo tempo e a que desmonta primeiro não pode reacender o FAB da outra).
+2. **O FAB só renderiza depois de hidratar.** No HTML do servidor ele apareceria por cima da
+   pergunta do radar e sumiria no efeito seguinte — piscar sobre o funil do Ads é o oposto do que
+   a §3 da spec pede.
+3. **`/reset-password` entrou na lista de supressão** junto de `/auth`, pelo mesmo motivo da spec
+   (tela transacional). Reversível em uma string.
+4. **`email-validator.ts` não serve pra isso** — apesar do nome, ele checa **autorização de
+   acesso** (`/api/auth/check-authorization`), não formato. Ficou o regex + teto de 255 do
+   `api/lab/interest`.
+5. **`app_version` cai pra `'local'` fora da Vercel** — o fallback previsto (versão do
+   `package.json`) marca `0.1.0` desde sempre e não identifica deploy nenhum.
+
+### **📊 TÉCNICO:**
+- Novos: `src/lib/feedback/{tipos,supressao,supressao.test}.ts`,
+  `src/components/feedback/{FeedbackWidget,SuprimirFeedback}.tsx`, `src/app/api/feedback/route.ts`,
+  **`src/app/(publico)/layout.tsx`** (o grupo não tinha layout — é por isso que ele existe).
+- Linha nova na `/privacidade` declarando a coleta de feedback (mitigação da §9 da spec).
+- **437 testes verdes** (eram 431) · tsc limpo · lint zerado nos tocados · build verde ·
+  **diff zero** em `src/app/layout.tsx`, `EmailGate.tsx` e `api/prediag/*`.
+
+### **🎯 PRÓXIMA SESSÃO:**
+1. 🚨 **Revalidar a conversão no Tag Assistant** (critério 9 + checklist do
+   `07_mapa_tracking_ads.md` §4) — pendência de tracking assumida, não esquecida. **A 318D não
+   vira ✅ sem isso.**
+2. Teste do widget no celular real: FAB some no fluxo de pergunta do radar e volta no resultado;
+   não cobre CTA; teclado do iOS não esconde o campo de mensagem.
+3. **ISSUE-318E** (painel de triagem + export markdown) — o dado já começa a entrar agora, então
+   ela nasce com fila real dentro em vez de tela vazia.
+4. Pendências herdadas: validações da ISSUE-318 (GTM Preview, convite real), testes manuais
+   acumulados (315 item 7, 314C, 314D), confirmação de uso da 318B, e o resync do Artifact do
+   backlog (desatualizado desde 2026-07-11).
+
+---
+
+## 📋 SESSÃO ANTERIOR: ISSUE-318A2 — segmentação de conteúdo + pipeline do Lab no analytics
 **Data:** 30 de julho de 2026
 **Versão:** v3.11.33 (318A2 em v3.11.32 · ressalvas de leitura em v3.11.33)
 **Status:** ✅ **ISSUE-318A2 concluída e validada pelo dono em produção** — "tá bonito, fácil de

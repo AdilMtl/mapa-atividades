@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 
 import { GridSection } from '@/components/ds2'
+import { SuprimirFeedback } from '@/components/feedback/SuprimirFeedback'
 import { capturarUtm, lerUtm, track } from '@/lib/analytics'
 import { CONTEUDO_MATURIDADE } from '@/lib/radar/content'
 import { calcularMaturidade, PERGUNTAS_MATURIDADE } from '@/lib/radar/maturidade'
@@ -212,6 +213,10 @@ export function RadarFlow({ kind }: RadarFlowProps) {
 
   return (
     <GridSection className="rounded-ds2-hero border border-ds2-border-subtle p-6 md:p-10">
+      {/* ISSUE-318D §3: enquanto a pessoa responde, o FAB de feedback some — o
+          funil dos radares é o evento de conversão do Ads e não divide a tela
+          com botão flutuante. Ele volta na tela de resultado. */}
+      <SuprimirFeedback />
       <QuestionCard
         kind={kind}
         question={perguntaAtual}
