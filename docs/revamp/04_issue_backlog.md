@@ -1469,6 +1469,14 @@ na mesma data. **Só não fecha (✅) por uma coisa:** a revalidação da conver
 > `api/prediag/*`, e o FAB entra por um `(publico)/layout.tsx` novo —, mas a trava do
 > `CLAUDE.md` só é considerada cumprida com a prova em runtime. **A issue não fecha (✅) enquanto
 > isso não for feito.**
+> 🔍 **Sessão de 2026-08-06 (não concluída):** tentativa de revalidar no Tag Assistant achou que
+> a conversão do radar de Oportunidades **não dispara** — hipótese de alta confiança (não 100%
+> confirmada) é que a ação de conversão com o rótulo `AW-16601345592/0K0dCMm6oo4bELjckew9` **não
+> existe** na conta atual do Google Ads (checado em Metas → Conversões: as 4 ações existentes
+> batem por nome com o funil legado + 1 automática de pageview, nenhuma é do radar). Honeypot e
+> bug de código no client foram descartados. Detalhes completos: `CURRENT-STATUS.md` sessão de
+> 06/08. Pendência agora é maior que "só revalidar" — pode ser preciso **criar a ação de
+> conversão nova** no Ads antes de qualquer teste voltar a fazer sentido.
 **Entregue:** `feedback` (doc de SQL), `POST /api/feedback` (honeypot · rate limit 5/h/IP ·
 vocabulário fechado · `user_id`/`logado` só da sessão do servidor · status sempre `novo`),
 widget FAB em `src/components/feedback/`, `src/app/(publico)/layout.tsx` **novo** (diff zero no

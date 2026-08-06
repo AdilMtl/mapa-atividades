@@ -8,7 +8,49 @@
 
 ---
 
-## 🎯 SESSÃO ATUAL: sistema de feedback ponta a ponta — ISSUE-318D + ISSUE-318E
+## 🎯 SESSÃO ATUAL: investigação da ISSUE-318D (critério 9) — conversão do radar não dispara
+**Data:** 06 de agosto de 2026
+**Versão:** v3.11.37 (sem mudança de código nesta sessão — só investigação)
+**Status:** ⚠️ **não concluída.** A revalidação da conversão no Tag Assistant (único item pendente
+pra fechar a 318D) virou uma investigação de causa raiz que não terminou dentro desta sessão.
+
+### **🔍 O que foi feito**
+Seguindo o roteiro do dono no Tag Assistant (`https://conversas-no-corredor.vercel.app/radar/oportunidades`,
+não `/pre-diagnostico` — o funil legado está fora de uso, só o radar importa):
+1. **Honeypot descartado como causa.** O lead do teste apareceu certo em `radar_leads`
+   (`kind = 'oportunidades'`, e-mail do dono, horário batendo com a sessão do Tag Assistant) —
+   o formulário gravou normal, não foi bot/autofill.
+2. **A conversão não disparou.** No dump completo do Tag Assistant (dataLayer + hits), não
+   apareceu nenhum evento `"conversion"` nem o rótulo `AW-16601345592/0K0dCMm6oo4bELjckew9`
+   (o que [OportunidadesResultado.tsx:67-73](../src/components/radar/OportunidadesResultado.tsx#L67-L73)
+   dispara) — nem como tag no GTM, nem como hit de rede.
+3. **Inspeção da conta Google Ads (Metas → Conversões):** as 4 ações de conversão que existem
+   na conta batem, por eliminação de nome, com o **funil legado** ("Botao Quero acessar o
+   ecossistema", "Enviar formulário de lead", "Inscrição") + 1 automática de "Visualização de
+   página". Nenhuma corresponde ao radar.
+
+### **⚠️ Hipótese com alta confiança, não confirmada 100%**
+A ação de conversão com o rótulo `0K0dCMm6oo4bELjckew9` **provavelmente não existe** na conta
+atual — o código e a doc (`07_mapa_tracking_ads.md`, entrada de 2026-07-05 do CURRENT-STATUS)
+tratam esse rótulo como reaproveitado do funil legado, mas nenhuma ação na conta bate com ele.
+**Não confirmado de forma definitiva** porque não abrimos a "Configuração da tag" de cada ação
+pra comparar o código bruto — só comparamos por nome. Se a hipótese se confirmar, a raiz não é
+bug de navegador/honeypot/sessão: é configuração ausente na conta de Ads.
+
+### **⏭️ Pendências pra próxima sessão (nesta ordem)**
+1. Abrir cada ação de conversão existente → "Configuração da tag" → confirmar (ou descartar)
+   que nenhuma bate com `0K0dCMm6oo4bELjckew9`.
+2. Se confirmado: criar uma ação de conversão nova no Google Ads (Metas → Conversões → Site)
+   pro radar de Oportunidades, pegar o par ID/rótulo novo.
+3. Atualizar `OportunidadesResultado.tsx` (e decidir se o legado migra junto) com o rótulo novo.
+4. Só depois disso volta a rodar o teste do Tag Assistant — ele vai continuar falhando até essa
+   configuração existir.
+5. A ISSUE-318D continua **não fechada** (⚠️, sem mudança de status desde 31/07) — o critério 9
+   segue bloqueado, e a 318C (que depende de conversão validada) continua sem abrir.
+
+---
+
+## 🎯 sistema de feedback ponta a ponta — ISSUE-318D + ISSUE-318E
 **Data:** 31 de julho de 2026
 **Versão:** v3.11.37 (318D em v3.11.34 · 318E em v3.11.35 · UX do admin em v3.11.36 e v3.11.37)
 
