@@ -16,6 +16,61 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [v3.11.38] - 2026-08-06 - 🚨 A conversão do funil novo nunca existiu: causa raiz e correção
+
+Sessão que começou como "revalidar o disparo de conversão no Tag Assistant" (último critério
+aberto da ISSUE-318D) e virou auditoria de causa raiz. Achou **dois furos em produção**.
+
+### 🚨 Corrigido — nenhuma conversão do funil novo chegava ao Google Ads
+- **Impacto:** por ~1 mês (desde 08/07), toda a verba de Ads rodou **sem sinal de conversão de
+  volta**. O anúncio aponta para a home (`/?utm_source=google&utm_medium=cpc&utm_campaign=analistas`),
+  a home nova só tem CTA para os radares (zero links para `/pre-diagnostico`), e o radar não
+  tinha ação de conversão. Nenhum lead foi perdido — eles sempre entraram no Supabase; o que se
+  perdeu foi o aprendizado do lance automático.
+- **Causa raiz:** o `gtag('event','conversion', …)` do `EmailGate.tsx` — descrito na
+  `07_mapa_tracking_ads.md` desde 05/07 como "o ÚNICO disparo funcional da conversão" — **nunca
+  disparou conversão nenhuma**. Quem sempre converteu foram **tags do GTM** com gatilhos próprios
+  de clique/formulário. A ISSUE-106 replicou fielmente esse padrão morto para o radar, com um
+  rótulo (`0K0dCMm6oo4bELjckew9`) que **não existe em nenhuma tag do container**.
+- **Prova:** dump do Tag Assistant (1,2 MB) parseado programaticamente — os 3 rótulos reais são
+  `xmrlCJuBxegbELjckew9`, `wHARCJ6BxegbELjckew9` e `U6ARCKGBxegbELjckew9`; zero eventos
+  `conversion` nos 19 do dataLayer, nos dois containers.
+- **Correção (fora do código, operada pelo dono):** ação "Radar Oportunidades - lead" no Google
+  Ads (ID `16601345592`, rótulo `m2nPCIPRn90cELjckew9`, configuração manual por evento) + tag
+  "Conversão - Radar Oportunidades" no GTM, acionada pelo evento personalizado
+  `result_full_requested`. **Validada no Tag Assistant** — "Tags disparadas → Concluída", sem
+  duplicidade, com as 3 tags legadas intactas.
+
+### 🐛 Corrigido — a UTM do anúncio se perdia na primeira navegação
+- `capturarUtm()` só rodava no `RadarFlow`, que monta em `/radar/*` — quando a query string da
+  entrada já não existia mais. **Medição: 273 sessões / 863 eventos entre 08/07 e 06/08, 100%
+  gravados como `(sem utm)`.** Nenhum lead do funil novo era atribuível à campanha.
+- Novo `src/components/analytics/CapturaUtm.tsx`, montado no layout de `(publico)` — cobre as 9
+  rotas públicas, captura no ponto de entrada. `capturarUtm()` é idempotente, então as chamadas
+  existentes no `RadarFlow`/`LabWaitlistForm` seguem válidas para quem entra direto.
+
+### 🧹 Removido
+- Bloco `gtag()` morto do `OportunidadesResultado.tsx` (e o `declare function gtag`) — **depois**
+  da tag do GTM ser validada, nunca antes. O bloco equivalente do `EmailGate.tsx` **fica**:
+  arquivo sob trava do `CLAUDE.md`, remover não muda comportamento e só adiciona risco.
+
+### 📝 Documentação
+- `07_mapa_tracking_ads.md`: aviso de correção no topo, §1 com os rótulos reais, §2.2 reescrita
+  ("disparo REAL" → "rótulo INVÁLIDO"), regra 3 da §3 **revogada** (conversão nova é tag de GTM,
+  não `gtag()` no código), checklist da §4 consertado (os 2 critérios inverificáveis saíram) e
+  **§6 nova** com o estado medido.
+- **ISSUE-318D fechada ✅** — o critério 9 estava mal especificado (pedia prova de um disparo que
+  nunca existiu). Reescrito para o que a trava do `CLAUDE.md` de fato protege: as 3 tags de
+  conversão presentes e inalteradas + GTM carregando. Destrava 318C e 319.
+- **ISSUE-208** repriorizada para 🔴 Alta e reescrita: Parte A (conversão do radar) ✅ concluída
+  nesta sessão; Parte B (plano de mídia) segue pendente sem urgência.
+
+### 📊 Técnico
+- `tsc` limpo · lint zerado nos tocados · build verde · rotas públicas seguem estáticas.
+- Zero SQL. Zero alteração em `src/app/layout.tsx`, `EmailGate.tsx` e `api/prediag/*`.
+
+---
+
 ## [v3.11.37] - 2026-07-31 - 🎨 Segunda rodada de UX no admin: hierarquia de filtro, select e contraste
 
 O dono voltou da v3.11.36 com "melhorou, mas suspeito que tem mais coisa" e três apontamentos.

@@ -8,45 +8,67 @@
 
 ---
 
-## 🎯 SESSÃO ATUAL: investigação da ISSUE-318D (critério 9) — conversão do radar não dispara
+## 🎯 SESSÃO ATUAL: a conversão do funil novo nunca existiu — achada e consertada
 **Data:** 06 de agosto de 2026
-**Versão:** v3.11.37 (sem mudança de código nesta sessão — só investigação)
-**Status:** ⚠️ **não concluída.** A revalidação da conversão no Tag Assistant (único item pendente
-pra fechar a 318D) virou uma investigação de causa raiz que não terminou dentro desta sessão.
+**Versão:** v3.11.38
+**Status:** ✅ **concluída.** Começou como "revalidar a conversão no Tag Assistant" (critério 9 da
+318D), virou auditoria de causa raiz e terminou com **dois furos de produção corrigidos** e a
+**ISSUE-318D fechada**.
 
-### **🔍 O que foi feito**
-Seguindo o roteiro do dono no Tag Assistant (`https://conversas-no-corredor.vercel.app/radar/oportunidades`,
-não `/pre-diagnostico` — o funil legado está fora de uso, só o radar importa):
-1. **Honeypot descartado como causa.** O lead do teste apareceu certo em `radar_leads`
-   (`kind = 'oportunidades'`, e-mail do dono, horário batendo com a sessão do Tag Assistant) —
-   o formulário gravou normal, não foi bot/autofill.
-2. **A conversão não disparou.** No dump completo do Tag Assistant (dataLayer + hits), não
-   apareceu nenhum evento `"conversion"` nem o rótulo `AW-16601345592/0K0dCMm6oo4bELjckew9`
-   (o que [OportunidadesResultado.tsx:67-73](../src/components/radar/OportunidadesResultado.tsx#L67-L73)
-   dispara) — nem como tag no GTM, nem como hit de rede.
-3. **Inspeção da conta Google Ads (Metas → Conversões):** as 4 ações de conversão que existem
-   na conta batem, por eliminação de nome, com o **funil legado** ("Botao Quero acessar o
-   ecossistema", "Enviar formulário de lead", "Inscrição") + 1 automática de "Visualização de
-   página". Nenhuma corresponde ao radar.
+### **💰 O achado que importa**
+**Por ~1 mês (desde 08/07), toda a verba de Google Ads rodou sem nenhum sinal de conversão de
+volta.** A cadeia: o anúncio aponta para a **home** (`/?utm_source=google&utm_medium=cpc&utm_campaign=analistas`)
+→ a home nova só tem CTA para os **radares** (zero links para `/pre-diagnostico`) → e o radar
+**não tinha ação de conversão**. As 3 tags de conversão que existem no GTM têm gatilhos de
+elementos do funil legado, que não aparecem nessa jornada. O lance automático otimizou às cegas
+esse tempo todo. Leads nunca se perderam (entravam normal no Supabase) — o que se perdeu foi o
+aprendizado do Ads.
 
-### **⚠️ Hipótese com alta confiança, não confirmada 100%**
-A ação de conversão com o rótulo `0K0dCMm6oo4bELjckew9` **provavelmente não existe** na conta
-atual — o código e a doc (`07_mapa_tracking_ads.md`, entrada de 2026-07-05 do CURRENT-STATUS)
-tratam esse rótulo como reaproveitado do funil legado, mas nenhuma ação na conta bate com ele.
-**Não confirmado de forma definitiva** porque não abrimos a "Configuração da tag" de cada ação
-pra comparar o código bruto — só comparamos por nome. Se a hipótese se confirmar, a raiz não é
-bug de navegador/honeypot/sessão: é configuração ausente na conta de Ads.
+### **🔍 A causa raiz: um padrão copiado que nunca funcionou**
+A auditoria do dump do Tag Assistant (`docs/Google Ads and Tags/tag_assistant_…_2026_08_06.json`,
+1,2 MB, parseado programaticamente) provou que:
+- Os 3 rótulos de conversão **reais** do container são `xmrlCJuBxegbELjckew9`,
+  `wHARCJ6BxegbELjckew9` e `U6ARCKGBxegbELjckew9` — e o rótulo que estava no código
+  (`0K0dCMm6oo4bELjckew9`) **não corresponde a nenhum deles**.
+- Não havia evento `conversion` em nenhum dos 19 do dataLayer, nos dois containers.
+- **Quem sempre converteu foram tags do GTM** com gatilhos próprios de clique/formulário — não o
+  `gtag('event','conversion', …)` do `EmailGate.tsx`. A `07_mapa_tracking_ads.md` afirmava desde
+  05/07 que aquele bloco era "o ÚNICO disparo funcional", e foi essa frase que fez a ISSUE-106
+  replicar para o radar **um padrão morto**. A doc foi corrigida.
+- O GA4 sempre esteve saudável: "GA4 Event - Eventos dos radares" disparou 8x no dump.
 
-### **⏭️ Pendências pra próxima sessão (nesta ordem)**
-1. Abrir cada ação de conversão existente → "Configuração da tag" → confirmar (ou descartar)
-   que nenhuma bate com `0K0dCMm6oo4bELjckew9`.
-2. Se confirmado: criar uma ação de conversão nova no Google Ads (Metas → Conversões → Site)
-   pro radar de Oportunidades, pegar o par ID/rótulo novo.
-3. Atualizar `OportunidadesResultado.tsx` (e decidir se o legado migra junto) com o rótulo novo.
-4. Só depois disso volta a rodar o teste do Tag Assistant — ele vai continuar falhando até essa
-   configuração existir.
-5. A ISSUE-318D continua **não fechada** (⚠️, sem mudança de status desde 31/07) — o critério 9
-   segue bloqueado, e a 318C (que depende de conversão validada) continua sem abrir.
+### **🐛 Falha 2, achada no meio do caminho: a UTM se perdia na entrada**
+`capturarUtm()` só rodava no `RadarFlow`, que monta em `/radar/*` — quando a query string do
+anúncio já tinha sumido na navegação. Medição: **273 sessões / 863 eventos entre 08/07 e 06/08,
+100% `(sem utm)`**. Corrigido com `src/components/analytics/CapturaUtm.tsx` no layout de
+`(publico)`, que cobre as 9 rotas públicas.
+
+### **🚀 O que ficou no ar**
+1. **Ação de conversão nova no Google Ads** — "Radar Oportunidades - lead", ID `16601345592`,
+   rótulo `m2nPCIPRn90cELjckew9` (categoria "Enviar formulário de lead", 1 BRL, contagem "Uma",
+   configuração **manual por evento** — a por URL não serve porque resultado e perguntas dividem
+   a mesma URL).
+2. **Tag no GTM** — "Conversão - Radar Oportunidades" + acionador "Evento - Radar lead revelado"
+   (evento personalizado `result_full_requested`, exclusivo do radar de Oportunidades).
+   Versão 4 do container, publicada 20:38. **Validada no Tag Assistant**: "Tags disparadas →
+   Concluída", sem duplicidade, com as 3 legadas intactas.
+3. **`CapturaUtm.tsx`** no layout de `(publico)`.
+4. **`gtag()` morto removido** do `OportunidadesResultado.tsx` — depois da validação, não antes.
+   O do `EmailGate.tsx` fica (arquivo sob trava; remover não muda nada e só adiciona risco).
+
+### **📌 Decisão de processo: o critério 9 da 318D estava mal escrito**
+Ele pedia "revalidar o disparo da conversão" — inverificável, porque esse disparo nunca existiu.
+O que a trava do `CLAUDE.md` protege é *não quebrar a conversão que traz receita*, e isso está
+provado (container carrega, 3 tags legadas íntegras, `git diff` zero nos arquivos protegidos).
+Critério reescrito para algo verificável, **318D fechada ✅**, e a conversão ausente promovida
+para a **ISSUE-208 (Parte A, concluída na mesma sessão)**.
+
+### **⏭️ Pendências**
+1. **Validar a UTM em produção** — só depois deste deploy. Entrar pela URL completa do anúncio
+   (com `?utm_source=google&...`), completar um radar e conferir que `radar_events` grava a UTM.
+2. **Conferir no Ads** a coluna Conversões da campanha "analistas" nos próximos dias — é a medida
+   do antes/depois.
+3. **318C e 319** estão destravadas (dependiam da 318D fechar).
 
 ---
 

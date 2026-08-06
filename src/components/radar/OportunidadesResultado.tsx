@@ -20,9 +20,6 @@ import { lerMaturidadeReal } from '@/lib/radar-storage'
 import { EmailCaptureRadar } from './EmailCaptureRadar'
 import { RadarChartAxes } from './RadarChartAxes'
 
-// Injetado em runtime pelo script do GTM (src/app/layout.tsx) — declaração de tipo apenas.
-declare function gtag(...args: unknown[]): void
-
 interface OportunidadesResultadoProps {
   resultado: OpportunityResult
   ensureSessionId: () => Promise<string | null>
@@ -57,21 +54,22 @@ export function OportunidadesResultado({
     })
   }
 
-  function handleEmailSuccess({ triggerConversion }: { triggerConversion: boolean }) {
+  // A conversão do Google Ads NÃO é disparada daqui. Ela é uma tag do GTM
+  // ("Conversão - Radar Oportunidades", rótulo m2nPCIPRn90cELjckew9) acionada pelo
+  // evento personalizado `result_full_requested` — o mesmo que o track abaixo empurra.
+  //
+  // Até 2026-08-06 este bloco chamava `gtag('event','conversion', …)` com um rótulo
+  // que não existia em nenhuma tag do container, copiado do EmailGate. Nunca registrou
+  // uma conversão sequer, e falhava em silêncio porque o `typeof gtag !== 'undefined'`
+  // engole o erro. Removido depois da tag do GTM ser validada no Tag Assistant.
+  // Histórico completo: docs/revamp/07_mapa_tracking_ads.md §6.
+  function handleEmailSuccess() {
     setRevelado(true)
     trackComSessao('result_full_requested', {
       assessment_type: 'oportunidades',
       recommended_solution_type: resultado.tipo,
       area: resultado.area,
     })
-    if (triggerConversion && typeof gtag !== 'undefined') {
-      gtag('event', 'conversion', {
-        send_to: 'AW-16601345592/0K0dCMm6oo4bELjckew9',
-        value: 1.0,
-        currency: 'BRL',
-      })
-      console.log('Google Ads conversion triggered')
-    }
   }
 
   return (

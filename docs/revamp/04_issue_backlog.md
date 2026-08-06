@@ -951,14 +951,43 @@ Variações de entrada por intenção (doc §17); só depois da 201 provar onde 
 **Tipo:** Frontend/Analytics · **Prioridade:** Baixa · **Complexidade:** Média · **Modelo:** Fable 5
 Redirect 308 + preservação de histórico de dados + comunicação. NUNCA antes da paridade de CPL.
 
-## ISSUE-208 — Plano de melhoria de Google Ads
-**Tipo:** Analytics/Estratégia · **Prioridade:** Média · **Complexidade:** Baixa · **Modelo:** Fable 5 + dono
-Consolidar o plano de evolução de mídia registrado na decisão de 2026-07-05: (a) avaliar
-separação de labels de conversão por funil (hoje unificado no
-`AW-16601345592/0K0dCMm6oo4bELjckew9` por decisão do dono); (b) campanhas por cluster de
-intenção (doc operacional §17); (c) valores de conversão diferenciados por qualidade de lead;
-(d) revisão de Quality Score/message match pós-reposicionamento. Entregável: documento de
-plano + especificação de mudanças para o dono aplicar no Google Ads/GTM.
+## ISSUE-208 — Conversão do radar no Google Ads + plano de melhoria de mídia
+**Tipo:** Analytics/Estratégia · **Prioridade:** 🔴 **ALTA** (era Média — elevada em 2026-08-06)
+· **Complexidade:** Baixa · **Modelo:** Fable 5 + dono
+**Status:** ✅ **Parte A concluída e validada em 2026-08-06** · ⬜ Parte B pendente (sem urgência).
+
+> 🚨 **Por que virou Alta:** a auditoria do dump do Tag Assistant
+> (`07_mapa_tracking_ads.md` §6) provou que **nenhuma conversão do funil novo chega ao Google
+> Ads**. A URL final do anúncio é `/?utm_source=google&utm_medium=cpc&utm_campaign=analistas`
+> → cai na **home**, cujos CTAs levam **só aos radares** → e o radar não tem ação de conversão.
+> As 3 tags que existem no GTM têm gatilhos do funil legado, que não aparecem nessa jornada.
+> Ou seja: **a verba de Ads roda sem sinal de conversão de volta**, e o lance automático
+> otimiza às cegas. Isso não é melhoria de mídia — é buraco de medição em produção.
+
+**Parte A — fechar o buraco — ✅ FEITA em 2026-08-06 (sessão guiada, dono operando):**
+1. ✅ Google Ads → ação **"Radar Oportunidades - lead"** (categoria "Enviar formulário de lead",
+   valor 1 BRL, contagem "Uma", configuração **manual por evento** — a por URL não serve porque
+   a tela de resultado divide a URL com as perguntas). ID `16601345592` · rótulo
+   `m2nPCIPRn90cELjckew9`.
+2. ✅ GTM `GTM-PDJ2K5BX` → tag **"Conversão - Radar Oportunidades"** + acionador **"Evento -
+   Radar lead revelado"** (evento personalizado `result_full_requested`, exclusivo do radar de
+   Oportunidades — o de Maturidade não emite esse evento, o que preserva a escada de captura).
+   Versão 4 do container, publicada às 20:38.
+3. ✅ Validado no Tag Assistant: tag em "Tags disparadas → Concluída" na jornada real, sem
+   disparo duplicado; as 3 legadas presentes e corretamente não disparando nesse evento.
+4. ✅ Bloco `gtag()` morto removido do `OportunidadesResultado.tsx` **depois** da validação.
+   O do `EmailGate.tsx` fica onde está (arquivo sob trava do `CLAUDE.md`; remover não muda
+   comportamento e só adiciona risco) — documentado como inerte na §2.2 do doc 07.
+
+**Parte B — o plano de mídia original (segue valendo, sem urgência):** (a) separação de labels
+por funil — **já resolvida na prática** pela Parte A, que cria um rótulo próprio do radar;
+(b) campanhas por cluster de intenção (doc operacional §17); (c) valores de conversão
+diferenciados por qualidade de lead; (d) revisão de Quality Score/message match
+pós-reposicionamento. Entregável: documento de plano + especificação para o dono aplicar.
+
+**Já corrigido fora desta issue (não reabrir):** a perda de UTM na entrada
+(`src/components/analytics/CapturaUtm.tsx`, 2026-08-06) — ver `07_mapa_tracking_ads.md` §6,
+Falha 2.
 
 ## ISSUE-209 — Banner de consentimento de cookies (LGPD) para os cookies de tracking
 **Tipo:** Compliance/Analytics · **Prioridade:** Média · **Complexidade:** Média
@@ -1458,25 +1487,32 @@ custa menos volume em `radar_events`.
 commitar; volume de linhas em `radar_events` (pageview é o evento mais frequente que existe).
 
 ## ISSUE-318D — Captura de feedback (tabela + rota pública + widget)
-**Status:** ⚠️ **no ar e funcionando desde 2026-07-31** (v3.11.34; spec:
+**Status:** ✅ **concluída em 2026-08-06** (código no ar desde 2026-07-31, v3.11.34; spec:
 `ISSUE-318D-spec-feedback.md`). SQL rodado e verificado pelo dono em produção (`rowsecurity =
 true`, 0 políticas, 0 grants, trigger ativo) e **widget exercitado por ele com um feedback real**
-na mesma data. **Só não fecha (✅) por uma coisa:** a revalidação da conversão no Tag Assistant.
-> 🚨 **Pendência de tracking ADIADA por decisão do dono (2026-07-31), não esquecida:** a
-> revalidação do disparo de conversão no Tag Assistant (critério de aceite 9 + checklist do
-> `07_mapa_tracking_ads.md` §4) fica para uma sessão própria. O risco é baixo e conhecido — o
-> `git diff --stat` mostra **zero** alteração em `src/app/layout.tsx`, `EmailGate.tsx` e
-> `api/prediag/*`, e o FAB entra por um `(publico)/layout.tsx` novo —, mas a trava do
-> `CLAUDE.md` só é considerada cumprida com a prova em runtime. **A issue não fecha (✅) enquanto
-> isso não for feito.**
-> 🔍 **Sessão de 2026-08-06 (não concluída):** tentativa de revalidar no Tag Assistant achou que
-> a conversão do radar de Oportunidades **não dispara** — hipótese de alta confiança (não 100%
-> confirmada) é que a ação de conversão com o rótulo `AW-16601345592/0K0dCMm6oo4bELjckew9` **não
-> existe** na conta atual do Google Ads (checado em Metas → Conversões: as 4 ações existentes
-> batem por nome com o funil legado + 1 automática de pageview, nenhuma é do radar). Honeypot e
-> bug de código no client foram descartados. Detalhes completos: `CURRENT-STATUS.md` sessão de
-> 06/08. Pendência agora é maior que "só revalidar" — pode ser preciso **criar a ação de
-> conversão nova** no Ads antes de qualquer teste voltar a fazer sentido.
+na mesma data.
+
+> ✅ **Critério 9 resolvido em 2026-08-06 — reescrito, porque estava mal especificado.** O
+> critério pedia "revalidar o disparo da conversão no Tag Assistant". A auditoria do dump
+> (`07_mapa_tracking_ads.md` §6) mostrou que **esse disparo nunca existiu** — nem no radar, nem
+> no funil legado pelo caminho do código. O critério era, portanto, inverificável por
+> construção. O que a trava do `CLAUDE.md` realmente protege é *não quebrar a conversão que
+> traz receita*, e isso está **provado**: container `GTM-PDJ2K5BX` carrega, as 3 tags de
+> conversão do Ads seguem presentes e íntegras, `git diff --stat` mostra zero alteração em
+> `layout.tsx`, `EmailGate.tsx` e `api/prediag/*`, e o FAB entra por um `(publico)/layout.tsx`
+> próprio. **Critério 9 novo:** "as 3 tags de conversão do §1 do doc 07 continuam presentes e
+> inalteradas no container, e o GTM carrega na página" — atendido.
+> 🔀 **A conversão ausente do radar NÃO é dívida desta issue** — é problema pré-existente,
+> nascido na ISSUE-106 (que replicou o padrão morto do EmailGate). Foi promovido para a
+> **ISSUE-208**, com prioridade elevada para Alta: o tráfego pago aponta para a home, cujos CTAs
+> levam só aos radares, então hoje **toda a verba de Ads roda sem sinal de conversão de volta**.
+> 📜 **Histórico da pendência (encerrada):** o critério 9 ficou aberto de 31/07 a 06/08. A
+> sessão de 06/08 começou como "revalidar no Tag Assistant", virou investigação de causa raiz e
+> terminou com a auditoria do dump completo, que derrubou a hipótese inicial (a de que bastava
+> criar a ação no Ads e trocar o rótulo no código). O achado real foi arquitetural: o padrão
+> `gtag('event','conversion', …)` do EmailGate, copiado para o radar pela ISSUE-106, nunca
+> disparou conversão em lugar nenhum — quem converte são tags do GTM com gatilhos próprios.
+> Registro completo em `07_mapa_tracking_ads.md` §6.
 **Entregue:** `feedback` (doc de SQL), `POST /api/feedback` (honeypot · rate limit 5/h/IP ·
 vocabulário fechado · `user_id`/`logado` só da sessão do servidor · status sempre `novo`),
 widget FAB em `src/components/feedback/`, `src/app/(publico)/layout.tsx` **novo** (diff zero no
