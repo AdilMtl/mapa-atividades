@@ -1464,8 +1464,28 @@ build verdes.
 apresentação.
 
 ## ISSUE-318C — Fechar os furos de instrumentação do funil (pageview, dropout, views/Grafana)
-**Status:** ⬜ registrada em 2026-07-29. **Vetada para AGORA pelo dono** (decisão 3 da spec da
-318A: "nada novo agora") — fica mapeada para não se perder.
+**Status:** ✅ **concluída em 2026-08-06** (executada por Fable 5, persona Analytics & Ads —
+destravada na mesma data pelo fechamento da 318D). Os dois pontos cegos que o painel da 318A
+declarava viraram dado: topo de funil in-house + dropout por pergunta, ambos ligados no
+`/admin/analytics` (degrau "Viu a página" no funil, painel "onde o radar trava" e as 2 notas do
+"como ler" reescritas). tsc limpo, lint zerado nos tocados, build verde, 456 testes (4 novos de
+dropout), **diff zero** nos arquivos da trava e zero SQL (`event_name` não tem CHECK; o dropout
+usa a coluna `answers` que já existia).
+**3 decisões de execução (dentro do "escopo a avaliar" da abertura):**
+1. **Dropout por PATCH incremental, não por evento** — a cada resposta o `RadarFlow` salva o
+   progresso em `radar_sessions.answers` (PATCH parcial, sem `resultKey`; só alcança sessão
+   aberta — `completed_at IS NULL` torna a concluída imutável a parciais atrasados). Zero linha
+   nova em `radar_events`, e o dropout sai **exato** (contagem de tabela), contra ~8 linhas/sessão
+   da alternativa por evento para um dado pior. Ambiguidade que resta é só histórica: sessão
+   abandonada antes da medição não tem resposta salva e cai num balde "sem resposta" separado,
+   nunca como "parou na pergunta 1".
+2. **`page_viewed` só nas 3 rotas de entrada** (home + 2 radares), dedupado por rota por sessão
+   de navegador (`sessionStorage`) — é contagem de visita, não de hit. Pageview global seria o
+   evento mais frequente da tabela pra responder uma pergunta que só essas rotas respondem.
+3. **`page_viewed` é trilho ÚNICO (Supabase)** — exceção deliberada ao duplo trilho da premissa 8:
+   o GA4 já tem pageview nativo, e empurrar um segundo sinal de pageview no dataLayer do
+   container que carrega a conversão do Ads (consertada em 06/08) é risco sem benefício.
+   Consequência: **nenhuma tag/trigger novo no GTM** — zero operação pro dono nesta issue.
 **Tipo:** Analytics · **Prioridade:** Média · **Complexidade:** Média
 **Modelo:** **Fable 5 (persona Analytics & Ads) — sem exceção.** Diferente da 318A, esta issue
 **escreve** no tracking e toca página pública: cai integralmente na trava do `CLAUDE.md`.

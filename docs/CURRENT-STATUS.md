@@ -8,7 +8,48 @@
 
 ---
 
-## 🎯 SESSÃO ATUAL: a conversão do funil novo nunca existiu — achada e consertada
+## 🎯 SESSÃO ATUAL: ISSUE-318C — o funil ganhou topo e dropout por pergunta
+**Data:** 06 de agosto de 2026 (2ª sessão do dia)
+**Versão:** v3.11.39
+**Status:** ✅ **concluída.** Primeira issue executada com Fable 5 sob a persona de Analytics &
+Ads depois do conserto da conversão (mesma data, sessão anterior). Os dois pontos cegos que o
+painel `/admin/analytics` era obrigado a declarar viraram dado. **Zero SQL, zero operação no
+GTM** — e a trava de tracking provada intocada.
+
+### **📌 O que entrou**
+1. **Dropout por pergunta (EXATO)** — o `RadarFlow` agora salva as respostas a cada pergunta
+   respondida (PATCH parcial em `radar_sessions.answers`, sem `resultKey`; `keepalive` pra
+   última resposta sobreviver ao fechar da aba). A rota só aceita parcial em sessão aberta
+   (`completed_at IS NULL`) — sessão concluída é imutável a parcial atrasado. Zero linha nova em
+   `radar_events`; a alternativa por evento custaria ~8 linhas/sessão pra dar dado direcional.
+2. **Topo de funil in-house (direcional)** — evento `page_viewed` nas 3 rotas de entrada
+   (home + 2 radares), dedupado por rota por sessão de navegador, via `PageViewTracker` no
+   layout de `(publico)`. **Trilho ÚNICO Supabase, de propósito**: o GA4 já tem pageview nativo,
+   e um segundo sinal de pageview no dataLayer do container recém-consertado é risco sem
+   benefício. Exceção ao duplo trilho documentada na **§7 nova do doc 07**.
+3. **Painel** — degrau "Viu a página do radar" (sem %, unidade diferente) + linha "antes do
+   funil: a home foi vista Nx" + painel novo "onde o radar trava" (barras por pergunta, balde
+   "sem resposta" separado do gráfico) + as 2 notas "não existe topo/dropout" do *como ler*
+   reescritas com as ressalvas do dado novo (medição só desde ago/2026).
+
+### **✅ Validação**
+tsc limpo · lint zerado nos 13 arquivos tocados · build verde (rotas públicas seguem estáticas) ·
+456 testes (4 novos de dropout; 1 flake de timing na 1ª rodada, 456/456 na reexecução) ·
+**`git diff` ZERO** em `layout.tsx`, `EmailGate.tsx` e `api/prediag/*` · zero `dataLayer.push` novo.
+
+### **⏭️ Pendências**
+1. **Teste manual do dono (pós-deploy):** abandonar um radar no meio e conferir no
+   `/admin/analytics` se o abandono cai na pergunta certa; Tag Assistant confirmando que o
+   container segue carregando (ritual da trava — o código não tocou nele).
+2. **Validar a UTM em produção** (herdada da sessão anterior) e acompanhar a coluna Conversões
+   da campanha "analistas".
+3. **`roadmap-backlog.html` (Artifact) está parado em 11/07** — a série 318A–E inteira nunca
+   entrou nele; precisa de uma reconstrução dedicada, não de troca de status.
+4. **ISSUE-319 (gate de QA da Fase 1A)** — última da série antes da 1B; ver backlog.
+
+---
+
+## 🎯 a conversão do funil novo nunca existiu — achada e consertada
 **Data:** 06 de agosto de 2026
 **Versão:** v3.11.38
 **Status:** ✅ **concluída.** Começou como "revalidar a conversão no Tag Assistant" (critério 9 da

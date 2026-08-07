@@ -209,8 +209,13 @@ export interface DegrauFunil {
   id: string
   rotulo: string
   n: number
-  /** % relativo ao topo do funil (degrau "abriu") — sempre com o N absoluto ao lado na UI. */
-  pct: number
+  /**
+   * % relativo ao topo do funil (degrau "abriu") — sempre com o N absoluto ao
+   * lado na UI. `null` no degrau de pageview (ISSUE-318C): é contagem de EVENTO
+   * acima do topo exato — dar % dele sobre sessões passaria de 100 e misturaria
+   * unidades (visitas × sessões).
+   */
+  pct: number | null
   direcional: boolean
 }
 
@@ -224,6 +229,8 @@ export function montarFunilRadar(params: {
   kind: RadarKind
   sessoes: RadarSessaoLinha[]
   leads: RadarLeadLinha[]
+  /** ISSUE-318C: `page_viewed` da rota do radar (dedupado por visita) — o topo direcional. */
+  eventoPageviews: number
   eventoGateViews: number
   eventoLeituraClicks: number
 }): FunilRadar {
@@ -241,6 +248,8 @@ export function montarFunilRadar(params: {
     kind: params.kind,
     topo,
     degraus: [
+      // Acima do topo exato, sem %: unidade é visita (evento), não sessão.
+      { id: 'viu_pagina', rotulo: 'Viu a página do radar', n: params.eventoPageviews, pct: null, direcional: true },
       { id: 'abriu', rotulo: 'Abriu o radar', n: topo, pct: topo > 0 ? 100 : 0, direcional: false },
       { id: 'concluiu', rotulo: 'Concluiu o radar', n: concluiu, pct: pct(concluiu), direcional: false },
       {
@@ -260,6 +269,73 @@ export function montarFunilRadar(params: {
         direcional: true,
       },
     ],
+  }
+}
+
+// ----------------------------------------------------------------------------
+// ISSUE-318C — Dropout por pergunta (sessões abertas da janela)
+// ----------------------------------------------------------------------------
+// Fonte: radar_sessions.answers, que desde ago/2026 é salvo a cada resposta
+// (PATCH parcial). É contagem de TABELA — dropout exato, não direcional. A
+// ambiguidade que sobra é histórica: sessão aberta SEM resposta salva tanto
+// pode ser "abriu e não respondeu nada" quanto abandono de antes da medição —
+// por isso `semResposta` sai como balde separado, nunca como "parou na 1".
+
+export interface DropoutPergunta {
+  /** 1-based: até onde a pessoa chegou (nº de perguntas respondidas + 1). */
+  pergunta: number
+  n: number
+}
+
+export interface DropoutRadar {
+  kind: RadarKind
+  totalPerguntas: number
+  /** Sessões abertas (não concluídas) da janela com ≥1 resposta salva. */
+  incompletasMedidas: number
+  /** Abertas sem NENHUMA resposta salva — mistura "não respondeu nada" com sessões de antes da medição. */
+  semResposta: number
+  porPergunta: DropoutPergunta[]
+}
+
+export function montarDropoutPorPergunta(params: {
+  kind: RadarKind
+  sessoes: RadarSessaoLinha[]
+  /** Ids das perguntas na ordem do fluxo (PERGUNTAS_* de lib/radar). */
+  perguntasOrdenadas: string[]
+}): DropoutRadar {
+  const abertas = params.sessoes.filter((s) => s.kind === params.kind && s.completedAt === null)
+  const ids = new Set(params.perguntasOrdenadas)
+  const total = params.perguntasOrdenadas.length
+
+  const porPergunta: DropoutPergunta[] = Array.from({ length: total }, (_, i) => ({
+    pergunta: i + 1,
+    n: 0,
+  }))
+  let semResposta = 0
+  let medidas = 0
+
+  for (const s of abertas) {
+    // Só chaves do fluxo contam — qualquer resíduo no JSONB não vira "progresso".
+    const respondidas = s.answers
+      ? Object.keys(s.answers).filter((k) => ids.has(k)).length
+      : 0
+    if (respondidas === 0 || total === 0) {
+      semResposta += 1
+      continue
+    }
+    medidas += 1
+    // Respondeu k → viu a pergunta k+1 e parou nela. respondidas === total sem
+    // concluir só acontece se a gravação final falhou — cai no último degrau.
+    const parouEm = Math.min(respondidas + 1, total)
+    porPergunta[parouEm - 1].n += 1
+  }
+
+  return {
+    kind: params.kind,
+    totalPerguntas: total,
+    incompletasMedidas: medidas,
+    semResposta,
+    porPergunta,
   }
 }
 

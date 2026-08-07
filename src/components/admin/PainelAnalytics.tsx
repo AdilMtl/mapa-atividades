@@ -14,6 +14,7 @@ import { Loader2, RefreshCw } from 'lucide-react'
 import { Button, Card, Eyebrow, PageContainer, SectionTitle } from '@/components/ds2'
 import type {
   AmostraInfo,
+  DropoutRadar,
   FunilRadar,
   JanelaId,
   LinhaOrigem,
@@ -22,6 +23,7 @@ import type {
   PontoSerieTemporal,
 } from '@/lib/admin/analytics'
 
+import { BlocoDropoutPerguntas } from './analytics/BlocoDropoutPerguntas'
 import { BlocoFunil } from './analytics/BlocoFunil'
 import { BlocoLab, type DadosLab } from './analytics/BlocoLab'
 import { BlocoNotas } from './analytics/BlocoNotas'
@@ -40,6 +42,8 @@ interface RespostaPainel {
   ate: string
   numeros: NumerosJanela
   funis: FunilRadar[]
+  pageviewsHome: number
+  dropout: DropoutRadar[]
   origem: LinhaOrigem[]
   serie: PontoSerieTemporal[]
   leadsUnicosTotal: number
@@ -73,9 +77,23 @@ function montarPaineis(dados: RespostaPainel): PainelCarrossel[] {
       conteudo: (
         <section className="space-y-3">
           <Eyebrow>funil dos radares</Eyebrow>
+          {/* ISSUE-318C: o topo que não existia — o anúncio aponta pra home, o
+              funil de cada radar começa nos cards abaixo. Contagem de EVENTO
+              (1x por rota por visita), por isso "direcional" e sem %. */}
+          <p className="font-ds2-mono text-[11px] leading-relaxed text-ds2-text-muted">
+            antes do funil: a home foi vista{' '}
+            <strong className="text-ds2-text-primary">{dados.pageviewsHome}x</strong> na janela
+            (evento, 1x por visita · medido desde ago/2026)
+          </p>
           <div className="grid gap-4 md:grid-cols-2">
             {dados.funis.map((funil) => (
               <BlocoFunil key={funil.kind} funil={funil} />
+            ))}
+          </div>
+          <Eyebrow className="block pt-2">onde o radar trava — em qual pergunta quem abandonou parou</Eyebrow>
+          <div className="grid gap-4 md:grid-cols-2">
+            {dados.dropout.map((d) => (
+              <BlocoDropoutPerguntas key={d.kind} dropout={d} />
             ))}
           </div>
         </section>

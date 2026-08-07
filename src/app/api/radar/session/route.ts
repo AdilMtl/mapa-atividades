@@ -102,7 +102,8 @@ export async function POST(request: NextRequest) {
 }
 
 // ═══════════════════════════════════════════════════════════════════
-// PATCH — salva respostas + resultado (chamado ao final do fluxo)
+// PATCH — salva respostas (parcial, a cada pergunta) ou fecha a sessão
+// (final, com resultKey) — ISSUE-318C adicionou o modo parcial
 // ═══════════════════════════════════════════════════════════════════
 
 export async function PATCH(request: NextRequest) {
@@ -127,6 +128,21 @@ export async function PATCH(request: NextRequest) {
       );
     if (!answersValidos) {
       return NextResponse.json({ error: 'answers fora do formato esperado' }, { status: 400 });
+    }
+
+    // ISSUE-318C — PATCH PARCIAL (sem resultKey): grava o progresso a cada
+    // resposta, para o dropout por pergunta ser mensurável. Só alcança sessão
+    // ABERTA: o filtro `completed_at IS NULL` torna a sessão concluída imutável
+    // a parciais — se um parcial atrasado chegar depois do PATCH final (rede
+    // reordena), não encontra linha e morre em silêncio. Resposta sempre
+    // success: isto é analytics, não pode virar erro na tela de pergunta.
+    if (resultKey === undefined) {
+      await supabaseAdmin
+        .from('radar_sessions')
+        .update({ answers })
+        .eq('id', sessionId)
+        .is('completed_at', null);
+      return NextResponse.json({ success: true });
     }
 
     if (typeof resultKey !== 'string' || resultKey.trim().length === 0) {

@@ -88,6 +88,37 @@ export function track(event: TrackedEventName, props: RadarEventProps = {}): voi
   enviarParaSupabase(event, payload, sessionId)
 }
 
+const PAGEVIEW_STORAGE_PREFIX = 'conversaas.pv.'
+
+/**
+ * Pageview in-house das rotas de ENTRADA do funil (ISSUE-318C).
+ *
+ * Trilho ÚNICO (Supabase), de propósito — exceção declarada ao duplo trilho: o
+ * GA4 já conta pageview nativamente via GTM, e empurrar um segundo sinal de
+ * pageview no dataLayer do container que carrega a conversão do Ads é risco sem
+ * benefício (07_mapa_tracking_ads.md). Nenhuma operação no GTM decorre daqui.
+ *
+ * Dedupe por rota por sessão de navegador (sessionStorage): é contagem de
+ * visita, não de hit — recarregar a página não infla o topo do funil. Se o
+ * sessionStorage estiver indisponível (modo privado), registra sem dedupe:
+ * melhor contar a mais ali do que perder o topo inteiro.
+ */
+export function registrarPageview(): void {
+  if (typeof window === 'undefined') return
+  // Idempotente — garante a UTM no payload mesmo se este efeito rodar antes do
+  // CapturaUtm do layout (ordem de efeitos entre componentes não é contratual).
+  capturarUtm()
+  const path = window.location.pathname
+  try {
+    const chave = PAGEVIEW_STORAGE_PREFIX + path
+    if (window.sessionStorage.getItem(chave)) return
+    window.sessionStorage.setItem(chave, '1')
+  } catch {
+    // segue sem dedupe
+  }
+  enviarParaSupabase('page_viewed', { ...lerUtm(), entry_path: path }, null)
+}
+
 function enviarParaSupabase(event: TrackedEventName, payload: RadarEventProps, sessionId: string | null): void {
   try {
     const body = JSON.stringify({

@@ -14,6 +14,7 @@ import {
   calcularProgressaoChecklist,
   montarDistribuicao,
   montarDropoutFases,
+  montarDropoutPorPergunta,
   montarFunilRadar,
   montarMatrizAreaTipo,
   montarNumerosJanela,
@@ -224,12 +225,16 @@ describe('montarFunilRadar', () => {
       kind: 'oportunidades',
       sessoes,
       leads,
+      eventoPageviews: 9,
       eventoGateViews: 2,
       eventoLeituraClicks: 1,
     })
 
     expect(funil.topo).toBe(2)
     const porId = Object.fromEntries(funil.degraus.map((d) => [d.id, d]))
+    // ISSUE-318C: o topo direcional não ganha % — visitas e sessões são unidades
+    // diferentes (9/2 passaria de 100%).
+    expect(porId.viu_pagina).toMatchObject({ n: 9, pct: null, direcional: true })
     expect(porId.abriu).toMatchObject({ n: 2, pct: 100, direcional: false })
     expect(porId.concluiu).toMatchObject({ n: 1, pct: 50, direcional: false })
     expect(porId.viu_gate).toMatchObject({ n: 2, pct: 100, direcional: true })
@@ -243,11 +248,77 @@ describe('montarFunilRadar', () => {
       kind: 'maturidade',
       sessoes: [],
       leads: [],
+      eventoPageviews: 0,
       eventoGateViews: 0,
       eventoLeituraClicks: 0,
     })
     expect(funil.topo).toBe(0)
-    expect(funil.degraus.every((d) => Number.isFinite(d.pct))).toBe(true)
+    // pct null (degrau de pageview) é permitido; número, só se for finito.
+    expect(funil.degraus.every((d) => d.pct === null || Number.isFinite(d.pct))).toBe(true)
+  })
+})
+
+describe('montarDropoutPorPergunta', () => {
+  const ORDEM = ['q1', 'q2', 'q3']
+
+  it('conta em qual pergunta cada sessão aberta parou e ignora concluídas e de outro kind', () => {
+    const sessoes = [
+      // parou na pergunta 2 (respondeu 1)
+      sessao({ id: 's1', kind: 'oportunidades', completedAt: null, answers: { q1: 'a' } }),
+      // parou na pergunta 3 (respondeu 2)
+      sessao({ id: 's2', kind: 'oportunidades', completedAt: null, answers: { q1: 'a', q2: 'b' } }),
+      // concluída — fora do dropout
+      sessao({
+        id: 's3',
+        kind: 'oportunidades',
+        completedAt: '2026-07-10T11:00:00.000Z',
+        answers: { q1: 'a', q2: 'b', q3: 'c' },
+      }),
+      // outro kind — fora
+      sessao({ id: 's4', kind: 'maturidade', completedAt: null, answers: { q1: 'a' } }),
+    ]
+
+    const dropout = montarDropoutPorPergunta({ kind: 'oportunidades', sessoes, perguntasOrdenadas: ORDEM })
+
+    expect(dropout.totalPerguntas).toBe(3)
+    expect(dropout.incompletasMedidas).toBe(2)
+    expect(dropout.semResposta).toBe(0)
+    expect(dropout.porPergunta).toEqual([
+      { pergunta: 1, n: 0 },
+      { pergunta: 2, n: 1 },
+      { pergunta: 3, n: 1 },
+    ])
+  })
+
+  it('sessão aberta sem resposta vai pro balde separado (histórico pré-medição indistinguível)', () => {
+    const sessoes = [
+      sessao({ id: 's1', completedAt: null, answers: null }),
+      sessao({ id: 's2', completedAt: null, answers: { q1: 'a' } }),
+    ]
+
+    const dropout = montarDropoutPorPergunta({ kind: 'oportunidades', sessoes, perguntasOrdenadas: ORDEM })
+
+    expect(dropout.semResposta).toBe(1)
+    expect(dropout.incompletasMedidas).toBe(1)
+  })
+
+  it('respondeu tudo sem concluir (gravação final falhou) cai no último degrau, sem estourar o array', () => {
+    const sessoes = [sessao({ id: 's1', completedAt: null, answers: { q1: 'a', q2: 'b', q3: 'c' } })]
+
+    const dropout = montarDropoutPorPergunta({ kind: 'oportunidades', sessoes, perguntasOrdenadas: ORDEM })
+
+    expect(dropout.porPergunta[2]).toEqual({ pergunta: 3, n: 1 })
+  })
+
+  it('chave fora do fluxo no JSONB não vira progresso', () => {
+    const sessoes = [
+      sessao({ id: 's1', completedAt: null, answers: { q1: 'a', intrusa: 'x' } }),
+    ]
+
+    const dropout = montarDropoutPorPergunta({ kind: 'oportunidades', sessoes, perguntasOrdenadas: ORDEM })
+
+    // respondeu 1 de verdade → parou na pergunta 2
+    expect(dropout.porPergunta[1]).toEqual({ pergunta: 2, n: 1 })
   })
 })
 

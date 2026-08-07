@@ -16,6 +16,46 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [v3.11.39] - 2026-08-06 - 📊 ISSUE-318C: o funil ganhou topo e dropout por pergunta
+
+Executa a ISSUE-318C (destravada pelo fechamento da 318D na sessão anterior, mesma data).
+Fable 5 na persona Analytics & Ads — a issue escreve no tracking público e cai integralmente na
+trava do `CLAUDE.md`. Os dois pontos cegos que o painel `/admin/analytics` declarava viraram
+dado. **Zero SQL** (`radar_events.event_name` não tem CHECK; o dropout usa a coluna `answers`
+que já existia) e **zero operação no GTM**.
+
+### ✅ Adicionado
+- **Dropout por pergunta (exato):** `RadarFlow` salva as respostas a cada pergunta respondida —
+  PATCH parcial (sem `resultKey`) em `radar_sessions.answers`, com `keepalive`. A rota só aceita
+  parcial em sessão aberta (`completed_at IS NULL`): concluída é imutável a parcial atrasado, e
+  a resposta é sempre `success` (analytics nunca vira erro na tela). Decisão de método: PATCH
+  incremental em vez de evento por pergunta — zero linha nova em `radar_events` e dado exato,
+  contra ~8 linhas/sessão por um dado direcional.
+- **Topo de funil in-house:** evento `page_viewed` nas 3 rotas de entrada (`/`,
+  `/radar/maturidade`, `/radar/oportunidades`), dedupado por rota por sessão de navegador
+  (`sessionStorage`), via `PageViewTracker` novo no layout de `(publico)`. **Trilho ÚNICO
+  Supabase — exceção deliberada ao duplo trilho** (§7 nova do doc 07): o GA4 já tem pageview
+  nativo e um segundo sinal de pageview no dataLayer do container que carrega a conversão do Ads
+  é risco sem benefício. Nenhuma tag/trigger novo no GTM.
+- **Painel `/admin/analytics`:** degrau "Viu a página do radar" no topo de cada funil (sem % —
+  visitas e sessões são unidades diferentes, `pct: null` no contrato), linha "antes do funil: a
+  home foi vista Nx", painel novo "onde o radar trava" (`BlocoDropoutPerguntas`, barras por
+  pergunta; balde "sem resposta" fora do gráfico porque mistura "não respondeu nada" com sessões
+  de antes da medição) e as 2 notas "não existe topo/dropout" do *como ler* reescritas.
+
+### 📝 Documentação
+- `07_mapa_tracking_ads.md`: §7 nova (`page_viewed`, exceção ao duplo trilho + ordem de NÃO
+  adicionar o evento ao acionador GA4), linha obsoleta da §6 riscada (a ação/tag do radar já
+  tinha sido criada e validada no mesmo dia) e §5 com a verificação desta issue.
+- **ISSUE-318C fechada ✅** no backlog, com as 3 decisões de execução registradas.
+
+### 📊 Técnico
+- tsc limpo · lint zerado nos 13 arquivos tocados · build verde (rotas públicas estáticas) ·
+  456 testes verdes (4 novos de `montarDropoutPorPergunta`; 1 flake de timing na 1ª rodada,
+  456/456 na reexecução) · `git diff` **zero** em `layout.tsx`, `EmailGate.tsx`, `api/prediag/*`.
+
+---
+
 ## [v3.11.38] - 2026-08-06 - 🚨 A conversão do funil novo nunca existiu: causa raiz e correção
 
 Sessão que começou como "revalidar o disparo de conversão no Tag Assistant" (último critério

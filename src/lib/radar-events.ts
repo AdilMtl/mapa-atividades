@@ -27,6 +27,12 @@ export const RADAR_EVENT_NAMES = [
   'closing_cta_maturity_clicked',
   'closing_newsletter_clicked',
   'newsletter_embed_viewed',
+  // ISSUE-318C — topo de funil in-house. ⚠️ Exceção ao duplo trilho: dispara SÓ
+  // no trilho Supabase (registrarPageview em src/lib/analytics.ts), nunca via
+  // track()/dataLayer — o GA4 já tem pageview nativo e um segundo sinal de
+  // pageview no container do GTM é risco sem benefício. Nenhuma tag/trigger
+  // novo no GTM por causa deste evento.
+  'page_viewed',
 ] as const
 
 export type RadarEventName = (typeof RADAR_EVENT_NAMES)[number]

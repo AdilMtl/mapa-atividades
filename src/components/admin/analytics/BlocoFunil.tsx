@@ -29,15 +29,19 @@ export function BlocoFunil({ funil }: { funil: FunilRadar }) {
                 )}
               </span>
               <span className="shrink-0 whitespace-nowrap font-ds2-mono text-[11px] text-ds2-text-muted">
-                {degrau.pct}% · {degrau.n}/{funil.topo}
+                {/* pct null = degrau de pageview (ISSUE-318C): visitas e sessões
+                    são unidades diferentes — % aqui passaria de 100 e mentiria. */}
+                {degrau.pct !== null ? `${degrau.pct}% · ${degrau.n}/${funil.topo}` : `${degrau.n} visitas`}
               </span>
             </div>
-            <div className="h-2 overflow-hidden rounded-ds2-pill bg-white/[0.08]">
-              <span
-                className="block h-full bg-ds2-gradient-primary"
-                style={{ width: `${Math.min(100, degrau.pct)}%` }}
-              />
-            </div>
+            {degrau.pct !== null && (
+              <div className="h-2 overflow-hidden rounded-ds2-pill bg-white/[0.08]">
+                <span
+                  className="block h-full bg-ds2-gradient-primary"
+                  style={{ width: `${Math.min(100, degrau.pct)}%` }}
+                />
+              </div>
+            )}
           </div>
         ))}
       </div>

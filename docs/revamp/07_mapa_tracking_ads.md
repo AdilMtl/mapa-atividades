@@ -136,6 +136,7 @@ Verificado em 2026-07-05: nenhum `gtag`/`GTM-`/`AW-` em `public/` (nem no servic
 |---|---|---|
 | 2026-07-05 | Inventário completo via grep em `src/` e `public/` (padrões: gtag, dataLayer, GTM-, AW-, googletagmanager, conversion) | 4 pontos encontrados (§2.1–2.4); nenhum em `public/` |
 | 2026-08-06 | Auditoria do dump do Tag Assistant (sessão real no radar de Oportunidades) + `SELECT` de UTM em `radar_events` | **2 falhas reais** — ver §6 |
+| 2026-08-06 | ISSUE-318C: `page_viewed` (trilho único Supabase, §7) + PATCH parcial de `answers` — checklist da §4 no código: 2 blocos GTM intocados (`git diff` zero em `layout.tsx`/`EmailGate`/`api/prediag/*`), zero `dataLayer.push` novo | conforme — validação em produção pós-deploy fica com o dono |
 
 ## 6. Estado real medido em 2026-08-06 (auditoria do dump)
 
@@ -164,7 +165,17 @@ não existe mais. Medição: **273 sessões / 863 eventos entre 08/07 e 06/08, 1
 Corrigido com `src/components/analytics/CapturaUtm.tsx` montado no layout de `(publico)`, que
 cobre toda entrada pública.
 
-**Pendente (operação do dono, fora do código):** criar a ação de conversão do radar no Google
-Ads e a tag correspondente no GTM, com gatilho de evento personalizado em
-`result_full_requested` — evento exclusivo do radar de Oportunidades (o de Maturidade não o
-emite, o que mantém a escada de captura da §3 do doc 10).
+~~**Pendente (operação do dono, fora do código):** criar a ação de conversão do radar no Google
+Ads e a tag correspondente no GTM…~~ **Feito no mesmo dia** — é a ação + tag "Radar
+Oportunidades" da §1, validada no Tag Assistant (esta linha ficou obsoleta na própria sessão).
+
+## 7. Evento `page_viewed` (ISSUE-318C) — exceção declarada ao duplo trilho
+
+Desde 2026-08-06 o código emite `page_viewed` nas 3 rotas de entrada do funil (`/`,
+`/radar/maturidade`, `/radar/oportunidades`), dedupado por rota por sessão de navegador.
+**Ele dispara SÓ no trilho Supabase (`radar_events`), nunca no dataLayer** — decisão da persona
+Analytics & Ads: o GA4 já conta pageview nativamente via GTM, e um segundo sinal de pageview no
+container que carrega a conversão do Ads seria risco sem benefício. Consequências práticas:
+- **Nenhuma tag/trigger novo no GTM** por causa deste evento — não há o que o dono configurar.
+- O acionador "CE - Eventos dos radares" (GA4) não o conhece e **não deve passar a conhecê-lo**.
+- Quem consome o número é o painel `/admin/analytics` (topo do funil, marcado como direcional).

@@ -38,14 +38,19 @@ export function BlocoNotas({
           nunca uma contagem de pessoa.
         </p>
         <p>
-          <strong className="text-ds2-text-primary">Não existe topo de funil.</strong> Sem evento de
-          pageview, o funil começa em &quot;sessão de radar criada&quot; — não sabemos quantas
-          pessoas viram a página e não começaram.
+          <strong className="text-ds2-text-primary">O topo do funil existe desde ago/2026 — e é
+          direcional.</strong> &quot;Viu a página&quot; vem do evento de pageview, gravado uma vez
+          por rota por visita (sessão do navegador) e só nas três rotas de entrada: a home e as
+          páginas dos dois radares. Janela que inclui período anterior a ago/2026 mostra um topo
+          menor que o real — as visitas daquela época simplesmente não foram contadas. E por ser
+          visita (evento), não sessão, ele não ganha percentual sobre o resto do funil.
         </p>
         <p>
-          <strong className="text-ds2-text-primary">Não existe dropout por pergunta.</strong> As
-          respostas só são gravadas no fim do radar — quem abandona na pergunta 1 e na pergunta 7
-          são indistinguíveis hoje.
+          <strong className="text-ds2-text-primary">O dropout por pergunta é exato — mas só enxerga
+          desde ago/2026.</strong> As respostas passaram a ser salvas a cada pergunta respondida.
+          Sessão abandonada antes disso não tem resposta salva e cai no balde &quot;sem
+          resposta&quot;, junto de quem abriu e não respondeu nada — os dois casos são
+          indistinguíveis por construção, e é por isso que esse balde fica fora do gráfico.
         </p>
         <p>
           <strong className="text-ds2-text-primary">Taxa com N baixo é indício, não conclusão.</strong>{' '}

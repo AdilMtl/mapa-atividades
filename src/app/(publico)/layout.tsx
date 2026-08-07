@@ -1,4 +1,5 @@
 import { CapturaUtm } from '@/components/analytics/CapturaUtm'
+import { PageViewTracker } from '@/components/analytics/PageViewTracker'
 import { FeedbackWidget } from '@/components/feedback/FeedbackWidget'
 
 // Layout do grupo (publico) criado na ISSUE-318D só para montar o widget de
@@ -15,6 +16,9 @@ export default function PublicoLayout({ children }: { children: React.ReactNode 
   return (
     <>
       <CapturaUtm />
+      {/* ISSUE-318C: pageview in-house das rotas de entrada (home + radares),
+          trilho Supabase apenas — zero interação com o GTM/dataLayer. */}
+      <PageViewTracker />
       {children}
       <FeedbackWidget />
     </>

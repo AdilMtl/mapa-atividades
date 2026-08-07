@@ -113,6 +113,26 @@ export function RadarFlow({ kind }: RadarFlowProps) {
     })
   }, [ensureSessionId, kind])
 
+  // ISSUE-318C: salva as respostas a cada pergunta respondida (PATCH parcial,
+  // sem resultKey). É o que torna o abandono localizável — antes, `answers` só
+  // era gravado no fim, e quem parava na pergunta 1 ou na 7 eram indistinguíveis.
+  // Fire-and-forget com keepalive: a última resposta sobrevive ao fechar da aba,
+  // e falha de rede nunca chega na tela (mesmo contrato do persistirResultado).
+  const persistirParcial = useCallback(
+    (respostasAtuais: RadarAnswers) => {
+      void ensureSessionId().then((sessionId) => {
+        if (!sessionId) return
+        fetch('/api/radar/session', {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ sessionId, answers: respostasAtuais }),
+          keepalive: true,
+        }).catch(() => {})
+      })
+    },
+    [ensureSessionId]
+  )
+
   const persistirResultado = useCallback(
     async (respostasFinais: RadarAnswers, resultKey: string) => {
       const sessionId = await ensureSessionId()
@@ -175,6 +195,7 @@ export function RadarFlow({ kind }: RadarFlowProps) {
   function selecionarOpcao(perguntaId: string, opcaoId: string) {
     const novasRespostas = { ...respostas, [perguntaId]: opcaoId }
     setRespostas(novasRespostas)
+    persistirParcial(novasRespostas)
 
     cancelarAvancoPendente()
     avancoTimeoutRef.current = window.setTimeout(() => {

@@ -28,6 +28,7 @@ import {
   excluirProjetosDeTeste,
   montarDistribuicao,
   montarDropoutFases,
+  montarDropoutPorPergunta,
   montarFunilRadar,
   montarMatrizAreaTipo,
   montarNumerosJanela,
@@ -55,6 +56,8 @@ import {
   rotuloTipoSolucao,
 } from '@/lib/admin/analytics-rotulos'
 import { SLUGS_CANONICOS } from '@/lib/lab/plan-generator'
+import { PERGUNTAS_MATURIDADE } from '@/lib/radar/maturidade'
+import { PERGUNTAS_OPORTUNIDADES } from '@/lib/radar/oportunidades'
 import type { RadarKind } from '@/lib/radar/types'
 
 const supabaseAdmin = createClient(
@@ -71,6 +74,17 @@ const JANELAS_VALIDAS: JanelaId[] = ['7', '28', '90', 'tudo']
 const RADAR_KINDS: RadarKind[] = ['maturidade', 'oportunidades']
 const EVENTOS_LEITURA = ['recommended_article_clicked', 'newsletter_cta_clicked']
 const PLAN_LAB_BETA = 'lab_beta'
+
+// ISSUE-318C — rotas de entrada medidas pelo page_viewed + ordem das perguntas
+// de cada radar (insumo do dropout; ids fechados, importados do motor).
+const ROTA_PAGEVIEW_POR_KIND: Record<RadarKind, string> = {
+  maturidade: '/radar/maturidade',
+  oportunidades: '/radar/oportunidades',
+}
+const PERGUNTAS_POR_KIND: Record<RadarKind, string[]> = {
+  maturidade: PERGUNTAS_MATURIDADE.map((p) => p.id),
+  oportunidades: PERGUNTAS_OPORTUNIDADES.map((p) => p.id),
+}
 
 function isoOuNull(d: Date | null): string | null {
   return d ? d.toISOString() : null
@@ -215,6 +229,26 @@ async function contarEvento(params: {
 }
 
 /**
+ * Pageviews in-house de uma rota de entrada (ISSUE-318C) — direcional, só
+ * `count` (regra da §4.1: nenhuma linha de radar_events é transferida). O
+ * evento não carrega assessment_type; a rota (page_url) é o discriminador.
+ */
+async function contarPageviews(pageUrl: string, janela: JanelaSql): Promise<number> {
+  let query = supabaseAdmin
+    .from('radar_events')
+    .select('id', { count: 'exact', head: true })
+    .eq('event_name', 'page_viewed')
+    .eq('page_url', pageUrl)
+    .lt('created_at', janela.ate)
+
+  if (janela.desde) query = query.gte('created_at', janela.desde)
+
+  const { count, error } = await query
+  if (error) throw error
+  return count ?? 0
+}
+
+/**
  * Uma leitura só de `auth.users`, dois usos: os ids do dono (para tirar o
  * tráfego de teste) e os e-mails que já viraram conta (degrau do pipeline do
  * Lab). Nenhum dos dois atravessa a resposta da API — só as contagens saem.
@@ -331,12 +365,24 @@ export async function GET(request: NextRequest) {
 
     const userIdsExcluidos = incluirTrafegoTeste ? [] : usuariosAuth.idsExcluidos
 
-    // Eventos direcionais do funil (Bloco 2) — 2 kinds × 2 grupos de evento, só count.
-    const [gateMaturidade, gateOportunidades, leituraMaturidade, leituraOportunidades] = await Promise.all([
+    // Eventos direcionais do funil (Bloco 2) — 2 kinds × 2 grupos de evento, só
+    // count. ISSUE-318C somou os pageviews das 3 rotas de entrada ao mesmo lote.
+    const [
+      gateMaturidade,
+      gateOportunidades,
+      leituraMaturidade,
+      leituraOportunidades,
+      pageviewsHome,
+      pageviewsMaturidade,
+      pageviewsOportunidades,
+    ] = await Promise.all([
       contarEvento({ eventNames: ['email_capture_viewed'], assessmentType: 'maturidade', janela: janelaAtual }),
       contarEvento({ eventNames: ['email_capture_viewed'], assessmentType: 'oportunidades', janela: janelaAtual }),
       contarEvento({ eventNames: EVENTOS_LEITURA, assessmentType: 'maturidade', janela: janelaAtual }),
       contarEvento({ eventNames: EVENTOS_LEITURA, assessmentType: 'oportunidades', janela: janelaAtual }),
+      contarPageviews('/', janelaAtual),
+      contarPageviews(ROTA_PAGEVIEW_POR_KIND.maturidade, janelaAtual),
+      contarPageviews(ROTA_PAGEVIEW_POR_KIND.oportunidades, janelaAtual),
     ])
 
     const leadsAtual = incluirTrafegoTeste
@@ -366,8 +412,18 @@ export async function GET(request: NextRequest) {
         kind,
         sessoes: sessoesAtualRes.linhas,
         leads: leadsAtual,
+        eventoPageviews: kind === 'maturidade' ? pageviewsMaturidade : pageviewsOportunidades,
         eventoGateViews: kind === 'maturidade' ? gateMaturidade : gateOportunidades,
         eventoLeituraClicks: kind === 'maturidade' ? leituraMaturidade : leituraOportunidades,
+      }),
+    )
+
+    // ISSUE-318C — dropout por pergunta, das mesmas sessões da janela (exato).
+    const dropout = RADAR_KINDS.map((kind) =>
+      montarDropoutPorPergunta({
+        kind,
+        sessoes: sessoesAtualRes.linhas,
+        perguntasOrdenadas: PERGUNTAS_POR_KIND[kind],
       }),
     )
 
@@ -419,6 +475,9 @@ export async function GET(request: NextRequest) {
       ate: janelaAtual.ate,
       numeros,
       funis,
+      // ISSUE-318C — topo do funil (direcional) + dropout por pergunta (exato).
+      pageviewsHome,
+      dropout,
       origem,
       serie,
       leadsUnicosTotal: contarLeadsUnicos(leadsAtual),
