@@ -10,9 +10,35 @@ import { track } from '@/lib/analytics'
 // Cliques DENTRO do iframe são cross-origin e não são rastreáveis — o evento
 // `newsletter_embed_viewed` (primeira vez que o embed entra na tela) dá a taxa de
 // visualização; a assinatura em si o dono acompanha no painel do Substack.
+// O iframe só é montado quando a seção se aproxima da tela (facade): `loading="lazy"`
+// sozinho não segura o embed, porque o Chrome pré-carrega iframes a >1000px de distância
+// e os ~2,5 MB do substackcdn entravam no carregamento inicial da home (gate da 319).
 export function NewsletterSignup() {
   const containerRef = React.useRef<HTMLDivElement>(null)
   const viewedRef = React.useRef(false)
+  const [montarEmbed, setMontarEmbed] = React.useState(false)
+
+  React.useEffect(() => {
+    const el = containerRef.current
+    if (!el) return
+    if (typeof IntersectionObserver === 'undefined') {
+      setMontarEmbed(true)
+      return
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((entry) => entry.isIntersecting)) {
+          setMontarEmbed(true)
+          observer.disconnect()
+        }
+      },
+      { rootMargin: '300px 0px' }
+    )
+
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [])
 
   React.useEffect(() => {
     const el = containerRef.current
@@ -37,13 +63,17 @@ export function NewsletterSignup() {
   return (
     <div ref={containerRef} className="flex flex-col gap-3">
       <div className="overflow-hidden rounded-ds2-card border border-ds2-border-subtle bg-ds2-surface-glass">
-        <iframe
-          src="https://conversasnocorredor.substack.com/embed"
-          title="Assinar a newsletter Conversas no Corredor"
-          className="block h-[150px] w-full border-0"
-          loading="lazy"
-          scrolling="no"
-        />
+        {montarEmbed ? (
+          <iframe
+            src="https://conversasnocorredor.substack.com/embed"
+            title="Assinar a newsletter Conversas no Corredor"
+            className="block h-[150px] w-full border-0"
+            loading="lazy"
+            scrolling="no"
+          />
+        ) : (
+          <div aria-hidden className="h-[150px] w-full" />
+        )}
       </div>
       <p className="font-ds2-mono text-[11px] text-ds2-text-subtle">
         Grátis. Uma conversa por semana. Cancela quando quiser.

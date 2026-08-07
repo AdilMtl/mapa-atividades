@@ -8,7 +8,59 @@
 
 ---
 
-## 🎯 SESSÃO ATUAL: ISSUE-318C — o funil ganhou topo e dropout por pergunta
+## 🎯 SESSÃO ATUAL: ISSUE-319 + ISSUE-319B — o gate da Fase 1A rodou (e achou o que faltava)
+**Data:** 06 de agosto de 2026 (3ª sessão do dia)
+**Versão:** v3.11.40
+**Status:** ⚠️ **gate executado, selo da Fase 1A aguardando re-medição.** Fable 5 como "QA
+final cético". O gate de QA da ISSUE-319 rodou por completo na parte automatizável; achou
+**1 FALHOU objetivo** (Lighthouse de performance) e o dono decidiu **tratar** em vez de aceitar
+com ressalva — nasceu a **ISSUE-319B**, com a Fase A (código) já implementada nesta sessão.
+Relatório completo: `docs/revamp/ISSUE-319-relatorio-gate-qa.md`.
+
+### **📌 O que entrou**
+1. **Gate ISSUE-319 (relatório novo):** 8/9 critérios do §9 do doc 13 passam — tsc limpo,
+   456/456 testes, build verde (50 rotas), **lint zero em todo o código do revamp/Lab** (ESLint
+   escopado; os erros do lint global são débito legado pré-existente), trava de tracking com
+   diff zero, métrica norte contável no `/admin/analytics`. As validações manuais pendentes
+   (roteiros 311/313, copy 314D, GTM Preview/convite 318, celular 318B, dropout+UTM da 318C,
+   teste dos 5 segundos) foram **aprovadas em bloco pelo dono em 06/08**, com reavaliação
+   futura a critério dele — lista completa no fim do relatório.
+2. **O FALHOU:** performance 27–59 (<85) em TODAS as rotas públicas, local E produção. Causa
+   dominante provada por diagnóstico: **GTM/Ads ~8s de CPU** (intocável — é a conversão) +
+   **embed do Substack puxando ~3 MB na home**. A11y 93–94 e SEO 100 passam; BP 79 é cookie de
+   terceiros dos próprios Google tags (estrutural → ISSUE-209).
+3. **ISSUE-319B Fase A (código):** facade de verdade no embed (`NewsletterSignup.tsx`) — o
+   iframe só monta quando a seção chega a 300px da tela (`loading="lazy"` sozinho não segura:
+   o Chrome pré-carrega iframes a >1000px). **Prova determinística:** substackcdn (2,5 MB) +
+   substack.com (440 kB) zerados do carregamento inicial no audit. Evento
+   `newsletter_embed_viewed` intacto. Decidido NÃO mexer no bloco GTM do layout nem atrasar o
+   container — score não paga risco de subcontagem.
+
+### **⏭️ Pendências — o caminho exato até o selo da Fase 1A**
+1. **[dono, painel GTM — Fase B da 319B]** Em tagmanager.google.com → `GTM-PDJ2K5BX` → Tags:
+   **pausar** (não excluir) `Botao Quero acessar o ecossistema`, `Botão já sou assinante` e
+   `Enviar formulário - Fazer pré-diagnóstico` (tags mortas do funil legado que viajam no JS de
+   todo mundo; inventário extraído do dump do Tag Assistant de 06/08). **Não tocar:** `Tag do
+   Google`, `Vinculador de conversões`, `GA4 Event - Eventos dos radares` e a tag de conversão
+   do radar criada em 06/08 (posterior ao dump — no painel ela aparece). Publicar a versão
+   (ex.: "pausa tags legadas — perf 319B") e fechar com o ritual da trava: rodar um radar até
+   virar lead com Tag Assistant aberto confirmando a conversão.
+2. **[dono, celular, pós-deploy]** Abrir a home em produção e rolar até a seção da newsletter:
+   o formulário do Substack tem que aparecer normalmente ao se aproximar (é a facade em ação).
+3. **[próxima sessão Claude]** Re-medição em produção pós itens 1–2: Lighthouse nas 6 rotas
+   públicas, 3 rodadas por rota, mediana (a variância entre rodadas é alta — nunca decidir por
+   rodada única). Atualizar o relatório do gate e fechar o critério 8: **≥85 → ISSUE-319 ✅ e
+   selo da Fase 1A** (libera a ISSUE-320/Fase 1B); estacionou em 70–84 → volta a decisão
+   "aceitar com ressalva", com o dever de casa feito. Expectativa honesta registrada: radares
+   têm chance real; a home, carregando GTM+Ads, pode não chegar.
+4. As validações manuais aprovadas em bloco seguem listadas no relatório para reavaliação
+   futura do dono (não bloqueiam o selo — decisão de 06/08).
+5. Herdada: `roadmap-backlog.html` (Artifact) parado em 11/07 — a série 318A–E e a 319/319B
+   não estão nele; precisa de reconstrução dedicada.
+
+---
+
+## 🎯 ISSUE-318C — o funil ganhou topo e dropout por pergunta
 **Data:** 06 de agosto de 2026 (2ª sessão do dia)
 **Versão:** v3.11.39
 **Status:** ✅ **concluída.** Primeira issue executada com Fable 5 sob a persona de Analytics &

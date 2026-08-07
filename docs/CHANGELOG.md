@@ -16,6 +16,39 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [v3.11.40] - 2026-08-06 - 🚦 ISSUE-319/319B: gate de QA da Fase 1A + facade do Substack
+
+Gate de QA da Fase 1A executado (ISSUE-319, Fable 5 como "QA final cético") e primeira metade
+da remediação do único FALHOU (ISSUE-319B). Relatório completo dos 9 critérios em
+`docs/revamp/ISSUE-319-relatorio-gate-qa.md`.
+
+### ✅ Adicionado
+- **Relatório do gate (ISSUE-319):** 8/9 critérios do §9 passam — tsc limpo, 456/456 testes,
+  build verde (50 rotas), lint zero no código do revamp/Lab (ESLint escopado; o lint global
+  acusa só débito legado pré-existente), trava de tracking com diff zero, métrica norte
+  contável no painel. Validações manuais aprovadas em bloco pelo dono (06/08), listadas no
+  relatório para reavaliação futura.
+- **ISSUE-319B registrada no backlog:** remediação do FALHOU de Lighthouse em duas fases
+  (código + operação GTM do dono), com inventário das 6 tags do container extraído do dump do
+  Tag Assistant e lista fechada do que pode ser pausado sem tocar na conversão.
+
+### 🔧 Corrigido
+- **Peso do embed do Substack na home (319B Fase A):** o iframe tinha `loading="lazy"`, mas o
+  Chrome pré-carrega iframes a >1000px de distância — os ~3 MB do substackcdn entravam no
+  carregamento inicial da home. **Causa raiz:** lazy nativo não é facade. **Solução:** o
+  iframe só monta quando a seção chega a 300px da tela (IntersectionObserver em
+  `NewsletterSignup.tsx`, placeholder do mesmo tamanho, zero CLS). Prova no audit: substackcdn
+  zerado do carregamento inicial. Evento `newsletter_embed_viewed` intacto.
+
+### 📊 Técnico
+- **FALHOU documentado do gate:** Lighthouse de performance 27–59 (<85) nas 6 rotas públicas,
+  local e produção — causa dominante é GTM/Ads (~8s de CPU, intocável) + o embed acima. A11y
+  93–94 e SEO 100 passam (o 63 do `/obrigado` é noindex intencional); BP 79 é cookie de
+  terceiros dos Google tags (estrutural → ISSUE-209). Decisão do dono: tratar (319B) em vez de
+  aceitar com ressalva; decidido NÃO atrasar o GTM — score não paga risco de subcontagem.
+- Selo da Fase 1A aguarda: Fase B no GTM (dono) + re-medição em produção (3 rodadas/rota,
+  mediana). Caminho exato descrito no CURRENT-STATUS.
+
 ## [v3.11.39] - 2026-08-06 - 📊 ISSUE-318C: o funil ganhou topo e dropout por pergunta
 
 Executa a ISSUE-318C (destravada pelo fechamento da 318D na sessão anterior, mesma data).

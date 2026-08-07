@@ -1622,6 +1622,16 @@ utilizável no celular.
 **Riscos:** baixo — é leitura + triagem sobre dado já capturado.
 
 ## ISSUE-319 — Gate de QA da Fase 1A
+**Status:** ⚠️ rodada automatizável concluída em 2026-08-06 — relatório completo em
+`ISSUE-319-relatorio-gate-qa.md`. 8/9 critérios do §9 passam (parte automatizada: tsc limpo,
+456/456 testes, build verde 50 rotas, lint zero no código do revamp, trava de tracking intocada,
+métrica norte no painel; parte manual: **aprovada em bloco pelo dono em 2026-08-06**, reavaliação
+futura a critério dele — lista das 8 pendências carregadas no fim do relatório). **1 FALHOU
+objetivo e novo:** Lighthouse de performance 27–59 (<85) em TODAS as rotas públicas, local E
+produção — causa dominante é peso de terceiros (GTM/Ads intocável ~8s de CPU + embed Substack
+2,5 MB na home), não o código da 1A (payload próprio 106–188 kB). **Decisão do dono pendente
+pra fechar o gate:** aceitar com ressalva e rotear performance pra Fase 1.5 (que já prevê isso
+no escopo) ou tratar antes do selo.
 **Tipo:** QA · **Prioridade:** Alta · **Complexidade:** Média
 **Modelo:** Fable 5 + dono (dispositivos reais) — papel de "QA final cético e gate de launch",
 mesmo critério da ISSUE-112.
@@ -1630,6 +1640,31 @@ Critérios do §9 do doc 13: jornada completa <10min no celular, RLS com 2 conta
 mensurável. **Dep.:** 310–318 **+ 318A** (decisão do dono em 2026-07-29: o gate roda depois do
 painel de Analytics — o critério "métrica norte mensurável" fica trivial de verificar quando o
 `lab_plan_generated` já aparece contado numa tela, em vez de precisar de SQL manual no gate).
+
+## ISSUE-319B — Performance das rotas públicas (remediação do FALHOU do gate)
+**Status:** ⚠️ parcial em 2026-08-06 — nasceu da decisão do dono de TRATAR o FALHOU de
+Lighthouse do gate 319 em vez de aceitar com ressalva. **Fase A (código) implementada:**
+facade de verdade no embed do Substack da home (`NewsletterSignup.tsx` — iframe só monta
+quando a seção chega a 300px da tela via IntersectionObserver; `loading="lazy"` sozinho não
+segurava porque o Chrome pré-carrega iframes a >1000px). Prova determinística no audit local:
+substackcdn (2,5 MB) + substack.com (440 kB) + datadog **zerados** do carregamento inicial da
+home. tsc limpo, lint zero no arquivo, build verde. Evento `newsletter_embed_viewed` intacto.
+**Fase B (operação do dono no painel GTM, zero código):** pausar as 3 tags de conversão
+legadas do container (`Botao Quero acessar o ecossistema`, `Botão já sou assinante`,
+`Enviar formulário - Fazer pré-diagnóstico` — inventário extraído do dump do Tag Assistant de
+06/08; nenhuma delas dispara na jornada atual). **Intocáveis:** `Tag do Google`, `Vinculador
+de conversões`, `GA4 Event - Eventos dos radares` e a tag de conversão do radar criada em
+06/08 (pós-dump) — é ela que converte hoje. **Falta:** deploy pra Fase A valer em produção;
+dono executar a Fase B + republicar container; re-medição em produção (3 rodadas, mediana).
+**Decidido NÃO fazer:** mexer no bloco GTM do `layout.tsx` (trava byte-idêntica) ou atrasar o
+container — score não paga risco de subcontagem no funil. Consent mode/cookies (BP 79) é a
+ISSUE-209, não aqui. **Expectativa honesta:** radares têm chance de ≥85; home carregando
+GTM+Ads pode estacionar em 70–84 — se estacionar, volta a decisão "aceitar com ressalva",
+com o dever de casa feito.
+**Tipo:** Performance/Growth · **Prioridade:** Alta · **Complexidade:** Baixa (código) +
+operação guiada (GTM) · **Modelo:** Fable 5 (persona Analytics & Ads — decide o que pode ser
+pausado sem tocar na conversão) · **Dep.:** 319 (relatório) · **Risco:** baixo no código;
+médio na operação GTM se pausar tag errada — por isso a lista fechada acima.
 
 ### Fase 1B — IA controlada (OpenAI, modelo barato — decisão pergunta 14)
 
