@@ -8,55 +8,65 @@
 
 ---
 
-## 🎯 SESSÃO ATUAL: ISSUE-319 + ISSUE-319B — o gate da Fase 1A rodou (e achou o que faltava)
-**Data:** 06 de agosto de 2026 (3ª sessão do dia)
-**Versão:** v3.11.40
-**Status:** ⚠️ **gate executado, selo da Fase 1A aguardando re-medição.** Fable 5 como "QA
-final cético". O gate de QA da ISSUE-319 rodou por completo na parte automatizável; achou
-**1 FALHOU objetivo** (Lighthouse de performance) e o dono decidiu **tratar** em vez de aceitar
-com ressalva — nasceu a **ISSUE-319B**, com a Fase A (código) já implementada nesta sessão.
-Relatório completo: `docs/revamp/ISSUE-319-relatorio-gate-qa.md`.
+## 🎯 SELO DA FASE 1A: ISSUE-319 + ISSUE-319B fechadas (aceito com ressalva)
+**Data:** 07 de agosto de 2026
+**Versão:** v3.11.41
+**Status:** ✅ **Fase 1A do Lab selada.** O gate de QA (ISSUE-319) rodou por completo, achou 1
+FALHOU objetivo de performance, a remediação (ISSUE-319B, Fase A código + Fase B operação GTM)
+foi executada nos dois dias seguintes, e a re-medição em produção confirmou ganho real — mas
+insuficiente pro alvo de ≥85. **Decisão do dono em 07/08: aceitar com ressalva.** Performance
+das rotas públicas vira item formal da **Fase 1.5** (ISSUE-205). Relatório completo:
+`docs/revamp/ISSUE-319-relatorio-gate-qa.md`.
 
-### **📌 O que entrou**
-1. **Gate ISSUE-319 (relatório novo):** 8/9 critérios do §9 do doc 13 passam — tsc limpo,
-   456/456 testes, build verde (50 rotas), **lint zero em todo o código do revamp/Lab** (ESLint
-   escopado; os erros do lint global são débito legado pré-existente), trava de tracking com
-   diff zero, métrica norte contável no `/admin/analytics`. As validações manuais pendentes
-   (roteiros 311/313, copy 314D, GTM Preview/convite 318, celular 318B, dropout+UTM da 318C,
-   teste dos 5 segundos) foram **aprovadas em bloco pelo dono em 06/08**, com reavaliação
-   futura a critério dele — lista completa no fim do relatório.
-2. **O FALHOU:** performance 27–59 (<85) em TODAS as rotas públicas, local E produção. Causa
-   dominante provada por diagnóstico: **GTM/Ads ~8s de CPU** (intocável — é a conversão) +
-   **embed do Substack puxando ~3 MB na home**. A11y 93–94 e SEO 100 passam; BP 79 é cookie de
-   terceiros dos próprios Google tags (estrutural → ISSUE-209).
-3. **ISSUE-319B Fase A (código):** facade de verdade no embed (`NewsletterSignup.tsx`) — o
-   iframe só monta quando a seção chega a 300px da tela (`loading="lazy"` sozinho não segura:
-   o Chrome pré-carrega iframes a >1000px). **Prova determinística:** substackcdn (2,5 MB) +
-   substack.com (440 kB) zerados do carregamento inicial no audit. Evento
-   `newsletter_embed_viewed` intacto. Decidido NÃO mexer no bloco GTM do layout nem atrasar o
-   container — score não paga risco de subcontagem.
+### **📌 O que fechou**
+1. **Gate ISSUE-319:** 9/9 critérios do §9 do doc 13 respondidos — 8 passam limpos (tsc, 456
+   testes, build, lint zero no código do revamp/Lab, trava de tracking intocada, métrica norte
+   no painel, validações manuais aprovadas em bloco pelo dono em 06/08); o 9º (não-regressão/
+   performance) fecha **com ressalva registrada**, não com FALHOU em aberto.
+2. **ISSUE-319B — as duas fases executadas:**
+   - **Fase A (código, 06/08):** facade de verdade no embed do Substack (`NewsletterSignup.tsx`)
+     — iframe só monta a 300px da seção na tela; zerou ~3 MB (substackcdn + substack.com) do
+     carregamento inicial da home.
+   - **Fase B (GTM, dono, 07/08):** pausadas as 3 tags mortas do funil `/pre-diagnostico` legado
+     no container `GTM-PDJ2K5BX` (`Botao Quero acessar o ecossistema`, `Botão já sou assinante`,
+     `Enviar formulário - Fazer pré-diagnóstico`) — nunca disparavam na jornada atual, mas
+     viajavam no JS de todo visitante. Publicado, validação de conversão no Tag Assistant fica
+     a cargo do dono (não bloqueou o fechamento — mesmo tratamento das outras validações
+     manuais aprovadas em bloco).
+3. **Re-medição em produção (07/08, 3 rodadas/rota, mediana):**
 
-### **⏭️ Pendências — o caminho exato até o selo da Fase 1A**
-1. **[dono, painel GTM — Fase B da 319B]** Em tagmanager.google.com → `GTM-PDJ2K5BX` → Tags:
-   **pausar** (não excluir) `Botao Quero acessar o ecossistema`, `Botão já sou assinante` e
-   `Enviar formulário - Fazer pré-diagnóstico` (tags mortas do funil legado que viajam no JS de
-   todo mundo; inventário extraído do dump do Tag Assistant de 06/08). **Não tocar:** `Tag do
-   Google`, `Vinculador de conversões`, `GA4 Event - Eventos dos radares` e a tag de conversão
-   do radar criada em 06/08 (posterior ao dump — no painel ela aparece). Publicar a versão
-   (ex.: "pausa tags legadas — perf 319B") e fechar com o ritual da trava: rodar um radar até
-   virar lead com Tag Assistant aberto confirmando a conversão.
-2. **[dono, celular, pós-deploy]** Abrir a home em produção e rolar até a seção da newsletter:
-   o formulário do Substack tem que aparecer normalmente ao se aproximar (é a facade em ação).
-3. **[próxima sessão Claude]** Re-medição em produção pós itens 1–2: Lighthouse nas 6 rotas
-   públicas, 3 rodadas por rota, mediana (a variância entre rodadas é alta — nunca decidir por
-   rodada única). Atualizar o relatório do gate e fechar o critério 8: **≥85 → ISSUE-319 ✅ e
-   selo da Fase 1A** (libera a ISSUE-320/Fase 1B); estacionou em 70–84 → volta a decisão
-   "aceitar com ressalva", com o dever de casa feito. Expectativa honesta registrada: radares
-   têm chance real; a home, carregando GTM+Ads, pode não chegar.
-4. As validações manuais aprovadas em bloco seguem listadas no relatório para reavaliação
-   futura do dono (não bloqueiam o selo — decisão de 06/08).
-5. Herdada: `roadmap-backlog.html` (Artifact) parado em 11/07 — a série 318A–E e a 319/319B
+   | Rota | Antes | Depois | Delta |
+   |---|---|---|---|
+   | home | ~34 | **62** | +28 |
+   | radar-maturidade | 51 | **58** | +7 |
+   | radar-oportunidades | 41 | **47** | +6 |
+   | newsletter | 53 | **55** | +2 |
+   | lab-vitrine | 59 | **62** | +3 |
+   | obrigado | 56 | **63** | +7 |
+
+   A11y (93–94) e SEO (100, exceto `/obrigado` — noindex intencional) inalterados. **Leitura:**
+   a pausa das tags deu ganho uniforme (+5 a +7) em toda rota, inclusive nos radares (que nunca
+   tiveram o embed); a home somou esse ganho ao efeito da facade (+28 total). Nenhuma rota
+   chegou a 85 — o peso remanescente é o núcleo do GTM/gtag (`Tag do Google`, `Vinculador de
+   conversões`, GA4), que é exatamente o que não pode ser tocado sem risco à conversão. Cortar
+   mais isso é trabalho estrutural (consent mode, defer do GTM) — escopo da Fase 1.5, não desta
+   remediação pontual.
+
+### **⏭️ Pendências herdadas (não bloqueiam mais nada, ficam de registro)**
+1. Validação de conversão no Tag Assistant pós-pausa das tags (dono, quando quiser).
+2. **ISSUE-112** (gate do lançamento público original, jul/2026) estava travada no mesmo
+   motivo — performance mobile <85. Mesma decisão se aplica: fechar com ressalva, mesma rota
+   pra Fase 1.5. Verificar se cabe formalizar o fechamento dela também.
+3. As validações manuais aprovadas em bloco em 06/08 (roteiros 311/313, copy 314D, celular
+   318B, dropout+UTM da 318C, teste dos 5 segundos) seguem listadas no relatório do gate para
+   reavaliação futura do dono.
+4. Herdada: `roadmap-backlog.html` (Artifact) parado em 11/07 — a série 318A–E e a 319/319B
    não estão nele; precisa de reconstrução dedicada.
+
+### **🚀 Próximo passo**
+**ISSUE-320 — Infra de IA.** Spec v2 já fechada (`ISSUE-320-spec-infra-ia.md`), zero código
+ainda. É a próxima issue executável — abre a Fase 1B do Lab (IA controlada). Único bloqueio
+real antes da 321 (não da 320): disclosure do subprocessador OpenAI em `/privacidade`.
 
 ---
 

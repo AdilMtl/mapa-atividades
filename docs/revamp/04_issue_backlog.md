@@ -685,14 +685,17 @@ de aceite.
 
 ## ISSUE-112 — QA integral + validação de conversão (gate de launch)
 
-**Status:** ⚠️ parcial em 2026-07-09 — 3 dos 4 bloqueadores originais resolvidos: e-mail de
-trilha (ISSUE-113, 08/07), `/privacidade` pública (08/07), reset de senha corrigido e testado
-(09/07, Site URL do Supabase). Resta **só a performance** (2.2, mobile 24/49 vs alvo ≥85 — ainda
-não atacada em código). Itens de atenção do §3 também fechados nesta sessão: SQL da `lab_leads`
-(já estava rodado, nota desatualizada corrigida), tags GA4 dos 19 eventos (publicadas e
-testadas), embed Substack no dark (já estava certo). Falta: roteiro do dono (Tag Assistant,
-mobile real, Supabase/RLS, veto de copy, PWA — §4 do relatório) e re-execução do gate após os
-fixes, até zero FALHOU. Detalhes: `docs/CURRENT-STATUS.md` (sessão de 09/07).
+**Status:** ✅ **fechada com ressalva em 2026-08-07** — mesmo motivo e mesma decisão da 319.
+Ficou parcial desde 2026-07-09 com 3 dos 4 bloqueadores resolvidos (e-mail de trilha, ISSUE-113,
+08/07; `/privacidade` pública, 08/07; reset de senha corrigido e testado, 09/07) e **só a
+performance** em aberto (2.2, mobile 24/49 vs alvo ≥85 — mesmo alvo, mesmas rotas públicas do
+gate 319). A remediação da ISSUE-319B (facade do Substack + pausa de tags legadas no GTM)
+atacou exatamente esse item: performance subiu (home 24→62, ganho real), mas não chegou a 85.
+**Aplicando a mesma decisão do dono na 319:** aceitar com ressalva, performance vira item da
+Fase 1.5 (ISSUE-205). Itens de atenção do §3 (SQL `lab_leads`, tags GA4, embed Substack no
+dark) já estavam fechados desde 09/07. Roteiro do dono (Tag Assistant, mobile real,
+Supabase/RLS, veto de copy, PWA) segue coberto pelas validações manuais aprovadas em bloco na
+319. Detalhes: `docs/CURRENT-STATUS.md` (sessões de 09/07 e 06–07/08).
 
 **Fase:** 1
 **Tipo:** Testes
@@ -1622,16 +1625,16 @@ utilizável no celular.
 **Riscos:** baixo — é leitura + triagem sobre dado já capturado.
 
 ## ISSUE-319 — Gate de QA da Fase 1A
-**Status:** ⚠️ rodada automatizável concluída em 2026-08-06 — relatório completo em
-`ISSUE-319-relatorio-gate-qa.md`. 8/9 critérios do §9 passam (parte automatizada: tsc limpo,
+**Status:** ✅ **concluída em 2026-08-07 — aceita com ressalva.** Relatório completo em
+`ISSUE-319-relatorio-gate-qa.md`. 9/9 critérios do §9 respondidos: 8 passam limpos (tsc limpo,
 456/456 testes, build verde 50 rotas, lint zero no código do revamp, trava de tracking intocada,
-métrica norte no painel; parte manual: **aprovada em bloco pelo dono em 2026-08-06**, reavaliação
-futura a critério dele — lista das 8 pendências carregadas no fim do relatório). **1 FALHOU
-objetivo e novo:** Lighthouse de performance 27–59 (<85) em TODAS as rotas públicas, local E
-produção — causa dominante é peso de terceiros (GTM/Ads intocável ~8s de CPU + embed Substack
-2,5 MB na home), não o código da 1A (payload próprio 106–188 kB). **Decisão do dono pendente
-pra fechar o gate:** aceitar com ressalva e rotear performance pra Fase 1.5 (que já prevê isso
-no escopo) ou tratar antes do selo.
+métrica norte no painel; validações manuais aprovadas em bloco pelo dono em 06/08). O 9º
+(não-regressão/performance) achou **1 FALHOU objetivo**: Lighthouse 27–59 (<85) em todas as
+rotas públicas. Remediação (ISSUE-319B) rodou nos 2 dias seguintes — re-medição em produção
+(07/08, 3 rodadas/rota) confirmou ganho real (home +28, radares +6/+7, demais +2/+7) mas
+nenhuma rota bateu 85. **Decisão final do dono (07/08): aceitar com ressalva** — performance
+das rotas públicas vira item formal da **Fase 1.5** (ISSUE-205), não bloqueia mais o selo.
+**Fase 1A do Lab está selada.** Libera a ISSUE-320.
 **Tipo:** QA · **Prioridade:** Alta · **Complexidade:** Média
 **Modelo:** Fable 5 + dono (dispositivos reais) — papel de "QA final cético e gate de launch",
 mesmo critério da ISSUE-112.
@@ -1642,25 +1645,27 @@ painel de Analytics — o critério "métrica norte mensurável" fica trivial de
 `lab_plan_generated` já aparece contado numa tela, em vez de precisar de SQL manual no gate).
 
 ## ISSUE-319B — Performance das rotas públicas (remediação do FALHOU do gate)
-**Status:** ⚠️ parcial em 2026-08-06 — nasceu da decisão do dono de TRATAR o FALHOU de
-Lighthouse do gate 319 em vez de aceitar com ressalva. **Fase A (código) implementada:**
+**Status:** ✅ **concluída em 2026-08-07.** Nasceu da decisão do dono de TRATAR o FALHOU de
+Lighthouse do gate 319 em vez de aceitar com ressalva direto. **Fase A (código, 06/08):**
 facade de verdade no embed do Substack da home (`NewsletterSignup.tsx` — iframe só monta
 quando a seção chega a 300px da tela via IntersectionObserver; `loading="lazy"` sozinho não
 segurava porque o Chrome pré-carrega iframes a >1000px). Prova determinística no audit local:
 substackcdn (2,5 MB) + substack.com (440 kB) + datadog **zerados** do carregamento inicial da
 home. tsc limpo, lint zero no arquivo, build verde. Evento `newsletter_embed_viewed` intacto.
-**Fase B (operação do dono no painel GTM, zero código):** pausar as 3 tags de conversão
-legadas do container (`Botao Quero acessar o ecossistema`, `Botão já sou assinante`,
-`Enviar formulário - Fazer pré-diagnóstico` — inventário extraído do dump do Tag Assistant de
-06/08; nenhuma delas dispara na jornada atual). **Intocáveis:** `Tag do Google`, `Vinculador
-de conversões`, `GA4 Event - Eventos dos radares` e a tag de conversão do radar criada em
-06/08 (pós-dump) — é ela que converte hoje. **Falta:** deploy pra Fase A valer em produção;
-dono executar a Fase B + republicar container; re-medição em produção (3 rodadas, mediana).
-**Decidido NÃO fazer:** mexer no bloco GTM do `layout.tsx` (trava byte-idêntica) ou atrasar o
-container — score não paga risco de subcontagem no funil. Consent mode/cookies (BP 79) é a
-ISSUE-209, não aqui. **Expectativa honesta:** radares têm chance de ≥85; home carregando
-GTM+Ads pode estacionar em 70–84 — se estacionar, volta a decisão "aceitar com ressalva",
-com o dever de casa feito.
+**Fase B (dono, 07/08):** pausadas as 3 tags legadas do container GTM
+(`Botao Quero acessar o ecossistema`, `Botão já sou assinante`,
+`Enviar formulário - Fazer pré-diagnóstico` — nenhuma delas dispara na jornada atual), versão
+publicada. Intocáveis confirmados intactos: `Tag do Google`, `Vinculador de conversões`,
+`GA4 Event - Eventos dos radares`, `Conversão - Radar Oportunidades`.
+**Resultado medido em produção (07/08, 3 rodadas/rota, mediana):** ganho real e uniforme — a
+pausa das tags deu +5 a +7 em toda rota (inclusive nos radares, que não têm o embed); a home
+somou esse ganho ao efeito da facade e foi de ~34 pra 62 (+28). **Nenhuma rota bateu 85** — o
+peso remanescente é o núcleo do GTM/gtag em si (não as tags específicas), que é o que não pode
+ser tocado sem risco à conversão. **Decisão final do dono: aceitar o resultado, encerrar aqui.**
+Cortar mais isso (defer do GTM, consent mode) é trabalho estrutural — vira item da Fase 1.5
+(ISSUE-205), fora do escopo desta remediação pontual. **Decidido NÃO fazer:** mexer no bloco
+GTM do `layout.tsx` (trava byte-idêntica) ou atrasar o container — score não paga risco de
+subcontagem no funil. Consent mode/cookies (BP 79 em todas as rotas) é a ISSUE-209, não aqui.
 **Tipo:** Performance/Growth · **Prioridade:** Alta · **Complexidade:** Baixa (código) +
 operação guiada (GTM) · **Modelo:** Fable 5 (persona Analytics & Ads — decide o que pode ser
 pausado sem tocar na conversão) · **Dep.:** 319 (relatório) · **Risco:** baixo no código;

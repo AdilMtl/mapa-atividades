@@ -16,6 +16,31 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [v3.11.41] - 2026-08-07 - 🎉 ISSUE-319/319B fechadas: Fase 1A do Lab selada (aceita com ressalva)
+
+Fecha o ciclo aberto em 06/08: a remediação do FALHOU de performance (ISSUE-319B) foi concluída
+nas duas fases e a re-medição em produção confirmou ganho real. Decisão do dono: aceitar o
+resultado com ressalva. **A Fase 1A do Lab está selada — ISSUE-320 liberada.**
+
+### ✅ Adicionado
+- **Fase B da 319B (GTM, dono):** pausadas as 3 tags legadas do container `GTM-PDJ2K5BX` que
+  nunca disparavam na jornada atual (`Botao Quero acessar o ecossistema`, `Botão já sou
+  assinante`, `Enviar formulário - Fazer pré-diagnóstico`), versão publicada. Confirmado
+  intacto: `Tag do Google`, `Vinculador de conversões`, `GA4 Event - Eventos dos radares`,
+  `Conversão - Radar Oportunidades`.
+
+### 📊 Técnico
+- **Re-medição em produção** (3 rodadas/rota, mediana): home 34→**62** (+28), radar-maturidade
+  51→**58** (+7), radar-oportunidades 41→**47** (+6), newsletter 53→**55** (+2), lab-vitrine
+  59→**62** (+3), obrigado 56→**63** (+7). Ganho real e uniforme (+5 a +7 em toda rota, mesmo
+  nos radares sem embed) — mas **nenhuma rota bateu 85**. O peso remanescente é o núcleo do
+  GTM/gtag em si (não as tags pausadas), que não pode ser tocado sem risco à conversão.
+- **Decisão do dono:** aceitar o resultado. Performance das rotas públicas vira item formal da
+  **Fase 1.5** (ISSUE-205), não bloqueia mais nada. Critério 8 do gate fecha com ressalva; os
+  9 critérios do §9 estão respondidos.
+- **Efeito colateral:** a ISSUE-112 (gate do lançamento público original, jul/2026) estava
+  travada no mesmo motivo desde 09/07 — fechada com a mesma decisão nesta data.
+
 ## [v3.11.40] - 2026-08-06 - 🚦 ISSUE-319/319B: gate de QA da Fase 1A + facade do Substack
 
 Gate de QA da Fase 1A executado (ISSUE-319, Fable 5 como "QA final cético") e primeira metade

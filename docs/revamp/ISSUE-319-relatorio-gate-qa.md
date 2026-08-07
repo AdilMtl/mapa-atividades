@@ -1,7 +1,13 @@
 # ISSUE-319 — Relatório do Gate de QA da Fase 1A
 
-**Data da rodada:** 2026-08-06 · **Executor:** Fable 5 (persona "QA final cético e gate de launch") ·
-**Base:** v3.11.39, working tree limpo, commit `2923c6e`.
+**Data da rodada:** 2026-08-06 (achado) → 2026-08-07 (fechamento) · **Executor:** Fable 5
+(persona "QA final cético e gate de launch") · **Base:** v3.11.39, working tree limpo,
+commit `2923c6e`.
+
+> **✅ FECHADO EM 2026-08-07.** O FALHOU de performance foi remediado (ISSUE-319B) e o
+> resultado da re-medição em produção foi **aceito com ressalva pelo dono**. Ver "Fechamento"
+> no fim do documento — essa seção original (achado de 06/08) fica preservada como registro do
+> diagnóstico.
 
 **Contexto da rodada:** o dono aprovou **em bloco** (decisão de 2026-08-06, nesta sessão) as
 pendências manuais acumuladas das issues 311, 313, 314D, 318 e 318B, mais as herdadas da 318C
@@ -114,3 +120,52 @@ de qualquer commit. Nenhuma dessas mudanças cabe no escopo da 319.
 6. Abandono de radar → conferir dropout no painel; UTM em produção (herdadas da 318C).
 7. Teste dos 5 segundos com ≥3 pessoas de fora (critério 1).
 8. Lighthouse autenticado das rotas `/lab/*` (opcional, ver ressalva 3).
+9. Validação de conversão no Tag Assistant pós-pausa das 3 tags legadas (Fase B da 319B) —
+   dono, quando quiser; não bloqueou o fechamento porque segue o mesmo tratamento dos itens
+   acima (validações manuais aprovadas em bloco).
+
+---
+
+## Fechamento (2026-08-07)
+
+**Remediação executada (ISSUE-319B):**
+- **Fase A (código, 06/08):** facade de verdade no embed do Substack (`NewsletterSignup.tsx`)
+  — iframe só monta quando a seção chega a 300px da tela. Zerou ~3 MB do carregamento inicial
+  da home no audit.
+- **Fase B (dono, 07/08):** pausadas no container `GTM-PDJ2K5BX` as 3 tags legadas que nunca
+  disparavam na jornada atual (`Botao Quero acessar o ecossistema`, `Botão já sou assinante`,
+  `Enviar formulário - Fazer pré-diagnóstico`), versão publicada. Confirmado intacto:
+  `Tag do Google`, `Vinculador de conversões`, `GA4 Event - Eventos dos radares`,
+  `Conversão - Radar Oportunidades`.
+
+**Re-medição em produção (07/08, 3 rodadas por rota, mediana):**
+
+| Rota | Antes (06/08) | Depois (07/08) | Delta |
+|---|---|---|---|
+| `/` (home) | ~34 (27–41) | **62** (58–64) | +28 |
+| `/radar/maturidade` | 51 | **58** (55–58) | +7 |
+| `/radar/oportunidades` | 41 | **47** (43–48) | +6 |
+| `/newsletter` | 53 | **55** (44–62) | +2 |
+| `/lab` (vitrine) | 59 | **62** (62–62) | +3 |
+| `/obrigado` | 56 | **63** (62–64) | +7 |
+
+A11y (93–94) e SEO (100, exceto `/obrigado` — noindex intencional) inalterados. Best Practices
+segue 79 em todas (cookies de terceiros dos próprios Google tags — fora do escopo, ISSUE-209).
+
+**Leitura do resultado:** a pausa das tags legadas deu um ganho uniforme de +5 a +7 pontos em
+**toda** rota, inclusive nos radares (que nunca tiveram o embed do Substack) — prova de que o
+peso morto saiu do processamento. A home somou esse ganho ao efeito da facade e subiu +28 no
+total. **Nenhuma rota atingiu 85.** O que resta de peso é o núcleo do GTM/gtag em si (`Tag do
+Google`, `Vinculador de conversões`, GA4) — infraestrutura de conversão que não pode ser
+tocada sem risco, e que estava fora do escopo desta remediação desde o diagnóstico original.
+
+**Decisão final do dono (2026-08-07): aceitar o resultado.** O ganho é real e documentado; o
+gap remanescente até 85 é estrutural (defer do carregamento do GTM, consent mode) e fica
+formalmente registrado como item da **Fase 1.5** (ISSUE-205 — acessibilidade e performance),
+não como pendência do gate. **Critério 8 fecha com ressalva. Os 9 critérios do §9 estão
+respondidos. Fase 1A do Lab selada — ISSUE-320 liberada.**
+
+**Efeito colateral fechado junto:** a ISSUE-112 (gate do lançamento público original, jul/2026)
+estava travada exatamente no mesmo motivo (performance mobile <85, mesmas rotas públicas) desde
+09/07. A mesma decisão foi aplicada e ela também foi fechada com ressalva nesta data — ver
+backlog.
