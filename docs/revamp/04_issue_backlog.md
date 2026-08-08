@@ -1780,13 +1780,14 @@ jornada e segmentos (Sonnet + revisão Fable 5) · **601C** disparo e registro (
 parte irreversível) · **601D** pasta de templates (Sonnet) · **601E** copy dos 6 templates
 (**Opus**, dono aprova — ler os guias de voz do OneDrive antes de escrever; caminho no §12 da spec).
 Protótipo navegável: `docs/marketing/mockups/601-painel-funil.html`.
-**Decisão do dono (2026-08-08):** o funil legado `roi_leads` entra como **segmento próprio e
-temporário** (`legado_reativacao`) — uma jornada de reativação avisando que a newsletter mudou,
-mensagem padrão única para todos, sem personalização, e o segmento é aposentado depois do
-disparo. ⚠️ `roi_leads` **não tem coluna de opt-in**, o que torna a rota de descadastro
-(`marketing_unsubscribes` + `/descadastrar`, §3.4 da spec — lacuna achada em 08/08) pré-requisito
-absoluto, e obriga disparo **em lotes pequenos** para não queimar a reputação do domínio e
-derrubar a entregabilidade dos e-mails do radar, que hoje funcionam.
+**Decisão do dono (2026-08-08):** o funil legado `roi_leads` **fica de fora** — foi captado com
+outro propósito, é legado, não entra no painel nem como dívida planejada. Não reabrir sem pedido
+explícito (§4.1 da spec guarda os motivos).
+**Lacuna achada e fechada na mesma sessão:** a variável `{{link_descadastro}}` existia no desenho
+mas o projeto não tinha tabela nem rota de opt-out — o link era decorativo. Virou o §3.4:
+`marketing_unsubscribes` + rota pública `/descadastrar` com token assinado, de um clique, sem
+login. **Vale para os 6 templates e é pré-requisito de qualquer disparo**, inclusive para os
+leads quentes; sobreviveu ao descarte do legado porque nunca dependeu dele.
 **Pendências do dono:** nenhuma — spec fechada.
 **Dep.:** nenhuma. **Risco:** escopo — mitigado pelo §8 da spec.
 

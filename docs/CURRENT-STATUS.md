@@ -61,11 +61,13 @@ Ler `docs/marketing/ISSUE-601-spec-painel-funil.md` §3, §4 e §12 antes de cod
 1. ✅ **Guias de voz — resolvido.** Caminho do OneDrive conferido em 08/08 e confirmado pelo dono
    como o de sempre. **Não é pendência dele:** é leitura obrigatória minha antes da copy da 601E.
 2. ✅ **`RESEND_API_KEY` — confirmada na Vercel pelo dono** em 08/08. Não precisa verificar de novo.
-3. ✅ **Funil legado `roi_leads` — decidido em 08/08:** entra como segmento próprio e
-   **temporário** (`legado_reativacao`), jornada de reativação com mensagem padrão única, e o
-   segmento é aposentado depois do disparo. Achado da decisão: a tabela **não tem opt-in**, o que
-   revelou uma lacuna maior — o projeto não tinha rota de descadastro nenhuma. Virou o §3.4 da
-   spec (`marketing_unsubscribes` + `/descadastrar`), pré-requisito de qualquer disparo.
+3. ✅ **Funil legado `roi_leads` — decidido em 08/08: FICA DE FORA.** Foi captado com outro
+   propósito; a Série 600 nasce sem ele. Legado, não entra nem como dívida planejada.
+   **Efeito colateral que valeu a discussão:** ao desenhar o segmento (antes de descartá-lo) eu
+   descobri que a variável `{{link_descadastro}}` não tinha nada para receber o clique — o
+   projeto não tem tabela nem rota de opt-out. Virou o §3.4 da spec
+   (`marketing_unsubscribes` + `/descadastrar` com token assinado), **pré-requisito de qualquer
+   disparo dos 6 templates**, e sobrevive ao descarte do legado porque nunca dependeu dele.
 4. **SQL não rodado:** quantos dos 15 leads têm `lab_interest = true` (a fila do painel atual
    filtra por isso — pode ser a causa mecânica do zero). Não bloqueia a 601A, mas informa o
    desenho da fila.
