@@ -58,11 +58,13 @@ pago tem base empírica enquanto isso não mudar.
 Ler `docs/marketing/ISSUE-601-spec-painel-funil.md` §3, §4 e §12 antes de codar.
 
 ### **⏭️ Pendências**
-1. **Guias de voz** (OneDrive, fora do repo) — bloqueiam a 601E.
-2. **Decidir se o funil legado `roi_leads` entra** como segmento.
-3. **SQL não rodado:** quantos dos 15 leads têm `lab_interest = true` (a fila do painel atual
-   filtra por isso — pode ser a causa mecânica do zero).
-4. **Confirmar `RESEND_API_KEY` na Vercel** — o envio é silenciosamente opcional no código.
+1. ✅ **Guias de voz — resolvido.** Caminho do OneDrive conferido em 08/08 e confirmado pelo dono
+   como o de sempre. **Não é pendência dele:** é leitura obrigatória minha antes da copy da 601E.
+2. ✅ **`RESEND_API_KEY` — confirmada na Vercel pelo dono** em 08/08. Não precisa verificar de novo.
+3. **Decidir se o funil legado `roi_leads` entra** como segmento — única decisão em aberto.
+4. **SQL não rodado:** quantos dos 15 leads têm `lab_interest = true` (a fila do painel atual
+   filtra por isso — pode ser a causa mecânica do zero). Não bloqueia a 601A, mas informa o
+   desenho da fila.
 5. **Contradição da 320 para a retomada:** backlog manda `lab_project_interviews`, spec v2 manda
    JSONB em `lab_projects`.
 6. **Lint pré-existente** em `prediag-heuristics.ts` e no plano de ação legado (`any` +
