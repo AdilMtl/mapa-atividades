@@ -98,6 +98,32 @@ saber que ela existe. Todo template de marketing carrega link de descadastro.
 Distinção que a spec assume: o e-mail de resultado do radar é **transacional** (a pessoa pediu o
 resultado). Convite e sequência são **marketing** e dependem de optin.
 
+### 3.4 Descadastro — lacuna encontrada em 2026-08-08, é pré-requisito de QUALQUER disparo
+
+A variável `{{link_descadastro}}` existia no desenho, mas **não havia nada para recebê-la**: o
+projeto não tem tabela de descadastro nem rota pública de opt-out. Sem isso, o link é decorativo
+e nenhum e-mail de marketing pode sair.
+
+```sql
+create table public.marketing_unsubscribes (
+  email       text primary key,
+  motivo      text,
+  origem      text,                              -- template_slug que gerou o clique
+  criado_em   timestamptz not null default now()
+);
+alter table public.marketing_unsubscribes enable row level security;
+revoke all on public.marketing_unsubscribes from anon, authenticated;
+```
+
+- Rota pública `GET /descadastrar?t=<token>` — token assinado derivado do e-mail, **nunca o
+  e-mail em texto na URL** (senão qualquer um descadastra qualquer um, e o e-mail vaza em log
+  de referer).
+- A confirmação é **de um clique**, sem pedir login e sem formulário.
+- `vw_marketing_contatos` ganha `descadastrado` e **todo** segmento o exclui — não só os de
+  marketing. Descadastro vence opt-in.
+
+Vale para todos os templates; para o `legado_reativacao` (§4.1) é o que sustenta a base legal.
+
 ## 4. Segmentos — cada um com UM próximo e-mail designado
 
 Essa é a disciplina de processo comercial que faz o painel ser usável num sábado: o dono não
@@ -111,6 +137,26 @@ decide o que mandar, ele decide para quem.
 | `projeto_parado` | projeto aberto, sem atividade há > 14 dias | `retomar_projeto` |
 | `assinante_sem_radar` | autorizado como assinante, `fez_radar = false` | `convite_radar` |
 | `concluiu_projeto` | `projetos_concluidos >= 1` | `pedido_de_relato` |
+| `legado_reativacao` ⏳ | veio de `roi_leads` (pré-diagnóstico), sem atividade recente | `reativacao_legado` |
+
+### 4.1 O segmento legado é temporário por design (decisão do dono, 2026-08-08)
+
+Os contatos antigos do funil de pré-diagnóstico (`roi_leads`) entram como **segmento próprio,
+nunca misturados ao funil principal**. A jornada é uma só: avisar que a newsletter mudou e
+convidar a dar uma olhada. **Uma mensagem padrão para todos, sem personalização** — e depois o
+segmento é aposentado.
+
+Consequências no código:
+- O segmento nasce marcado como `temporario: true` e a spec o registra como **dívida planejada**:
+  depois do disparo único, ele sai do painel. Segmento temporário que ninguém remove vira lixo
+  permanente na tela.
+- Não precisa de envelhecimento nem de cadência — não é fila recorrente, é um evento.
+
+⚠️ **`roi_leads` NÃO tem coluna de opt-in** (conferido no schema: só `email`, `name`,
+`created_at`, `source`, `last_session_id`). Não dá para filtrar por consentimento porque
+consentimento nunca foi registrado ali. Base legal praticável: a pessoa entregou o e-mail para
+receber um diagnóstico do mesmo remetente, e o envio carrega descadastro visível e honrado — o
+que torna o §3.4 abaixo **pré-requisito absoluto** deste segmento.
 
 Cada card de segmento mostra: **total**, **quantos ainda não receberam o template designado**, e
 **quantos estão há mais de 14 dias sem qualquer contato**. Esse terceiro número é o que
@@ -247,6 +293,7 @@ Cada item abaixo, sozinho, transforma esta issue num CRM de verdade:
 
 | Risco | Mitigação |
 |---|---|
+| **Reputação de domínio no disparo do legado** — lista fria e antiga em lote único gera marcação de spam, e isso derruba a entregabilidade de **todos** os e-mails, inclusive o resultado do radar, que hoje funciona | Disparar o `legado_reativacao` **em lotes pequenos ao longo de dias**, começando pelos contatos mais recentes; parar e reavaliar se houver pico de rejeição. Nunca "selecionar todos e mandar". |
 | Explosão de escopo (o CRM) | §8, e revisão do §8 antes de qualquer PR |
 | LGPD — marketing sem consentimento | §3.3, critério de aceite 5 |
 | Construir para 15 contatos | 80% do painel já existe; o custo é baixo e a lista cresce (267 sessões/38 dias, ads funcionando) |
@@ -277,15 +324,16 @@ ligar quando já existe template pronto para sair.
 ### ISSUE-601A — Dado e derivação · **Sonnet**
 *Schema e SQL sob spec fechada; o julgamento (atributos × etapas) já foi feito aqui.*
 
-- **Entrega:** tabela `marketing_sends` (§3.1), view `vw_marketing_contatos` (§3.2), os 6
-  segmentos do §4 como consultas nomeadas em `src/lib/marketing/segmentos.ts`, e `GET
-  /api/admin/funil` devolvendo contagens + contatos.
+- **Entrega:** tabelas `marketing_sends` (§3.1) e `marketing_unsubscribes` (§3.4), view
+  `vw_marketing_contatos` (§3.2), os 7 segmentos do §4 como consultas nomeadas em
+  `src/lib/marketing/segmentos.ts`, e `GET /api/admin/funil` devolvendo contagens + contatos.
 - **Escopo excluído:** nenhuma tela; nenhum envio.
 - **Critérios de aceite:** (1) contato sem radar, sem conta e sem projeto não quebra a
   derivação — teste com os três nulos; (2) dedupe por `lower(email)` provado com o mesmo e-mail
   em `radar_leads` e `lab_leads`; (3) a view usa `security_invoker = true`; (4)
-  `marketing_sends` sem policy para `anon`/`authenticated`; (5) as contagens dos 6 segmentos
-  batem com consulta manual num seed de teste.
+  `marketing_sends` e `marketing_unsubscribes` sem policy para `anon`/`authenticated`; (5) as
+  contagens dos 7 segmentos batem com consulta manual num seed de teste; (6) **e-mail
+  descadastrado não aparece em nenhum segmento** — teste cobrindo os 7.
 - **Dep.:** nenhuma.
 
 ### ISSUE-601B — Telas de Jornada e Segmentos · **Sonnet** + revisão **Fable 5**
@@ -306,14 +354,17 @@ ligar quando já existe template pronto para sair.
 *Única parte irreversível: e-mail errado, e-mail duplicado ou furo de opt-in não têm desfazer.
 Mesma régua da 325 (Stripe).*
 
-- **Entrega:** seleção múltipla, tela de confirmação com os três blocos (vão receber / já
-  receberam / sem opt-in), `POST /api/admin/funil/disparar`, gravação em `marketing_sends`
-  inclusive nas falhas.
+- **Entrega:** seleção múltipla, tela de confirmação com os blocos (vão receber / já receberam /
+  sem opt-in / descadastrados), `POST /api/admin/funil/disparar`, gravação em `marketing_sends`
+  inclusive nas falhas, **e a rota pública de descadastro do §3.4**.
 - **Escopo excluído:** qualquer automação ou agendamento.
 - **Critérios de aceite:** (1) falha do Resend vira `status='falhou'` com motivo — **teste
-  provando**, porque o SDK não lança exceção; (2) `optin_newsletter = false` nunca recebe, e não
-  existe caminho de forçar; (3) repetir template exige segunda confirmação explícita; (4) envio
-  parcial (5 de 12 falham) grava os 12 corretamente; (5) nada sai sem passar pela confirmação.
+  provando**, porque o SDK não lança exceção; (2) `optin_newsletter = false` e descadastrados
+  nunca recebem, e não existe caminho de forçar; (3) repetir template exige segunda confirmação
+  explícita; (4) envio parcial (5 de 12 falham) grava os 12 corretamente; (5) nada sai sem passar
+  pela confirmação; (6) o descadastro funciona de um clique, com token assinado, sem login —
+  testado ponta a ponta antes de qualquer disparo real; (7) `git diff` zero em `layout.tsx` e no
+  funil público (a rota nova é adição isolada).
 - **Dep.:** 601A, 601B, 601D.
 
 ### ISSUE-601D — Pasta de templates · **Sonnet**

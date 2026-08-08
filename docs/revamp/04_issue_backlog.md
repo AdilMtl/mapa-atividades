@@ -1780,7 +1780,14 @@ jornada e segmentos (Sonnet + revisão Fable 5) · **601C** disparo e registro (
 parte irreversível) · **601D** pasta de templates (Sonnet) · **601E** copy dos 6 templates
 (**Opus**, dono aprova — ler os guias de voz do OneDrive antes de escrever; caminho no §12 da spec).
 Protótipo navegável: `docs/marketing/mockups/601-painel-funil.html`.
-**Pendente do dono:** decidir se o funil legado `roi_leads` entra como segmento.
+**Decisão do dono (2026-08-08):** o funil legado `roi_leads` entra como **segmento próprio e
+temporário** (`legado_reativacao`) — uma jornada de reativação avisando que a newsletter mudou,
+mensagem padrão única para todos, sem personalização, e o segmento é aposentado depois do
+disparo. ⚠️ `roi_leads` **não tem coluna de opt-in**, o que torna a rota de descadastro
+(`marketing_unsubscribes` + `/descadastrar`, §3.4 da spec — lacuna achada em 08/08) pré-requisito
+absoluto, e obriga disparo **em lotes pequenos** para não queimar a reputação do domínio e
+derrubar a entregabilidade dos e-mails do radar, que hoje funcionam.
+**Pendências do dono:** nenhuma — spec fechada.
 **Dep.:** nenhuma. **Risco:** escopo — mitigado pelo §8 da spec.
 
 ## ISSUE-602 — Automação da sequência de e-mails
