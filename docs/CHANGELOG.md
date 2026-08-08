@@ -16,6 +16,53 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [v3.11.42] - 2026-08-08 - 🧭 Virada de rota: Série 600 (Marketing Digital) nasce e a ISSUE-320 é pausada
+
+Sessão de estratégia sem código de produto. Começou como revisão da spec da ISSUE-320 (infra de
+IA) e virou uma mudança de prioridade do negócio, provocada por um dado do próprio painel: **38
+dias de Google Ads, 267 sessões de radar, 72 conclusões, 15 leads e ZERO projetos no Lab.**
+
+### ✅ Adicionado
+- **Série 600 — Marketing Digital 1.0** (domínio novo, fora do revamp) no `04_issue_backlog.md`.
+- **`docs/marketing/ISSUE-601-spec-painel-funil.md`** — spec completa do painel de Funil e
+  disparo de templates, fatiada em 5 issues (601A–E) com modelo recomendado por fatia e
+  critérios de aceite próprios.
+- **`docs/marketing/mockups/601-painel-funil.html`** — protótipo navegável (DS2 real, ícones
+  lucide, jornada do funil clicável, pasta de templates com editor).
+- **4 skills novas** instaladas via `skills.sh` do repositório `mattpocock/skills` e reescritas
+  em pt-BR com as regras do projeto: `research`, `prototype`, `grill-me`, `grilling`.
+  `skills-lock.json` na raiz.
+
+### 🎨 Melhorado
+- **`/corrigir-bug`** ganhou dois passos do `diagnosing-bugs`: minimizar a reprodução e
+  instrumentar antes de hipotetizar.
+- **`/iniciar-sessao`** ganhou o Passo 0A (detectar trabalho da Série 600) e passou a ser
+  obrigada a informar o **modelo recomendado da próxima issue de qualquer série** — antes só
+  fazia isso para o revamp.
+- **`/finalizar-sessao`**: trailer de commit deixou de estar preso a "Claude Opus 4.8".
+
+### 🔧 Corrigido
+- **`CLAUDE.md` dizia que o envio de e-mail migrou para o Supabase Email Service.** Causa raiz:
+  documentação escrita na intenção da migração, que não aconteceu. Solução: conferido no código
+  — `api/radar/lead`, `api/prediag/lead` e `api/admin/lab-beta` usam **Resend**. Registradas as
+  duas armadilhas: envio silenciosamente opcional sem a chave, e o SDK que não lança exceção.
+- **`CLAUDE.md` citava Grafana**, que o dono confirmou não existir. Solução: a analytics é o
+  painel in-house `/admin/analytics` (ISSUE-318A); o doc de Grafana fica marcado como histórico.
+
+### 📊 Técnico
+- **ISSUE-320 pausada por decisão de prioridade** (não por problema técnico): construir infra de
+  IA para um produto com zero usuários melhora algo para quem não chega nele.
+- **Pricing da OpenAI reconferido na fonte oficial:** `gpt-5.6-luna` está hoje a US$0,20/US$1,20
+  contra US$0,75/US$4,50 do `gpt-5.4-mini` — o modelo que a spec v2 havia vetado por custo ficou
+  ~74% mais barato nos dois eixos. **Decisão do dono: trocar o default para o Luna** quando a 320
+  for retomada.
+- **Alerta de timeout da Vercel no §6 da spec da 320 está obsoleto:** com fluid compute o default
+  é 300s em todos os planos, inclusive Hobby. Os 2×10s de retry cabem folgados.
+- Contradição registrada para resolver na retomada da 320: o backlog manda criar
+  `lab_project_interviews`, a spec v2 manda gravar JSONB em `lab_projects`.
+
+---
+
 ## [v3.11.41] - 2026-08-07 - 🎉 ISSUE-319/319B fechadas: Fase 1A do Lab selada (aceita com ressalva)
 
 Fecha o ciclo aberto em 06/08: a remediação do FALHOU de performance (ISSUE-319B) foi concluída

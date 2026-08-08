@@ -1,0 +1,476 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PROTÓTIPO — Painel de Funil (ISSUE-601)</title>
+<style>
+  :root{
+    --bg-deep:#0A1412; --bg-app:#08110F; --bg-panel:#1B3F39;
+    --tx1:#F8F0E6; --tx2:#D2DDD9; --tx3:#9EAEA8; --tx4:#70817B;
+    --acc:#D97706; --mag:#D34C75; --amber:#F0B674;
+    --bd1:rgba(255,255,255,.09); --bd2:rgba(255,255,255,.14);
+    --glass:rgba(255,255,255,.055); --glass2:rgba(255,255,255,.075);
+    --grad:linear-gradient(90deg,#D97706,#D34C75);
+    --green:#22c55e; --blue:#3b82f6; --red:#ef4444;
+    --serif:"Fraunces",Georgia,serif;
+    --sans:"IBM Plex Sans",Inter,system-ui,-apple-system,sans-serif;
+    --mono:"IBM Plex Mono",Consolas,ui-monospace,monospace;
+    --r-card:24px; --r-mod:26px; --r-panel:28px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    background:var(--bg-app);
+    background-image:linear-gradient(135deg,#08110F 0%,#132622 60%,#08110F 100%);
+    background-attachment:fixed;
+    color:var(--tx1);font-family:var(--sans);font-size:16px;line-height:1.5;
+    -webkit-font-smoothing:antialiased;padding-bottom:110px}
+  .wrap{max-width:560px;margin:0 auto}
+  svg{display:block;flex:none}
+
+  .proto{background:var(--grad);color:#1E1005;font-family:var(--mono);font-size:11px;
+    letter-spacing:.14em;text-transform:uppercase;text-align:center;padding:8px;font-weight:700}
+
+  header{padding:18px 20px 0;display:flex;align-items:center;justify-content:space-between}
+  .brand{font-size:21px;font-weight:700;letter-spacing:-.02em}
+  .brand i{color:var(--acc);font-style:normal}
+  .brand em{color:var(--tx3);font-style:normal;font-weight:400;font-size:15px;margin-left:6px}
+
+  nav{display:flex;gap:22px;overflow-x:auto;padding:16px 20px 0;font-family:var(--mono);
+    font-size:14px;scrollbar-width:none}
+  nav::-webkit-scrollbar{display:none}
+  nav a{color:var(--tx3);text-decoration:none;padding-bottom:11px;white-space:nowrap;
+    border-bottom:2px solid transparent}
+  nav a.on{color:var(--tx1);border-bottom-color:var(--acc)}
+  .rule{height:1px;background:var(--bd1)}
+
+  /* sub-nav (3 modos) */
+  .tabs{display:flex;gap:8px;padding:16px 20px 4px}
+  .tab{flex:1;display:flex;flex-direction:column;align-items:center;gap:5px;padding:11px 6px;
+    border:1px solid var(--bd1);background:var(--glass);border-radius:16px;cursor:pointer;
+    font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;
+    color:var(--tx3);min-height:60px;justify-content:center;transition:.15s}
+  .tab.on{color:var(--tx1);border-color:rgba(217,119,6,.5);background:rgba(217,119,6,.10)}
+  .tab.on svg{stroke:var(--acc)}
+
+  .eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.16em;text-transform:uppercase;
+    color:var(--amber);padding:24px 20px 10px;display:flex;align-items:center;gap:9px}
+  .sub{color:var(--tx4);font-size:13.5px;padding:0 20px 16px;line-height:1.6}
+  h2{font-family:var(--serif);font-size:27px;font-weight:500;letter-spacing:-.035em;
+    padding:10px 20px 0;line-height:1.1}
+  .list{display:flex;flex-direction:column;gap:11px;padding:0 20px}
+
+  /* ---------- FUNIL ---------- */
+  .fun{padding:0 20px}
+  .step{position:relative;margin-bottom:5px;cursor:pointer}
+  .step-bar{position:relative;height:56px;border-radius:14px;border:1px solid var(--bd1);
+    background:var(--glass);overflow:hidden;display:flex;align-items:center;padding:0 15px;gap:12px}
+  .fill{position:absolute;left:0;top:0;bottom:0;background:var(--c,rgba(217,119,6,.20));
+    border-right:2px solid var(--cs,var(--acc));transition:width .5s cubic-bezier(.2,.8,.2,1)}
+  .step.zero .step-bar{border-style:dashed;border-color:rgba(239,68,68,.42)}
+  .step-in{position:relative;display:flex;align-items:center;gap:12px;width:100%}
+  .step-nm{font-size:14.5px;font-weight:600;flex:1;line-height:1.2}
+  .step-n{font-family:var(--serif);font-size:27px;letter-spacing:-.02em}
+  .step.zero .step-n{color:#F08A8A}
+  .drop{display:flex;align-items:center;gap:7px;padding:5px 0 5px 30px;font-family:var(--mono);
+    font-size:11.5px;color:var(--tx4)}
+  .drop b{color:var(--tx2);font-weight:500}
+  .drop.bad b{color:var(--amber)}
+  .drop.wall{color:#F08A8A}.drop.wall b{color:#F08A8A}
+
+  .detail{margin:9px 0 14px;border:1px solid var(--bd2);border-radius:18px;
+    background:rgba(27,63,57,.35);padding:15px 16px;font-size:13.5px;color:var(--tx2);line-height:1.6}
+  .detail h4{font-size:12px;font-family:var(--mono);letter-spacing:.1em;text-transform:uppercase;
+    color:var(--amber);margin-bottom:8px;font-weight:500}
+  .detail dl{display:grid;grid-template-columns:auto 1fr;gap:6px 12px;margin-top:11px;font-size:12.5px}
+  .detail dt{font-family:var(--mono);color:var(--tx4);font-size:11.5px;white-space:nowrap}
+  .detail dd{color:var(--tx2)}
+
+  /* ---------- SEGMENTOS ---------- */
+  .seg{position:relative;background:var(--glass);border:1px solid var(--bd1);
+    border-radius:var(--r-card);padding:16px 17px 16px 20px;cursor:pointer;overflow:hidden}
+  .seg:active{background:var(--glass2)}
+  .seg::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--c)}
+  .seg-h{display:flex;gap:12px;align-items:flex-start}
+  .seg-ic{width:38px;height:38px;border-radius:12px;display:grid;place-items:center;flex:none;
+    background:var(--cb);border:1px solid var(--cbd)}
+  .seg-nm{font-size:15.5px;font-weight:600;line-height:1.25}
+  .seg-ds{font-size:12.5px;color:var(--tx4);margin-top:3px;line-height:1.45}
+  .seg-n{font-family:var(--serif);font-size:34px;line-height:.95;letter-spacing:-.02em;margin-left:auto}
+  .facts{display:flex;flex-wrap:wrap;gap:7px;margin-top:13px}
+  .badge{font-family:var(--mono);font-size:11px;letter-spacing:.07em;text-transform:uppercase;
+    border:1px solid var(--bd2);color:var(--tx2);border-radius:999px;padding:5px 10px;
+    display:inline-flex;align-items:center;gap:6px}
+  .badge.hot{border-color:rgba(217,119,6,.45);color:var(--amber)}
+  .badge.tpl{border-color:rgba(211,76,117,.35);color:#F2B5C7}
+
+  /* ---------- PESSOAS ---------- */
+  .p{background:var(--glass);border:1px solid var(--bd1);border-radius:20px;padding:15px;
+    display:flex;gap:13px;align-items:flex-start;cursor:pointer}
+  .p.sel{border-color:rgba(217,119,6,.55);background:rgba(217,119,6,.09)}
+  .box{flex:none;width:24px;height:24px;border:1.5px solid var(--bd2);border-radius:7px;
+    margin-top:2px;display:grid;place-items:center}
+  .box svg{opacity:0}
+  .p.sel .box{background:var(--acc);border-color:var(--acc)}
+  .p.sel .box svg{opacity:1;stroke:#1E1005}
+  .p-nm{font-weight:600;font-size:15px}
+  .p-ml{font-family:var(--mono);font-size:11.5px;color:var(--tx4);word-break:break-all;margin-top:2px}
+
+  /* ---------- TEMPLATES ---------- */
+  .tpl{background:var(--glass);border:1px solid var(--bd1);border-radius:20px;padding:15px 16px;cursor:pointer}
+  .tpl-h{display:flex;align-items:center;gap:11px}
+  .tpl-nm{font-family:var(--mono);font-size:13px;color:var(--tx1);flex:1;letter-spacing:.02em}
+  .tpl-sj{font-size:14px;color:var(--tx2);margin-top:9px;line-height:1.4}
+  .tpl-mt{display:flex;flex-wrap:wrap;gap:7px;margin-top:11px}
+  .dot{width:7px;height:7px;border-radius:50%;flex:none}
+
+  label{display:block;font-family:var(--mono);font-size:11px;letter-spacing:.12em;
+    text-transform:uppercase;color:var(--amber);margin:18px 0 8px}
+  input,textarea,select{width:100%;background:var(--glass2);color:var(--tx1);
+    border:1px solid var(--bd2);border-radius:14px;padding:14px;font-size:16px;
+    font-family:var(--sans);line-height:1.5}
+  textarea{min-height:190px;resize:vertical}
+  select{appearance:none;-webkit-appearance:none;padding-right:42px;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%239EAEA8' stroke-width='2.5'><path d='M6 9l6 6 6-6'/></svg>");
+    background-repeat:no-repeat;background-position:right 15px center}
+  .vars{display:flex;flex-wrap:wrap;gap:6px;margin-top:9px}
+  .var{font-family:var(--mono);font-size:11px;background:rgba(211,76,117,.13);
+    border:1px solid rgba(211,76,117,.3);color:#F2B5C7;border-radius:8px;padding:4px 8px;cursor:pointer}
+
+  /* ---------- CONFIRMAÇÃO ---------- */
+  .panel{background:var(--glass);border:1px solid var(--bd1);border-radius:var(--r-panel);
+    padding:6px 20px;margin:0 20px}
+  .row{display:flex;justify-content:space-between;align-items:center;gap:14px;
+    padding:16px 0;border-bottom:1px solid var(--bd1)}
+  .row:last-child{border-bottom:0}
+  .row .k{font-size:14px;color:var(--tx2);display:flex;align-items:center;gap:10px}
+  .row .v{font-family:var(--serif);font-size:28px;letter-spacing:-.02em}
+  .v.ok{color:var(--green)} .v.no{color:var(--tx4)}
+
+  .note{font-size:12.5px;color:var(--tx4);line-height:1.6;margin:16px 20px 0;padding:14px 15px;
+    border:1px dashed var(--bd2);border-radius:18px;display:flex;gap:11px;align-items:flex-start}
+  .note b{color:var(--tx2);font-weight:600}
+
+  .bar{position:fixed;left:0;right:0;bottom:0;background:rgba(8,17,15,.96);
+    border-top:1px solid var(--bd1);backdrop-filter:blur(10px);
+    padding:13px 20px calc(13px + env(safe-area-inset-bottom))}
+  .bar .in{max-width:560px;margin:0 auto;display:flex;gap:10px;align-items:center}
+  .cnt{font-family:var(--mono);font-size:12px;color:var(--tx3);flex:1;letter-spacing:.04em}
+  .cnt b{color:var(--tx1)}
+  .btn{border-radius:999px;padding:14px 19px;font-weight:700;font-size:14px;font-family:var(--sans);
+    border:1px solid transparent;background:var(--acc);color:#1E1005;min-height:48px;cursor:pointer;
+    display:inline-flex;align-items:center;gap:8px;justify-content:center}
+  .btn.gh{background:transparent;color:var(--tx2);border-color:var(--bd2);font-weight:500}
+  .btn:disabled{opacity:.32}
+  .back{display:flex;align-items:center;gap:9px;padding:20px 20px 0;color:var(--tx3);
+    font-family:var(--mono);font-size:13px;cursor:pointer}
+  .screen{display:none}.screen.on{display:block}
+  .hide{display:none}
+</style>
+</head>
+<body>
+<div class="proto">Protótipo · não é o produto · ISSUE-601</div>
+<div class="wrap">
+  <header>
+    <div class="brand"><i>+</i>ConverSaaS<em>admin</em></div>
+    <span id="ic-logout"></span>
+  </header>
+  <nav>
+    <a href="#">Assinantes</a><a href="#" class="on">Funil</a>
+    <a href="#">Analytics</a><a href="#">Feedback</a>
+  </nav>
+  <div class="rule"></div>
+
+  <div class="tabs">
+    <div class="tab on" data-go="s1"><span data-ic="activity"></span>Jornada</div>
+    <div class="tab" data-go="s2"><span data-ic="users"></span>Segmentos</div>
+    <div class="tab" data-go="s5"><span data-ic="folder"></span>Templates</div>
+  </div>
+
+  <!-- ═══════ 1 · JORNADA ═══════ -->
+  <section class="screen on" id="s1">
+    <div class="eyebrow"><span data-ic="activity"></span>A jornada, dos anúncios ao projeto</div>
+    <div class="sub">Últimos 38 dias. Toque numa etapa pra ver o que ela significa, de onde vem o dado e o que a destrava.</div>
+    <div class="fun" id="fun"></div>
+    <div class="note"><span data-ic="info"></span><div><b>Como ler:</b> a barra é proporcional ao topo do funil.
+      Etapa tracejada em vermelho é etapa com zero — e zero depois de um número não é fraqueza do produto,
+      é passo que ninguém executou ainda.</div></div>
+  </section>
+
+  <!-- ═══════ 2 · SEGMENTOS ═══════ -->
+  <section class="screen" id="s2">
+    <div class="eyebrow"><span data-ic="users"></span>Onde está cada pessoa</div>
+    <div class="sub">Ninguém é movido à mão. A posição é calculada do que a pessoa fez — e por isso nunca desatualiza.</div>
+    <div class="list" id="segs"></div>
+    <div class="note"><span data-ic="clock"></span><div><b>O número que importa</b> é o de "há +14 dias sem
+      contato". Total é foto; esse é fila de trabalho.</div></div>
+  </section>
+
+  <!-- ═══════ 3 · PESSOAS ═══════ -->
+  <section class="screen" id="s3">
+    <div class="back" data-go="s2"><span data-ic="arrow-left"></span>Segmentos</div>
+    <h2 id="s3t">Virou lead, nunca foi convidado</h2>
+    <div class="sub" id="s3s"></div>
+    <div class="list" id="ppl"></div>
+  </section>
+
+  <!-- ═══════ 4 · CONFIRMAÇÃO ═══════ -->
+  <section class="screen" id="s4">
+    <div class="back" data-go="s3"><span data-ic="arrow-left"></span>Lista</div>
+    <h2>Confirmar disparo</h2>
+    <div class="sub">Nada sai antes desta tela.</div>
+    <div style="padding:0 20px"><select id="tplSel"></select></div>
+    <div style="height:16px"></div>
+    <div class="panel">
+      <div class="row"><div class="k"><span data-ic="send"></span>Vão receber agora</div><div class="v ok" id="cGo">0</div></div>
+      <div class="row"><div class="k"><span data-ic="repeat"></span>Já receberam esse template</div><div class="v no">2</div></div>
+      <div class="row"><div class="k"><span data-ic="shield"></span>Sem opt-in de newsletter</div><div class="v no">1</div></div>
+    </div>
+    <div class="note"><span data-ic="shield"></span><div>Os bloqueados por opt-in <b>não podem</b> ser forçados —
+      é LGPD, não preferência. Os repetidos podem, com um segundo toque.</div></div>
+  </section>
+
+  <!-- ═══════ 5 · TEMPLATES ═══════ -->
+  <section class="screen" id="s5">
+    <div class="eyebrow"><span data-ic="folder"></span>Pasta de templates</div>
+    <div class="sub">Editar aqui muda o e-mail real. Toda alteração vira uma versão nova — a anterior nunca se perde.</div>
+    <div class="list" id="tpls"></div>
+  </section>
+
+  <!-- ═══════ 6 · EDITOR ═══════ -->
+  <section class="screen" id="s6">
+    <div class="back" data-go="s5"><span data-ic="arrow-left"></span>Templates</div>
+    <h2 id="edT">convite_lab</h2>
+    <div class="sub" id="edV"></div>
+    <div style="padding:0 20px">
+      <label>Assunto</label>
+      <input id="edS" value="Seu radar apontou um caminho — quer construir?">
+      <label>Corpo</label>
+      <textarea id="edB">Oi, {{primeiro_nome}}.
+
+Você fez o radar e ele apontou {{resultado_radar}}. Isso não é um diagnóstico bonito pra guardar — é o começo de uma coisa que dá pra construir.
+
+Abri seu acesso ao Lab. Lá dentro você responde umas poucas perguntas e sai com um passo a passo pensado pras ferramentas que você já usa — sem instalar nada novo, sem curso, sem precisar sentar pra aprender antes.
+
+{{link_lab}}
+
+Se não fizer sentido agora, ignora esse e-mail sem culpa.</textarea>
+      <div class="vars">
+        <span class="var">{{primeiro_nome}}</span><span class="var">{{resultado_radar}}</span>
+        <span class="var">{{link_lab}}</span><span class="var">{{link_descadastro}}</span>
+      </div>
+      <label>Segmento designado</label>
+      <select><option>lead_sem_convite — Virou lead, nunca foi convidado</option></select>
+    </div>
+    <div class="note"><span data-ic="alert"></span><div><b>Trava de segurança:</b> salvar cria a v4 e mantém a v3
+      intacta. O rodapé de descadastro é injetado pelo sistema e não pode ser removido daqui.</div></div>
+  </section>
+</div>
+
+<div class="bar" id="bar" style="display:none"><div class="in" id="barIn"></div></div>
+
+<script>
+/* ---------- ícones (lucide, inline) ---------- */
+const P={
+ activity:'<path d="M22 12h-4l-3 9L9 3l-3 9H2"/>',
+ users:'<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>',
+ folder:'<path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/>',
+ mail:'<rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>',
+ check:'<path d="M20 6 9 17l-5-5"/>',
+ checkc:'<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="m9 11 3 3L22 4"/>',
+ userplus:'<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M19 8v6"/><path d="M22 11h-6"/>',
+ key:'<path d="m15.5 7.5 3 3L22 7l-3-3"/><path d="m21 2-9.6 9.6"/><circle cx="7.5" cy="15.5" r="5.5"/>',
+ hammer:'<path d="m15 12-8.5 8.5a2.12 2.12 0 1 1-3-3L12 9"/><path d="M17.64 15 22 10.64"/><path d="m20.91 11.7-1.25-1.25c-.6-.6-.93-1.4-.93-2.25v-.86L16.01 4.6a5.56 5.56 0 0 0-3.94-1.64H9l.92.82A6.18 6.18 0 0 1 12 8.4v1.56l2 2h2.47l2.26 1.91"/>',
+ award:'<circle cx="12" cy="8" r="6"/><path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"/>',
+ clock:'<circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>',
+ alert:'<path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/>',
+ info:'<circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/>',
+ send:'<path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/>',
+ shield:'<path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/>',
+ repeat:'<path d="m17 2 4 4-4 4"/><path d="M3 11v-1a4 4 0 0 1 4-4h14"/><path d="m7 22-4-4 4-4"/><path d="M21 13v1a4 4 0 0 1-4 4H3"/>',
+ pencil:'<path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/>',
+ save:'<path d="M15.2 3a2 2 0 0 1 1.4.6l3.8 3.8a2 2 0 0 1 .6 1.4V19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"/><path d="M17 21v-7a1 1 0 0 0-1-1H8a1 1 0 0 0-1 1v7"/><path d="M7 3v4a1 1 0 0 0 1 1h7"/>',
+ 'arrow-left':'<path d="m12 19-7-7 7-7"/><path d="M19 12H5"/>',
+ 'arrow-down':'<path d="M12 5v14"/><path d="m19 12-7 7-7-7"/>',
+ lock:'<rect width="18" height="11" x="3" y="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>',
+ logout:'<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="m16 17 5-5-5-5"/><path d="M21 12H9"/>',
+};
+const ic=(n,s=18,c='currentColor')=>`<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="${c}" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">${P[n]||''}</svg>`;
+
+/* ---------- dados ---------- */
+const TOPO=267;
+const FUNIL=[
+ {k:'Sessões de radar',n:267,i:'activity',c:'rgba(217,119,6,.22)',s:'#D97706',
+  o:'Alguém abriu um dos radares públicos e começou a responder.',src:'radar_sessions',
+  act:'Cresce com anúncio e conteúdo. Hoje é a parte saudável — subiu 352% na janela.'},
+ {k:'Concluíram o radar',n:72,i:'checkc',c:'rgba(217,119,6,.18)',s:'#D97706',
+  o:'Respondeu até o fim e viu o resultado na tela.',src:'radar_sessions com conclusão',
+  act:'73% largam no meio. Melhorar isso é trabalho de produto na tela do radar.'},
+ {k:'Deixaram e-mail',n:15,i:'mail',c:'rgba(240,182,116,.20)',s:'#F0B674',
+  o:'Virou contato: nome, e-mail, resultado salvo e opt-in registrado.',src:'radar_leads',
+  act:'Maior vazamento do funil — 4 de 5 que terminam não deixam contato. É a ISSUE-603.'},
+ {k:'Convidados pro Lab',n:0,i:'userplus',c:'rgba(239,68,68,.14)',s:'#ef4444',
+  o:'Autorização criada e e-mail de convite enviado. Sem isso, o Lab é inacessível.',
+  src:'authorized_emails (plan lab_beta)',
+  act:'É a porta fechada. O convite é manual e nunca foi disparado — este painel existe pra isso.'},
+ {k:'Criaram conta',n:0,i:'key',c:'rgba(239,68,68,.12)',s:'#ef4444',
+  o:'Usou o convite, criou login e entrou de fato.',src:'auth.users via admin_list_users()',
+  act:'Depende inteiramente da etapa anterior.'},
+ {k:'Criaram projeto',n:0,i:'hammer',c:'rgba(239,68,68,.10)',s:'#ef4444',
+  o:'Passou pelo wizard e gerou um plano — a métrica norte do Lab.',src:'lab_projects',
+  act:'É aqui que a Fase 1A inteira finalmente encosta em alguém.'},
+ {k:'Concluíram projeto',n:0,i:'award',c:'rgba(34,197,94,.12)',s:'#22c55e',
+  o:'Marcou o projeto como concluído. Vira relato, prova social e caso de uso.',src:'lab_projects concluídos',
+  act:'Segmento de pedido de depoimento.'},
+];
+const SEGS=[
+ {n:'Virou lead, nunca foi convidado',d:'Fez o radar, deixou e-mail, mas não tem acesso ao Lab.',
+  t:15,f:15,v:15,c:'#D97706',i:'mail',tpl:'convite_lab'},
+ {n:'Convidado, nunca criou conta',d:'Recebeu o convite e não usou.',t:0,f:0,v:0,c:'#F0B674',i:'key',tpl:'convidado_nao_entrou'},
+ {n:'Criou conta, nenhum projeto',d:'Entrou, olhou e não começou nada.',t:0,f:0,v:0,c:'#3b82f6',i:'hammer',tpl:'primeiro_projeto'},
+ {n:'Projeto parado há +14 dias',d:'Começou e travou no meio da caminhada.',t:0,f:0,v:0,c:'#F0B674',i:'clock',tpl:'retomar_projeto'},
+ {n:'Assinante que nunca fez o radar',d:'Paga, tem acesso, e nunca passou pela porta de entrada.',
+  t:8,f:8,v:8,c:'#3b82f6',i:'activity',tpl:'convite_radar'},
+ {n:'Concluiu um projeto',d:'Terminou. Candidato a relato e caso de uso.',t:0,f:0,v:0,c:'#22c55e',i:'award',tpl:'pedido_de_relato'},
+];
+const PPL=[
+ {n:'Marina R.',e:'marina.r@…com.br',r:'Oportunidades · Automatizar',d:31,s:['radar_resultado']},
+ {n:'Caio B.',e:'caio.b@…com',r:'Maturidade · Nível 2',d:28,s:['radar_resultado']},
+ {n:'Fernanda L.',e:'fernanda@…com.br',r:'Oportunidades · Reduzir erro',d:24,s:['radar_resultado']},
+ {n:'Rodrigo A.',e:'r.alves@…com',r:'Maturidade · Nível 3',d:19,s:['radar_resultado']},
+ {n:'Paula M.',e:'paulam@…com.br',r:'Oportunidades · Automatizar',d:12,s:[]},
+ {n:'(sem nome)',e:'j.santos@…com',r:'Maturidade · Nível 1',d:6,s:[]},
+];
+const TPLS=[
+ {s:'convite_lab',a:'Seu radar apontou um caminho — quer construir?',v:3,e:'nunca enviado',st:'rascunho',c:'#F0B674'},
+ {s:'radar_followup',a:'Três dias depois: o que fazer com o seu resultado',v:1,e:'nunca enviado',st:'rascunho',c:'#F0B674'},
+ {s:'convidado_nao_entrou',a:'Seu acesso ao Lab continua aberto',v:2,e:'nunca enviado',st:'rascunho',c:'#F0B674'},
+ {s:'primeiro_projeto',a:'Começa pequeno: um problema só',v:1,e:'nunca enviado',st:'rascunho',c:'#F0B674'},
+ {s:'retomar_projeto',a:'Seu projeto ficou na metade',v:1,e:'—',st:'rascunho',c:'#70817B'},
+ {s:'pedido_de_relato',a:'Como foi construir isso?',v:1,e:'—',st:'rascunho',c:'#70817B'},
+];
+let sel=new Set(), openStep=null;
+
+/* ---------- render ---------- */
+document.querySelectorAll('[data-ic]').forEach(e=>e.innerHTML=ic(e.dataset.ic,17));
+document.getElementById('ic-logout').innerHTML=ic('logout',20,'#9EAEA8');
+
+function pct(a,b){return b===0?0:Math.round(a/b*100)}
+document.getElementById('fun').innerHTML=FUNIL.map((f,i)=>{
+  const w=Math.max(f.n/TOPO*100, f.n===0?3:6);
+  const prev=i>0?FUNIL[i-1]:null;
+  const p=prev?pct(f.n,prev.n):null;
+  const wall=prev&&prev.n>0&&f.n===0;
+  const bad=p!==null&&p<30&&!wall;
+  const drop=prev?`<div class="drop ${wall?'wall':bad?'bad':''}">${ic('arrow-down',13)}
+     <span>${wall?'nenhuma das '+prev.n+' passou — <b>porta fechada</b>':'<b>'+p+'%</b> seguiram'}</span></div>`:'';
+  return drop+`
+  <div class="step ${f.n===0?'zero':''}" data-step="${i}">
+    <div class="step-bar">
+      <div class="fill" style="width:${w}%;--c:${f.c};--cs:${f.s}"></div>
+      <div class="step-in">
+        <span style="color:${f.s}">${ic(f.i,19,f.s)}</span>
+        <span class="step-nm">${f.k}</span>
+        <span class="step-n">${f.n}</span>
+      </div>
+    </div>
+  </div>
+  <div class="detail hide" id="d${i}">
+    <h4>${ic('info',13)} O que é esta etapa</h4>
+    ${f.o}
+    <dl><dt>vem de</dt><dd><code style="font-family:var(--mono);font-size:11.5px">${f.src}</code></dd>
+        <dt>o que destrava</dt><dd>${f.act}</dd></dl>
+  </div>`;
+}).join('');
+
+document.getElementById('segs').innerHTML=SEGS.map((s,i)=>`
+ <div class="seg" style="--c:${s.c}" data-seg="${i}">
+   <div class="seg-h">
+     <div class="seg-ic" style="--cb:${s.c}1f;--cbd:${s.c}55">${ic(s.i,18,s.c)}</div>
+     <div style="flex:1"><div class="seg-nm">${s.n}</div><div class="seg-ds">${s.d}</div></div>
+     <div class="seg-n">${s.t}</div>
+   </div>
+   <div class="facts">
+     <span class="badge">${ic('mail',12)} ${s.f} sem o e-mail</span>
+     ${s.v>0?`<span class="badge hot">${ic('clock',12)} ${s.v} há +14 dias</span>`:''}
+     <span class="badge tpl">${s.tpl}</span>
+   </div>
+ </div>`).join('');
+
+document.getElementById('ppl').innerHTML=PPL.map((p,i)=>`
+ <div class="p" id="p${i}" data-p="${i}">
+   <div class="box">${ic('check',15)}</div>
+   <div style="flex:1">
+     <div class="p-nm">${p.n}</div><div class="p-ml">${p.e}</div>
+     <div class="facts">
+       <span class="badge" style="border-color:rgba(59,130,246,.4);color:#9dc0fb">${p.r}</span>
+       <span class="badge ${p.d>14?'hot':''}">${ic('clock',12)} ${p.d}d sem contato</span>
+       ${p.s.map(x=>`<span class="badge" style="color:var(--tx4)">recebeu ${x}</span>`).join('')}
+     </div>
+   </div>
+ </div>`).join('');
+
+document.getElementById('tpls').innerHTML=TPLS.map((t,i)=>`
+ <div class="tpl" data-tpl="${i}">
+   <div class="tpl-h">
+     <span class="dot" style="background:${t.c}"></span>
+     <span class="tpl-nm">${t.s}</span>
+     <span style="color:var(--tx4)">${ic('pencil',15)}</span>
+   </div>
+   <div class="tpl-sj">${t.a}</div>
+   <div class="tpl-mt">
+     <span class="badge">v${t.v}</span>
+     <span class="badge" style="color:var(--tx4)">${t.e}</span>
+     <span class="badge" style="border-color:rgba(240,182,116,.35);color:var(--amber)">${t.st}</span>
+   </div>
+ </div>`).join('');
+
+document.getElementById('tplSel').innerHTML=TPLS.map(t=>`<option>${t.s} — ${t.a}</option>`).join('');
+
+/* ---------- interação ---------- */
+function go(id){
+  document.querySelectorAll('.screen').forEach(e=>e.classList.remove('on'));
+  document.getElementById(id).classList.add('on');
+  document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('on',t.dataset.go===id));
+  const b=document.getElementById('bar');
+  if(id==='s3'){b.style.display='block';document.getElementById('barIn').innerHTML=
+    `<div class="cnt"><b>${sel.size}</b> SELECIONADOS</div>
+     <button class="btn gh" onclick="none()">Limpar</button>
+     <button class="btn" id="g4" ${sel.size?'':'disabled'} onclick="go('s4')">${ic('send',15)} Template</button>`;}
+  else if(id==='s4'){b.style.display='block';document.getElementById('barIn').innerHTML=
+    `<div class="cnt">CONFIRMAÇÃO FINAL</div>
+     <button class="btn" style="flex:1" onclick="alert('Protótipo — nada foi enviado.')">${ic('send',15)} Disparar ${sel.size}</button>`;}
+  else if(id==='s6'){b.style.display='block';document.getElementById('barIn').innerHTML=
+    `<div class="cnt">RASCUNHO · V3</div>
+     <button class="btn gh">Pré-visualizar</button>
+     <button class="btn" onclick="alert('Protótipo — v4 criada, v3 preservada.')">${ic('save',15)} Salvar</button>`;}
+  else b.style.display='none';
+  window.scrollTo(0,0);
+}
+function none(){sel.clear();document.querySelectorAll('.p').forEach(e=>e.classList.remove('sel'));go('s3')}
+document.addEventListener('click',ev=>{
+  const t=ev.target.closest('[data-go]'); if(t){go(t.dataset.go);return}
+  const st=ev.target.closest('[data-step]');
+  if(st){const i=st.dataset.step,d=document.getElementById('d'+i);
+    if(openStep!==null&&openStep!==i)document.getElementById('d'+openStep).classList.add('hide');
+    d.classList.toggle('hide');openStep=d.classList.contains('hide')?null:i;return}
+  const sg=ev.target.closest('[data-seg]');
+  if(sg){const s=SEGS[sg.dataset.seg];
+    document.getElementById('s3t').textContent=s.n;
+    document.getElementById('s3s').innerHTML=`${s.t} pessoas · e-mail designado <b style="color:var(--amber);font-family:var(--mono)">${s.tpl}</b>`;
+    go('s3');return}
+  const p=ev.target.closest('[data-p]');
+  if(p){const i=+p.dataset.p; sel.has(i)?sel.delete(i):sel.add(i);
+    p.classList.toggle('sel',sel.has(i));
+    document.getElementById('cGo').textContent=sel.size;
+    const c=document.querySelector('.cnt'); if(c)c.innerHTML=`<b>${sel.size}</b> SELECIONADOS`;
+    const g=document.getElementById('g4'); if(g)g.disabled=!sel.size; return}
+  const tp=ev.target.closest('[data-tpl]');
+  if(tp){const t=TPLS[tp.dataset.tpl];
+    document.getElementById('edT').textContent=t.s;
+    document.getElementById('edV').innerHTML=`versão ${t.v} · ${t.e} · <b style="color:var(--amber)">${t.st}</b>`;
+    document.getElementById('edS').value=t.a; go('s6');}
+});
+</script>
+</body>
+</html>

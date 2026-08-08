@@ -15,9 +15,16 @@ um bug por outro.
 - **Reproduza antes de teorizar.** Rode `npm run dev` e siga os passos. Se não reproduzir, colete
   mais dados (console do navegador, logs do Supabase Auth/DB, Network tab).
 - Não conserte nada até ter visto o bug acontecer ou entendido exatamente a condição que o dispara.
+- **Minimize a reprodução.** Depois de reproduzir, encolha o caso até o menor gatilho que ainda
+  dispara o bug (menos passos, menos dados, um único fluxo). O caso mínimo geralmente aponta a
+  causa sozinho — e vira o roteiro de re-teste do Passo 4.
 
 ## Passo 2 — Achar a causa raiz
 
+- **Instrumente antes de hipotetizar.** Se a causa não for óbvia pela leitura, adicione logs/
+  inspeção temporários nos pontos suspeitos (console, resposta da API, retorno do Supabase) e
+  rode a reprodução mínima de novo — deixe a evidência escolher a hipótese, não o contrário.
+  Remova a instrumentação antes de finalizar.
 - Localize o código com Grep/Glob. Leia o trecho e o contexto ao redor.
 - Suspeitos frequentes neste projeto:
   - **RLS bloqueando API pública** (ex.: inserts em `roi_leads`) → erro `42501`.

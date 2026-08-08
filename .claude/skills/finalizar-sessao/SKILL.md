@@ -49,17 +49,16 @@ Confirme a versão e o título com o usuário se houver dúvida.
 
 ## Passo 4 — Commit
 
-Mensagem em português, formato `tipo: descrição vX.Y.Z`. Encerre a mensagem com o trailer:
-```
-Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>
-```
+Mensagem em português, formato `tipo: descrição vX.Y.Z`. Encerre a mensagem com o trailer
+`Co-Authored-By` usando o **nome do modelo em uso na sessão** (ex.: Claude Fable 5, Claude
+Sonnet 5):
 ```bash
 git add .
 git commit -m "tipo: descrição vX.Y.Z
 
 <detalhes opcionais>
 
-Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>"
+Co-Authored-By: Claude Fable 5 <noreply@anthropic.com>"
 ```
 
 ## Passo 5 — Deploy (SÓ com confirmação)

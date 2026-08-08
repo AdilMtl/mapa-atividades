@@ -8,6 +8,20 @@ description: Abre uma sessão de trabalho no projeto +Conversas no Corredor (ROI
 Ritual de abertura de sessão. Objetivo: entrar com **contexto atualizado** e na **persona certa**,
 evitando o retrabalho que marcou o histórico deste projeto.
 
+## Passo 0A — Detectar se é trabalho de Marketing Digital (série 600)
+
+Se o pedido mencionar funil, disparo de e-mail, templates, leads, convites, "issue-60X" ou
+qualquer item da **Série 600**: leia `docs/marketing/ISSUE-601-spec-painel-funil.md` INTEIRA
+(ela é a fonte da verdade do domínio, não o backlog) + o bloco "SÉRIE 600" no fim de
+`docs/revamp/04_issue_backlog.md`. **Não** vá para `/executar-issue-revamp` — esta série não é
+revamp; use `/nova-feature` sob a spec já fechada.
+
+Contexto permanente desta série (registrado em 2026-08-08): a ISSUE-320 (infra de IA) está
+**parada de propósito** até existir gente dentro do Lab. Não proponha retomá-la sem que o
+número de projetos no Lab tenha saído de zero.
+
+Persona: **Especialista em Analytics & Ads / growth**, com a trava de tracking valendo integral.
+
 ## Passo 0 — Detectar se é trabalho do revamp
 
 Se o pedido do usuário mencionar landing page nova, radares, +ConverSaaS, "revamp", "issue-1XX",
@@ -34,6 +48,11 @@ ela** — leia o campo `**Modelo:**` da issue em `04_issue_backlog.md` e diga em
 "Modelo recomendado: Fable 5 — fecha a spec do wizard antes de codar"). Isso vale mesmo que a
 sessão não vá direto para `/executar-issue-revamp` — o dono decide se troca de modelo antes de
 começar.
+
+**Sempre diga o modelo recomendado da próxima issue elegível, de QUALQUER série** — inclusive a
+600 (Marketing Digital), cujos modelos por fatia estão no §12 da
+`docs/marketing/ISSUE-601-spec-painel-funil.md`. O dono usa essa linha para decidir se troca de
+modelo antes de começar; omiti-la faz ele começar no modelo errado.
 
 ## Passo 2 — Descobrir o tipo de tarefa
 

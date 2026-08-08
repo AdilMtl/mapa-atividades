@@ -1738,3 +1738,58 @@ ou acesso errado) → Sonnet implementa sob a spec fechada.
 Toda feature nova nasce como issue neste arquivo (ou no GitHub Issues se o projeto migrar),
 com o mesmo formato, marcada por tipo (produto/UI/UX/conteúdo/dados/integrações/premium/
 analytics/testes/documentação) e com recomendação de modelo. Usar `/nova-feature` na execução.
+
+---
+
+## SÉRIE 600 — MARKETING DIGITAL 1.0 (domínio novo, fora do revamp)
+
+> Aberta em 2026-08-08 na sessão de estratégia com o dono. **Motivo:** 38 dias de Google Ads
+> renderam 267 sessões de radar, 72 conclusões, 15 leads e **zero projetos no Lab** — a Fase 1A
+> inteira está no ar sem ninguém dentro, porque o convite é manual e nunca foi disparado.
+> O gargalo do negócio hoje não é produto, é distribuição e follow-up.
+>
+> **Decisão de ordem registrada:** a ISSUE-320 (infra de IA) fica parada até existir gente dentro
+> do Lab que a justifique. Construir IA para um produto com zero usuários é melhorar algo para
+> quem não chega nele.
+>
+> **Princípio da série:** manual com registro primeiro, automação depois. Nunca automatizar uma
+> sequência antes de saber qual copy converte.
+
+## ISSUE-601 — Painel de Funil e disparo de templates no admin
+**Status:** 📋 spec fechada em 2026-08-08 — `docs/marketing/ISSUE-601-spec-painel-funil.md`.
+Implementação não começou.
+**Tipo:** Admin/Growth · **Prioridade:** Alta · **Complexidade:** Média-baixa (≈80% já existe)
+**Modelo:** Sonnet sob a spec fechada — o julgamento de produto já foi feito na sessão de spec.
+Aba **Funil** no admin (absorve "Convites do Lab"), com **atributos derivados em vez de etapas**
+(um contato pode ser assinante E lead E não ter conta — pipeline linear não expressa isso).
+Tabela nova `marketing_sends` (único dado novo) + view `vw_marketing_contatos`
+(`security_invoker = true`). 6 segmentos, cada um com UM template designado. Envelhecimento
+("dias sem contato") é o que transforma lista em fila de trabalho. Consentimento
+(`newsletter_optin`) é critério de aceite, não detalhe.
+**Pasta de templates editável** (`marketing_templates`) com versionamento — salvar cria versão
+nova, nunca sobrescreve; layout continua sendo código, só assunto e corpo são dado. Decisão do
+dono em 2026-08-08, revertendo a v1 da spec.
+**Escopo excluído (trava anti-CRM):** notas, tags, campos customizados, edição de fase, página de
+detalhe, import/export, automação, integração Substack, editor visual de HTML.
+**Regra de copy fechada:** nenhum template assume que a pessoa tem chefe — o público "tem de
+tudo" (dono), profissional de empresa e empreendedor.
+**Decisão do dono (2026-08-08):** o convite pro Lab **continua manual** — o painel passa a ser o
+único caminho de entrada no Lab, o que aumenta a prioridade dele.
+**Fatiada em 5 issues** (§12 da spec): **601A** dado/derivação (Sonnet) · **601B** telas de
+jornada e segmentos (Sonnet + revisão Fable 5) · **601C** disparo e registro (**Fable 5** — única
+parte irreversível) · **601D** pasta de templates (Sonnet) · **601E** copy dos 6 templates
+(**Opus**, dono aprova — bloqueada nos guias de voz).
+Protótipo navegável: `docs/marketing/mockups/601-painel-funil.html`.
+**Pendente do dono:** guias de voz (601E) + decidir se o funil legado `roi_leads` entra.
+**Dep.:** nenhuma. **Risco:** escopo — mitigado pelo §8 da spec.
+
+## ISSUE-602 — Automação da sequência de e-mails
+Gatilho por tempo/evento sobre os templates da 601. **Só depois** de existir copy com conversão
+medida. **Dep.:** 601 + algumas semanas de operação manual.
+
+## ISSUE-603 — Vazamento de conclusões → leads no radar
+72 pessoas concluíram o radar e só 15 deixaram contato: 4 em cada 5 investiram o tempo inteiro e
+saíram sem virar lead. É problema de **produto** (a tela de captura), não de e-mail, e é a maior
+conversão barata disponível hoje — resolvê-lo dobraria a base que a 601 consegue trabalhar, com a
+mesma verba de anúncio. **Dep.:** nenhuma. **Modelo:** Fable 5 (persona Analytics & Ads — mexe em
+tela do funil público, exige a trava de tracking).

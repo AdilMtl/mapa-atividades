@@ -31,7 +31,10 @@ tipos, rode `npx tsc --noEmit`.
 
 - **Front:** Next.js `^15.5.12` (App Router) + React `19.0.1` + TypeScript `^5` + Tailwind `v4`
 - **Back:** Supabase (Postgres + Auth + RLS). Cliente em `src/lib/supabase.ts`
-- **Email:** Supabase Email Service (Resend ainda no `package.json`, mas o envio migrou p/ Supabase)
+- **Email:** **Resend** (`RESEND_API_KEY`) — conferido no código em 2026-08-08: `api/radar/lead`,
+  `api/prediag/lead` e `api/admin/lab-beta` todos instanciam `new Resend(...)`. ⚠️ O envio é
+  silenciosamente opcional (sem a chave, só `console.warn`) e o **SDK não lança exceção em erro
+  de envio** — devolve `{ error }` na resposta.
 - **PWA:** `next-pwa@5.6.0` (Service Worker + Workbox), config em `next.config.js`
 - **UI:** Radix + lucide-react + framer-motion + recharts; Kanban com `@dnd-kit`
 - **Deploy:** Vercel — **push na branch `main` dispara deploy automático**
@@ -87,7 +90,9 @@ src/
 - `authorized_emails` — controle de acesso (server-side, service role)
 - `roi_prediag_sessions`, `roi_leads`, `roi_events` — funil e analytics do pré-diagnóstico
 - `taticas` — plano de ação / Kanban (sincroniza localStorage + Supabase)
-- 7 views `vw_*` para analytics (Grafana). **Sempre criar views com `WITH (security_invoker = true)`.**
+- 7 views `vw_*` para analytics. **Sempre criar views com `WITH (security_invoker = true)`.**
+  ⚠️ **Não existe Grafana** (confirmado pelo dono em 2026-08-08) — a analytics é o painel
+  in-house `/admin/analytics` da ISSUE-318A. O `docs/dashboard-grafana-supabase.md` é histórico.
 - Schema detalhado: `docs/supabase-database-schema.txt`
 
 ## 🚨 Tracking & Conversão (NÃO QUEBRAR — fonte de leads/receita)

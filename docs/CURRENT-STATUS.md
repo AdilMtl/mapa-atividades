@@ -8,6 +8,69 @@
 
 ---
 
+## 🧭 VIRADA DE ROTA: nasce a Série 600 (Marketing Digital) e a ISSUE-320 é pausada
+**Data:** 08 de agosto de 2026
+**Versão:** v3.11.42
+**Status:** ✅ **sessão de estratégia concluída, zero código de produto.** Começou como revisão da
+spec da ISSUE-320 e terminou como mudança de prioridade do negócio.
+
+### **📌 O dado que mudou tudo**
+38 dias de Google Ads (11/07→08/08): **267 sessões de radar** (+352%), **72 conclusões**,
+**15 leads** e **ZERO projetos no Lab**. A Fase 1A inteira — 10 issues, motor auditado em 700 mil
+combinações, wizard, página de projeto, biblioteca, gate de QA — está no ar sem ninguém dentro.
+**Causa:** o Lab é gated por `authorized_emails`, o convite é manual, e nunca foi disparado.
+Não é fraqueza do produto — é porta fechada. Nenhuma discussão sobre proposta de valor do plano
+pago tem base empírica enquanto isso não mudar.
+
+### **⏭️ Decisões do dono**
+1. **ISSUE-320 pausada** até existir gente dentro do Lab. Não é veto técnico, é prioridade.
+2. **Convite pro Lab continua manual** → o painel da 601 vira o único caminho de entrada.
+3. **Modelo default da 320, quando retomada: `gpt-5.6-luna`** (US$0,20/US$1,20 hoje, contra
+   US$0,75/US$4,50 do `gpt-5.4-mini` — o vetado por custo ficou ~74% mais barato).
+4. **Templates de e-mail editáveis pela interface**, com versionamento (reverte a v1 da spec).
+5. **Público "tem de tudo"** — profissional de empresa e empreendedor. Regra de copy: nenhum
+   texto assume que a pessoa tem chefe.
+6. **Não entrar no negócio de ensinar** (a ISSUE-401, curso autoguiado, precisa ser
+   reclassificada) e **não montar agência** — o que ele quer é automação de distribuição para um
+   cliente só: ele.
+
+### **📦 Entregue**
+- **Série 600 — Marketing Digital 1.0** no `04_issue_backlog.md` (601, 602, 603).
+- **Spec completa:** `docs/marketing/ISSUE-601-spec-painel-funil.md` — funil por **atributos
+  derivados, não etapas** (um contato pode ser assinante E lead E sem conta); tabela
+  `marketing_sends`; view `vw_marketing_contatos`; 6 segmentos, cada um com UM template
+  designado; pasta de templates versionada; escopo excluído anti-CRM com 9 itens.
+- **Fatiada em 5 issues com modelo por fatia:** 601A dado (Sonnet) · 601B telas (Sonnet + revisão
+  Fable 5) · 601C disparo (**Fable 5** — única parte irreversível) · 601D templates (Sonnet) ·
+  601E copy (**Opus**, dono aprova — 🔴 bloqueada nos guias de voz).
+- **Protótipo navegável:** `docs/marketing/mockups/601-painel-funil.html` (DS2 real, ícones
+  lucide, jornada do funil clicável, editor de template). Aprovado pelo dono.
+- **4 skills novas** do `mattpocock/skills` via skills.sh, reescritas em pt-BR: `research`,
+  `prototype`, `grill-me`, `grilling`. ⚠️ **Não rodar `npx skills update`** — sobrescreveria as
+  adaptações.
+- **`/iniciar-sessao` ganhou Passo 0A** (detecta Série 600) e agora é obrigada a informar o
+  modelo recomendado da próxima issue de **qualquer** série.
+- **2 correções de doc no `CLAUDE.md`:** o envio de e-mail é **Resend**, não Supabase Email
+  Service; e **não existe Grafana** — a analytics é o painel in-house da 318A.
+
+### **▶️ Próxima sessão**
+**ISSUE-601A — dado e derivação. Modelo recomendado: Sonnet** (schema e SQL sob spec fechada).
+Ler `docs/marketing/ISSUE-601-spec-painel-funil.md` §3, §4 e §12 antes de codar.
+
+### **⏭️ Pendências**
+1. **Guias de voz** (OneDrive, fora do repo) — bloqueiam a 601E.
+2. **Decidir se o funil legado `roi_leads` entra** como segmento.
+3. **SQL não rodado:** quantos dos 15 leads têm `lab_interest = true` (a fila do painel atual
+   filtra por isso — pode ser a causa mecânica do zero).
+4. **Confirmar `RESEND_API_KEY` na Vercel** — o envio é silenciosamente opcional no código.
+5. **Contradição da 320 para a retomada:** backlog manda `lab_project_interviews`, spec v2 manda
+   JSONB em `lab_projects`.
+6. **Lint pré-existente** em `prediag-heuristics.ts` e no plano de ação legado (`any` +
+   não-usados). Não é desta sessão; segue como dívida.
+7. Herdada: `roadmap-backlog.html` (Artifact) parado em 11/07.
+
+---
+
 ## 🎯 SELO DA FASE 1A: ISSUE-319 + ISSUE-319B fechadas (aceito com ressalva)
 **Data:** 07 de agosto de 2026
 **Versão:** v3.11.41
