@@ -335,8 +335,12 @@ Mesma régua da 325 (Stripe).*
 - **Critérios de aceite:** (1) nenhum texto assume que a pessoa tem chefe; (2) `radar_followup`
   aproveita `CONTEUDO_MATURIDADE`/`CONTEUDO_OPORTUNIDADES`, que já estão aprovados, em vez de
   reescrever; (3) dono lê os 6 e aprova ou veta trecho a trecho.
-- **🔴 BLOQUEADA:** depende dos guias de voz do dono (OneDrive, fora do repositório). **Não
-  começar sem eles** — é regra registrada do projeto.
+- **Pré-requisito de leitura (não é bloqueio do dono):** ler os guias oficiais de voz ANTES de
+  escrever qualquer linha — eles ficam fora do repositório, em
+  `C:\Users\adils\OneDrive\Desktop\Development\4. Newsletter agent\cnc-agentic\cnc-agentic\docs\Tom de escrita Adilson.md\`
+  (`Guia de Voz.md` + `3. referência de notes.md`), caminho conferido em 2026-08-08. Passar o
+  resultado pelo checklist §8 "isso parece o Adil?". Sem isso a copy sai "semanticamente correta
+  mas robotizada" — feedback literal do dono na ISSUE-314.
 
 ## 13. O que fica para depois
 

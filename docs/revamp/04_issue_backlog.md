@@ -1778,9 +1778,9 @@ tudo" (dono), profissional de empresa e empreendedor.
 **Fatiada em 5 issues** (§12 da spec): **601A** dado/derivação (Sonnet) · **601B** telas de
 jornada e segmentos (Sonnet + revisão Fable 5) · **601C** disparo e registro (**Fable 5** — única
 parte irreversível) · **601D** pasta de templates (Sonnet) · **601E** copy dos 6 templates
-(**Opus**, dono aprova — bloqueada nos guias de voz).
+(**Opus**, dono aprova — ler os guias de voz do OneDrive antes de escrever; caminho no §12 da spec).
 Protótipo navegável: `docs/marketing/mockups/601-painel-funil.html`.
-**Pendente do dono:** guias de voz (601E) + decidir se o funil legado `roi_leads` entra.
+**Pendente do dono:** decidir se o funil legado `roi_leads` entra como segmento.
 **Dep.:** nenhuma. **Risco:** escopo — mitigado pelo §8 da spec.
 
 ## ISSUE-602 — Automação da sequência de e-mails
