@@ -16,6 +16,47 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [v3.11.45] - 2026-08-09 - 🔍 Auditoria LGPD do ciclo completo + preparatório da ISSUE-601C
+
+Sessão de documentação/preparação, sem código de produto novo (só o fix de largura da prévia,
+já registrado na entrada anterior). Começou como pergunta do dono sobre opt-in na 601D e virou
+levantamento factual do ciclo completo de dado pessoal do produto.
+
+### ✅ Adicionado
+- **`docs/auditoria-lgpd-ciclo-completo.md`** — levantamento factual (não parecer jurídico) de
+  toda coleta de dado pessoal do produto: radar, Lab, pré-diagnóstico legado, cadastro de conta,
+  feedback. Por origem: existe consentimento real? Existe exclusão/exportação? O que vai pra
+  terceiros? O que a política de privacidade promete vs. o que o código faz? Retenção?
+- **`docs/marketing/ISSUE-601C-contexto-preparatorio.md`** — grounding pro Fable 5 antes da
+  próxima sessão (mesmo padrão já usado nas issues anteriores do Lab): o que já está pronto
+  (601A/B/D), o que falta (rota `/descadastrar`, telas de seleção/confirmação, disparo de
+  verdade), decisões que não devem ser reabertas, e os achados da auditoria que tocam a issue.
+
+### 📌 Achados e decisões
+- **🔴 Achado mais urgente:** o funil legado `/pre-diagnostico` está ativo em produção e dispara
+  e-mail via Resend **sem nenhum gate de consentimento** — diferente do que se assumia (que a
+  601C seria o primeiro disparo real do projeto). **Decisão do dono: registrar e decidir depois,
+  não bloquear a 601C com isso agora.**
+- Nenhuma das 6 origens de captura do produto tem checkbox real de opt-in pra e-mail de
+  marketing — só o "quero entrar no Lab" do radar, que é outra coisa.
+- "Deletar conta" em `/perfil` não apaga `auth.users` de fato (só `profiles`/`atividades`) e não
+  toca em nenhum lead solto (radar/prediag/Lab/feedback) — promessa de processamento manual em
+  48h sem fila/rota que implemente.
+- **Boa notícia:** conferido todo `dataLayer.push`/`gtag(...)` do repo — GTM/Google Ads não
+  recebe nome nem e-mail em nenhum disparo, só eventos anônimos. Tracking limpo nesse ponto.
+- **Regra travada pro Fable na 601C:** nenhum envio real de e-mail além do próprio dono durante
+  a construção da issue — nem em teste manual, nem em script. O primeiro envio real de verdade
+  (a um segmento de fato) só acontece com o dono decidindo e executando, depois de ter visto o
+  fluxo inteiro funcionando consigo mesmo como destinatário.
+- **Dados legados ficam como estão** — decisão consciente do dono: contatos já capturados sem
+  nunca terem visto um opt-in real não são re-perguntados retroativamente. A 601C respeita
+  `optin_newsletter` como está hoje; não é trabalho dela corrigir o passado.
+- Esclarecido: "newsletter" no código (`newsletter_optin`) não é a newsletter do Substack (essa
+  tem unsubscribe próprio, fora do alcance deste projeto) — é o consentimento pros e-mails que
+  este sistema manda via Resend. Nome da coluna é impreciso, mas não será renomeado agora.
+
+---
+
 ## [v3.11.44] - 2026-08-08 - 📁 ISSUE-601D: pasta de templates de e-mail
 
 Terceira fatia da Série 600 (Marketing Digital), sob a spec fechada em

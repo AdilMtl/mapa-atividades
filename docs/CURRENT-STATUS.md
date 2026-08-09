@@ -8,6 +8,43 @@
 
 ---
 
+## 🔍 Auditoria LGPD do ciclo completo + preparatório da ISSUE-601C
+**Data:** 09 de agosto de 2026
+**Versão:** v3.11.45
+**Status:** ✅ documentação fechada, sem código de produto novo. Próxima sessão é a ISSUE-601C,
+no Fable 5, já com o preparatório escrito.
+
+### 📦 Entregue
+- `docs/auditoria-lgpd-ciclo-completo.md` — levantamento factual de toda coleta de dado pessoal
+  do produto (radar, Lab, pré-diagnóstico legado, cadastro, feedback): consentimento, exclusão,
+  terceiros, política de privacidade vs. realidade, retenção.
+- `docs/marketing/ISSUE-601C-contexto-preparatorio.md` — grounding pro Fable 5, no mesmo padrão
+  já usado nas sessões anteriores do Lab.
+
+### 📌 O que mudou de entendimento nesta sessão
+1. **A 601C não é o primeiro disparo real do projeto** — o funil legado `/pre-diagnostico` já
+   manda e-mail via Resend, sem consentimento, hoje. Dono decidiu **registrar e decidir depois**,
+   não bloquear a 601C com isso.
+2. **Regra travada pro Fable na 601C:** nenhum envio real além do e-mail do próprio dono durante
+   a construção — nem em teste, nem em script. O primeiro envio a um segmento de verdade é
+   decisão e execução do dono, depois de validar consigo mesmo.
+3. **Dados legados ficam como estão** — sem re-pedido retroativo de consentimento; a 601C só
+   precisa respeitar `optin_newsletter` como está e fazer o descadastro funcionar daqui pra
+   frente.
+4. Esclarecido: `newsletter_optin` não tem relação com a assinatura do Substack — são sistemas
+   separados.
+
+### ⏭️ Pendências
+1. **Próxima da fila: ISSUE-601C — Disparo e registro.** Modelo: **Fable 5**. Ler
+   `docs/marketing/ISSUE-601C-contexto-preparatorio.md` inteiro antes de começar.
+2. Registrado, sem prazo definido: opt-in real na captura (radar/Lab/pré-diagnóstico/cadastro),
+   funil `/pre-diagnostico` sem gate de consentimento, exclusão de dado de leads sem conta,
+   registro de solicitações LGPD, política de retenção. Ver
+   `docs/auditoria-lgpd-ciclo-completo.md` § "Não coberto por nenhuma issue hoje".
+3. Herdada: copy real dos 5 templates em rascunho é a ISSUE-601E (bloqueada nos guias de voz).
+
+---
+
 ## 📁 ISSUE-601D: pasta de templates de e-mail
 **Data:** 08 de agosto de 2026
 **Versão:** v3.11.44
