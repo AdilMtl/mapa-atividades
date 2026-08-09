@@ -8,6 +8,42 @@
 
 ---
 
+## 🧭 ISSUE-601A + ISSUE-601B: nasce o painel de Funil (dado, Jornada e Segmentos)
+**Data:** 08 de agosto de 2026
+**Versão:** v3.11.43
+**Status:** ✅ ambas fechadas e publicadas em produção. **Validação visual do dono ainda
+pendente** — a tela nunca foi testada num navegador antes do deploy (pedido explícito dele:
+"ninguém usa a plataforma hoje, se der errado a gente reverte").
+
+### 📦 Entregue
+- **ISSUE-601A — dado e derivação:** tabelas `marketing_sends` e `marketing_unsubscribes`, view
+  `vw_marketing_contatos` (`security_invoker=true`), os 6 segmentos do §4 como funções puras em
+  `src/lib/marketing/segmentos.ts` (21 testes), `GET /api/admin/funil`. SQL rodado e conferido
+  pelo próprio dono no Supabase (dedupe por `lower(email)` provado com um teste em
+  `begin/rollback`) — `docs/marketing/ISSUE-601A-sql-migracao.md`.
+- **ISSUE-601B — telas de Jornada e Segmentos:** funil de 7 etapas com % de queda e detecção de
+  "parede" (`src/lib/marketing/jornada.ts`, 6 testes), componente `PainelFunil.tsx` (DS2,
+  mobile-first, só leitura), rota `/admin/funil`. **"Funil" entrou como aba nova** no admin —
+  **"Convites do Lab" continua ao lado**, por decisão do dono: a absorção de verdade (§5 da spec)
+  só acontece quando a ISSUE-601C existir o disparo, porque até lá é a única forma de convidar
+  alguém pro beta pela UI.
+- Decisão registrada em sessão: contato sem nenhuma coluna de optin (só via `lab_leads` ou
+  `authorized_emails`, sem nunca ter feito radar) tem `optin_newsletter` default `true` — mesma
+  convenção já usada no radar (`newsletterOptin ?? true`).
+- Duas leituras de engenharia sobre a spec, registradas no código: `lead_sem_convite` ampliado
+  pra incluir interesse direto via `/lab` (não só radar), pra não perder gente que hoje já
+  aparece no painel de Convites; `projeto_parado` usa uma coluna nova
+  (`ultimo_projeto_aberto_em`, só entre projetos não concluídos) pra um projeto concluído recente
+  não esconder outro parado do mesmo dono.
+
+### ⏭️ Pendências
+1. **Validação manual do dono em produção** — abrir `/admin/funil` no celular, conferir as duas
+   abas (Jornada/Segmentos), números batendo com o que os SELECTs da 601A mostraram.
+2. Próxima da fila: **ISSUE-601D — Pasta de templates**. Modelo recomendado: **Sonnet** (CRUD sob
+   contrato já fechado no §6 da spec).
+
+---
+
 ## 🧭 VIRADA DE ROTA: nasce a Série 600 (Marketing Digital) e a ISSUE-320 é pausada
 **Data:** 08 de agosto de 2026
 **Versão:** v3.11.42

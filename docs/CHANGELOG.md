@@ -16,6 +16,36 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [v3.11.43] - 2026-08-08 - 🧭 ISSUE-601A + 601B: nasce o painel de Funil (dado, Jornada e Segmentos)
+
+Primeiras duas fatias da Série 600 (Marketing Digital), sob a spec fechada em
+`docs/marketing/ISSUE-601-spec-painel-funil.md`.
+
+### ✅ Adicionado
+- **ISSUE-601A:** tabelas `marketing_sends` e `marketing_unsubscribes`, view
+  `vw_marketing_contatos` (`security_invoker=true`), os 6 segmentos do §4 como funções puras
+  (`src/lib/marketing/segmentos.ts`), `GET /api/admin/funil`.
+- **ISSUE-601B:** funil "Jornada" de 7 etapas com % de queda e detecção de "parede"
+  (`src/lib/marketing/jornada.ts`), tela `/admin/funil` (`PainelFunil.tsx`), aba **Funil** nova
+  no admin (convivendo com "Convites do Lab" até a 601C nascer o disparo).
+- 27 testes novos (21 segmentos + 6 jornada) — 483/483 no total do projeto.
+- `docs/marketing/ISSUE-601A-sql-migracao.md` — SQL rodado e conferido pelo dono no Supabase.
+
+### 📊 Técnico
+- **Decisão do dono (08/08):** contato sem nenhuma coluna de optin (só via `lab_leads` ou
+  `authorized_emails`) tem `optin_newsletter` default `true`, mesma convenção do radar.
+- `lead_sem_convite` ampliado pra incluir interesse direto via `/lab` (não só radar) — leitura
+  registrada, não é o texto literal da tabela do §4, mas evita perder gente que o painel de
+  Convites atual já mostra.
+- `projeto_parado` usa `ultimo_projeto_aberto_em` (atividade só entre projetos não concluídos)
+  em vez da última atividade geral — um projeto concluído recente não pode esconder outro parado
+  do mesmo dono.
+- **Deploy pedido pelo dono direto pra produção**, sem passar por validação visual local antes:
+  "ninguém usa a plataforma hoje, se der errado a gente reverte". Validação fica pendente,
+  registrada em `CURRENT-STATUS.md`.
+
+---
+
 ## [v3.11.42] - 2026-08-08 - 🧭 Virada de rota: Série 600 (Marketing Digital) nasce e a ISSUE-320 é pausada
 
 Sessão de estratégia sem código de produto. Começou como revisão da spec da ISSUE-320 (infra de

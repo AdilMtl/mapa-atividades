@@ -6,6 +6,8 @@ import { defineConfig } from 'vitest/config'
 // (mesma regra: sem I/O, sem rede, sem DOM). Sem testes de UI na Fase 1.
 // ISSUE-318D somou src/lib/feedback: a lista de rotas onde o FAB é suprimido é
 // regra de conversão, e o aceite da issue exige teste dela.
+// ISSUE-601A somou src/lib/marketing: os 6 segmentos do painel de Funil são
+// consultas puras sobre os contatos já buscados de vw_marketing_contatos.
 export default defineConfig({
   test: {
     include: [
@@ -13,6 +15,7 @@ export default defineConfig({
       'src/lib/lab/**/*.test.ts',
       'src/lib/admin/**/*.test.ts',
       'src/lib/feedback/**/*.test.ts',
+      'src/lib/marketing/**/*.test.ts',
     ],
     environment: 'node',
   },

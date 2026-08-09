@@ -26,8 +26,14 @@ import { ArrowLeft } from 'lucide-react'
 import { PageContainer } from '@/components/ds2'
 import { LabLogout } from '@/components/lab/LabLogout'
 
+// "Funil" (ISSUE-601B) e "Convites do Lab" convivem por enquanto: a 601B só lê
+// (Jornada + Segmentos), quem convida/revoga pro beta continua sendo esta
+// última. A 601C ("Convites do Lab" absorvida de vez, decisão do dono em
+// 2026-08-08) é quando o disparo dentro do Funil substitui o convite manual —
+// só aí este item some daqui.
 const ABAS = [
   { href: '/admin/assinantes', label: 'Assinantes' },
+  { href: '/admin/funil', label: 'Funil' },
   { href: '/admin/lab-beta', label: 'Convites do Lab' },
   { href: '/admin/analytics', label: 'Analytics' },
   { href: '/admin/feedback', label: 'Feedback' },
