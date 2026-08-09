@@ -11,17 +11,32 @@
 import * as React from 'react'
 import {
   Activity,
+  ArrowLeft,
   Award,
   CheckCircle2,
   ChevronDown,
   Clock,
+  Eye,
+  EyeOff,
+  Folder,
   Hammer,
   KeyRound,
+  Loader2,
   Mail,
+  RotateCcw,
+  Save,
   UserPlus,
 } from 'lucide-react'
 
-import { Badge, Card, Eyebrow, PageContainer, SectionTitle } from '@/components/ds2'
+import { Badge, Button, Card, Eyebrow, PageContainer, SectionTitle } from '@/components/ds2'
+import { renderPreviewEmail } from '@/lib/marketing/email-preview'
+import {
+  SLUGS_GERENCIADOS,
+  VARIAVEIS_VALIDAS,
+  type VersaoTemplate,
+  validarTemplate,
+  versaoParaEditar,
+} from '@/lib/marketing/templates'
 
 type SegmentoId =
   | 'lead_sem_convite'
@@ -55,6 +70,23 @@ interface ResumoSegmento {
 interface RespostaFunil {
   jornada: JornadaFunil
   segmentos: ResumoSegmento[]
+}
+
+interface ResumoTemplate {
+  slug: string
+  segmento: SegmentoId | null
+  versoes: VersaoTemplate[]
+  enviosCount: number
+  ultimoEnvioEm: string | null
+}
+
+const ROTULO_SLUG: Record<string, string> = {
+  convite_lab: 'Convite pro Lab',
+  convidado_nao_entrou: 'Convidado, nunca entrou',
+  primeiro_projeto: 'Primeiro projeto',
+  retomar_projeto: 'Retomar projeto',
+  convite_radar: 'Convite pro radar',
+  pedido_de_relato: 'Pedido de relato',
 }
 
 const ETAPA_INFO: Record<
@@ -259,8 +291,348 @@ function Segmentos({ segmentos }: { segmentos: ResumoSegmento[] }) {
   )
 }
 
+function dataHora(iso: string | null): string {
+  if (!iso) return '—'
+  return new Date(iso).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' })
+}
+
+const COR_STATUS: Record<VersaoTemplate['status'], string> = {
+  ativo: 'bg-[#22c55e]',
+  rascunho: 'bg-ds2-text-muted',
+  arquivado: 'bg-ds2-border-medium',
+}
+
+const ROTULO_STATUS: Record<VersaoTemplate['status'], string> = {
+  ativo: 'ativo',
+  rascunho: 'rascunho',
+  arquivado: 'arquivado',
+}
+
+function TemplateEditor({
+  template,
+  onVoltar,
+  onSalvo,
+}: {
+  template: ResumoTemplate
+  onVoltar: () => void
+  onSalvo: () => Promise<void>
+}) {
+  const versaoInicial = versaoParaEditar(template.versoes)
+  const [assunto, setAssunto] = React.useState(versaoInicial?.assunto ?? '')
+  const [corpo, setCorpo] = React.useState(versaoInicial?.corpo ?? '')
+  const [mostrarPrevia, setMostrarPrevia] = React.useState(false)
+  const [salvando, setSalvando] = React.useState(false)
+  const [ativando, setAtivando] = React.useState<number | null>(null)
+  const [aviso, setAviso] = React.useState<string | null>(null)
+  const [erro, setErro] = React.useState<string | null>(null)
+  const corpoRef = React.useRef<HTMLTextAreaElement>(null)
+
+  const validacao = validarTemplate(assunto, corpo)
+  const versoesOrdenadas = [...template.versoes].sort((a, b) => b.versao - a.versao)
+
+  function inserirVariavel(nome: string) {
+    const textarea = corpoRef.current
+    const trecho = `{{${nome}}}`
+    if (!textarea) {
+      setCorpo((c) => `${c}${trecho}`)
+      return
+    }
+    const inicio = textarea.selectionStart ?? corpo.length
+    const fim = textarea.selectionEnd ?? corpo.length
+    const novo = `${corpo.slice(0, inicio)}${trecho}${corpo.slice(fim)}`
+    setCorpo(novo)
+    requestAnimationFrame(() => {
+      textarea.focus()
+      textarea.selectionStart = textarea.selectionEnd = inicio + trecho.length
+    })
+  }
+
+  async function salvar() {
+    if (!validacao.valido) return
+    setSalvando(true)
+    setAviso(null)
+    setErro(null)
+    try {
+      const res = await fetch('/api/admin/templates', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ slug: template.slug, assunto, corpo }),
+      })
+      const data = (await res.json()) as { template?: VersaoTemplate; error?: string }
+      if (!res.ok || !data.template) {
+        setErro(data.error ?? 'Não consegui salvar — tenta de novo.')
+        return
+      }
+      setAviso(`Salvo como versão ${data.template.versao} (rascunho). A anterior continua intacta.`)
+      await onSalvo()
+    } catch {
+      setErro('Não consegui salvar — tenta de novo.')
+    } finally {
+      setSalvando(false)
+    }
+  }
+
+  async function ativarVersao(versao: number) {
+    setAtivando(versao)
+    setAviso(null)
+    setErro(null)
+    try {
+      const res = await fetch('/api/admin/templates/ativar', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ slug: template.slug, versao }),
+      })
+      const data = (await res.json()) as { success?: boolean; error?: string }
+      if (!res.ok || !data.success) {
+        setErro(data.error ?? 'Não consegui ativar essa versão.')
+        return
+      }
+      setAviso(`Versão ${versao} está ativa agora — é a que um disparo futuro vai usar.`)
+      await onSalvo()
+    } catch {
+      setErro('Não consegui ativar essa versão.')
+    } finally {
+      setAtivando(null)
+    }
+  }
+
+  return (
+    <div className="space-y-4">
+      <button
+        type="button"
+        onClick={onVoltar}
+        className="flex items-center gap-2 font-ds2-mono text-[13px] text-ds2-text-subtle"
+      >
+        <ArrowLeft className="h-4 w-4" /> Templates
+      </button>
+
+      <div>
+        <p className="font-ds2-mono text-xs uppercase tracking-[0.08em] text-ds2-text-muted">{template.slug}</p>
+        <h2 className="mt-1 font-ds2-serif text-2xl text-ds2-text-primary">
+          {ROTULO_SLUG[template.slug] ?? template.slug}
+        </h2>
+        {template.segmento && (
+          <p className="mt-1 font-ds2-sans text-xs text-ds2-text-muted">
+            Segmento designado: <span className="text-ds2-text-secondary">{template.segmento}</span>
+          </p>
+        )}
+      </div>
+
+      {(aviso || erro) && (
+        <Card className={erro ? 'border-ds2-magenta/40' : 'border-ds2-orange/30'}>
+          <p className="font-ds2-sans text-sm text-ds2-text-primary">{erro ?? aviso}</p>
+        </Card>
+      )}
+
+      <div className="space-y-2">
+        <label className="block font-ds2-mono text-[11px] uppercase tracking-[0.12em] text-ds2-amber-soft">
+          Assunto
+        </label>
+        <input
+          value={assunto}
+          onChange={(e) => setAssunto(e.target.value)}
+          placeholder="Assunto do e-mail"
+          className="min-h-[44px] w-full rounded-ds2-card border border-ds2-border-subtle bg-ds2-surface-glass px-4 text-base text-ds2-text-primary placeholder-ds2-text-muted outline-none focus:border-ds2-orange/50"
+        />
+      </div>
+
+      <div className="space-y-2">
+        <label className="block font-ds2-mono text-[11px] uppercase tracking-[0.12em] text-ds2-amber-soft">
+          Corpo (markdown simples)
+        </label>
+        <textarea
+          ref={corpoRef}
+          value={corpo}
+          onChange={(e) => setCorpo(e.target.value)}
+          placeholder="Oi, {{primeiro_nome}}..."
+          rows={10}
+          className="w-full rounded-ds2-card border border-ds2-border-subtle bg-ds2-surface-glass px-4 py-3.5 text-base leading-relaxed text-ds2-text-primary placeholder-ds2-text-muted outline-none focus:border-ds2-orange/50"
+        />
+        <div className="flex flex-wrap gap-1.5">
+          {VARIAVEIS_VALIDAS.map((v) => (
+            <button
+              key={v}
+              type="button"
+              onClick={() => inserirVariavel(v)}
+              className="rounded-ds2-card border border-[rgba(211,76,117,0.3)] bg-[rgba(211,76,117,0.13)] px-2 py-1 font-ds2-mono text-[11px] text-[#F2B5C7]"
+            >
+              {`{{${v}}}`}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {!validacao.valido && (assunto.trim() || corpo.trim()) && (
+        <Card className="border-ds2-magenta/40">
+          <ul className="list-disc space-y-1 pl-4 font-ds2-sans text-xs text-ds2-text-secondary">
+            {validacao.erros.map((e) => (
+              <li key={e}>{e}</li>
+            ))}
+          </ul>
+        </Card>
+      )}
+
+      <div className="flex flex-wrap items-center gap-2">
+        <Button type="button" variant="primary" disabled={salvando || !validacao.valido} onClick={() => void salvar()}>
+          {salvando ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+          Salvar como nova versão
+        </Button>
+        <Button type="button" variant="secondary" onClick={() => setMostrarPrevia((v) => !v)}>
+          {mostrarPrevia ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+          {mostrarPrevia ? 'Fechar prévia' : 'Pré-visualizar'}
+        </Button>
+      </div>
+
+      <Card className="flex gap-2.5 border-dashed border-ds2-border-medium">
+        <p className="font-ds2-sans text-xs leading-relaxed text-ds2-text-muted">
+          <strong className="text-ds2-text-secondary">Trava de segurança:</strong> salvar nunca sobrescreve — cria
+          uma versão nova e a anterior continua intacta e restaurável. O rodapé de descadastro é injetado pelo
+          sistema no envio e não faz parte do texto acima.
+        </p>
+      </Card>
+
+      {mostrarPrevia && (
+        <div className="overflow-hidden rounded-ds2-card border border-ds2-border-subtle">
+          <iframe
+            title={`Prévia — ${template.slug}`}
+            srcDoc={renderPreviewEmail(assunto, corpo)}
+            className="h-[560px] w-full bg-[#08110F]"
+          />
+        </div>
+      )}
+
+      {versoesOrdenadas.length > 0 && (
+        <div className="space-y-2">
+          <Eyebrow>histórico de versões</Eyebrow>
+          <div className="space-y-1.5">
+            {versoesOrdenadas.map((v) => (
+              <Card key={v.id} className="flex items-center justify-between gap-3 py-3">
+                <div className="flex min-w-0 items-center gap-2.5">
+                  <span className={`h-2 w-2 shrink-0 rounded-full ${COR_STATUS[v.status]}`} aria-hidden />
+                  <div className="min-w-0">
+                    <p className="truncate font-ds2-sans text-sm text-ds2-text-primary">
+                      v{v.versao} · {ROTULO_STATUS[v.status]}
+                    </p>
+                    <p className="font-ds2-mono text-[11px] text-ds2-text-muted">
+                      {dataHora(v.criadoEm)} · {v.criadoPor}
+                    </p>
+                  </div>
+                </div>
+                {v.status !== 'ativo' && v.assunto.trim() && v.corpo.trim() && (
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    className="shrink-0 py-2 text-xs"
+                    disabled={ativando !== null}
+                    onClick={() => void ativarVersao(v.versao)}
+                  >
+                    {ativando === v.versao ? (
+                      <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                    ) : (
+                      <RotateCcw className="h-3.5 w-3.5" />
+                    )}
+                    Ativar
+                  </Button>
+                )}
+              </Card>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
+function Templates() {
+  const [templates, setTemplates] = React.useState<ResumoTemplate[] | null>(null)
+  const [carregando, setCarregando] = React.useState(true)
+  const [erro, setErro] = React.useState<string | null>(null)
+  const [editando, setEditando] = React.useState<string | null>(null)
+
+  const carregar = React.useCallback(async () => {
+    setCarregando(true)
+    setErro(null)
+    try {
+      const res = await fetch('/api/admin/templates')
+      if (!res.ok) throw new Error(String(res.status))
+      const data = (await res.json()) as { templates: ResumoTemplate[] }
+      setTemplates(data.templates)
+    } catch {
+      setErro('Não consegui carregar a pasta de templates — recarrega a página.')
+    } finally {
+      setCarregando(false)
+    }
+  }, [])
+
+  React.useEffect(() => {
+    void carregar()
+  }, [carregar])
+
+  const templateEditando = templates?.find((t) => t.slug === editando) ?? null
+
+  if (templateEditando) {
+    return (
+      <TemplateEditor
+        template={templateEditando}
+        onVoltar={() => setEditando(null)}
+        onSalvo={carregar}
+      />
+    )
+  }
+
+  return (
+    <div className="space-y-3">
+      {erro && (
+        <Card className="border-ds2-magenta/40">
+          <p className="font-ds2-sans text-sm text-ds2-text-primary">{erro}</p>
+        </Card>
+      )}
+
+      {carregando && !templates ? (
+        <Card>
+          <p className="font-ds2-sans text-sm text-ds2-text-muted">Carregando a pasta de templates…</p>
+        </Card>
+      ) : (
+        (templates ?? SLUGS_GERENCIADOS.map((slug) => ({ slug, segmento: null, versoes: [], enviosCount: 0, ultimoEnvioEm: null }))).map(
+          (t) => {
+            const atual = versaoParaEditar(t.versoes)
+            const temConteudo = !!atual?.assunto.trim()
+            return (
+              <Card
+                key={t.slug}
+                className="cursor-pointer space-y-2"
+                onClick={() => setEditando(t.slug)}
+              >
+                <div className="flex items-center gap-3">
+                  <span className={`h-2 w-2 shrink-0 rounded-full ${atual ? COR_STATUS[atual.status] : 'bg-ds2-border-medium'}`} aria-hidden />
+                  <p className="flex-1 truncate font-ds2-mono text-[13px] text-ds2-text-primary">{t.slug}</p>
+                  {atual && <Badge className="shrink-0 text-[10px]">v{atual.versao} · {ROTULO_STATUS[atual.status]}</Badge>}
+                </div>
+                <p className="truncate font-ds2-sans text-sm text-ds2-text-secondary">
+                  {temConteudo ? atual!.assunto : '(rascunho vazio — aguardando copy)'}
+                </p>
+                <p className="font-ds2-mono text-[11px] text-ds2-text-muted">
+                  {t.enviosCount > 0 ? `enviado ${t.enviosCount}x · último em ${dataHora(t.ultimoEnvioEm)}` : 'nunca enviado'}
+                </p>
+              </Card>
+            )
+          },
+        )
+      )}
+
+      <Card className="flex gap-2.5 border-dashed border-ds2-border-medium">
+        <p className="font-ds2-sans text-xs leading-relaxed text-ds2-text-muted">
+          <strong className="text-ds2-text-secondary">Editar aqui muda o e-mail real.</strong> Toda alteração vira
+          uma versão nova — a anterior nunca se perde. O layout (cores, cabeçalho, botão) continua sendo código;
+          só assunto e corpo são editáveis aqui.
+        </p>
+      </Card>
+    </div>
+  )
+}
+
 export function PainelFunil() {
-  const [aba, setAba] = React.useState<'jornada' | 'segmentos'>('jornada')
+  const [aba, setAba] = React.useState<'jornada' | 'segmentos' | 'templates'>('jornada')
   const [dados, setDados] = React.useState<RespostaFunil | null>(null)
   const [carregando, setCarregando] = React.useState(true)
   const [erro, setErro] = React.useState<string | null>(null)
@@ -304,62 +676,70 @@ export function PainelFunil() {
         <div className="flex gap-1.5">
           {(
             [
-              { id: 'jornada', rotulo: 'Jornada' },
-              { id: 'segmentos', rotulo: 'Segmentos' },
+              { id: 'jornada', rotulo: 'Jornada', icone: Activity },
+              { id: 'segmentos', rotulo: 'Segmentos', icone: UserPlus },
+              { id: 'templates', rotulo: 'Templates', icone: Folder },
             ] as const
           ).map((opcao) => (
             <button
               key={opcao.id}
               type="button"
               onClick={() => setAba(opcao.id)}
-              className={`min-h-[44px] flex-1 rounded-ds2-pill border px-3.5 text-sm font-ds2-sans transition-colors ${
+              className={`flex min-h-[44px] flex-1 items-center justify-center gap-1.5 rounded-ds2-pill border px-3.5 text-sm font-ds2-sans transition-colors ${
                 aba === opcao.id
                   ? 'border-ds2-orange/50 bg-ds2-orange/15 text-ds2-text-primary'
                   : 'border-ds2-border-subtle bg-transparent text-ds2-text-secondary hover:bg-white/5'
               }`}
             >
+              <opcao.icone className="h-3.5 w-3.5" />
               {opcao.rotulo}
             </button>
           ))}
         </div>
 
-        {erro && (
-          <Card className="border-ds2-magenta/40">
-            <p className="font-ds2-sans text-sm text-ds2-text-primary">{erro}</p>
-          </Card>
-        )}
-
-        {carregando && !dados ? (
-          <Card>
-            <p className="font-ds2-sans text-sm text-ds2-text-muted">Carregando o funil…</p>
-          </Card>
-        ) : dados ? (
+        {aba === 'templates' ? (
+          <Templates />
+        ) : (
           <>
-            {aba === 'jornada' ? (
-              <>
-                <Jornada jornada={dados.jornada} />
-                <Card className="flex gap-2.5 border-dashed border-ds2-border-medium">
-                  <p className="font-ds2-sans text-xs leading-relaxed text-ds2-text-muted">
-                    <strong className="text-ds2-text-secondary">Como ler:</strong> a barra é
-                    proporcional ao topo do funil. Etapa tracejada é etapa com zero — e zero
-                    depois de um número não é fraqueza do produto, é passo que ninguém executou
-                    ainda.
-                  </p>
-                </Card>
-              </>
-            ) : (
-              <>
-                <Segmentos segmentos={dados.segmentos} />
-                <Card className="flex gap-2.5 border-dashed border-ds2-border-medium">
-                  <p className="font-ds2-sans text-xs leading-relaxed text-ds2-text-muted">
-                    <strong className="text-ds2-text-secondary">O número que importa</strong> é o
-                    de &quot;há +14 dias sem contato&quot;. Total é foto; esse é fila de trabalho.
-                  </p>
-                </Card>
-              </>
+            {erro && (
+              <Card className="border-ds2-magenta/40">
+                <p className="font-ds2-sans text-sm text-ds2-text-primary">{erro}</p>
+              </Card>
             )}
+
+            {carregando && !dados ? (
+              <Card>
+                <p className="font-ds2-sans text-sm text-ds2-text-muted">Carregando o funil…</p>
+              </Card>
+            ) : dados ? (
+              <>
+                {aba === 'jornada' ? (
+                  <>
+                    <Jornada jornada={dados.jornada} />
+                    <Card className="flex gap-2.5 border-dashed border-ds2-border-medium">
+                      <p className="font-ds2-sans text-xs leading-relaxed text-ds2-text-muted">
+                        <strong className="text-ds2-text-secondary">Como ler:</strong> a barra é
+                        proporcional ao topo do funil. Etapa tracejada é etapa com zero — e zero
+                        depois de um número não é fraqueza do produto, é passo que ninguém executou
+                        ainda.
+                      </p>
+                    </Card>
+                  </>
+                ) : (
+                  <>
+                    <Segmentos segmentos={dados.segmentos} />
+                    <Card className="flex gap-2.5 border-dashed border-ds2-border-medium">
+                      <p className="font-ds2-sans text-xs leading-relaxed text-ds2-text-muted">
+                        <strong className="text-ds2-text-secondary">O número que importa</strong> é o
+                        de &quot;há +14 dias sem contato&quot;. Total é foto; esse é fila de trabalho.
+                      </p>
+                    </Card>
+                  </>
+                )}
+              </>
+            ) : null}
           </>
-        ) : null}
+        )}
       </PageContainer>
     </div>
   )

@@ -8,6 +8,49 @@
 
 ---
 
+## 📁 ISSUE-601D: pasta de templates de e-mail
+**Data:** 08 de agosto de 2026
+**Versão:** v3.11.44
+**Status:** ✅ código pronto, testado e no ar em produção. **SQL da tabela `marketing_templates`
+ainda precisa rodar no Supabase** — pedido feito ao dono, aguardando ele rodar
+`docs/marketing/ISSUE-601D-sql-migracao.md` e colar o resultado dos SELECTs de verificação.
+
+### 📦 Entregue
+- Tabela `marketing_templates` (versionada; salvar nunca sobrescreve) — SQL em
+  `docs/marketing/ISSUE-601D-sql-migracao.md`, com índice único parcial que impede duas versões
+  `ativo` do mesmo slug **no próprio banco**, não só na aplicação.
+- `src/lib/marketing/templates.ts` (vocabulário fechado de variáveis, rejeição de HTML cru,
+  versionamento, mapeamento slug→segmento reaproveitando `segmentos.ts`) + 20 testes.
+- `src/lib/marketing/email-preview.ts` (prévia com a identidade visual real da newsletter —
+  kicker âmbar, cartão escuro, Georgia) + 8 testes. 510/510 testes no projeto.
+- Aba **Templates** nova em `/admin/funil` (`PainelFunil.tsx`): lista dos 6 slugs geridos, editor
+  com chips de variável + pré-visualização em iframe + histórico de versões com "ativar".
+- `GET/POST /api/admin/templates` e `POST /api/admin/templates/ativar`.
+- `convite_lab` migrou com o conteúdo REAL já em produção (`lab-beta/email-convite.ts`) como v1
+  `ativo`. Os outros 5 slugs entram como rascunho vazio — copy é a 601E (dono decidiu manter o
+  processo: Opus + guias de voz + aprovação dele, não pular pra não sair "robotizado").
+
+### 📌 Decisões e achados desta sessão
+1. **`radar_followup` fica fora de `marketing_templates`** — não é um e-mail único, é montado
+   dinamicamente de `CONTEUDO_MATURIDADE`/`CONTEUDO_OPORTUNIDADES` (14 variações). Forçar no
+   modelo "1 slug = 1 corpo" quebraria o que já funciona. Decisão do dono, 08/08.
+2. **Achado, não corrigido:** o envelope visual dos e-mails reais está duplicado por copy-paste
+   entre `radar/email-template.ts` e `lab-beta/email-convite.ts`. A prévia da 601D usa uma casca
+   própria fiel aos mesmos tokens (não acopla no envio real) — consolidar os dois arquivos de
+   envio de verdade fica pra quando a ISSUE-601C construir o disparo.
+3. Deploy direto pra produção sem passar por validação visual local antes — mesmo pedido do dono
+   que valeu pra 601A/601B ("ninguém usa a plataforma hoje, se der errado a gente reverte").
+
+### ⏭️ Pendências
+1. **Dono roda o SQL** de `docs/marketing/ISSUE-601D-sql-migracao.md` no Supabase e cola o
+   resultado dos SELECTs de verificação — sem isso a aba Templates carrega vazia (a tabela ainda
+   não existe).
+2. Próxima da fila: **ISSUE-601C — Disparo e registro**. Modelo recomendado: **Fable 5** (única
+   parte irreversível da série). Depende de 601A, 601B e 601D.
+3. Herdada: copy real dos 5 templates em rascunho é a ISSUE-601E (bloqueada nos guias de voz).
+
+---
+
 ## 🧭 ISSUE-601A + ISSUE-601B: nasce o painel de Funil (dado, Jornada e Segmentos)
 **Data:** 08 de agosto de 2026
 **Versão:** v3.11.43

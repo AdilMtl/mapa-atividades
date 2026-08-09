@@ -16,6 +16,46 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [v3.11.44] - 2026-08-08 - 📁 ISSUE-601D: pasta de templates de e-mail
+
+Terceira fatia da Série 600 (Marketing Digital), sob a spec fechada em
+`docs/marketing/ISSUE-601-spec-painel-funil.md` §6.
+
+### ✅ Adicionado
+- **Tabela `marketing_templates`** (assunto + corpo markdown, versionado, `unique(slug, versao)` +
+  índice único parcial `(slug) where status='ativo'` — a trava de "só uma versão ativa por slug"
+  vive no banco, não só na aplicação). SQL em `docs/marketing/ISSUE-601D-sql-migracao.md`.
+- **`src/lib/marketing/templates.ts`** — vocabulário fechado de variáveis
+  (`primeiro_nome`/`resultado_radar`/`link_lab`/`link_descadastro`), rejeição de HTML cru,
+  versionamento (salvar nunca sobrescreve) e o mapeamento slug → segmento (reaproveita
+  `SEGMENTOS` de `segmentos.ts`, fonte única). 20 testes novos.
+- **`src/lib/marketing/email-preview.ts`** — pré-visualização com a mesma identidade visual dos
+  e-mails reais (kicker âmbar, cartão escuro, Georgia) — casca própria de prévia, não acopla no
+  envio real; markdown simples → HTML, variáveis trocadas por valores de exemplo. 8 testes novos.
+- **Aba "Templates"** no painel de Funil (`PainelFunil.tsx`) — lista dos 6 templates geridos +
+  editor (assunto, corpo, chips de variável, pré-visualização em iframe, histórico de versões com
+  botão "ativar") — mesmo desenho do protótipo aprovado (`docs/marketing/mockups/601-painel-funil.html`).
+- **`GET/POST /api/admin/templates`** e **`POST /api/admin/templates/ativar`**, atrás do mesmo
+  gate `exigirAdminSessao()` das outras rotas de admin.
+
+### 📊 Técnico
+- **Decisão do dono (08/08):** os 5 slugs sem copy real (`convidado_nao_entrou`,
+  `primeiro_projeto`, `retomar_projeto`, `convite_radar`, `pedido_de_relato`) entram como rascunho
+  vazio — a copy é a ISSUE-601E (Opus, guias de voz, dono aprova). `convite_lab` migrou com o
+  conteúdo real que já está em produção em `lab-beta/email-convite.ts` (v1, `ativo`).
+- **`radar_followup` fica de fora desta tabela** (decisão do dono, 08/08): não é um e-mail único,
+  é montado dinamicamente a partir de `CONTEUDO_MATURIDADE`/`CONTEUDO_OPORTUNIDADES` (14
+  variações) — forçar num modelo "1 slug = 1 corpo" quebraria o que já funciona.
+- **Achado ao levantar o conteúdo real:** o envelope visual dos e-mails (fundo `#08110F`, kicker
+  mono âmbar, botão gradiente) está duplicado por copy-paste entre `radar/email-template.ts` e
+  `lab-beta/email-convite.ts` — nenhum módulo central. Não mexido nesta issue (risco desnecessário
+  em código de envio já em produção, fora do critério de aceite da 601D); registrado como dívida
+  para quando a 601C construir o disparo de verdade.
+- Ligar o disparo a ler `marketing_templates.corpo` de fato é a **ISSUE-601C**, não esta — hoje
+  `email-convite.ts` continua com o conteúdo hardcoded.
+
+---
+
 ## [v3.11.43] - 2026-08-08 - 🧭 ISSUE-601A + 601B: nasce o painel de Funil (dado, Jornada e Segmentos)
 
 Primeiras duas fatias da Série 600 (Marketing Digital), sob a spec fechada em
