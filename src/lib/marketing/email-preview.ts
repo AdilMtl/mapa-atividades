@@ -36,7 +36,12 @@ function escapeHtml(texto: string): string {
   return texto.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
 }
 
-/** Corpo é "markdown simples" (§6.3): parágrafos separados por linha em branco + **negrito**. */
+/**
+ * Corpo é "markdown simples" (§6.3): parágrafos separados por linha em branco +
+ * **negrito**. URLs soltas viram link clicável (601C: o corpo real carrega
+ * `{{link_lab}}`/`{{link_descadastro}}` como texto puro, e nem todo cliente de
+ * e-mail auto-linka) — a prévia acompanha pra continuar fiel ao que sai.
+ */
 export function markdownSimplesParaHtml(corpo: string): string {
   const paragrafos = corpo
     .trim()
@@ -47,6 +52,10 @@ export function markdownSimplesParaHtml(corpo: string): string {
     .map((paragrafo) => {
       let html = escapeHtml(paragrafo.trim()).replace(/\n/g, '<br/>')
       html = html.replace(/\*\*(.+?)\*\*/g, '<strong style="color:#F8F0E6;">$1</strong>')
+      html = html.replace(
+        /(https?:\/\/[^\s<]+?)([.,;:!?)]*)(?=\s|&lt;|<|$)/g,
+        '<a href="$1" style="color:#F0B674; text-decoration:underline; word-break:break-all;">$1</a>$2',
+      )
       return `<p style="font-family:Arial, Helvetica, sans-serif; font-size:15px; line-height:1.65; color:#D2DDD9; margin:0 0 18px 0;">${html}</p>`
     })
     .join('\n')

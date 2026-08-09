@@ -193,6 +193,21 @@ export async function POST(request: NextRequest) {
       console.error('Convite autorizado, mas o e-mail falhou:', emailError)
     }
 
+    // ISSUE-601C: convite também entra no log de envios (§7 da spec) — o painel
+    // de Funil só sabe quem "já recebeu convite_lab" se este caminho registrar.
+    // Falha no registro não desfaz convite: loga e segue.
+    const { error: registroError } = await supabaseAdmin.from('marketing_sends').insert({
+      email,
+      template_slug: 'convite_lab',
+      status: emailEnviado ? 'enviado' : 'falhou',
+      erro: motivoEmail,
+      enviado_por: admin.email ?? 'admin',
+      metadata: { origem: 'lab-beta', reenviar },
+    })
+    if (registroError) {
+      console.error('Convite processado, mas registro em marketing_sends falhou:', registroError)
+    }
+
     return NextResponse.json({ success: true, emailEnviado, motivoEmail })
   } catch (error) {
     console.error('Erro no POST admin/lab-beta:', error)

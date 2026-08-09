@@ -13,6 +13,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 
 import { exigirAdminSessao } from '@/lib/admin'
+import { rotuloNivelMaturidade, rotuloTipoSolucao } from '@/lib/admin/analytics-rotulos'
 import { montarJornadaFunil } from '@/lib/marketing/jornada'
 import {
   type ContatoMarketing,
@@ -20,6 +21,7 @@ import {
   type SegmentoId,
   SEGMENTOS,
   contatosDoSegmento,
+  excluidosDoSegmento,
   mapContatoRow,
   montarJaReceberam,
   montarResumoSegmentos,
@@ -69,6 +71,16 @@ function montarTemplatesRecebidos(
 
 interface ContatoResposta extends ContatoMarketing {
   templatesRecebidos: string[]
+  /** "Maturidade · Operador" — montado aqui porque o módulo de rótulos é só-servidor. */
+  radarRotulo: string | null
+}
+
+function montarRadarRotulo(c: ContatoMarketing): string | null {
+  if (!c.fezRadar || !c.radarKind || !c.radarResult) return null
+  if (c.radarKind === 'maturidade') {
+    return `Maturidade · ${rotuloNivelMaturidade(c.radarResult) ?? c.radarResult}`
+  }
+  return `Oportunidades · ${rotuloTipoSolucao(c.radarResult) ?? c.radarResult}`
 }
 
 export async function GET(request: NextRequest) {
@@ -142,13 +154,20 @@ export async function GET(request: NextRequest) {
     const inicio = (pagina - 1) * tamanho
     const pagina_contatos: ContatoResposta[] = membros
       .slice(inicio, inicio + tamanho)
-      .map((c) => ({ ...c, templatesRecebidos: templatesRecebidos.get(c.email) ?? [] }))
+      .map((c) => ({
+        ...c,
+        templatesRecebidos: templatesRecebidos.get(c.email) ?? [],
+        radarRotulo: montarRadarRotulo(c),
+      }))
 
     return NextResponse.json({
       jornada,
       segmentos,
       contatos: pagina_contatos,
       paginacao: { pagina, tamanho, total },
+      // 601C (aceite 5): quem caberia no segmento mas está fora por opt-in ou
+      // descadastro — a tela mostra a contagem; forçar não existe.
+      excluidos: excluidosDoSegmento(contatos, segmento, agora),
     })
   } catch (error) {
     console.error('Erro no GET admin/funil:', error)

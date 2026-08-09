@@ -1,11 +1,10 @@
 'use client'
 
 // =============================================================================
-// PAINEL DE FUNIL — ISSUE-601B (Jornada + Segmentos)
-// Duas telas do protótipo aprovado (docs/marketing/mockups/601-painel-funil.html),
-// só leitura: a Jornada mostra os 7 degraus dos anúncios até o projeto concluído;
-// Segmentos mostra os 6 cards do §4 da spec, cada um com o template designado.
-// Sem seleção de pessoas, disparo ou templates — isso é a 601C/601D.
+// PAINEL DE FUNIL — ISSUE-601B (Jornada + Segmentos) + 601D (Templates)
+// Telas do protótipo aprovado (docs/marketing/mockups/601-painel-funil.html).
+// Desde a ISSUE-601C, tocar num card de segmento abre o fluxo de disparo
+// (seleção de pessoas → confirmação → resultado) em FunilDisparo.tsx.
 // =============================================================================
 
 import * as React from 'react'
@@ -29,6 +28,7 @@ import {
 } from 'lucide-react'
 
 import { Badge, Button, Card, Eyebrow, PageContainer, SectionTitle } from '@/components/ds2'
+import { FunilDisparo } from '@/components/admin/FunilDisparo'
 import { renderPreviewEmail } from '@/lib/marketing/email-preview'
 import {
   SLUGS_GERENCIADOS,
@@ -250,14 +250,29 @@ function Jornada({ jornada }: { jornada: JornadaFunil }) {
   )
 }
 
-function Segmentos({ segmentos }: { segmentos: ResumoSegmento[] }) {
+function Segmentos({
+  segmentos,
+  onAbrir,
+}: {
+  segmentos: ResumoSegmento[]
+  onAbrir: (seg: ResumoSegmento) => void
+}) {
   return (
     <div className="space-y-3">
       {segmentos.map((seg) => {
         const info = SEGMENTO_INFO[seg.id]
         const Icone = info.icone
         return (
-          <Card key={seg.id} className="space-y-3 overflow-hidden border-l-4 border-l-ds2-orange">
+          <Card
+            key={seg.id}
+            role="button"
+            tabIndex={0}
+            onClick={() => onAbrir(seg)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') onAbrir(seg)
+            }}
+            className="cursor-pointer space-y-3 overflow-hidden border-l-4 border-l-ds2-orange"
+          >
             <div className="flex items-start gap-3">
               <span className="flex h-[38px] w-[38px] shrink-0 items-center justify-center rounded-ds2-card border border-ds2-border-medium bg-white/5">
                 <Icone className="h-[18px] w-[18px] text-ds2-orange" />
@@ -636,28 +651,27 @@ export function PainelFunil() {
   const [dados, setDados] = React.useState<RespostaFunil | null>(null)
   const [carregando, setCarregando] = React.useState(true)
   const [erro, setErro] = React.useState<string | null>(null)
+  // 601C: segmento aberto = fluxo de disparo (pessoas → confirmação → resultado)
+  const [segmentoAberto, setSegmentoAberto] = React.useState<ResumoSegmento | null>(null)
 
-  React.useEffect(() => {
-    let cancelado = false
-    async function carregar() {
-      setCarregando(true)
-      setErro(null)
-      try {
-        const res = await fetch('/api/admin/funil')
-        if (!res.ok) throw new Error(String(res.status))
-        const data = (await res.json()) as RespostaFunil
-        if (!cancelado) setDados(data)
-      } catch {
-        if (!cancelado) setErro('Não consegui carregar o funil — recarrega a página.')
-      } finally {
-        if (!cancelado) setCarregando(false)
-      }
-    }
-    void carregar()
-    return () => {
-      cancelado = true
+  const carregar = React.useCallback(async () => {
+    setCarregando(true)
+    setErro(null)
+    try {
+      const res = await fetch('/api/admin/funil')
+      if (!res.ok) throw new Error(String(res.status))
+      const data = (await res.json()) as RespostaFunil
+      setDados(data)
+    } catch {
+      setErro('Não consegui carregar o funil — recarrega a página.')
+    } finally {
+      setCarregando(false)
     }
   }, [])
+
+  React.useEffect(() => {
+    void carregar()
+  }, [carregar])
 
   return (
     <div className="ds2-bg-ambient min-h-screen">
@@ -725,9 +739,15 @@ export function PainelFunil() {
                       </p>
                     </Card>
                   </>
+                ) : segmentoAberto ? (
+                  <FunilDisparo
+                    segmento={segmentoAberto}
+                    onVoltar={() => setSegmentoAberto(null)}
+                    onDisparou={() => void carregar()}
+                  />
                 ) : (
                   <>
-                    <Segmentos segmentos={dados.segmentos} />
+                    <Segmentos segmentos={dados.segmentos} onAbrir={setSegmentoAberto} />
                     <Card className="flex gap-2.5 border-dashed border-ds2-border-medium">
                       <p className="font-ds2-sans text-xs leading-relaxed text-ds2-text-muted">
                         <strong className="text-ds2-text-secondary">O número que importa</strong> é o

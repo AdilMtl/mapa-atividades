@@ -1,3 +1,5 @@
+import path from 'node:path'
+
 import { defineConfig } from 'vitest/config'
 
 // Escopo travado por decisão do dono (2026-07-06): vitest cobre APENAS as
@@ -9,6 +11,11 @@ import { defineConfig } from 'vitest/config'
 // ISSUE-601A somou src/lib/marketing: os 6 segmentos do painel de Funil são
 // consultas puras sobre os contatos já buscados de vw_marketing_contatos.
 export default defineConfig({
+  // Mesmo alias do tsconfig — até a 601C só havia import de TIPO via `@/`
+  // (apagado na compilação); o motor de disparo importa valor de verdade.
+  resolve: {
+    alias: { '@': path.resolve(__dirname, 'src') },
+  },
   test: {
     include: [
       'src/lib/radar/**/*.test.ts',

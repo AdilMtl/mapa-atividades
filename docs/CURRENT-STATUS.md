@@ -8,6 +8,55 @@
 
 ---
 
+## 📨 ISSUE-601C: Disparo e registro — o funil ganha o botão de enviar
+**Data:** 09 de agosto de 2026
+**Versão:** v3.11.46
+**Status:** ✅ código pronto e verificado (542/542 testes, tsc e lint limpos, build verde).
+**Nenhum e-mail foi enviado durante a construção** (regra dura da issue cumprida — o Resend só
+é tocado pela rota, que só o dono aciona). Aguardando: teste manual do dono em produção,
+consigo mesmo como único destinatário (roteiro passado no chat).
+
+### 📦 Entregue
+- **`src/lib/marketing/descadastro.ts`** — token HMAC-SHA256 assinado derivado do e-mail
+  (nunca o e-mail em texto na URL), segredo novo `MARKETING_LINK_SECRET` (gerado no
+  `.env.local` local; dono já copiou pra Vercel). Sem o segredo, nada dispara — trava
+  intencional.
+- **Rota pública `/descadastrar?t=<token>`** — página com UM botão, sem login. O GET não grava
+  (scanner corporativo pré-visita links de e-mail); quem grava é a server action do botão, em
+  `marketing_unsubscribes`. Token inválido = mensagem amigável, nunca 500.
+- **`src/lib/marketing/disparo.ts`** — motor puro: classificação (apto / sem_optin /
+  descadastrado / ja_recebeu / desconhecido; forçar reenvio NUNCA passa por cima de
+  consentimento), variáveis com valores reais (sem nome → "Oi!" limpo), render do e-mail real
+  (markdown → HTML no envelope da newsletter, rodapé de descadastro injetado, URLs viram link).
+- **`POST /api/admin/funil/disparar`** — revalida tudo no servidor, só envia versão `ativo` da
+  pasta de templates, grava em `marketing_sends` inclusive falhas (`{ error }` do Resend vira
+  `status='falhou'` com motivo — teste provando), `metadata.template_versao`, máx. 50/lote,
+  envio sequencial com pausa (rate limit).
+- **Telas 3 e 4 do protótipo** (`src/components/admin/FunilDisparo.tsx`): card de segmento →
+  lista com checkbox por pessoa (escolher 1 só é trivial, de propósito) → confirmação com os 4
+  blocos (vão receber / já receberam + toggle de reenvio como 2ª confirmação / sem opt-in /
+  descadastrados) → resultado por pessoa.
+- **`api/admin/lab-beta` agora registra** cada convite em `marketing_sends` (§7 da spec).
+- `excluidosDoSegmento()` + contagem excluída na tela (aceite 5); `radarRotulo` legível na API
+  do funil; alias `@/` no `vitest.config.ts` (antes só havia import de tipo).
+
+### 📌 Decisões desta sessão
+1. GET de descadastro não grava — proteção contra prefetch de scanner; o "um clique" é o botão.
+2. Select de template na confirmação permite trocar o designado (necessário pro dono se testar
+   com `convite_lab`, único ativo hoje) — slugs sem versão ativa aparecem desabilitados.
+3. Pergunta aberta do §11 (atalho de convite do Lab na tela de segmento) **segue aberta** — não
+   implementada; convite continua em `/admin/lab-beta`, agora com registro.
+
+### ⏭️ Pendências
+1. **Teste manual do dono em produção** (roteiro no chat): disparo pra si → gate de reenvio →
+   descadastro ponta a ponta → conferir registro. Depois: `delete from marketing_unsubscribes
+   where email = '<email do dono>';` pra voltar a receber.
+2. Primeiro disparo real a um segmento: decisão e execução do dono, nunca do agente.
+3. ISSUE-601E (copy dos 5 templates em rascunho) — bloqueada nos guias de voz. ISSUE-602
+   (automação) só depois de copy com conversão medida.
+
+---
+
 ## 🔍 Auditoria LGPD do ciclo completo + preparatório da ISSUE-601C
 **Data:** 09 de agosto de 2026
 **Versão:** v3.11.45

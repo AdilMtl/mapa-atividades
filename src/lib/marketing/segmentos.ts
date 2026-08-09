@@ -211,6 +211,26 @@ export function contatosDoSegmento(
   return contatos.filter((c) => elegivelParaMarketing(c) && def.pertence(c, agora))
 }
 
+/**
+ * Quantos caberiam no segmento mas estão fora por consentimento (§3.3/§3.4 —
+ * critério de aceite 5 da 601C: a contagem excluída aparece na tela, pra o
+ * dono saber que essa gente existe e que não há caminho de forçar).
+ * Descadastro vence opt-in: quem tem os dois conta só como descadastrado.
+ */
+export function excluidosDoSegmento(
+  contatos: ContatoMarketing[],
+  segmentoId: SegmentoId,
+  agora: Date,
+): { semOptin: number; descadastrados: number } {
+  const def = SEGMENTOS.find((s) => s.id === segmentoId)
+  if (!def) return { semOptin: 0, descadastrados: 0 }
+  const fora = contatos.filter((c) => !elegivelParaMarketing(c) && def.pertence(c, agora))
+  return {
+    semOptin: fora.filter((c) => !c.descadastrado).length,
+    descadastrados: fora.filter((c) => c.descadastrado).length,
+  }
+}
+
 /** Chave de lookup em `marketing_sends`: e-mail (lower) + slug do template. */
 export function chaveEnvio(email: string, templateSlug: string): string {
   return `${email.trim().toLowerCase()}|${templateSlug}`

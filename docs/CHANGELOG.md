@@ -16,6 +16,49 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [v3.11.46] - 2026-08-09 - 📨 ISSUE-601C: Disparo e registro do funil
+
+Quarta e última fatia estrutural da Série 600 (Marketing Digital), sob a spec fechada em
+`docs/marketing/ISSUE-601-spec-painel-funil.md` §7/§9/§12. A única parte irreversível do
+painel — por isso Fable 5, e por isso a regra dura: **nenhum e-mail saiu durante a
+construção**; testes de envio usam sender falso injetado.
+
+### ✅ Adicionado
+- **Descadastro ponta a ponta (§3.4, pré-requisito de qualquer disparo):**
+  `src/lib/marketing/descadastro.ts` (token HMAC-SHA256 derivado do e-mail, comparação em
+  tempo constante, segredo novo `MARKETING_LINK_SECRET`) + rota pública `/descadastrar` com
+  um botão só, sem login. O GET não grava — scanners corporativos pré-visitam links de
+  e-mail; a gravação é da server action do botão (`marketing_unsubscribes`, upsert).
+- **`POST /api/admin/funil/disparar`** — valida opt-in/descadastro/duplicidade no servidor
+  (a tela de confirmação é UX, não segurança), só envia a versão `ativo` do template, envio
+  sequencial com pausa, grava TODA tentativa em `marketing_sends` com
+  `metadata.template_versao` — inclusive falhas: a resposta `{ error }` do Resend vira
+  `status='falhou'` com motivo (o SDK não lança exceção; teste provando).
+- **Motor puro `src/lib/marketing/disparo.ts`** + 28 testes novos (542 no projeto):
+  classificação onde `forcar_reenvio` nunca passa por cima de consentimento; variáveis com
+  valores reais (contato sem nome → saudação limpa); render real do e-mail (markdown → HTML
+  no envelope da newsletter, rodapé de descadastro injetado por fora do corpo editável).
+- **Telas 3 e 4 do protótipo aprovado** (`FunilDisparo.tsx`): seleção com checkbox por
+  pessoa, confirmação com os blocos vão receber / já receberam (toggle de reenvio = segunda
+  confirmação explícita) / sem opt-in / descadastrados, resultado por pessoa. Card de
+  segmento do `PainelFunil` virou porta de entrada do fluxo.
+- **`api/admin/lab-beta` registra convites em `marketing_sends`** (§7) — o Funil agora sabe
+  quem já recebeu `convite_lab` por qualquer caminho.
+- `excluidosDoSegmento()` — contagem excluída por consentimento visível na tela (aceite 5);
+  `radarRotulo` legível devolvido pela API do funil (módulo de rótulos é só-servidor).
+
+### 📊 Técnico
+- Critérios de aceite do §12-601C verificados: falha vira registro com motivo (teste);
+  bloqueio de optin/descadastro sem caminho de forçar (teste); reenvio exige segundo toque;
+  envio parcial grava todos; nada sai sem confirmação; descadastro de um clique com token
+  assinado; **`git diff` zero** em `layout.tsx`, `EmailGate.tsx`, `api/prediag/*` e funil
+  público.
+- Alias `@/` adicionado ao `vitest.config.ts` (até então só havia import de tipo via alias
+  nos módulos testados). URLs soltas no markdown de e-mail viram `<a>` (prévia acompanha).
+- `maxDuration = 60` na rota de disparo; teto de 50 destinatários por lote.
+
+---
+
 ## [v3.11.45] - 2026-08-09 - 🔍 Auditoria LGPD do ciclo completo + preparatório da ISSUE-601C
 
 Sessão de documentação/preparação, sem código de produto novo (só o fix de largura da prévia,

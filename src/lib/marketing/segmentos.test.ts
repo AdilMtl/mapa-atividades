@@ -7,6 +7,7 @@ import {
   chaveEnvio,
   contatosDoSegmento,
   elegivelParaMarketing,
+  excluidosDoSegmento,
   mapContatoRow,
   montarJaReceberam,
   montarResumoSegmentos,
@@ -298,6 +299,34 @@ describe('pares logicamente exclusivos nunca se sobrepõem (critério de aceite 
       const noB = contatosDoSegmento([c], idB, AGORA).length > 0
       expect(noA && noB).toBe(false)
     }
+  })
+})
+
+describe('excluidosDoSegmento — a contagem que a tela mostra (aceite 5 da 601C)', () => {
+  const leadBase = { fezRadar: true, estaAutorizado: false }
+
+  it('conta separado quem está fora por opt-in e quem pediu descadastro', () => {
+    const contatos = [
+      criarContato({ email: 'apto@x.com', ...leadBase }),
+      criarContato({ email: 'sem-optin@x.com', ...leadBase, optinNewsletter: false }),
+      criarContato({ email: 'saiu@x.com', ...leadBase, descadastrado: true }),
+      // descadastro vence opt-in: os dois juntos contam SÓ como descadastrado
+      criarContato({ email: 'ambos@x.com', ...leadBase, optinNewsletter: false, descadastrado: true }),
+    ]
+    expect(excluidosDoSegmento(contatos, 'lead_sem_convite', AGORA)).toEqual({
+      semOptin: 1,
+      descadastrados: 2,
+    })
+  })
+
+  it('quem nem pertence ao segmento não entra na contagem de excluídos', () => {
+    const contatos = [
+      criarContato({ email: 'outro@x.com', fezRadar: false, optinNewsletter: false }),
+    ]
+    expect(excluidosDoSegmento(contatos, 'lead_sem_convite', AGORA)).toEqual({
+      semOptin: 0,
+      descadastrados: 0,
+    })
   })
 })
 
