@@ -53,6 +53,13 @@ Terceira fatia da Série 600 (Marketing Digital), sob a spec fechada em
   para quando a 601C construir o disparo de verdade.
 - Ligar o disparo a ler `marketing_templates.corpo` de fato é a **ISSUE-601C**, não esta — hoje
   `email-convite.ts` continua com o conteúdo hardcoded.
+- **Fix no mesmo dia (validação do dono em produção):** a prévia usava `width="600"` fixo (herdado
+  do padrão de e-mail real, que precisa disso pra compatibilidade com Outlook) — dentro do iframe,
+  em telas estreitas, isso criava barra de rolagem horizontal. Como a prévia só roda num iframe de
+  navegador (não passa por cliente de e-mail nenhum), trocado por largura fluida com teto de
+  600px. Botão de "mandar um teste pra mim" foi pedido e **conscientemente adiado pro dono**: é
+  código de envio real via Resend, e ele já tinha decidido que qualquer envio de verdade é a parte
+  irreversível da série, reservada pro Fable 5 na 601C — decisão reafirmada, não uma nova.
 
 ---
 

@@ -66,10 +66,10 @@ function envelopePreview(assunto: string, corpoHtml: string): string {
 <body style="margin:0; padding:0; background-color:#08110F;">
   <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#08110F;">
     <tr>
-      <td align="center" style="padding:32px 12px;">
-        <table width="600" cellpadding="0" cellspacing="0" border="0" style="max-width:600px; background-color:#0A1412; border-radius:16px; border:1px solid rgba(255,255,255,0.08);">
+      <td align="center" style="padding:24px 12px;">
+        <table width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:600px; width:100%; background-color:#0A1412; border-radius:16px; border:1px solid rgba(255,255,255,0.08);">
           <tr>
-            <td style="padding:34px 40px 26px; text-align:center; border-bottom:1px solid rgba(255,255,255,0.08);">
+            <td style="padding:28px 24px 22px; text-align:center; border-bottom:1px solid rgba(255,255,255,0.08);">
               <div style="font-family:'Courier New', monospace; font-size:14px; letter-spacing:0.12em; text-transform:uppercase; color:#D97706; font-weight:700;">Conversas no Corredor</div>
               <table cellpadding="0" cellspacing="0" border="0" align="center" style="margin:12px auto;">
                 <tr>
@@ -81,12 +81,12 @@ function envelopePreview(assunto: string, corpoHtml: string): string {
             </td>
           </tr>
           <tr>
-            <td style="padding:36px 40px;">
+            <td style="padding:26px 24px;">
               ${corpoHtml || '<p style="font-family:Arial, Helvetica, sans-serif; font-size:14px; color:#70817B; font-style:italic;">(corpo vazio — este template ainda é um rascunho)</p>'}
             </td>
           </tr>
           <tr>
-            <td style="padding:24px 40px; border-top:1px solid rgba(255,255,255,0.08); text-align:center;">
+            <td style="padding:20px 24px; border-top:1px solid rgba(255,255,255,0.08); text-align:center;">
               <div style="font-family:Arial, Helvetica, sans-serif; font-size:12px; color:#70817B;">
                 Não quer mais receber estes e-mails?
                 <a href="#" style="color:#F0B674; text-decoration:underline;">Descadastrar-se</a>
