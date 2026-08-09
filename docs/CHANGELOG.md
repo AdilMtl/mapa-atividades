@@ -41,8 +41,11 @@ Primeiras duas fatias da Série 600 (Marketing Digital), sob a spec fechada em
   em vez da última atividade geral — um projeto concluído recente não pode esconder outro parado
   do mesmo dono.
 - **Deploy pedido pelo dono direto pra produção**, sem passar por validação visual local antes:
-  "ninguém usa a plataforma hoje, se der errado a gente reverte". Validação fica pendente,
-  registrada em `CURRENT-STATUS.md`.
+  "ninguém usa a plataforma hoje, se der errado a gente reverte".
+- **Validado pelo dono em produção no mesmo dia:** aba Funil funcionando, Jornada e Segmentos
+  abrindo certo. Achado (não bloqueante): clicar num card de Segmento não faz nada — é o esperado
+  (lista de pessoas e seleção são da 601C, trava anti-CRM do §8); e o "vem de" de cada etapa da
+  Jornada é técnico demais (nome de tabela/coluna) — vira pendência de polish de copy.
 
 ---
 

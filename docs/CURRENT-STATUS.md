@@ -11,9 +11,9 @@
 ## 🧭 ISSUE-601A + ISSUE-601B: nasce o painel de Funil (dado, Jornada e Segmentos)
 **Data:** 08 de agosto de 2026
 **Versão:** v3.11.43
-**Status:** ✅ ambas fechadas e publicadas em produção. **Validação visual do dono ainda
-pendente** — a tela nunca foi testada num navegador antes do deploy (pedido explícito dele:
-"ninguém usa a plataforma hoje, se der errado a gente reverte").
+**Status:** ✅ ambas fechadas, publicadas em produção e **validadas pelo dono** no celular
+(pedido dele: deploy direto sem passar por teste local antes — "ninguém usa a plataforma hoje,
+se der errado a gente reverte"). Funcionou de primeira, sem regressão.
 
 ### 📦 Entregue
 - **ISSUE-601A — dado e derivação:** tabelas `marketing_sends` e `marketing_unsubscribes`, view
@@ -36,9 +36,17 @@ pendente** — a tela nunca foi testada num navegador antes do deploy (pedido ex
   (`ultimo_projeto_aberto_em`, só entre projetos não concluídos) pra um projeto concluído recente
   não esconder outro parado do mesmo dono.
 
+### ✅ Validação do dono (08/08, em produção)
+Aba "Funil" aparece, Jornada e Segmentos abrem certo. Dois achados, nenhum bloqueante:
+1. **Clicar num card de Segmento não faz nada** — **esperado, não é bug.** A lista de pessoas
+   dentro do segmento e a seleção pra disparo são da ISSUE-601C, de propósito (§8 da spec, trava
+   anti-CRM: nada de tela de detalhe/seleção fora do fluxo de disparo com confirmação).
+2. **O "vem de" de cada etapa da Jornada é técnico demais** (ex.: "radar_sessions com
+   completed_at preenchido") — copy fraca, não erro. Vira pendência de polish, não bloqueia nada.
+
 ### ⏭️ Pendências
-1. **Validação manual do dono em produção** — abrir `/admin/funil` no celular, conferir as duas
-   abas (Jornada/Segmentos), números batendo com o que os SELECTs da 601A mostraram.
+1. **Polish de copy na Jornada** — trocar o "vem de" técnico (nome de tabela/coluna) por uma
+   frase que explique a fonte do dado sem jargão de banco. Baixo esforço, sem risco.
 2. Próxima da fila: **ISSUE-601D — Pasta de templates**. Modelo recomendado: **Sonnet** (CRUD sob
    contrato já fechado no §6 da spec).
 
